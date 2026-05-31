@@ -1244,7 +1244,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <button class="ua-tab" id="uatab-movies" onclick="uaTab('movies')" style="flex:1;padding:10px 16px;background:transparent;border:none;color:var(--grey);font-size:0.82rem;cursor:pointer;font-family:'Outfit',sans-serif;border-right:1px solid rgba(229,9,20,0.2);white-space:nowrap;">🎬 Movies</button>
         <button class="ua-tab" id="uatab-downloads" onclick="uaTab('downloads')" style="flex:1;padding:10px 16px;background:transparent;border:none;color:var(--grey);font-size:0.82rem;cursor:pointer;font-family:'Outfit',sans-serif;border-right:1px solid rgba(229,9,20,0.2);white-space:nowrap;">⬇️ Downloads</button>
         <button class="ua-tab" id="uatab-realtime" onclick="uaTab('realtime')" style="flex:1;padding:10px 16px;background:transparent;border:none;color:#22c55e;font-size:0.82rem;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;font-weight:700;">🔴 Live</button>
-        <button class="ua-tab" id="uatab-search" onclick="uaTab('search')" style="flex:1;padding:10px 16px;background:transparent;border:none;color:var(--grey);font-size:0.82rem;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🔍 Searches</button>
       </div>
 
       <!-- OVERVIEW TAB -->
@@ -1413,75 +1412,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
       <!-- REFRESH BTN -->
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
-
-      <!-- SEARCH ANALYTICS PANEL -->
-      <div id="ua-search" class="ua-panel" style="display:none;">
-        <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
-          <div style="font-size:1.5rem;">🔍</div>
-          <div>
-            <div style="color:#a5b4fc;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Live Search Analytics</div>
-            <div style="color:#555;font-size:0.72rem;margin-top:2px;">Users ne kya search kiya — real-time Firebase se</div>
-          </div>
-          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-            <div id="search-live-dot" style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:rtPulse 1.5s infinite;"></div>
-            <span style="color:#22c55e;font-size:0.72rem;font-weight:700;">LIVE</span>
-          </div>
-        </div>
-
-        <!-- Stats Row -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
-          <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:14px;text-align:center;">
-            <div id="srch-total" style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#a5b4fc;">—</div>
-            <div style="color:#555;font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;">Total Searches</div>
-          </div>
-          <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;text-align:center;">
-            <div id="srch-today" style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#22c55e;">—</div>
-            <div style="color:#555;font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;">Aaj Ke Searches</div>
-          </div>
-          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:14px;text-align:center;">
-            <div id="srch-unique" style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#fbbf24;">—</div>
-            <div style="color:#555;font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;">Unique Terms</div>
-          </div>
-        </div>
-
-        <!-- Filter Row -->
-        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-          <input class="fi" id="srch-filter" placeholder="🔍 Filter searches..." oninput="srchRender()" style="flex:1;min-width:180px;padding:9px 14px;font-size:0.82rem;"/>
-          <select class="fi" id="srch-sort" onchange="srchRender()" style="width:auto;padding:9px 12px;font-size:0.8rem;">
-            <option value="count">Most Searched</option>
-            <option value="recent">Most Recent</option>
-          </select>
-          <select class="fi" id="srch-period" onchange="srchLoadData()" style="width:auto;padding:9px 12px;font-size:0.8rem;">
-            <option value="all">All Time</option>
-            <option value="today">Aaj</option>
-            <option value="week">Is Hafte</option>
-            <option value="month">Is Mahine</option>
-          </select>
-          <button class="btn btn-s" onclick="srchLoadData()" style="font-size:0.8rem;">🔄 Refresh</button>
-          <button class="btn" onclick="srchClear()" style="background:#7f1d1d;color:#fca5a5;font-size:0.8rem;">🗑 Clear</button>
-        </div>
-
-        <!-- Top Searches Table -->
-        <div class="card" style="padding:0;margin-bottom:16px;">
-          <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:1.5px;display:flex;gap:0;">
-            <span style="flex:1;">#</span>
-            <span style="flex:5;">Search Term</span>
-            <span style="flex:2;text-align:right;">Count</span>
-            <span style="flex:3;text-align:right;">Last Searched</span>
-            <span style="flex:2;text-align:center;">Result Mila?</span>
-          </div>
-          <div id="srch-table">
-            <div style="padding:30px;text-align:center;color:#333;font-size:0.82rem;">Loading searches...</div>
-          </div>
-        </div>
-
-        <!-- Live Recent Searches -->
-        <div style="font-size:0.7rem;color:#555;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🔴 Live Recent Searches</div>
-        <div id="srch-live-feed" style="display:flex;flex-direction:column;gap:6px;">
-          <div style="padding:14px;text-align:center;color:#333;font-size:0.82rem;">Loading...</div>
-        </div>
-      </div>
-      <!-- END SEARCH ANALYTICS -->
         <button class="btn btn-s" onclick="uaLoadAll()" style="font-size:0.82rem;">🔄 Refresh Data</button>
         <button class="btn" onclick="uaClearData()" style="background:#7f1d1d;color:#fca5a5;margin-left:8px;font-size:0.82rem;">🗑 Clear Analytics</button>
       </div>
@@ -5369,7 +5299,6 @@ function uaTab(tab){
   else if(tab==='movies') uaLoadMovies();
   else if(tab==='downloads') uaLoadDownloads();
   else if(tab==='realtime') uaLoadRealtime();
-  else if(tab==='search') srchLoadData();
 }
 
 function uaLoadAll(){
@@ -5379,7 +5308,6 @@ function uaLoadAll(){
   else if(uaCurrentTab==='movies') uaLoadMovies();
   else if(uaCurrentTab==='downloads') uaLoadDownloads();
   else if(uaCurrentTab==='realtime') uaLoadRealtime();
-  else if(uaCurrentTab==='search') srchLoadData();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -8545,173 +8473,6 @@ function autoFillSEO(mode) {
 
   toast('✅ SEO auto fill ho gaya!');
 }
-
-
-// ═══════════════════════════════════════════════════════
-// 🔍 SEARCH ANALYTICS
-// ═══════════════════════════════════════════════════════
-
-var _srchData = [];
-var _srchLiveRef = null;
-
-function srchLoadData() {
-  var tableEl = document.getElementById('srch-table');
-  var feedEl  = document.getElementById('srch-live-feed');
-  if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:0.82rem;">Loading...</div>';
-
-  // Firebase ready check
-  if (!window.db) { setTimeout(srchLoadData, 800); return; }
-
-  // Detach previous listener
-  if (_srchLiveRef) {
-    try { window.db.ref('analytics/searches').off('value', _srchLiveRef); } catch(e) {}
-    _srchLiveRef = null;
-  }
-
-  // Simple once() — live ke bajaye ek baar load karo (reliable)
-  window.db.ref('analytics/searches').once('value', function(snap) {
-    var data = snap.val();
-    srchProcess(data, tableEl, feedEl);
-  }, function(err) {
-    if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#e50914;font-size:0.82rem;">❌ Error: ' + err.message + '</div>';
-  });
-}
-
-function srchProcess(data, tableEl, feedEl) {
-  tableEl = tableEl || document.getElementById('srch-table');
-  feedEl  = feedEl  || document.getElementById('srch-live-feed');
-
-  // FAKE listener reference for compatibility
-  _srchLiveRef = function(snap) {
-    var data = snap.val();
-    _srchData = [];
-    var todayStart = new Date(); todayStart.setHours(0,0,0,0);
-    var periodEl = document.getElementById('srch-period');
-    var period = periodEl ? periodEl.value : 'all';
-    var cutoff = 0;
-    if (period === 'today') cutoff = todayStart.getTime();
-    else if (period === 'week') cutoff = Date.now() - 7*24*60*60*1000;
-    else if (period === 'month') cutoff = Date.now() - 30*24*60*60*1000;
-
-    var termMap = {};
-    var recentList = [];
-
-    if (data && typeof data === 'object') {
-      Object.values(data).forEach(function(entry) {
-        if (!entry || !entry.term) return;
-        var ts = entry.ts || 0;
-        if (cutoff && ts < cutoff) return;
-        var t = (entry.term || '').toLowerCase().trim();
-        if (!t) return;
-        if (!termMap[t]) termMap[t] = { term: entry.term, count: 0, lastTs: 0, found: entry.found };
-        termMap[t].count++;
-        if (ts > termMap[t].lastTs) { termMap[t].lastTs = ts; termMap[t].found = entry.found; }
-        recentList.push({ term: entry.term, ts: ts, found: entry.found });
-      });
-    }
-
-    _srchData = Object.values(termMap);
-
-    // Stats
-    var todayCutoff = todayStart.getTime();
-    var todayCount = 0;
-    if (data) Object.values(data).forEach(function(e) { if (e && e.ts && e.ts >= todayCutoff) todayCount++; });
-    var totalEl = document.getElementById('srch-total');
-    var todayEl = document.getElementById('srch-today');
-    var uniqueEl = document.getElementById('srch-unique');
-    if (totalEl) totalEl.textContent = data ? Object.keys(data).length : 0;
-    if (todayEl) todayEl.textContent = todayCount;
-    if (uniqueEl) uniqueEl.textContent = _srchData.length;
-
-    srchRender();
-
-    // Live feed — last 20 searches
-    recentList.sort(function(a,b){return b.ts-a.ts;});
-    var recent = recentList.slice(0, 20);
-    if (feedEl) {
-      if (!recent.length) {
-        feedEl.innerHTML = '<div style="padding:14px;text-align:center;color:#333;font-size:0.82rem;">Abhi koi search nahi hua</div>';
-      } else {
-        feedEl.innerHTML = recent.map(function(r) {
-          var ago = srchTimeAgo(r.ts);
-          var foundColor = r.found === false ? '#ef4444' : '#22c55e';
-          var foundText  = r.found === false ? '❌ Nahi Mila' : '✅ Mila';
-          return '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;">'
-            + '<div style="font-size:1rem;">🔍</div>'
-            + '<div style="flex:1;font-size:0.82rem;color:#ddd;">' + escHtml(r.term) + '</div>'
-            + '<div style="font-size:0.7rem;color:' + foundColor + ';">' + foundText + '</div>'
-            + '<div style="font-size:0.68rem;color:#444;">' + ago + '</div>'
-            + '</div>';
-        }).join('');
-      }
-    }
-  };
-
-  // Auto refresh har 15 second
-  if (window._srchAutoRefresh) clearInterval(window._srchAutoRefresh);
-  window._srchAutoRefresh = setInterval(function() {
-    if (document.getElementById('ua-search') && document.getElementById('ua-search').style.display !== 'none') {
-      window.db.ref('analytics/searches').once('value', function(snap) {
-        srchProcess(snap.val());
-      });
-    }
-  }, 15000);
-}
-
-function srchRender() {
-  var tableEl = document.getElementById('srch-table');
-  if (!tableEl) return;
-  var filter = (document.getElementById('srch-filter') || {}).value || '';
-  var sortBy = (document.getElementById('srch-sort') || {}).value || 'count';
-  var fl = filter.toLowerCase();
-
-  var list = _srchData.filter(function(r) { return !fl || r.term.toLowerCase().includes(fl); });
-  list.sort(function(a,b) { return sortBy === 'count' ? b.count - a.count : b.lastTs - a.lastTs; });
-
-  if (!list.length) {
-    tableEl.innerHTML = '<div style="padding:30px;text-align:center;color:#333;font-size:0.82rem;">' + (filter ? '🔍 Koi match nahi mila' : '📭 Abhi koi search data nahi hai') + '</div>';
-    return;
-  }
-
-  tableEl.innerHTML = list.slice(0, 100).map(function(r, i) {
-    var foundColor = r.found === false ? '#ef4444' : '#22c55e';
-    var foundText  = r.found === false ? '❌' : '✅';
-    var bar = Math.round((r.count / (list[0].count || 1)) * 100);
-    return '<div style="display:flex;align-items:center;gap:0;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);transition:0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">'
-      + '<span style="flex:1;color:#444;font-size:0.75rem;">' + (i+1) + '</span>'
-      + '<div style="flex:5;">'
-      +   '<div style="font-size:0.84rem;color:#ddd;">' + escHtml(r.term) + '</div>'
-      +   '<div style="height:3px;background:rgba(99,102,241,0.12);border-radius:2px;margin-top:4px;">'
-      +     '<div style="height:3px;background:rgba(99,102,241,0.5);border-radius:2px;width:' + bar + '%;"></div>'
-      +   '</div>'
-      + '</div>'
-      + '<span style="flex:2;text-align:right;font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#a5b4fc;">' + r.count + '</span>'
-      + '<span style="flex:3;text-align:right;font-size:0.68rem;color:#444;">' + srchTimeAgo(r.lastTs) + '</span>'
-      + '<span style="flex:2;text-align:center;font-size:0.75rem;color:' + foundColor + ';">' + foundText + '</span>'
-      + '</div>';
-  }).join('');
-}
-
-function srchTimeAgo(ts) {
-  if (!ts) return '—';
-  var diff = Date.now() - ts;
-  if (diff < 60000) return Math.floor(diff/1000) + 's ago';
-  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
-  return Math.floor(diff/86400000) + 'd ago';
-}
-
-function srchClear() {
-  if (!confirm('Saare search logs delete ho jayenge — confirm karo?')) return;
-  window.db.ref('analytics/searches').remove(function(err) {
-    if (err) { toast('❌ Error: ' + err.message, 1); return; }
-    toast('✅ Search analytics clear ho gaya!');
-    _srchData = [];
-    srchRender();
-  });
-}
-
-// ═══ END SEARCH ANALYTICS ═══
 
 // ═══ END SEO HELPERS ═══
 
