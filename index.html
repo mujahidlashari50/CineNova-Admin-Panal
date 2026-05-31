@@ -669,6 +669,46 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div class="fgg full"><label>Description</label><textarea class="fi" id="fd" rows="3" placeholder="Movie / Series ki kahani..."></textarea></div>
         </div>
       </div>
+      <div class="card" style="border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.04);">
+        <h3 style="color:#22c55e;">🔍 SEO Settings <span style="color:#555;font-size:0.65rem;font-weight:400;text-transform:none;letter-spacing:0;">— Google ranking ke liye</span></h3>
+        <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.78rem;color:#86efac;">
+          💡 Yeh fields Google search mein aapki movie ka title aur description dikhate hain. Agar khali chhodo to automatic fill ho jayega.
+        </div>
+        <div class="fg">
+          <div class="fgg full">
+            <label>🏷️ SEO Title <span style="color:#555;font-weight:400;">(Google search mein dikhne wala title)</span></label>
+            <input class="fi" id="fseo_title" placeholder="jaise: Avengers Endgame (2019) Hindi Dubbed Full Movie Watch Free HD | CineNova"/>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:0.65rem;color:#555;">💡 Ideal: 50–60 characters</span>
+              <span style="font-size:0.65rem;" id="fseo_title_count">0 / 60</span>
+            </div>
+          </div>
+          <div class="fgg full">
+            <label>📝 Meta Description <span style="color:#555;font-weight:400;">(Google snippet mein dikhta hai)</span></label>
+            <textarea class="fi" id="fseo_desc" rows="2" placeholder="jaise: Avengers Endgame 2019 full movie watch online free in Hindi Dubbed HD quality. Download 480p 720p 1080p. Hollywood superhero movie on CineNova."></textarea>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:0.65rem;color:#555;">💡 Ideal: 120–160 characters</span>
+              <span style="font-size:0.65rem;" id="fseo_desc_count">0 / 160</span>
+            </div>
+          </div>
+          <div class="fgg full">
+            <label>🔑 Keywords <span style="color:#555;font-weight:400;">(comma se alag karo)</span></label>
+            <input class="fi" id="fseo_keywords" placeholder="jaise: avengers download, avengers hindi dubbed, marvel movies free, cinenova"/>
+          </div>
+          <div class="fgg full">
+            <label>🔗 URL Slug <span style="color:#555;font-weight:400;">(post ka URL — khali chhodo auto generate hoga)</span></label>
+            <div style="display:flex;align-items:center;gap:0;">
+              <span style="padding:11px 13px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.78rem;white-space:nowrap;">cinenova.site/</span>
+              <input class="fi" id="fseo_slug" placeholder="avengers-endgame-2019-hindi-dubbed" style="border-radius:0 7px 7px 0;border-left:none;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
+            </div>
+            <div style="font-size:0.65rem;color:#555;margin-top:4px;">💡 Sirf lowercase letters, numbers aur dashes allowed hain</div>
+          </div>
+          <div class="fgg">
+            <label>🤖 Auto-Generate SEO</label>
+            <button class="btn btn-s" onclick="autoFillSEO('add')" style="padding:10px 18px;font-size:0.82rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">✨ Title se SEO Auto Fill Karo</button>
+          </div>
+        </div>
+      </div>
       <div class="card"><h3>Thumbnail & Screenshots</h3>
         <div class="fg">
           <div class="fgg full">
@@ -2513,6 +2553,41 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div class="fgg" id="ef-network" style="display:none"><label>Network / Platform</label><input class="fi" id="enetwork"/></div>
       <div class="fgg" id="ef-status" style="display:none"><label>Status</label><select class="fi" id="estatus"><option value="ongoing">📡 Ongoing</option><option value="completed">✅ Completed</option></select></div>
       <div class="fgg full"><label>Description</label><textarea class="fi" id="ed" rows="2"></textarea></div>
+      <!-- SEO FIELDS IN EDIT -->
+      <div class="fgg full" style="grid-column:1/-1;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-top:4px;">
+        <div style="font-size:0.65rem;color:#22c55e;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:12px;">🔍 SEO Settings</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="fgg">
+            <label>🏷️ SEO Title</label>
+            <input class="fi" id="eseo_title" placeholder="jaise: Movie Name (2024) Hindi Dubbed Full Movie | CineNova"/>
+            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+              <span style="font-size:0.62rem;color:#555;">Ideal: 50–60 chars</span>
+              <span style="font-size:0.62rem;" id="eseo_title_count">0 / 60</span>
+            </div>
+          </div>
+          <div class="fgg">
+            <label>📝 Meta Description</label>
+            <textarea class="fi" id="eseo_desc" rows="2" placeholder="Movie ka short description jo Google mein dikhega..."></textarea>
+            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+              <span style="font-size:0.62rem;color:#555;">Ideal: 120–160 chars</span>
+              <span style="font-size:0.62rem;" id="eseo_desc_count">0 / 160</span>
+            </div>
+          </div>
+          <div class="fgg">
+            <label>🔑 Keywords <span style="color:#555;font-weight:400;">(comma separated)</span></label>
+            <input class="fi" id="eseo_keywords" placeholder="avengers download, hindi dubbed, free movie"/>
+          </div>
+          <div class="fgg">
+            <label>🔗 URL Slug</label>
+            <div style="display:flex;align-items:center;gap:0;">
+              <span style="padding:11px 10px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.72rem;white-space:nowrap;">cinenova.site/</span>
+              <input class="fi" id="eseo_slug" placeholder="movie-name-2024-hindi-dubbed" style="border-radius:0 7px 7px 0;border-left:none;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
+            </div>
+          </div>
+          <button class="btn btn-s" onclick="autoFillSEO('edit')" style="padding:9px 16px;font-size:0.8rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#22c55e;align-self:flex-start;">✨ Auto Fill SEO</button>
+        </div>
+      </div>
+      <!-- END SEO FIELDS -->
       <div class="fgg full">
         <label>Thumbnail</label>
         <div class="img-input-wrap">
@@ -3241,11 +3316,17 @@ function addMovie(){
   var cat=gv('fc');if(!cat){toast('❌ Please select a category!',1);return;}
   var ws=cat==='webseries';
   var eps=ws?collectEpisodes('movie'):null;
+  // SEO auto-generate if empty
+  var seoTitle = gv('fseo_title') || (title + (gv('fy')?' ('+gv('fy')+')':'') + (gv('fl')?' '+gv('fl')+' Dubbed':'') + ' Full Movie Watch Free | CineNova');
+  var seoDesc  = gv('fseo_desc')  || (title + (gv('fy')?' ('+gv('fy')+')':'') + ' full movie watch online free' + (gv('fl')?' in '+gv('fl'):'') + '. Download 480p 720p 1080p on CineNova.');
+  var seoKw    = gv('fseo_keywords') || (title.toLowerCase() + ' download, ' + title.toLowerCase() + (gv('fl')?' '+gv('fl').toLowerCase():'') + ', free movie cinenova');
+  var seoSlug  = gv('fseo_slug')  || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + (gv('fy')?'-'+gv('fy'):'');
   var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
     language:gv('fl'),quality:gv('fq'),size:gv('fsz'),description:gv('fd'),
     thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
     download1080p:gv('fd10'),size1080:gv('fs10'),download4k:gv('fd4k'),size4k:gv('fs4k'),
+    seoTitle:seoTitle, seoDesc:seoDesc, seoKeywords:seoKw, seoSlug:seoSlug,
     addedAt:Date.now()};
   if(ws){var net=gv('fnetwork');var st=gv('fstatus');var seas=gv('fseasons');
     if(net)m.network=net;if(st)m.status=st;if(seas)m.seasons=seas;
@@ -3258,7 +3339,8 @@ function addMovie(){
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 function clrForm(){
-  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseo_title','fseo_desc','fseo_keywords','fseo_slug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['fseo_title_count','fseo_desc_count'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='0 / '+(id.includes('title')?'60':'160');});
   document.getElementById('tp').style.display='none';
   document.getElementById('ep-movie-card').style.display='none';
   document.getElementById('field-network').style.display='none';
@@ -3385,6 +3467,10 @@ function openEdit(key){
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
   sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('etrailer',m.trailerUrl||'');
+  // SEO fields load
+  sv('eseo_title', m.seoTitle||''); sv('eseo_desc', m.seoDesc||''); sv('eseo_keywords', m.seoKeywords||''); sv('eseo_slug', m.seoSlug||'');
+  var etcEl=document.getElementById('eseo_title_count'); if(etcEl) etcEl.textContent=(m.seoTitle||'').length+' / 60';
+  var edcEl=document.getElementById('eseo_desc_count');  if(edcEl) edcEl.textContent=(m.seoDesc||'').length+' / 160';
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
@@ -3435,11 +3521,17 @@ function closeEdit(){document.getElementById('edit-modal').classList.remove('act
 function saveEdit(){
   if(!editKey)return;
   var cat=gv('ec');var ws=cat==='webseries';
+  var etitle = gv('et');
+  var eSeoTitle = gv('eseo_title') || (etitle + (gv('ey')?' ('+gv('ey')+')':'') + (gv('el')?' '+gv('el')+' Dubbed':'') + ' Full Movie Watch Free | CineNova');
+  var eSeoDesc  = gv('eseo_desc')  || (etitle + (gv('ey')?' ('+gv('ey')+')':'') + ' full movie watch online free' + (gv('el')?' in '+gv('el'):'') + '. Download 480p 720p 1080p on CineNova.');
+  var eSeoKw    = gv('eseo_keywords') || (etitle.toLowerCase() + ' download, ' + etitle.toLowerCase() + ' free, cinenova');
+  var eSeoSlug  = gv('eseo_slug')  || etitle.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + (gv('ey')?'-'+gv('ey'):'');
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
     thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
-    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k')};
+    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
+    seoTitle:eSeoTitle, seoDesc:eSeoDesc, seoKeywords:eSeoKw, seoSlug:eSeoSlug};
   if(ws){m.network=gv('enetwork');m.status=gv('estatus');var seas=gv('eseasons');if(seas)m.seasons=seas;var eps=collectEpisodes('edit');if(eps&&eps.length)m.episodes=eps;else m.episodes=null;}
   Object.keys(m).forEach(function(k){if(!m[k]&&k!=='episodes')delete m[k];});
   // ✅ Jab bhi movie update ho, addedAt ko current time pe set karo
@@ -8298,6 +8390,91 @@ function cvCleanOldPushUpdates() {
       });
     }).catch(function(){});
 }
+
+// ═══════════════════════════════════════════════════════
+// 🔍 SEO HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+// Character counter for SEO fields
+(function(){
+  function attachCounter(inputId, counterId, max) {
+    var el = document.getElementById(inputId);
+    var ct = document.getElementById(counterId);
+    if(!el || !ct) return;
+    function upd() {
+      var len = el.value.length;
+      ct.textContent = len + ' / ' + max;
+      ct.style.color = len > max ? '#f87171' : len > max * 0.85 ? '#22c55e' : '#555';
+    }
+    el.addEventListener('input', upd);
+  }
+  // Wait for DOM
+  setTimeout(function(){
+    attachCounter('fseo_title', 'fseo_title_count', 60);
+    attachCounter('fseo_desc',  'fseo_desc_count',  160);
+    attachCounter('eseo_title', 'eseo_title_count', 60);
+    attachCounter('eseo_desc',  'eseo_desc_count',  160);
+  }, 500);
+})();
+
+// Auto-fill SEO fields from movie title
+function autoFillSEO(mode) {
+  var isEdit = mode === 'edit';
+  var title    = document.getElementById(isEdit ? 'et' : 'ft').value.trim();
+  var year     = document.getElementById(isEdit ? 'ey' : 'fy').value.trim();
+  var lang     = document.getElementById(isEdit ? 'el' : 'fl').value.trim();
+  var quality  = document.getElementById(isEdit ? 'eq' : 'fq').value.trim();
+  var cat      = document.getElementById(isEdit ? 'ec' : 'fc').value;
+
+  if(!title){ toast('❌ Pehle Title bharo!', 1); return; }
+
+  var catWord = {hollywood:'Hollywood', bollywood:'Bollywood', tollywood:'Tollywood', animation:'Animation', webseries:'Web Series'}[cat] || '';
+  var langPart = lang ? lang + ' ' : '';
+  var yearPart = year ? ' (' + year + ')' : '';
+
+  // SEO Title
+  var seoTitle = title + yearPart + ' ' + langPart + 'Full Movie Watch Free HD | CineNova';
+  if(seoTitle.length > 60) seoTitle = title + yearPart + ' ' + langPart + 'Movie | CineNova';
+
+  // Meta Description
+  var qualPart = quality ? ' in ' + quality : '';
+  var seoDesc = title + yearPart + ' full movie watch online free' + (lang ? ' in ' + lang : '') + qualPart + '. Download 480p 720p 1080p' + (catWord ? ' ' + catWord : '') + ' movie on CineNova. No login, no subscription.';
+  if(seoDesc.length > 160) seoDesc = title + yearPart + ' full movie free download' + (lang ? ' ' + lang : '') + '. Watch HD on CineNova without login.';
+
+  // Keywords
+  var tl = title.toLowerCase();
+  var ll = lang ? lang.toLowerCase() : '';
+  var seoKw = [
+    tl + ' download',
+    tl + (ll ? ' ' + ll + ' dubbed' : ''),
+    tl + ' full movie',
+    tl + ' free download',
+    tl + (year ? ' ' + year : ''),
+    'cinenova ' + tl,
+    (catWord ? catWord.toLowerCase() + ' movies free' : '')
+  ].filter(Boolean).join(', ');
+
+  // Slug
+  var seoSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + (year ? '-' + year : '') + (lang ? '-' + lang.toLowerCase().replace(/\s+/g,'-') : '');
+
+  // Fill
+  var pref = isEdit ? 'e' : 'f';
+  var tf = document.getElementById(pref + 'seo_title');
+  var df = document.getElementById(pref + 'seo_desc');
+  var kf = document.getElementById(pref + 'seo_keywords');
+  var sf = document.getElementById(pref + 'seo_slug');
+  var tc = document.getElementById(pref + 'seo_title_count');
+  var dc = document.getElementById(pref + 'seo_desc_count');
+
+  if(tf){ tf.value = seoTitle; if(tc) tc.textContent = seoTitle.length + ' / 60'; }
+  if(df){ df.value = seoDesc;  if(dc) dc.textContent = seoDesc.length + ' / 160'; }
+  if(kf) kf.value = seoKw;
+  if(sf) sf.value = seoSlug;
+
+  toast('✅ SEO auto fill ho gaya!');
+}
+
+// ═══ END SEO HELPERS ═══
 
 </script>
 </body>
