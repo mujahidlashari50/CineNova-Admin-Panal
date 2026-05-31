@@ -8559,8 +8559,14 @@ function srchLoadData() {
   var feedEl  = document.getElementById('srch-live-feed');
   if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:0.82rem;">Loading...</div>';
 
+  // Firebase ready check
+  if (!window.db) {
+    setTimeout(srchLoadData, 1000);
+    return;
+  }
+
   // Detach previous live listener
-  if (_srchLiveRef) { try { db.ref('analytics/searches').off('value', _srchLiveRef); } catch(e){} _srchLiveRef = null; }
+  if (_srchLiveRef) { try { window.db.ref('analytics/searches').off('value', _srchLiveRef); } catch(e){} _srchLiveRef = null; }
 
   // Live listener
   _srchLiveRef = function(snap) {
@@ -8628,7 +8634,7 @@ function srchLoadData() {
     }
   };
 
-  db.ref('analytics/searches').orderByChild('ts').limitToLast(2000).on('value', _srchLiveRef, function(err) {
+  window.db.ref('analytics/searches').orderByChild('ts').limitToLast(2000).on('value', _srchLiveRef, function(err) {
     if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#e50914;font-size:0.82rem;">❌ Error: ' + err.message + '<br><span style="color:#555;font-size:0.72rem;">Firebase Rules mein analytics/searches allow karo</span></div>';
   });
 }
@@ -8678,7 +8684,7 @@ function srchTimeAgo(ts) {
 
 function srchClear() {
   if (!confirm('Saare search logs delete ho jayenge — confirm karo?')) return;
-  db.ref('analytics/searches').remove(function(err) {
+  window.db.ref('analytics/searches').remove(function(err) {
     if (err) { toast('❌ Error: ' + err.message, 1); return; }
     toast('✅ Search analytics clear ho gaya!');
     _srchData = [];
