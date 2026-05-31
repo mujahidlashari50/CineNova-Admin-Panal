@@ -8560,15 +8560,28 @@ function srchLoadData() {
   if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:0.82rem;">Loading...</div>';
 
   // Firebase ready check
-  if (!window.db) {
-    setTimeout(srchLoadData, 1000);
-    return;
+  if (!window.db) { setTimeout(srchLoadData, 800); return; }
+
+  // Detach previous listener
+  if (_srchLiveRef) {
+    try { window.db.ref('analytics/searches').off('value', _srchLiveRef); } catch(e) {}
+    _srchLiveRef = null;
   }
 
-  // Detach previous live listener
-  if (_srchLiveRef) { try { window.db.ref('analytics/searches').off('value', _srchLiveRef); } catch(e){} _srchLiveRef = null; }
+  // Simple once() — live ke bajaye ek baar load karo (reliable)
+  window.db.ref('analytics/searches').once('value', function(snap) {
+    var data = snap.val();
+    srchProcess(data, tableEl, feedEl);
+  }, function(err) {
+    if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#e50914;font-size:0.82rem;">❌ Error: ' + err.message + '</div>';
+  });
+}
 
-  // Live listener
+function srchProcess(data, tableEl, feedEl) {
+  tableEl = tableEl || document.getElementById('srch-table');
+  feedEl  = feedEl  || document.getElementById('srch-live-feed');
+
+  // FAKE listener reference for compatibility
   _srchLiveRef = function(snap) {
     var data = snap.val();
     _srchData = [];
@@ -8634,9 +8647,15 @@ function srchLoadData() {
     }
   };
 
-  window.db.ref('analytics/searches').orderByChild('ts').limitToLast(2000).on('value', _srchLiveRef, function(err) {
-    if (tableEl) tableEl.innerHTML = '<div style="padding:20px;text-align:center;color:#e50914;font-size:0.82rem;">❌ Error: ' + err.message + '<br><span style="color:#555;font-size:0.72rem;">Firebase Rules mein analytics/searches allow karo</span></div>';
-  });
+  // Auto refresh har 15 second
+  if (window._srchAutoRefresh) clearInterval(window._srchAutoRefresh);
+  window._srchAutoRefresh = setInterval(function() {
+    if (document.getElementById('ua-search') && document.getElementById('ua-search').style.display !== 'none') {
+      window.db.ref('analytics/searches').once('value', function(snap) {
+        srchProcess(snap.val());
+      });
+    }
+  }, 15000);
 }
 
 function srchRender() {
