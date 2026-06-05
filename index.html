@@ -2291,36 +2291,45 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-mylinks">
       <div class="sec-title">🔗 My <span>Links</span></div>
 
-      <div class="card" style="margin-bottom:20px;">
+      <!-- ADD NEW LINK CARD -->
+      <div class="card" style="margin-bottom:20px;border-color:rgba(59,130,246,0.25);">
         <h3>ADD NEW LINK</h3>
+        <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;color:#93c5fd;">
+          💡 URL paste karo — system <strong>auto extract</strong> karega 480p · 720p · 1080p · 4K links aur Firebase mein save karega.
+        </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div class="fgg" style="flex:1;min-width:220px;">
-            <label>Link Title (Optional)</label>
-            <input class="fi" id="ml-title" placeholder="e.g. Movie Pack 1" />
+            <label>Link Title</label>
+            <input class="fi" id="ml-title" placeholder="e.g. Movie Name (2024)" />
           </div>
           <div class="fgg" style="flex:2;min-width:280px;">
-            <label>URL</label>
-            <input class="fi" id="ml-url" placeholder="https://new6.filesdl.top/cloud/..." />
+            <label>Main URL (linkmake.in / any download page)</label>
+            <input class="fi" id="ml-url" placeholder="https://linkmake.in/view/QBm2lRodTZ" />
           </div>
-          <button class="btn btn-p" onclick="mlAddLink()" style="height:40px;padding:0 20px;">Add Link</button>
+          <button class="btn btn-p" onclick="mlAddLink()" id="ml-add-btn" style="height:40px;padding:0 22px;white-space:nowrap;">
+            ➕ Add &amp; Extract
+          </button>
+        </div>
+        <!-- Progress bar -->
+        <div id="ml-add-progress" style="display:none;margin-top:14px;">
+          <div style="font-size:0.78rem;color:#93c5fd;margin-bottom:6px;" id="ml-add-progress-txt">⏳ Extracting links...</div>
+          <div style="background:#1a1a1a;border-radius:6px;height:6px;overflow:hidden;">
+            <div id="ml-add-progress-bar" style="background:linear-gradient(90deg,#3b82f6,#1d4ed8);height:100%;width:0%;transition:width 0.4s;border-radius:6px;"></div>
+          </div>
         </div>
       </div>
 
+      <!-- SAVED LINKS CARD -->
       <div class="card">
-        <h3>SAVED LINKS <span id="ml-total" style="color:var(--red);margin-left:6px;">0</span></h3>
-        <div id="ml-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;"></div>
-        <div id="ml-empty" style="text-align:center;color:var(--grey2);padding:30px 0;font-size:0.85rem;">No links saved yet.</div>
-      </div>
-
-      <div id="ml-submodal" style="display:none;position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
-        <div style="background:var(--card);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:26px;width:100%;max-width:680px;margin:auto;position:relative;">
-          <button onclick="mlCloseSubModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--grey);font-size:1.3rem;cursor:pointer;">X</button>
-          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:4px;">Sub <span style="color:#3b82f6;">Links</span></div>
-          <div id="ml-sub-parent-url" style="font-size:0.72rem;color:var(--grey2);margin-bottom:16px;word-break:break-all;"></div>
-          <div id="ml-sub-loading" style="text-align:center;padding:20px;color:var(--grey);">Loading...</div>
-          <div id="ml-sub-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-          <div id="ml-sub-empty" style="display:none;text-align:center;color:var(--grey2);padding:20px;">No sub-links found.</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <h3 style="margin-bottom:0;">SAVED LINKS <span id="ml-total" style="color:var(--red);margin-left:6px;">0</span></h3>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span id="ml-refresh-status" style="font-size:0.72rem;color:var(--grey2);"></span>
+            <button class="btn btn-b" onclick="mlRefreshAll()" id="ml-refresh-btn" style="padding:7px 16px;font-size:0.78rem;">🔄 Refresh All</button>
+          </div>
         </div>
+        <div id="ml-list" style="display:flex;flex-direction:column;gap:14px;margin-top:4px;"></div>
+        <div id="ml-empty" style="text-align:center;color:var(--grey2);padding:30px 0;font-size:0.85rem;">No links saved yet.</div>
       </div>
     </div>
 
@@ -8269,73 +8278,333 @@ function atpUpdatePreview() {
 }
 
 // ═══════════════════════════════════════════════
-// MY LINKS — PANEL JAVASCRIPT
+// MY LINKS — AUTO EXTRACT + AUTO REFRESH
 // ═══════════════════════════════════════════════
 var _mlLinks = [];
 
+// ── Quality detector ──
+function mlDetectQuality(url, label) {
+  var s = (url + ' ' + label).toLowerCase();
+  if (s.match(/4k|2160p|uhd/))          return { tag:'4K',    color:'#a855f7', bg:'rgba(168,85,247,0.15)',  border:'rgba(168,85,247,0.4)'  };
+  if (s.match(/1080p|fhd|full.?hd/))    return { tag:'1080p', color:'#22c55e', bg:'rgba(34,197,94,0.12)',   border:'rgba(34,197,94,0.35)'  };
+  if (s.match(/720p|hd(?!r)/))          return { tag:'720p',  color:'#3b82f6', bg:'rgba(59,130,246,0.12)',  border:'rgba(59,130,246,0.35)' };
+  if (s.match(/480p|sd/))               return { tag:'480p',  color:'#f59e0b', bg:'rgba(245,158,11,0.12)',  border:'rgba(245,158,11,0.35)' };
+  if (s.match(/360p|240p/))             return { tag:'360p',  color:'#888',    bg:'rgba(100,100,100,0.1)', border:'rgba(100,100,100,0.3)' };
+  return null;
+}
+
+// ── Ignore list ──
+var _mlIgnDomains = ['google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy'];
+function _mlIsIgnored(u) {
+  return _mlIgnDomains.some(function(d){ return u.toLowerCase().indexOf(d) !== -1; });
+}
+
+// ── Extract links from HTML ──
+function _mlExtractLinks(html, srcUrl) {
+  var results = [], seen = {};
+  var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi, m;
+  while ((m = aReg.exec(html)) !== null) {
+    var lnk = m[1].trim();
+    var txt = m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    if (!lnk.startsWith('http') || lnk === srcUrl || _mlIsIgnored(lnk) || seen[lnk]) continue;
+    seen[lnk] = true;
+    results.push({ url: lnk, label: txt });
+  }
+  var uReg = /(https?:\/\/[^\s"'<>\)]+)/g;
+  while ((m = uReg.exec(html)) !== null) {
+    var u = m[1].replace(/[,;)\]\.]+$/, '');
+    if (_mlIsIgnored(u) || u === srcUrl || seen[u]) continue;
+    seen[u] = true;
+    results.push({ url: u, label: '' });
+  }
+  return results;
+}
+
+// ── CORS Proxies ──
+var _mlProxies = [
+  { name:'AllOrigins',  fn:function(u){ return { url:'https://api.allorigins.win/get?url='+encodeURIComponent(u)+'&charset=utf-8', parse:function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }; } },
+  { name:'AllOrigins-R',fn:function(u){ return { url:'https://api.allorigins.win/raw?url='+encodeURIComponent(u), parse:function(t){ return t; } }; } },
+  { name:'CorsProxy',   fn:function(u){ return { url:'https://corsproxy.io/?'+encodeURIComponent(u), parse:function(t){ return t; } }; } },
+  { name:'CodeTabs',    fn:function(u){ return { url:'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u), parse:function(t){ return t; } }; } },
+  { name:'ThingProxy',  fn:function(u){ return { url:'https://thingproxy.freeboard.io/fetch/'+u, parse:function(t){ return t; } }; } }
+];
+
+// ── Fetch URL through proxies (returns Promise) ──
+function _mlFetchViaProxy(url) {
+  return new Promise(function(resolve) {
+    var tried = 0;
+    function tryNext() {
+      if (tried >= _mlProxies.length) { resolve(null); return; }
+      var p = _mlProxies[tried++];
+      var req = p.fn(url);
+      var ctrl = new AbortController();
+      var timer = setTimeout(function(){ ctrl.abort(); }, 9000);
+      fetch(req.url, { signal: ctrl.signal })
+        .then(function(r) {
+          clearTimeout(timer);
+          if (!r.ok) throw new Error('HTTP '+r.status);
+          return r.text();
+        })
+        .then(function(text) {
+          var html = req.parse(text);
+          if (!html || html.length < 200) { tryNext(); return; }
+          var links = _mlExtractLinks(html, url);
+          if (links.length === 0) { tryNext(); return; }
+          resolve(links);
+        })
+        .catch(function() { clearTimeout(timer); tryNext(); });
+    }
+    tryNext();
+  });
+}
+
+// ── Check if a link is alive (HEAD request via proxy) ──
+function _mlCheckAlive(url) {
+  return fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { method:'GET' })
+    .then(function(r) {
+      if (!r.ok) return false;
+      return r.json().then(function(d) {
+        // status 200-399 = alive
+        return d.status && d.status.http_code >= 200 && d.status.http_code < 400;
+      });
+    })
+    .catch(function() { return false; });
+}
+
+// ── Load all from Firebase + auto-refresh ──
 function mlLoadAll() {
   db.ref('mylinks').on('value', function(snap) {
     _mlLinks = [];
     var val = snap.val() || {};
     Object.keys(val).forEach(function(k) {
-      _mlLinks.push(Object.assign({id: k}, val[k]));
+      _mlLinks.push(Object.assign({ id: k }, val[k]));
     });
     _mlLinks.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     mlRender();
+    // Auto-refresh on panel open
+    setTimeout(function() { mlRefreshAll(true); }, 800);
   });
 }
 
+// ── Render saved links ──
 function mlRender() {
-  var list = document.getElementById('ml-list');
-  var empty = document.getElementById('ml-empty');
-  var total = document.getElementById('ml-total');
-  var navCount = document.getElementById('mylinks-count');
+  var list   = document.getElementById('ml-list');
+  var empty  = document.getElementById('ml-empty');
+  var total  = document.getElementById('ml-total');
+  var navCnt = document.getElementById('mylinks-count');
   if (!list) return;
-  
   total.textContent = _mlLinks.length;
-  if (navCount) navCount.textContent = _mlLinks.length;
-  
-  if (_mlLinks.length === 0) {
-    list.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
+  if (navCnt) navCnt.textContent = _mlLinks.length;
+  if (_mlLinks.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  
+
   list.innerHTML = _mlLinks.map(function(lnk) {
-    return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+    // Group extracted sub-links by quality
+    var subLinks = lnk.subLinks ? Object.values(lnk.subLinks) : [];
+    var groups = { '4K':[], '1080p':[], '720p':[], '480p':[], '360p':[], 'Other':[] };
+    subLinks.forEach(function(s) {
+      var q = mlDetectQuality(s.url||'', s.label||'');
+      if (q) groups[q.tag].push(Object.assign({}, s, { _q: q }));
+      else groups['Other'].push(s);
+    });
+    var hasQuality = ['4K','1080p','720p','480p','360p'].some(function(k){ return groups[k].length > 0; });
+
+    // Status badge
+    var statusBadge = '';
+    if (lnk.status === 'alive')   statusBadge = '<span style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#22c55e;padding:2px 9px;border-radius:20px;font-size:0.65rem;font-weight:700;">✓ LIVE</span>';
+    else if (lnk.status === 'dead') statusBadge = '<span style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:2px 9px;border-radius:20px;font-size:0.65rem;font-weight:700;">✗ EXPIRED</span>';
+    else statusBadge = '<span style="background:rgba(100,100,100,0.12);border:1px solid #333;color:#666;padding:2px 9px;border-radius:20px;font-size:0.65rem;font-weight:700;">— CHECKING</span>';
+
+    // Quality summary badges
+    var qBadges = '';
+    ['4K','1080p','720p','480p','360p'].forEach(function(q) {
+      if (!groups[q].length) return;
+      var qi = groups[q][0]._q;
+      qBadges += '<span style="padding:2px 9px;border-radius:20px;background:'+qi.bg+';border:1px solid '+qi.border+';color:'+qi.color+';font-size:0.65rem;font-weight:700;">'+q+'&nbsp;×'+groups[q].length+'</span>';
+    });
+    if (!qBadges && groups['Other'].length) {
+      qBadges = '<span style="padding:2px 9px;border-radius:20px;background:rgba(100,100,100,0.1);border:1px solid #333;color:#888;font-size:0.65rem;font-weight:700;">Links&nbsp;×'+groups['Other'].length+'</span>';
+    }
+    var extractedInfo = subLinks.length
+      ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">' + qBadges + '</div>'
+      : '<div style="font-size:0.7rem;color:#444;margin-top:4px;">⏳ Extracting...</div>';
+
+    // Last updated
+    var lastUp = lnk.lastRefresh ? '<span style="font-size:0.65rem;color:#444;margin-left:8px;">Updated: ' + new Date(lnk.lastRefresh).toLocaleString() + '</span>' : '';
+
+    // Sub-links HTML (expanded inline)
+    var subHtml = '';
+    if (subLinks.length > 0) {
+      subHtml = '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">';
+      var orderedQuals = ['4K','1080p','720p','480p','360p'];
+      var rendered = false;
+      if (hasQuality) {
+        orderedQuals.forEach(function(q) {
+          if (!groups[q].length) return;
+          rendered = true;
+          var qi = groups[q][0]._q;
+          subHtml += '<div style="margin-bottom:10px;">'
+            + '<div style="font-size:0.68rem;font-weight:700;color:'+qi.color+';letter-spacing:1px;padding:4px 10px;background:'+qi.bg+';border-left:3px solid '+qi.color+';border-radius:0 5px 5px 0;margin-bottom:6px;">▶ '+q+'</div>';
+          groups[q].forEach(function(s, i) {
+            subHtml += _mlRenderSubLink(s, i);
+          });
+          subHtml += '</div>';
+        });
+      }
+      if (groups['Other'].length) {
+        subHtml += '<div style="margin-bottom:10px;">'
+          + '<div style="font-size:0.68rem;font-weight:700;color:#888;letter-spacing:1px;padding:4px 10px;background:rgba(100,100,100,0.08);border-left:3px solid #555;border-radius:0 5px 5px 0;margin-bottom:6px;">▶ Other Links</div>';
+        groups['Other'].forEach(function(s, i) { subHtml += _mlRenderSubLink(s, i); });
+        subHtml += '</div>';
+      }
+      subHtml += '</div>';
+    }
+
+    var safeId  = lnk.id;
+    var safeUrl = lnk.url.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+    return '<div id="ml-card-'+safeId+'" style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">'
+      // Header row
+      + '<div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
       + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lnk.title || 'Untitled Link') + '</div>'
-      + '<div style="font-size:0.72rem;color:var(--grey2);word-break:break-all;">' + lnk.url + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">'
+      + '<span style="font-weight:700;font-size:0.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;">' + (lnk.title||'Untitled') + '</span>'
+      + statusBadge + lastUp
       + '</div>'
-      + '<div style="display:flex;gap:7px;flex-shrink:0;">'
-      + '<button class="btn btn-b" onclick="window.open(\x27'+lnk.url+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
-      + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+lnk.id+'\x27,\x27'+lnk.url+'\x27)">Sub Links</button>'
-      + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+lnk.id+'\x27)">Del</button>'
+      + '<div style="font-size:0.7rem;color:#3b82f6;word-break:break-all;">' + lnk.url + '</div>'
+      + extractedInfo
       + '</div>'
+      // Action buttons
+      + '<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">'
+      + '<button class="btn btn-b" onclick="mlRefreshOne(\x27'+safeId+'\x27,\x27'+safeUrl+'\x27)" style="padding:6px 12px;font-size:0.75rem;" title="Re-fetch links">🔄</button>'
+      + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:6px 12px;font-size:0.75rem;" onclick="mlDelete(\x27'+safeId+'\x27)">Del</button>'
+      + '</div>'
+      + '</div>'
+      + subHtml
       + '</div>';
   }).join('');
 }
 
+function _mlRenderSubLink(s, i) {
+  var safeUrl = (s.url||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  var label = (s.label||'').substring(0, 100);
+  var q = s._q || mlDetectQuality(s.url||'', s.label||'');
+  var qBadge = q ? '<span style="padding:2px 7px;border-radius:4px;font-size:0.6rem;font-weight:700;background:'+q.bg+';color:'+q.color+';border:1px solid '+q.border+';margin-right:5px;flex-shrink:0;">'+q.tag+'</span>' : '';
+  return '<div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:7px;padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;">'
+    + '<span style="color:var(--red);font-weight:700;font-size:0.75rem;min-width:18px;flex-shrink:0;">'+(i+1)+'</span>'
+    + '<div style="flex:1;min-width:0;">'
+    + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px;margin-bottom:2px;">' + qBadge + (label ? '<span style="font-size:0.75rem;color:#fbbf24;font-weight:600;">'+label+'</span>' : '') + '</div>'
+    + '<div style="font-size:0.68rem;word-break:break-all;color:#93c5fd;">'+s.url+'</div>'
+    + '</div>'
+    + '<div style="display:flex;gap:5px;flex-shrink:0;">'
+    + '<button class="btn btn-b" onclick="window.open(\''+safeUrl+'\',\'_blank\')" style="padding:5px 11px;font-size:0.72rem;">Open</button>'
+    + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\''+safeUrl+'\');toast(\'Copied!\')" style="padding:5px 9px;font-size:0.72rem;">Copy</button>'
+    + '</div>'
+    + '</div>';
+}
+
+// ── Add new link: save to Firebase then auto-extract ──
 function mlAddLink() {
   var title = document.getElementById('ml-title').value.trim();
-  var url = document.getElementById('ml-url').value.trim();
+  var url   = document.getElementById('ml-url').value.trim();
   if (!url) { toast('URL daalo pehle!', 1); return; }
   if (!url.startsWith('http')) { toast('Valid URL daalo (http...)', 1); return; }
-  
+
+  var btn      = document.getElementById('ml-add-btn');
+  var progress = document.getElementById('ml-add-progress');
+  var progTxt  = document.getElementById('ml-add-progress-txt');
+  var progBar  = document.getElementById('ml-add-progress-bar');
+
+  btn.disabled = true; btn.textContent = 'Saving...';
+  progress.style.display = 'block'; progBar.style.width = '15%';
+  progTxt.textContent = '💾 Firebase mein save ho raha hai...';
+
   var key = db.ref('mylinks').push().key;
-  db.ref('mylinks/' + key).set({
-    title: title || 'Untitled',
-    url: url,
-    ts: Date.now()
-  }, function(err) {
-    if (err) { toast('Save nahi hua!', 1); }
-    else {
-      toast('Link save ho gaya!');
-      document.getElementById('ml-title').value = '';
-      document.getElementById('ml-url').value = '';
+  db.ref('mylinks/' + key).set({ title: title || 'Untitled', url: url, ts: Date.now(), status: 'checking' }, function(err) {
+    if (err) {
+      btn.disabled = false; btn.textContent = '➕ Add & Extract';
+      progress.style.display = 'none';
+      toast('Save nahi hua!', 1); return;
     }
+    document.getElementById('ml-title').value = '';
+    document.getElementById('ml-url').value   = '';
+    progBar.style.width = '35%';
+    progTxt.textContent = '🔍 Links extract ho rahi hain...';
+    // Now extract
+    _mlDoExtract(key, url, function(links) {
+      progBar.style.width = '100%';
+      if (links && links.length > 0) {
+        progTxt.textContent = '✅ ' + links.length + ' links extract ho gayi!';
+      } else {
+        progTxt.textContent = '⚠️ Koi link nahi mili — manually check karo.';
+      }
+      setTimeout(function() {
+        progress.style.display = 'none';
+        btn.disabled = false; btn.textContent = '➕ Add & Extract';
+      }, 2000);
+    }, function(pct, msg) {
+      progBar.style.width = pct + '%';
+      progTxt.textContent = msg;
+    });
   });
+}
+
+// ── Core extract + save to Firebase ──
+function _mlDoExtract(id, url, onDone, onProgress) {
+  if (onProgress) onProgress(40, '🌐 Page fetch ho raha hai...');
+  _mlFetchViaProxy(url).then(function(links) {
+    if (!links || links.length === 0) {
+      db.ref('mylinks/' + id + '/status').set('unknown');
+      db.ref('mylinks/' + id + '/lastRefresh').set(Date.now());
+      if (onDone) onDone(null); return;
+    }
+    if (onProgress) onProgress(75, '💾 Links save ho rahi hain (' + links.length + ')...');
+    // Save subLinks as object in Firebase
+    var subObj = {};
+    links.forEach(function(l, i) { subObj['l' + i] = l; });
+    db.ref('mylinks/' + id + '/subLinks').set(subObj);
+    db.ref('mylinks/' + id + '/status').set('alive');
+    db.ref('mylinks/' + id + '/lastRefresh').set(Date.now());
+    if (onDone) onDone(links);
+  });
+}
+
+// ── Refresh single link ──
+function mlRefreshOne(id, url) {
+  toast('🔄 Re-fetching...', 0);
+  db.ref('mylinks/' + id + '/status').set('checking');
+  _mlDoExtract(id, url, function(links) {
+    toast(links && links.length ? '✅ ' + links.length + ' links updated!' : '⚠️ Links nahi mili', links && links.length ? 0 : 1);
+  });
+}
+
+// ── Refresh all links ──
+var _mlRefreshing = false;
+function mlRefreshAll(silent) {
+  if (_mlRefreshing || _mlLinks.length === 0) return;
+  _mlRefreshing = true;
+  var statusEl  = document.getElementById('ml-refresh-status');
+  var refreshBtn = document.getElementById('ml-refresh-btn');
+  var done = 0, total = _mlLinks.length;
+  if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = '⏳ Refreshing...'; }
+
+  function next(i) {
+    if (i >= _mlLinks.length) {
+      _mlRefreshing = false;
+      if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.textContent = '🔄 Refresh All'; }
+      if (statusEl) statusEl.textContent = '✅ All refreshed ' + new Date().toLocaleTimeString();
+      if (!silent) toast('All links refreshed!');
+      return;
+    }
+    var lnk = _mlLinks[i];
+    if (statusEl) statusEl.textContent = '⏳ ' + (i+1) + '/' + total + ' checking...';
+    db.ref('mylinks/' + lnk.id + '/status').set('checking');
+    _mlDoExtract(lnk.id, lnk.url, function() {
+      done++;
+      next(i + 1);
+    });
+  }
+  next(0);
 }
 
 function mlDelete(id) {
@@ -8346,130 +8615,7 @@ function mlDelete(id) {
   });
 }
 
-function mlShowSubLinks(id, url) {
-  var modal = document.getElementById('ml-submodal');
-  var loading = document.getElementById('ml-sub-loading');
-  var subList = document.getElementById('ml-sub-list');
-  var subEmpty = document.getElementById('ml-sub-empty');
-  var parentUrl = document.getElementById('ml-sub-parent-url');
-
-  modal.style.display = 'flex';
-  loading.style.display = 'block';
-  loading.innerHTML = '⏳ Links dhundhh raha hai...';
-  subList.innerHTML = '';
-  subEmpty.style.display = 'none';
-  parentUrl.textContent = url;
-
-  // Ignore karo yeh domains
-  var ignDomains = ['linkmake.in','link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy'];
-  function isIgnored(lnk) {
-    return ignDomains.some(function(d){ return lnk.toLowerCase().indexOf(d) !== -1; });
-  }
-
-  function extractDownloadLinks(html, srcUrl) {
-    var results = [];
-    var seen = {};
-    // anchor tags
-    var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
-    var m;
-    while ((m = aReg.exec(html)) !== null) {
-      var lnk = m[1].trim();
-      var txt = m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-      if (!lnk.startsWith('http')) continue;
-      if (lnk === srcUrl) continue;
-      if (isIgnored(lnk)) continue;
-      if (seen[lnk]) continue;
-      seen[lnk] = true;
-      results.push({ url: lnk, label: txt });
-    }
-    // plain urls
-    var uReg = /(https?:\/\/[^\s"'<>\)]+)/g;
-    while ((m = uReg.exec(html)) !== null) {
-      var u = m[1].replace(/[,;)\]\.]+$/, '');
-      if (isIgnored(u)) continue;
-      if (u === srcUrl) continue;
-      if (seen[u]) continue;
-      seen[u] = true;
-      results.push({ url: u, label: '' });
-    }
-    return results;
-  }
-
-  function renderLinks(links) {
-    loading.style.display = 'none';
-    if (!links || links.length === 0) {
-      subEmpty.style.display = 'block';
-      subEmpty.innerHTML = '😕 Koi link nahi mili.<br><small style="color:#555;">Page JavaScript se links load karta hai — manually open karo.</small>';
-      return;
-    }
-    subList.innerHTML = links.map(function(lnk, i) {
-      var safeUrl = (lnk.url||lnk).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      var label = (lnk.label||'').substring(0,100);
-      return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
-        + '<span style="color:var(--red);font-weight:700;font-size:0.8rem;min-width:22px;flex-shrink:0;">' + (i+1) + '</span>'
-        + '<div style="flex:1;min-width:0;">'
-        + (label ? '<div style="font-size:0.78rem;color:#fbbf24;font-weight:700;margin-bottom:3px;">' + label + '</div>' : '')
-        + '<div style="font-size:0.71rem;word-break:break-all;color:#93c5fd;">' + (lnk.url||lnk) + '</div>'
-        + '</div>'
-        + '<div style="display:flex;gap:6px;flex-shrink:0;">'
-        + '<button class="btn btn-b" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" style="padding:6px 13px;font-size:0.75rem;">Open</button>'
-        + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + safeUrl + '\');toast(\'Copied!\')" style="padding:6px 10px;font-size:0.75rem;">Copy</button>'
-        + '</div>'
-        + '</div>';
-    }).join('');
-  }
-
-  // Proxies list — multiple try karein
-  var proxies = [
-    { name: 'AllOrigins', fn: function(u){ return { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return t; } } }; } },
-    { name: 'CodeTabs',   fn: function(u){ return { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
-    { name: 'HTMLDriven', fn: function(u){ return { url: 'https://htmldriven.com/html-source?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
-    { name: 'ThingProxy', fn: function(u){ return { url: 'https://thingproxy.freeboard.io/fetch/' + u, parse: function(t){ return t; } }; } },
-    { name: 'CorsProxy',  fn: function(u){ return { url: 'https://corsproxy.io/?' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
-    { name: 'WhatEver',  fn: function(u){ return { url: 'https://whatever.fly.dev/proxy?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } }
-  ];
-
-  var tried = 0;
-
-  function tryNext() {
-    if (tried >= proxies.length) {
-      // Sab fail — manual open option dikhao
-      loading.style.display = 'none';
-      subEmpty.style.display = 'block';
-      subEmpty.innerHTML = '❌ Auto-extract nahi ho saka.<br>'
-        + '<div style="margin-top:12px;">'
-        + '<button class="btn btn-b" onclick="window.open(\'' + url.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:8px 18px;font-size:0.82rem;">🔗 Manually Open Karo</button>'
-        + '</div>'
-        + '<small style="color:#444;display:block;margin-top:8px;">Wahan se links copy kar sakte ho.</small>';
-      return;
-    }
-
-    var p = proxies[tried];
-    tried++;
-    loading.innerHTML = '⏳ ' + p.name + ' se try ho raha hai... (' + tried + '/' + proxies.length + ')';
-
-    var req = p.fn(url);
-    fetch(req.url)
-      .then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      })
-      .then(function(text) {
-        var html = req.parse(text);
-        if (!html || html.length < 100) { tryNext(); return; }
-        var links = extractDownloadLinks(html, url);
-        if (links.length === 0) { tryNext(); return; }
-        renderLinks(links);
-      })
-      .catch(function() { tryNext(); });
-  }
-
-  tryNext();
-}
-
-function mlCloseSubModal() {
-  document.getElementById('ml-submodal').style.display = 'none';
-}
+// Old submodal removed — links now show inline in cards
 
 </script>
 </body>
