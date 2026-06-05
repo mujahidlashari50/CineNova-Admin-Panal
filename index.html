@@ -556,7 +556,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-cat-bollywood" onclick="showCat('bollywood')">🎭 Bollywood <span class="nav-count" id="cnt-bollywood">0</span></div>
     <div class="nav-item" id="nav-cat-tollywood" onclick="showCat('tollywood')">🎬 Tollywood <span class="nav-count" id="cnt-tollywood">0</span></div>
     <div class="nav-item" id="nav-cat-animation" onclick="showCat('animation')">🧸 Animation <span class="nav-count" id="cnt-animation">0</span></div>
-    <div class="nav-item" id="nav-cat-webseries" onclick="showCat('webseries')">Web Series <span class="nav-count" id="cnt-webseries">0</span></div>
+    <div class="nav-item" id="nav-cat-webseries" onclick="showCat('webseries')">📺 Web Series <span class="nav-count" id="cnt-webseries">0</span></div>
     <div class="nav-item adult-nav" id="nav-cat-adult" onclick="showCat('adult')">🔞 Adult (18+) <span class="nav-count" id="cnt-adult">0</span></div>
     
     <div class="nav-section-title">System</div>
@@ -581,6 +581,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-rss" onclick="show('rss')">📡 RSS Feed Manager</div>
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
+    <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
   </div>
 
@@ -604,7 +605,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <div class="stat-card"><div class="num" id="sb">0</div><div class="lbl">🎭 Bollywood</div></div>
         <div class="stat-card"><div class="num" id="stoll">0</div><div class="lbl">🎬 Tollywood</div></div>
         <div class="stat-card"><div class="num" id="san">0</div><div class="lbl">🧸 Animation</div></div>
-        <div class="stat-card"><div class="num" id="sws">0</div><div class="lbl">Web Series</div></div>
+        <div class="stat-card"><div class="num" id="sws">0</div><div class="lbl">📺 Web Series</div></div>
         <div class="stat-card" style="border-color:rgba(245,158,11,0.25);"><div class="num" id="sad" style="color:var(--adult);text-shadow:0 0 20px var(--adult-glow);">0</div><div class="lbl">🔞 Adult (18+)</div></div>
         <div class="stat-card" style="border-color:rgba(245,158,11,0.3);cursor:pointer;" onclick="show('upcoming')"><div class="num" id="s-upcoming" style="color:#f59e0b;font-size:1.8rem;">0</div><div class="lbl">🎬 Upcoming</div></div>
       </div>
@@ -627,7 +628,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
               <option value="bollywood">🎭 Bollywood</option>
               <option value="tollywood">🎬 Tollywood</option>
               <option value="animation">🧸 Animation</option>
-              <option value="webseries">Web Series</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="adult">🔞 Adult (18+)</option>
             </select>
           </div>
@@ -667,46 +668,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div class="fgg" id="field-status" style="display:none"><label>Status</label><select class="fi" id="fstatus"><option value="ongoing">📡 Ongoing</option><option value="completed">✅ Completed</option></select></div>
           <div class="fgg" id="field-seasons" style="display:none"><label>Total Seasons</label><input class="fi" id="fseasons" type="number" min="1" placeholder="1"/></div>
           <div class="fgg full"><label>Description</label><textarea class="fi" id="fd" rows="3" placeholder="Movie / Series ki kahani..."></textarea></div>
-        </div>
-      </div>
-      <div class="card" style="border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.04);">
-        <h3 style="color:#22c55e;">🔍 SEO Settings <span style="color:#555;font-size:0.65rem;font-weight:400;text-transform:none;letter-spacing:0;">— Google ranking ke liye</span></h3>
-        <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.78rem;color:#86efac;">
-          💡 Yeh fields Google search mein aapki movie ka title aur description dikhate hain. Agar khali chhodo to automatic fill ho jayega.
-        </div>
-        <div class="fg">
-          <div class="fgg full">
-            <label>🏷️ SEO Title <span style="color:#555;font-weight:400;">(Google search mein dikhne wala title)</span></label>
-            <input class="fi" id="fseo_title" placeholder="jaise: Avengers Endgame (2019) Hindi Dubbed Full Movie Watch Free HD | CineNova"/>
-            <div style="display:flex;justify-content:space-between;margin-top:4px;">
-              <span style="font-size:0.65rem;color:#555;">💡 Ideal: 50–60 characters</span>
-              <span style="font-size:0.65rem;" id="fseo_title_count">0 / 60</span>
-            </div>
-          </div>
-          <div class="fgg full">
-            <label>📝 Meta Description <span style="color:#555;font-weight:400;">(Google snippet mein dikhta hai)</span></label>
-            <textarea class="fi" id="fseo_desc" rows="2" placeholder="jaise: Avengers Endgame 2019 full movie watch online free in Hindi Dubbed HD quality. Download 480p 720p 1080p. Hollywood superhero movie on CineNova."></textarea>
-            <div style="display:flex;justify-content:space-between;margin-top:4px;">
-              <span style="font-size:0.65rem;color:#555;">💡 Ideal: 120–160 characters</span>
-              <span style="font-size:0.65rem;" id="fseo_desc_count">0 / 160</span>
-            </div>
-          </div>
-          <div class="fgg full">
-            <label>🔑 Keywords <span style="color:#555;font-weight:400;">(comma se alag karo)</span></label>
-            <input class="fi" id="fseo_keywords" placeholder="jaise: avengers download, avengers hindi dubbed, marvel movies free, cinenova"/>
-          </div>
-          <div class="fgg full">
-            <label>🔗 URL Slug <span style="color:#555;font-weight:400;">(post ka URL — khali chhodo auto generate hoga)</span></label>
-            <div style="display:flex;align-items:center;gap:0;">
-              <span style="padding:11px 13px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.78rem;white-space:nowrap;">cinenova.site/</span>
-              <input class="fi" id="fseo_slug" placeholder="avengers-endgame-2019-hindi-dubbed" style="border-radius:0 7px 7px 0;border-left:none;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
-            </div>
-            <div style="font-size:0.65rem;color:#555;margin-top:4px;">💡 Sirf lowercase letters, numbers aur dashes allowed hain</div>
-          </div>
-          <div class="fgg">
-            <label>🤖 Auto-Generate SEO</label>
-            <button class="btn btn-s" onclick="autoFillSEO('add')" style="padding:10px 18px;font-size:0.82rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#22c55e;">✨ Title se SEO Auto Fill Karo</button>
-          </div>
         </div>
       </div>
       <div class="card"><h3>Thumbnail & Screenshots</h3>
@@ -804,7 +765,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <button class="cf-btn" id="cf-bollywood" onclick="filterByCat('bollywood')">🎭 Bollywood</button>
         <button class="cf-btn" id="cf-tollywood" onclick="filterByCat('tollywood')">🎬 Tollywood</button>
         <button class="cf-btn" id="cf-animation" onclick="filterByCat('animation')">🧸 Animation</button>
-        <button class="cf-btn" id="cf-webseries" onclick="filterByCat('webseries')">Web Series</button>
+        <button class="cf-btn" id="cf-webseries" onclick="filterByCat('webseries')">📺 Web Series</button>
         <button class="cf-btn adult-cf" id="cf-adult" onclick="filterByCat('adult')">🔞 Adult (18+)</button>
       </div>
       <div class="card" style="padding:0">
@@ -1056,7 +1017,7 @@ Halimuyak 2025 WEBRip Tagalog 1080p 10bit x265 HEVC AAC 2.0 ESub.mkv|https://sho
             <option value="bollywood">🎭 Bollywood</option>
             <option value="tollywood">🎬 Tollywood</option>
             <option value="animation">🧸 Animation</option>
-            <option value="webseries">Web Series</option>
+            <option value="webseries">📺 Web Series</option>
             <option value="adult">🔞 Adult (18+)</option>
             </optgroup>
             <optgroup label="── Genres ──">
@@ -1249,7 +1210,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <!-- OVERVIEW TAB -->
       <div id="ua-overview" class="ua-panel">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px;">
-          <div class="stat-card"><div class="num" id="ua-total-views" style="font-size:1.8rem;color:var(--red);">0</div><div class="lbl">Total Watch</div></div>
+          <div class="stat-card"><div class="num" id="ua-total-views" style="font-size:1.8rem;color:var(--red);">0</div><div class="lbl">📺 Total Watch</div></div>
           <div class="stat-card"><div class="num" id="ua-today-views" style="font-size:1.8rem;color:#22c55e;">0</div><div class="lbl">⚡ Aaj</div></div>
           <div class="stat-card"><div class="num" id="ua-online-now" style="font-size:1.8rem;color:#60a5fa;">0</div><div class="lbl">🟢 Online Now</div></div>
           <div class="stat-card"><div class="num" id="ua-total-dl" style="font-size:1.8rem;color:#f59e0b;">0</div><div class="lbl">⬇️ Downloads</div></div>
@@ -1495,7 +1456,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <option value="bollywood">🎭 Bollywood</option>
               <option value="tollywood">🎬 Tollywood</option>
               <option value="animation">🧸 Animation</option>
-              <option value="webseries">Web Series</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="adult">🔞 Adult (18+)</option>
             </select>
           </div>
@@ -1756,7 +1717,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <option value="bollywood">🎭 Bollywood</option>
               <option value="tollywood">🎬 Tollywood</option>
               <option value="animation">🧸 Animation</option>
-              <option value="webseries">Web Series</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="adult">🔞 Adult (18+)</option>
             </select>
           </div>
@@ -1812,7 +1773,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <option value="bollywood">🎭 Bollywood</option>
               <option value="tollywood">🎬 Tollywood</option>
               <option value="animation">🧸 Animation</option>
-              <option value="webseries">Web Series</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="adult">🔞 Adult (18+)</option>
             </select>
             <input class="fi" id="rss-import-search" placeholder="🔍 Posts search karo..." oninput="rssFilterPosts()" style="flex:1;min-width:160px;padding:8px 12px;"/>
@@ -1863,7 +1824,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <button class="bi-cat-btn" id="bicat-bollywood" onclick="biSetCat('bollywood')">🎭 Bollywood</button>
             <button class="bi-cat-btn" id="bicat-tollywood" onclick="biSetCat('tollywood')">🎬 Tollywood</button>
             <button class="bi-cat-btn" id="bicat-animation" onclick="biSetCat('animation')">🧸 Animation</button>
-            <button class="bi-cat-btn" id="bicat-webseries" onclick="biSetCat('webseries')">Web Series</button>
+            <button class="bi-cat-btn" id="bicat-webseries" onclick="biSetCat('webseries')">📺 Web Series</button>
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center;">
@@ -1919,7 +1880,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div class="ai-src-check">✓</div>
           </div>
           <div class="ai-src-card" onclick="aiToggleSrc(this,'webseries')" data-src="webseries">
-            <div class="ai-src-icon"></div>
+            <div class="ai-src-icon">📺</div>
             <div class="ai-src-name">Web Series</div>
             <div class="ai-src-sub">Popular TV Shows</div>
             <div class="ai-src-check">✓</div>
@@ -2137,7 +2098,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <label style="font-size:0.68rem;color:var(--grey);text-transform:uppercase;">Type</label>
               <select class="sm-sort-sel" id="hd-type">
                 <option value="movie">🎬 Movies</option>
-                <option value="tv">Web Series / Shows</option>
+                <option value="tv">📺 Web Series / Shows</option>
               </select>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px;">
@@ -2323,6 +2284,43 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
       <div style="padding:12px 14px;background:rgba(229,9,20,0.04);border:1px solid rgba(229,9,20,0.12);border-radius:9px;font-size:0.75rem;color:#555;">
         💾 Firebase path: <code style="color:#666;background:#111;padding:2px 6px;border-radius:4px;">settings/adTimerPage</code>
+      </div>
+    </div>
+
+    <!-- MY LINKS SECTION -->
+    <div class="section" id="sec-mylinks">
+      <div class="sec-title">🔗 My <span>Links</span></div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <h3>ADD NEW LINK</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div class="fgg" style="flex:1;min-width:220px;">
+            <label>Link Title (Optional)</label>
+            <input class="fi" id="ml-title" placeholder="e.g. Movie Pack 1" />
+          </div>
+          <div class="fgg" style="flex:2;min-width:280px;">
+            <label>URL</label>
+            <input class="fi" id="ml-url" placeholder="https://new6.filesdl.top/cloud/..." />
+          </div>
+          <button class="btn btn-p" onclick="mlAddLink()" style="height:40px;padding:0 20px;">Add Link</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>SAVED LINKS <span id="ml-total" style="color:var(--red);margin-left:6px;">0</span></h3>
+        <div id="ml-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;"></div>
+        <div id="ml-empty" style="text-align:center;color:var(--grey2);padding:30px 0;font-size:0.85rem;">No links saved yet.</div>
+      </div>
+
+      <div id="ml-submodal" style="display:none;position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+        <div style="background:var(--card);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:26px;width:100%;max-width:680px;margin:auto;position:relative;">
+          <button onclick="mlCloseSubModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--grey);font-size:1.3rem;cursor:pointer;">X</button>
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:4px;">Sub <span style="color:#3b82f6;">Links</span></div>
+          <div id="ml-sub-parent-url" style="font-size:0.72rem;color:var(--grey2);margin-bottom:16px;word-break:break-all;"></div>
+          <div id="ml-sub-loading" style="text-align:center;padding:20px;color:var(--grey);">Loading...</div>
+          <div id="ml-sub-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <div id="ml-sub-empty" style="display:none;text-align:center;color:var(--grey2);padding:20px;">No sub-links found.</div>
+        </div>
       </div>
     </div>
 
@@ -2524,7 +2522,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <option value="bollywood">🎭 Bollywood</option>
           <option value="tollywood">🎬 Tollywood</option>
           <option value="animation">🧸 Animation</option>
-          <option value="webseries">Web Series</option>
+          <option value="webseries">📺 Web Series</option>
           <option value="adult">🔞 Adult (18+)</option>
         </select>
       </div>
@@ -2553,41 +2551,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div class="fgg" id="ef-network" style="display:none"><label>Network / Platform</label><input class="fi" id="enetwork"/></div>
       <div class="fgg" id="ef-status" style="display:none"><label>Status</label><select class="fi" id="estatus"><option value="ongoing">📡 Ongoing</option><option value="completed">✅ Completed</option></select></div>
       <div class="fgg full"><label>Description</label><textarea class="fi" id="ed" rows="2"></textarea></div>
-      <!-- SEO FIELDS IN EDIT -->
-      <div class="fgg full" style="grid-column:1/-1;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-top:4px;">
-        <div style="font-size:0.65rem;color:#22c55e;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:12px;">🔍 SEO Settings</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="fgg">
-            <label>🏷️ SEO Title</label>
-            <input class="fi" id="eseo_title" placeholder="jaise: Movie Name (2024) Hindi Dubbed Full Movie | CineNova"/>
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-size:0.62rem;color:#555;">Ideal: 50–60 chars</span>
-              <span style="font-size:0.62rem;" id="eseo_title_count">0 / 60</span>
-            </div>
-          </div>
-          <div class="fgg">
-            <label>📝 Meta Description</label>
-            <textarea class="fi" id="eseo_desc" rows="2" placeholder="Movie ka short description jo Google mein dikhega..."></textarea>
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-size:0.62rem;color:#555;">Ideal: 120–160 chars</span>
-              <span style="font-size:0.62rem;" id="eseo_desc_count">0 / 160</span>
-            </div>
-          </div>
-          <div class="fgg">
-            <label>🔑 Keywords <span style="color:#555;font-weight:400;">(comma separated)</span></label>
-            <input class="fi" id="eseo_keywords" placeholder="avengers download, hindi dubbed, free movie"/>
-          </div>
-          <div class="fgg">
-            <label>🔗 URL Slug</label>
-            <div style="display:flex;align-items:center;gap:0;">
-              <span style="padding:11px 10px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.72rem;white-space:nowrap;">cinenova.site/</span>
-              <input class="fi" id="eseo_slug" placeholder="movie-name-2024-hindi-dubbed" style="border-radius:0 7px 7px 0;border-left:none;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
-            </div>
-          </div>
-          <button class="btn btn-s" onclick="autoFillSEO('edit')" style="padding:9px 16px;font-size:0.8rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#22c55e;align-self:flex-start;">✨ Auto Fill SEO</button>
-        </div>
-      </div>
-      <!-- END SEO FIELDS -->
       <div class="fgg full">
         <label>Thumbnail</label>
         <div class="img-input-wrap">
@@ -3137,6 +3100,7 @@ function show(name){
   if(name==='upcoming'){ucLoadAll();}
   if(name==='adtimer'){atpLoadSettings();}
   if(name==='push'){puLoadAll();}
+  if(name==='mylinks'){mlLoadAll();}
 }
 
 function showCat(cat){
@@ -3145,7 +3109,7 @@ function showCat(cat){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var catSec=document.getElementById('sec-catview');if(catSec)catSec.classList.add('active');
   var nav=document.getElementById('nav-cat-'+cat);if(nav)nav.classList.add('active');
-  var labels={hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animation',webseries:'Web Series',adult:'🔞 Adult (18+)'};
+  var labels={hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animation',webseries:'📺 Web Series',adult:'🔞 Adult (18+)'};
   document.getElementById('cat-view-title').innerHTML=(labels[cat]||cat)+' <span>Content</span>';
   document.getElementById('catsrch').value='';
   renderCatTable(allMovies.filter(function(m){return m.category===cat;}));
@@ -3241,7 +3205,6 @@ function buildRow(m,hideCategory){
   var hasLinks=m.download480p||m.download720p||m.download1080p||m.download4k||m.videoUrl;
   var lbadge=hasLinks?'<span class="badge bg" style="font-size:0.6rem;">✓ Links</span>':'<span class="badge bgy" style="font-size:0.6rem;">No Links</span>';
   var trBadge=m.trailerUrl?'<span class="badge bv" style="font-size:0.6rem;margin-left:4px;">🎬 Trailer</span>':'';
-  var epBadge=(m.category==='webseries'&&m.episodes&&m.episodes.length)?'<span class="badge bo" style="font-size:0.6rem;margin-left:4px;" title="Total Episodes">'+m.episodes.length+' Eps</span>':'';
   var titleSafe=(m.title||'').replace(/'/g,"\\'");
   // Published/Unpublished status — default published (agar field nahi hai to dikhe ga)
   var isPublished = m.published !== false;
@@ -3258,7 +3221,7 @@ function buildRow(m,hideCategory){
     +(hideCategory?'':'<td><span class="badge '+cb.cls+'">'+cb.lbl+'</span></td>')
     +'<td style="color:var(--grey);font-size:0.8rem;">'+(m.genre||'—')+'</td>'
     +'<td style="color:#f59e0b;white-space:nowrap;">⭐ '+(m.rating||'—')+'</td>'
-    +'<td>'+lbadge+trBadge+epBadge+'</td>'
+    +'<td>'+lbadge+trBadge+'</td>'
     +'<td>'+pubToggle+'</td>'
     +'<td><div class="ta"><button class="ib" onclick="openEdit(\''+m.key+'\')" title="Edit">✏️</button>'
       +'<button class="ib" onclick="confDel(\''+m.key+'\',\''+titleSafe+'\')" title="Delete">🗑</button>'
@@ -3316,31 +3279,22 @@ function addMovie(){
   var cat=gv('fc');if(!cat){toast('❌ Please select a category!',1);return;}
   var ws=cat==='webseries';
   var eps=ws?collectEpisodes('movie'):null;
-  // SEO auto-generate if empty
-  var seoTitle = gv('fseo_title') || (title + (gv('fy')?' ('+gv('fy')+')':'') + (gv('fl')?' '+gv('fl')+' Dubbed':'') + ' Full Movie Watch Free | CineNova');
-  var seoDesc  = gv('fseo_desc')  || (title + (gv('fy')?' ('+gv('fy')+')':'') + ' full movie watch online free' + (gv('fl')?' in '+gv('fl'):'') + '. Download 480p 720p 1080p on CineNova.');
-  var seoKw    = gv('fseo_keywords') || (title.toLowerCase() + ' download, ' + title.toLowerCase() + (gv('fl')?' '+gv('fl').toLowerCase():'') + ', free movie cinenova');
-  var seoSlug  = gv('fseo_slug')  || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + (gv('fy')?'-'+gv('fy'):'');
   var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
     language:gv('fl'),quality:gv('fq'),size:gv('fsz'),description:gv('fd'),
     thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
     download1080p:gv('fd10'),size1080:gv('fs10'),download4k:gv('fd4k'),size4k:gv('fs4k'),
-    seoTitle:seoTitle, seoDesc:seoDesc, seoKeywords:seoKw, seoSlug:seoSlug,
     addedAt:Date.now()};
   if(ws){var net=gv('fnetwork');var st=gv('fstatus');var seas=gv('fseasons');
     if(net)m.network=net;if(st)m.status=st;if(seas)m.seasons=seas;
     if(eps&&eps.length)m.episodes=eps;}
   Object.keys(m).forEach(function(k){if(!m[k]&&k!=='addedAt'&&k!=='episodes')delete m[k];});
   db.ref('movies').push(m).then(function(){
-    toast('✅ Saved! Category: '+cat);
-    cvSendPushNotif({title:m.title,poster:m.thumbnail||'',year:m.year||'',quality:m.quality||'',lang:m.language||''});
-    clrForm();show('movies');
+    toast('✅ Saved! Category: '+cat);clrForm();show('movies');
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 function clrForm(){
-  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseo_title','fseo_desc','fseo_keywords','fseo_slug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  ['fseo_title_count','fseo_desc_count'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='0 / '+(id.includes('title')?'60':'160');});
+  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('tp').style.display='none';
   document.getElementById('ep-movie-card').style.display='none';
   document.getElementById('field-network').style.display='none';
@@ -3467,10 +3421,6 @@ function openEdit(key){
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
   sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('etrailer',m.trailerUrl||'');
-  // SEO fields load
-  sv('eseo_title', m.seoTitle||''); sv('eseo_desc', m.seoDesc||''); sv('eseo_keywords', m.seoKeywords||''); sv('eseo_slug', m.seoSlug||'');
-  var etcEl=document.getElementById('eseo_title_count'); if(etcEl) etcEl.textContent=(m.seoTitle||'').length+' / 60';
-  var edcEl=document.getElementById('eseo_desc_count');  if(edcEl) edcEl.textContent=(m.seoDesc||'').length+' / 160';
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
@@ -3497,14 +3447,6 @@ function openEdit(key){
           +'<div id="'+id+'_pd_prev" style=\"font-size:0.7rem;color:#22c55e;margin-top:5px;'+(existingPdId?'':'display:none;')+'\">✅ Link: <span>'+(existingPdId?'https://pixeldrain.com/api/file/'+existingPdId:'')+'</span></div>'
           +'<div style=\"font-size:0.68rem;color:#555;margin-top:4px;\">💡 Sirf PixelDrain File ID dalo — mobile pe MX Player se chalega</div>'
         +'</div>'
-        +'<div class="fgg full" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px;margin-top:4px;">'
-        +'<label style="color:#f59e0b;">📦 Is Link Mein Kitne Episodes Hain?</label>'
-        +'<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">'
-          +'<input class="fi" id="'+id+'_ec" type="number" min="1" placeholder="Jaise: 8" value="'+(ep.epCount||'')+'" style="width:100px;"/>'
-          +'<span style="color:#888;font-size:0.8rem;">episodes is link mein hain</span>'
-        +'</div>'
-        +'<div style="font-size:0.68rem;color:#666;margin-top:4px;">💡 Yahan likhne se users ko pata chalega ke ek link mein kitne eps hain</div>'
-        +'</div>'
         +'<div class="fgg"><label>480p Download</label><input class="fi" id="'+id+'_d4" value="'+(ep.dl480||'')+'"/></div>'
         +'<div class="fgg"><label>480p Size</label><input class="fi" id="'+id+'_s4" value="'+(ep.sz480||'')+'"/></div>'
         +'<div class="fgg"><label>720p Download</label><input class="fi" id="'+id+'_d7" value="'+(ep.dl720||'')+'"/></div>'
@@ -3521,27 +3463,17 @@ function closeEdit(){document.getElementById('edit-modal').classList.remove('act
 function saveEdit(){
   if(!editKey)return;
   var cat=gv('ec');var ws=cat==='webseries';
-  var etitle = gv('et');
-  var eSeoTitle = gv('eseo_title') || (etitle + (gv('ey')?' ('+gv('ey')+')':'') + (gv('el')?' '+gv('el')+' Dubbed':'') + ' Full Movie Watch Free | CineNova');
-  var eSeoDesc  = gv('eseo_desc')  || (etitle + (gv('ey')?' ('+gv('ey')+')':'') + ' full movie watch online free' + (gv('el')?' in '+gv('el'):'') + '. Download 480p 720p 1080p on CineNova.');
-  var eSeoKw    = gv('eseo_keywords') || (etitle.toLowerCase() + ' download, ' + etitle.toLowerCase() + ' free, cinenova');
-  var eSeoSlug  = gv('eseo_slug')  || etitle.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + (gv('ey')?'-'+gv('ey'):'');
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
     thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
-    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
-    seoTitle:eSeoTitle, seoDesc:eSeoDesc, seoKeywords:eSeoKw, seoSlug:eSeoSlug};
+    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k')};
   if(ws){m.network=gv('enetwork');m.status=gv('estatus');var seas=gv('eseasons');if(seas)m.seasons=seas;var eps=collectEpisodes('edit');if(eps&&eps.length)m.episodes=eps;else m.episodes=null;}
   Object.keys(m).forEach(function(k){if(!m[k]&&k!=='episodes')delete m[k];});
   // ✅ Jab bhi movie update ho, addedAt ko current time pe set karo
   // Taake yeh movie home page pe sub se uper aaye
   m.addedAt = Date.now();
-  db.ref('movies/'+editKey).update(m).then(function(){
-    toast('✅ Update ho gaya! Movie home page pe top pe aa gayi.');
-    cvSendPushNotif({title:m.title,poster:m.thumbnail||'',year:m.year||'',quality:m.quality||'',lang:m.language||'',isUpdate:true});
-    closeEdit();
-  }).catch(function(e){toast('❌ '+e.message,1);});
+  db.ref('movies/'+editKey).update(m).then(function(){toast('✅ Update ho gaya! Movie home page pe top pe aa gayi.');closeEdit();}).catch(function(e){toast('❌ '+e.message,1);});
 }
 
 // ═══ DELETE ═══
@@ -3672,14 +3604,6 @@ function addEpBlock(mode){
       +'<div id="'+id+'_pd_prev" style="font-size:0.7rem;color:#22c55e;margin-top:5px;display:none;">✅ Link: <span></span></div>'
       +'<div style="font-size:0.68rem;color:#555;margin-top:4px;">💡 Sirf PixelDrain File ID dalo — mobile pe MX Player se chalega</div>'
     +'</div>'
-    +'<div class="fgg full" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px;margin-top:4px;">'
-      +'<label style="color:#f59e0b;">📦 Is Link Mein Kitne Episodes Hain?</label>'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">'
-        +'<input class="fi" id="'+id+'_ec" type="number" min="1" placeholder="Jaise: 8" style="width:100px;"/>'
-        +'<span style="color:#888;font-size:0.8rem;">episodes is link mein hain</span>'
-      +'</div>'
-      +'<div style="font-size:0.68rem;color:#666;margin-top:4px;">💡 Yahan likhne se users ko pata chalega ke ek link mein kitne eps hain</div>'
-    +'</div>'
     +'<div class="fgg"><label>480p Download</label><input class="fi" id="'+id+'_d4" placeholder="https://..."/></div>'
     +'<div class="fgg"><label>480p Size</label><input class="fi" id="'+id+'_s4" placeholder="200 MB"/></div>'
     +'<div class="fgg"><label>720p Download</label><input class="fi" id="'+id+'_d7" placeholder="https://..."/></div>'
@@ -3698,7 +3622,7 @@ function collectEpisodes(mode){
   wrap.querySelectorAll('.ep-block').forEach(function(bl){
     var bid=bl.id.replace('epblock_','');
     function g(s){var el=document.getElementById(bid+s);return el?el.value.trim():'';}
-    var pdId=g('_pd'); var epCnt=g('_ec'); var ep={season:g('_s')||'1',episode:g('_e'),title:g('_t'),videoUrl:g('_v'),pixeldrainId:pdId,vlcUrl:pdId?'https://pixeldrain.com/api/file/'+pdId:'',epCount:epCnt||'',dl480:g('_d4'),sz480:g('_s4'),dl720:g('_d7'),sz720:g('_s7'),dl1080:g('_d10'),sz1080:g('_s10')};
+    var pdId=g('_pd'); var ep={season:g('_s')||'1',episode:g('_e'),title:g('_t'),videoUrl:g('_v'),pixeldrainId:pdId,vlcUrl:pdId?'https://pixeldrain.com/api/file/'+pdId:'',dl480:g('_d4'),sz480:g('_s4'),dl720:g('_d7'),sz720:g('_s7'),dl1080:g('_d10'),sz1080:g('_s10')};
     Object.keys(ep).forEach(function(k){if(!ep[k])delete ep[k];});
     episodes.push(ep);
   });
@@ -6310,7 +6234,7 @@ function piRenderTable(){
   var tbody=document.getElementById('pi-tbody');if(!tbody)return;
   var CAT_OPTS=['hollywood','bollywood','tollywood','animation','webseries','adult','action','adventure','biography','comedy','crime','documentary','drama','family','fantasy','history','horror','music','mystery','romance','scifi','sport','superhero','thriller','war','western'];
   tbody.innerHTML=piParsed.map(function(item){
-    var opts=CAT_OPTS.map(function(c){return '<option value="'+c+'"'+(item.cat===c?' selected':'')+'>'+{hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animation',webseries:'Web Series',adult:'🔞 Adult'}[c]+'</option>';}).join('');
+    var opts=CAT_OPTS.map(function(c){return '<option value="'+c+'"'+(item.cat===c?' selected':'')+'>'+{hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animation',webseries:'📺 Web Series',adult:'🔞 Adult'}[c]+'</option>';}).join('');
     var sb={'pending':'<span class="badge bgy" style="font-size:0.6rem;">⏳ Pending</span>',ok:'<span class="badge bg" style="font-size:0.6rem;">✅ Done</span>',err:'<span class="badge br" style="font-size:0.6rem;">❌ Error</span>',importing:'<span class="badge bb" style="font-size:0.6rem;">⏳...</span>'}[item.status]||'';
     var rowStyle=item.cat==='adult'?'background:rgba(255,45,85,0.04);':'';
     return '<tr id="pi-row-'+item.id+'" style="'+rowStyle+'">'
@@ -8344,137 +8268,208 @@ function atpUpdatePreview() {
   if(el3) el3.textContent = sec;
 }
 
-// ═══════════════════════════════════════════════════════
-// 🔔 PUSH NOTIFICATION SENDER — pushUpdates Firebase node
-// Installed users ko movie upload/update pe notification milti hai
-// ═══════════════════════════════════════════════════════
-var CV_PUSH_DB = 'https://cinenova-8987c-default-rtdb.firebaseio.com/pushUpdates';
+// ═══════════════════════════════════════════════
+// MY LINKS — PANEL JAVASCRIPT
+// ═══════════════════════════════════════════════
+var _mlLinks = [];
 
-function cvSendPushNotif(opts) {
-  if(!opts || !opts.title) return;
-  var ts  = Date.now();
-  var id  = 'push_' + ts;
-  var ql  = opts.quality ? ' ['+opts.quality+']' : '';
-  var yr  = opts.year    ? ' ('+opts.year+')'    : '';
-  var lg  = opts.lang    ? ' · '+opts.lang        : '';
-  var isUpd = opts.isUpdate;
-  var payload = {
-    ts         : ts,
-    title      : opts.title,
-    poster     : opts.poster || '',
-    url        : opts.url || 'https://www.cinenova.site/',
-    notifTitle : isUpd ? ('🔄 Updated on CineNova'+ql) : ('🎬 New on CineNova'+ql),
-    notifBody  : opts.title + yr + lg + (isUpd ? ' — updated, abhi dekho!' : ' — abhi dekho!')
-  };
-  fetch(CV_PUSH_DB + '/' + id + '.json', {
-    method  : 'PUT',
-    headers : { 'Content-Type': 'application/json' },
-    body    : JSON.stringify(payload)
-  }).then(function(r){
-    if(r.ok) {
-      console.log('🔔 Push sent:', payload.notifBody);
-      cvCleanOldPushUpdates();
-    }
-  }).catch(function(){});
+function mlLoadAll() {
+  db.ref('mylinks').on('value', function(snap) {
+    _mlLinks = [];
+    var val = snap.val() || {};
+    Object.keys(val).forEach(function(k) {
+      _mlLinks.push(Object.assign({id: k}, val[k]));
+    });
+    _mlLinks.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    mlRender();
+  });
 }
 
-function cvCleanOldPushUpdates() {
-  fetch(CV_PUSH_DB + '.json?orderBy=%22ts%22&limitToFirst=100')
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(!data) return;
-      var keys = Object.keys(data);
-      if(keys.length <= 10) return;
-      keys.slice(0, keys.length - 10).forEach(function(k){
-        fetch(CV_PUSH_DB + '/' + k + '.json', { method: 'DELETE' });
-      });
-    }).catch(function(){});
-}
-
-// ═══════════════════════════════════════════════════════
-// 🔍 SEO HELPER FUNCTIONS
-// ═══════════════════════════════════════════════════════
-
-// Character counter for SEO fields
-(function(){
-  function attachCounter(inputId, counterId, max) {
-    var el = document.getElementById(inputId);
-    var ct = document.getElementById(counterId);
-    if(!el || !ct) return;
-    function upd() {
-      var len = el.value.length;
-      ct.textContent = len + ' / ' + max;
-      ct.style.color = len > max ? '#f87171' : len > max * 0.85 ? '#22c55e' : '#555';
-    }
-    el.addEventListener('input', upd);
+function mlRender() {
+  var list = document.getElementById('ml-list');
+  var empty = document.getElementById('ml-empty');
+  var total = document.getElementById('ml-total');
+  var navCount = document.getElementById('mylinks-count');
+  if (!list) return;
+  
+  total.textContent = _mlLinks.length;
+  if (navCount) navCount.textContent = _mlLinks.length;
+  
+  if (_mlLinks.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
   }
-  // Wait for DOM
-  setTimeout(function(){
-    attachCounter('fseo_title', 'fseo_title_count', 60);
-    attachCounter('fseo_desc',  'fseo_desc_count',  160);
-    attachCounter('eseo_title', 'eseo_title_count', 60);
-    attachCounter('eseo_desc',  'eseo_desc_count',  160);
-  }, 500);
-})();
-
-// Auto-fill SEO fields from movie title
-function autoFillSEO(mode) {
-  var isEdit = mode === 'edit';
-  var title    = document.getElementById(isEdit ? 'et' : 'ft').value.trim();
-  var year     = document.getElementById(isEdit ? 'ey' : 'fy').value.trim();
-  var lang     = document.getElementById(isEdit ? 'el' : 'fl').value.trim();
-  var quality  = document.getElementById(isEdit ? 'eq' : 'fq').value.trim();
-  var cat      = document.getElementById(isEdit ? 'ec' : 'fc').value;
-
-  if(!title){ toast('❌ Pehle Title bharo!', 1); return; }
-
-  var catWord = {hollywood:'Hollywood', bollywood:'Bollywood', tollywood:'Tollywood', animation:'Animation', webseries:'Web Series'}[cat] || '';
-  var langPart = lang ? lang + ' ' : '';
-  var yearPart = year ? ' (' + year + ')' : '';
-
-  // SEO Title
-  var seoTitle = title + yearPart + ' ' + langPart + 'Full Movie Watch Free HD | CineNova';
-  if(seoTitle.length > 60) seoTitle = title + yearPart + ' ' + langPart + 'Movie | CineNova';
-
-  // Meta Description
-  var qualPart = quality ? ' in ' + quality : '';
-  var seoDesc = title + yearPart + ' full movie watch online free' + (lang ? ' in ' + lang : '') + qualPart + '. Download 480p 720p 1080p' + (catWord ? ' ' + catWord : '') + ' movie on CineNova. No login, no subscription.';
-  if(seoDesc.length > 160) seoDesc = title + yearPart + ' full movie free download' + (lang ? ' ' + lang : '') + '. Watch HD on CineNova without login.';
-
-  // Keywords
-  var tl = title.toLowerCase();
-  var ll = lang ? lang.toLowerCase() : '';
-  var seoKw = [
-    tl + ' download',
-    tl + (ll ? ' ' + ll + ' dubbed' : ''),
-    tl + ' full movie',
-    tl + ' free download',
-    tl + (year ? ' ' + year : ''),
-    'cinenova ' + tl,
-    (catWord ? catWord.toLowerCase() + ' movies free' : '')
-  ].filter(Boolean).join(', ');
-
-  // Slug
-  var seoSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + (year ? '-' + year : '') + (lang ? '-' + lang.toLowerCase().replace(/\s+/g,'-') : '');
-
-  // Fill
-  var pref = isEdit ? 'e' : 'f';
-  var tf = document.getElementById(pref + 'seo_title');
-  var df = document.getElementById(pref + 'seo_desc');
-  var kf = document.getElementById(pref + 'seo_keywords');
-  var sf = document.getElementById(pref + 'seo_slug');
-  var tc = document.getElementById(pref + 'seo_title_count');
-  var dc = document.getElementById(pref + 'seo_desc_count');
-
-  if(tf){ tf.value = seoTitle; if(tc) tc.textContent = seoTitle.length + ' / 60'; }
-  if(df){ df.value = seoDesc;  if(dc) dc.textContent = seoDesc.length + ' / 160'; }
-  if(kf) kf.value = seoKw;
-  if(sf) sf.value = seoSlug;
-
-  toast('✅ SEO auto fill ho gaya!');
+  empty.style.display = 'none';
+  
+  list.innerHTML = _mlLinks.map(function(lnk) {
+    return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lnk.title || 'Untitled Link') + '</div>'
+      + '<div style="font-size:0.72rem;color:var(--grey2);word-break:break-all;">' + lnk.url + '</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:7px;flex-shrink:0;">'
+      + '<button class="btn btn-b" onclick="window.open(\x27'+lnk.url+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
+      + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+lnk.id+'\x27,\x27'+lnk.url+'\x27)">Sub Links</button>'
+      + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+lnk.id+'\x27)">Del</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
 }
 
-// ═══ END SEO HELPERS ═══
+function mlAddLink() {
+  var title = document.getElementById('ml-title').value.trim();
+  var url = document.getElementById('ml-url').value.trim();
+  if (!url) { toast('URL daalo pehle!', 1); return; }
+  if (!url.startsWith('http')) { toast('Valid URL daalo (http...)', 1); return; }
+  
+  var key = db.ref('mylinks').push().key;
+  db.ref('mylinks/' + key).set({
+    title: title || 'Untitled',
+    url: url,
+    ts: Date.now()
+  }, function(err) {
+    if (err) { toast('Save nahi hua!', 1); }
+    else {
+      toast('Link save ho gaya!');
+      document.getElementById('ml-title').value = '';
+      document.getElementById('ml-url').value = '';
+    }
+  });
+}
+
+function mlDelete(id) {
+  if (!confirm('Yeh link delete karo?')) return;
+  db.ref('mylinks/' + id).remove(function(err) {
+    if (err) toast('Delete nahi hua!', 1);
+    else toast('Link delete ho gaya!');
+  });
+}
+
+function mlShowSubLinks(id, url) {
+  var modal = document.getElementById('ml-submodal');
+  var loading = document.getElementById('ml-sub-loading');
+  var subList = document.getElementById('ml-sub-list');
+  var subEmpty = document.getElementById('ml-sub-empty');
+  var parentUrl = document.getElementById('ml-sub-parent-url');
+
+  modal.style.display = 'flex';
+  loading.style.display = 'block';
+  loading.innerHTML = '⏳ Links dhundhh raha hai...';
+  subList.innerHTML = '';
+  subEmpty.style.display = 'none';
+  parentUrl.textContent = url;
+
+  // Ignore karo yeh domains
+  var ignDomains = ['linkmake.in','link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy'];
+  function isIgnored(lnk) {
+    return ignDomains.some(function(d){ return lnk.toLowerCase().indexOf(d) !== -1; });
+  }
+
+  function extractDownloadLinks(html, srcUrl) {
+    var results = [];
+    var seen = {};
+    // anchor tags
+    var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    var m;
+    while ((m = aReg.exec(html)) !== null) {
+      var lnk = m[1].trim();
+      var txt = m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+      if (!lnk.startsWith('http')) continue;
+      if (lnk === srcUrl) continue;
+      if (isIgnored(lnk)) continue;
+      if (seen[lnk]) continue;
+      seen[lnk] = true;
+      results.push({ url: lnk, label: txt });
+    }
+    // plain urls
+    var uReg = /(https?:\/\/[^\s"'<>\)]+)/g;
+    while ((m = uReg.exec(html)) !== null) {
+      var u = m[1].replace(/[,;)\]\.]+$/, '');
+      if (isIgnored(u)) continue;
+      if (u === srcUrl) continue;
+      if (seen[u]) continue;
+      seen[u] = true;
+      results.push({ url: u, label: '' });
+    }
+    return results;
+  }
+
+  function renderLinks(links) {
+    loading.style.display = 'none';
+    if (!links || links.length === 0) {
+      subEmpty.style.display = 'block';
+      subEmpty.innerHTML = '😕 Koi link nahi mili.<br><small style="color:#555;">Page JavaScript se links load karta hai — manually open karo.</small>';
+      return;
+    }
+    subList.innerHTML = links.map(function(lnk, i) {
+      var safeUrl = (lnk.url||lnk).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      var label = (lnk.label||'').substring(0,100);
+      return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
+        + '<span style="color:var(--red);font-weight:700;font-size:0.8rem;min-width:22px;flex-shrink:0;">' + (i+1) + '</span>'
+        + '<div style="flex:1;min-width:0;">'
+        + (label ? '<div style="font-size:0.78rem;color:#fbbf24;font-weight:700;margin-bottom:3px;">' + label + '</div>' : '')
+        + '<div style="font-size:0.71rem;word-break:break-all;color:#93c5fd;">' + (lnk.url||lnk) + '</div>'
+        + '</div>'
+        + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+        + '<button class="btn btn-b" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" style="padding:6px 13px;font-size:0.75rem;">Open</button>'
+        + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + safeUrl + '\');toast(\'Copied!\')" style="padding:6px 10px;font-size:0.75rem;">Copy</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // Proxies list — multiple try karein
+  var proxies = [
+    { name: 'AllOrigins', fn: function(u){ return { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(u), parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return t; } } }; } },
+    { name: 'CodeTabs',   fn: function(u){ return { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
+    { name: 'HTMLDriven', fn: function(u){ return { url: 'https://htmldriven.com/html-source?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
+    { name: 'ThingProxy', fn: function(u){ return { url: 'https://thingproxy.freeboard.io/fetch/' + u, parse: function(t){ return t; } }; } },
+    { name: 'CorsProxy',  fn: function(u){ return { url: 'https://corsproxy.io/?' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
+    { name: 'WhatEver',  fn: function(u){ return { url: 'https://whatever.fly.dev/proxy?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } }
+  ];
+
+  var tried = 0;
+
+  function tryNext() {
+    if (tried >= proxies.length) {
+      // Sab fail — manual open option dikhao
+      loading.style.display = 'none';
+      subEmpty.style.display = 'block';
+      subEmpty.innerHTML = '❌ Auto-extract nahi ho saka.<br>'
+        + '<div style="margin-top:12px;">'
+        + '<button class="btn btn-b" onclick="window.open(\'' + url.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:8px 18px;font-size:0.82rem;">🔗 Manually Open Karo</button>'
+        + '</div>'
+        + '<small style="color:#444;display:block;margin-top:8px;">Wahan se links copy kar sakte ho.</small>';
+      return;
+    }
+
+    var p = proxies[tried];
+    tried++;
+    loading.innerHTML = '⏳ ' + p.name + ' se try ho raha hai... (' + tried + '/' + proxies.length + ')';
+
+    var req = p.fn(url);
+    fetch(req.url)
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(function(text) {
+        var html = req.parse(text);
+        if (!html || html.length < 100) { tryNext(); return; }
+        var links = extractDownloadLinks(html, url);
+        if (links.length === 0) { tryNext(); return; }
+        renderLinks(links);
+      })
+      .catch(function() { tryNext(); });
+  }
+
+  tryNext();
+}
+
+function mlCloseSubModal() {
+  document.getElementById('ml-submodal').style.display = 'none';
+}
 
 </script>
 </body>
