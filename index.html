@@ -8466,6 +8466,7 @@ function mlDelete(id) {
 }
 
 function mlShowSubLinks(id, url) {
+  window._mlCurrentMovieKey = id; // store movie key for auto-save
   var modal = document.getElementById('ml-submodal');
   var loading = document.getElementById('ml-sub-loading');
   var subList = document.getElementById('ml-sub-list');
@@ -8480,9 +8481,11 @@ function mlShowSubLinks(id, url) {
   parentUrl.textContent = url;
 
   // Ignore karo yeh domains (linkmake.in HATAYA gaya — wahan se links chahiye)
-  var ignDomains = ['link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy','linkmake.in/#','linkmake.in/login','linkmake.in/signup','linkmake.in/policy','linkmake.in/dmca','linkmake.in/contact'];
+  var ignDomains = ['link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy','linkmake.in/login','linkmake.in/signup','linkmake.in/policy','linkmake.in/dmca','linkmake.in/contact'];
   function isIgnored(lnk) {
-    return ignDomains.some(function(d){ return lnk.toLowerCase().indexOf(d) !== -1; });
+    var l = lnk.toLowerCase();
+    if (l.replace(/\/+$/,'') === 'https://linkmake.in') return true;
+    return ignDomains.some(function(d){ return l.indexOf(d) !== -1; });
   }
 
   // Quality detect karo link ya label se
@@ -8501,7 +8504,7 @@ function mlShowSubLinks(id, url) {
     var seen = {};
 
     // 1. Markdown links: [Label](url) — allorigins returns markdown format
-    var mdReg = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+    var mdReg = /\[([^\]]+)\]\((https?:\/\/[^\s"')\]]+)/g; // handles [text](url "title") format
     var m;
     while ((m = mdReg.exec(html)) !== null) {
       var lnk = m[2].trim();
@@ -8695,6 +8698,28 @@ function mlShowSubLinks(id, url) {
 
 function mlRetryFetch(url) { mlShowSubLinks("retry", url); }
 
+// ── Auto-save Fast Direct link to Firebase ──
+function mlAutoSave(link, movieKey, field, btn) {
+  if (!movieKey || movieKey === 'retry') { toast('❌ Movie key nahi mila!', 1); return; }
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  var update = {};
+  update['movies/' + movieKey + '/' + field] = link;
+  db.ref().update(update).then(function() {
+    btn.textContent = '✅ Saved!';
+    btn.style.background = '#166534';
+    // Also update the Link Manager input field if visible
+    var fieldMap = { download4k: 'lm-d4k-', download1080p: 'lm-d10-', download720p: 'lm-d7-', download480p: 'lm-d4-' };
+    var inp = document.getElementById((fieldMap[field] || 'lm-d4-') + movieKey);
+    if (inp) inp.value = link;
+    toast('✅ ' + field.replace('download','') + ' link save ho gaya!');
+  }).catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = '💾 Save';
+    toast('❌ ' + e.message, 1);
+  });
+}
+
 // ── FileDL Fast Direct auto-fetch from popup link ──
 function mlFetchFastDirect(filesdlUrl, uid) {
   var card = document.getElementById(uid);
@@ -8706,7 +8731,7 @@ function mlFetchFastDirect(filesdlUrl, uid) {
 
   function parseForFastDirect(html) {
     // Strategy 1: Markdown [Fast Direct...](url) — sabse reliable
-    var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^)\s]+)\)/gi;
+    var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^\s"')\]]+)/gi;
     var m = mdRe.exec(html);
     if (m) return m[2];
 
@@ -8755,42 +8780,64 @@ function mlFetchFastDirect(filesdlUrl, uid) {
     return null;
   }
 
-  // Proxy 1: allorigins
-  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(filesdlUrl))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var html = data.contents || '';
-      if (!html) throw new Error('empty');
-      var link = parseForFastDirect(html);
-      if (!link) throw new Error('not_found');
-      resultBox.style.color = '#4ade80';
-      resultBox.innerHTML = '✅ Fast Direct Link:'
-        + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
-        + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
-        + '<button onclick="navigator.clipboard.writeText(\'' + link.replace(/'/g,"\\'") + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
-        + '<button onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:4px 10px;background:#1d4ed8;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Open</button>'
-        + '</div>';
-    })
-    .catch(function(){
-      // Proxy 2: corsproxy.io
-      fetch('https://corsproxy.io/?' + encodeURIComponent(filesdlUrl))
-        .then(function(r){ return r.text(); })
-        .then(function(html){
-          var link = parseForFastDirect(html);
-          if (!link) throw new Error('not_found');
-          resultBox.style.color = '#4ade80';
-          resultBox.innerHTML = '✅ Fast Direct Link:'
-            + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
-            + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
-            + '<button onclick="navigator.clipboard.writeText(\'' + link.replace(/'/g,"\\'") + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
-            + '<button onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:4px 10px;background:#1d4ed8;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Open</button>'
-            + '</div>';
-        })
-        .catch(function(){
-          resultBox.style.color = '#f87171';
-          resultBox.innerHTML = '❌ Fetch nahi ho saka. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
-        });
-    });
+  // Try multiple proxies in sequence
+  var fdProxies = [
+    { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+    { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CodeTabs', getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+  ];
+  var fdTried = 0;
+
+  function tryFdProxy() {
+    if (fdTried >= fdProxies.length) {
+      resultBox.style.color = '#f87171';
+      resultBox.innerHTML = '❌ Sab proxies fail. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+      return;
+    }
+    var p = fdProxies[fdTried++];
+    resultBox.innerHTML = '⏳ ' + p.name + ' se try... (' + fdTried + '/' + fdProxies.length + ')';
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 8000);
+    fetch(p.getUrl(filesdlUrl), { signal: ctrl.signal })
+      .then(function(r){ clearTimeout(t); return r.text(); })
+      .then(function(raw){
+        var html = p.parse(raw);
+        if (!html || html.length < 100) { tryFdProxy(); return; }
+        var link = parseForFastDirect(html);
+        if (!link) { tryFdProxy(); return; }
+        showFastDirectResult(link, filesdlUrl);
+      })
+      .catch(function(){ clearTimeout(t); tryFdProxy(); });
+  }
+  tryFdProxy();
+
+  function showFastDirectResult(link, srcUrl) {
+    var movieKey = window._mlCurrentMovieKey || '';
+    var safeLink = link.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    // Detect quality from filesdl page label (in parent card) or URL
+    var cardLabel = (card.querySelector('.ml-fetch-result') ? card.textContent : '').toLowerCase();
+    var qMap = { '4k':'download4k', '2160p':'download4k', 'uhd':'download4k', '1080p':'download1080p', 'fhd':'download1080p', '720p':'download720p', '480p':'download480p' };
+    var qLabel = { 'download4k':'4K', 'download1080p':'1080p', 'download720p':'720p', 'download480p':'480p' };
+    var field = 'download480p'; // default
+    var combinedText = (card.textContent + ' ' + srcUrl).toLowerCase();
+    if (combinedText.match(/2160p|\b4k\b|uhd/)) field = 'download4k';
+    else if (combinedText.match(/1080p|fhd/)) field = 'download1080p';
+    else if (combinedText.match(/720p/)) field = 'download720p';
+    else if (combinedText.match(/480p/)) field = 'download480p';
+
+    var saveBtn = movieKey && movieKey !== 'retry'
+      ? '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',this)" style="padding:4px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>'
+      : '';
+
+    resultBox.style.color = '#4ade80';
+    resultBox.innerHTML = '✅ Fast Direct Link:'
+      + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
+      + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
+      + '<button onclick="navigator.clipboard.writeText(\'' + safeLink + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
+      + saveBtn
+      + '</div>';
+  }
 }
 
 function mlCloseSubModal() {
