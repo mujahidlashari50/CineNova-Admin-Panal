@@ -4858,6 +4858,12 @@ function lmFilter() {
                 '<input id="lm-pd-'+k+'" class="fi" value="'+(pdId||'')+'" placeholder="ID dalo (e.g. AbCd1234)" style="flex:1;font-size:0.78rem;padding:5px 8px;border:none;border-radius:0;background:transparent;">'+
               '</div>'+
             '</div>'+
+            '<div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;">'+
+              '<span style="font-size:0.72rem;color:#4ade80;width:90px;flex-shrink:0;">🔗 FileDL:</span>'+
+              '<input id="lm-fdl-'+k+'" class="fi" placeholder="FileDL URL paste karo (e.g. new6.filesdl.top/cloud/...)" style="flex:1;font-size:0.75rem;padding:5px 8px;">'+
+              '<button onclick="fetchFileDLLinks(\''+k+'\')" style="padding:5px 10px;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;" title="FileDL page se links auto-fetch karo">⚡ Fetch</button>'+
+            '</div>'+
+            '<div id="lm-fdl-status-'+k+'" style="font-size:0.7rem;color:#4ade80;margin-bottom:4px;display:none;padding-left:96px;"></div>'+
             '<div style="display:flex;gap:6px;align-items:center;">'+
               '<span style="font-size:0.72rem;color:#888;width:90px;flex-shrink:0;">↓ 480p:</span>'+
               '<input id="lm-d4-'+k+'" class="fi" value="'+(m.download480p||'')+'" placeholder="Download link" style="flex:1;font-size:0.78rem;padding:5px 8px;">'+
@@ -4911,6 +4917,119 @@ function lmSave(key) {
     var hasAny = videoUrl || vlcUrl || d480 || d720 || d1080 || d4k;
     if (card) card.style.borderColor = hasAny ? 'rgba(42,42,42,0.8)' : 'rgba(245,158,11,0.35)';
   }).catch(function(e){ toast('❌ '+e.message, 1); });
+}
+// ═══════════════════════════════════════════
+// 🔗 FILESDL AUTO-FETCH
+// ═══════════════════════════════════════════
+function fetchFileDLLinks(key) {
+  var urlInp = document.getElementById('lm-fdl-'+key);
+  var statusEl = document.getElementById('lm-fdl-status-'+key);
+  if (!urlInp || !statusEl) return;
+
+  var rawUrl = urlInp.value.trim();
+  if (!rawUrl) { toast('❌ FileDL URL daalo pehle!', 1); return; }
+  if (!/^https?:\/\//i.test(rawUrl)) rawUrl = 'https://' + rawUrl;
+
+  statusEl.style.display = 'block';
+  statusEl.style.color = '#f59e0b';
+  statusEl.textContent = '⏳ Fetching page...';
+
+  function parseFileDLHtml(html) {
+    // allorigins returns markdown format: [Link Text](url)
+    // So match markdown links first — most reliable
+    var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^)]+)\)/gi;
+    var mdM = mdRe.exec(html);
+    if (mdM) return mdM[2];
+
+    // Fallback: try HTML anchor — "Fast Direct" in text before or after href
+    // Pattern: href="..." then text contains fast direct
+    var htmlRe1 = /<a[^>]+href=["'](https?:\/\/[^"']+)["'][^>]*>([^<]*fast\s*direct[^<]*)/gi;
+    var hm = htmlRe1.exec(html);
+    if (hm) return hm[1];
+
+    // Fallback: text "Fast Direct" comes right before the href in reversed anchor
+    // Some templates: >Fast Direct Download<... href="..."
+    var htmlRe2 = /fast\s*direct[^<]*<\/a>\s*<a[^>]+href=["'](https?:\/\/[^"']+)["']/gi;
+    var hm2 = htmlRe2.exec(html);
+    if (hm2) return hm2[1];
+
+    // Fallback: fdownload.php — collect all, pick the one AFTER "fast direct" text
+    var fdPos = html.toLowerCase().indexOf('fast direct');
+    if (fdPos !== -1) {
+      var afterFast = html.substring(fdPos);
+      var fdRe = /href=["'](https?:\/\/[^"']*fdownload\.php[^"']+)["']/i;
+      var fdM = fdRe.exec(afterFast);
+      if (fdM) return fdM[1];
+    }
+
+    // Last resort: any markdown link that is NOT cloud direct / pixeldrain / gofile / telegram / mf
+    var allMd = [];
+    var allMdRe = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/gi;
+    var allMdM;
+    while ((allMdM = allMdRe.exec(html)) !== null) allMd.push({ text: allMdM[1].toLowerCase(), url: allMdM[2] });
+    for (var i = 0; i < allMd.length; i++) {
+      var u = allMd[i].url.toLowerCase();
+      var t = allMd[i].text;
+      if (!u.includes('filesdl.top') && !u.includes('pixeldrain') && !u.includes('gofile') && !u.includes('t.me') && !u.includes('telegram') && !t.includes('cloud direct') && !t.includes('slowcloud')) {
+        return allMd[i].url;
+      }
+    }
+    return null;
+  }
+
+  function detectQuality(html) {
+    var t = html.toLowerCase();
+    if (t.includes('2160p') || t.includes(' 4k ') || t.includes('"4k"') || t.includes('uhd')) return '4k';
+    if (t.includes('1080p')) return '1080';
+    if (t.includes('720p'))  return '720';
+    if (t.includes('480p'))  return '480';
+    return '480';
+  }
+
+  function fillField(quality, link) {
+    var fieldMap = { '4k': 'lm-d4k-', '1080': 'lm-d10-', '720': 'lm-d7-', '480': 'lm-d4-' };
+    var labelMap = { '4k': '4K', '1080': '1080p', '720': '720p', '480': '480p' };
+    var el = document.getElementById((fieldMap[quality] || 'lm-d4-') + key);
+    if (el) el.value = link;
+    return labelMap[quality] || '480p';
+  }
+
+  function onSuccess(html) {
+    var link = parseFileDLHtml(html);
+    if (!link) {
+      statusEl.style.color = '#f87171';
+      statusEl.textContent = '❌ Fast Direct link nahi mila. Page manually check karo.';
+      return;
+    }
+    var quality = detectQuality(html);
+    var label = fillField(quality, link);
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '✅ ' + label + ' field fill ho gaya! — Save karna mat bhoolo.';
+    urlInp.value = '';
+  }
+
+  // Proxy 1: allorigins (returns JSON with .contents)
+  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(rawUrl))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var html = data.contents || '';
+      if (!html) throw new Error('empty');
+      onSuccess(html);
+    })
+    .catch(function() {
+      // Proxy 2: corsproxy.io (returns raw HTML)
+      statusEl.textContent = '⏳ Backup proxy try kar raha hoon...';
+      fetch('https://corsproxy.io/?' + encodeURIComponent(rawUrl))
+        .then(function(r) { return r.text(); })
+        .then(function(html) {
+          if (!html) throw new Error('empty');
+          onSuccess(html);
+        })
+        .catch(function() {
+          statusEl.style.color = '#f87171';
+          statusEl.textContent = '❌ Dono proxies fail. FileDL page accessible nahi hai.';
+        });
+    });
 }
 // ═══ END LINK MANAGER ═══
 
@@ -8361,7 +8480,7 @@ function mlShowSubLinks(id, url) {
   parentUrl.textContent = url;
 
   // Ignore karo yeh domains (linkmake.in HATAYA gaya — wahan se links chahiye)
-  var ignDomains = ['link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy'];
+  var ignDomains = ['link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy','linkmake.in/#','linkmake.in/login','linkmake.in/signup','linkmake.in/policy','linkmake.in/dmca','linkmake.in/contact'];
   function isIgnored(lnk) {
     return ignDomains.some(function(d){ return lnk.toLowerCase().indexOf(d) !== -1; });
   }
@@ -8380,9 +8499,22 @@ function mlShowSubLinks(id, url) {
   function extractDownloadLinks(html, srcUrl) {
     var results = [];
     var seen = {};
-    // anchor tags
-    var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+
+    // 1. Markdown links: [Label](url) — allorigins returns markdown format
+    var mdReg = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
     var m;
+    while ((m = mdReg.exec(html)) !== null) {
+      var lnk = m[2].trim();
+      var txt = m[1].trim();
+      if (isIgnored(lnk)) continue;
+      if (lnk === srcUrl) continue;
+      if (seen[lnk]) continue;
+      seen[lnk] = true;
+      results.push({ url: lnk, label: txt });
+    }
+
+    // 2. HTML anchor tags
+    var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
     while ((m = aReg.exec(html)) !== null) {
       var lnk = m[1].trim();
       var txt = m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
@@ -8393,8 +8525,9 @@ function mlShowSubLinks(id, url) {
       seen[lnk] = true;
       results.push({ url: lnk, label: txt });
     }
-    // plain urls
-    var uReg = /(https?:\/\/[^\s"'<>\)]+)/g;
+
+    // 3. Plain bare URLs (last resort)
+    var uReg = /(https?:\/\/[^\s"'<>\)\]]+)/g;
     while ((m = uReg.exec(html)) !== null) {
       var u = m[1].replace(/[,;)\]\.]+$/, '');
       if (isIgnored(u)) continue;
@@ -8469,7 +8602,13 @@ function mlShowSubLinks(id, url) {
     var label = (lnk.label||'').substring(0,120);
     var q = lnk._q || detectQuality(lnk.url||'', lnk.label||'');
     var qBadge = q ? '<span style="padding:2px 8px;border-radius:4px;font-size:0.62rem;font-weight:700;background:'+q.bg+';color:'+q.color+';border:1px solid '+q.border+';margin-right:6px;flex-shrink:0;">'+q.tag+'</span>' : '';
-    return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
+    var uid = 'mlsl-' + i + '-' + Date.now();
+    var isFileDL = /filesdl\.in|filesdl\.top/i.test(lnk.url||lnk);
+    var fetchBtn = isFileDL
+      ? '<button onclick="mlFetchFastDirect(\'' + safeUrl + '\',\'' + uid + '\')" style="padding:6px 10px;font-size:0.72rem;font-weight:700;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;cursor:pointer;white-space:nowrap;">⚡ Fetch</button>'
+      : '';
+    return '<div id="'+uid+'" style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;margin-bottom:6px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
       + '<span style="color:var(--red);font-weight:700;font-size:0.8rem;min-width:20px;flex-shrink:0;">' + (i+1) + '</span>'
       + '<div style="flex:1;min-width:0;">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:3px;">'
@@ -8479,9 +8618,12 @@ function mlShowSubLinks(id, url) {
       + '<div style="font-size:0.71rem;word-break:break-all;color:#93c5fd;">' + (lnk.url||lnk) + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+      + fetchBtn
       + '<button class="btn btn-b" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" style="padding:6px 13px;font-size:0.75rem;">Open</button>'
       + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + safeUrl + '\');toast(\'Copied!\')" style="padding:6px 10px;font-size:0.75rem;">Copy</button>'
       + '</div>'
+      + '</div>'
+      + '<div class="ml-fetch-result" style="display:none;margin-top:8px;padding:8px 10px;background:#0a1a0a;border:1px solid #166534;border-radius:7px;font-size:0.75rem;"></div>'
       + '</div>';
   }
 
@@ -8552,6 +8694,104 @@ function mlShowSubLinks(id, url) {
 }
 
 function mlRetryFetch(url) { mlShowSubLinks("retry", url); }
+
+// ── FileDL Fast Direct auto-fetch from popup link ──
+function mlFetchFastDirect(filesdlUrl, uid) {
+  var card = document.getElementById(uid);
+  if (!card) return;
+  var resultBox = card.querySelector('.ml-fetch-result');
+  resultBox.style.display = 'block';
+  resultBox.style.color = '#f59e0b';
+  resultBox.innerHTML = '⏳ Fast Direct link fetch ho rahi hai...';
+
+  function parseForFastDirect(html) {
+    // Strategy 1: Markdown [Fast Direct...](url) — sabse reliable
+    var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^)\s]+)\)/gi;
+    var m = mdRe.exec(html);
+    if (m) return m[2];
+
+    // Strategy 2: "fast direct" text ke aas paas fdownload.php link dhundo
+    var fdPos = html.toLowerCase().indexOf('fast direct');
+    if (fdPos !== -1) {
+      var snippet = html.substring(Math.max(0, fdPos - 400), fdPos + 400);
+      var fdRe = /(https?:\/\/[^\s"')<\]]*fdownload\.php[^\s"')<\]]*)/i;
+      var fm = fdRe.exec(snippet);
+      if (fm) return fm[1];
+    }
+
+    // Strategy 3: Markdown mein koi bhi non-cloud, non-mf fdownload link
+    var allMd = [];
+    var allMdRe = /\[([^\]]+)\]\((https?:\/\/[^)\s]+fdownload\.php[^)\s]*)\)/gi;
+    var am;
+    while ((am = allMdRe.exec(html)) !== null) {
+      var label = am[1].toLowerCase();
+      if (!label.includes('cloud') && !label.includes('slowcloud') && !label.includes('mf-dl')) {
+        return am[2];
+      }
+      allMd.push(am[2]);
+    }
+
+    // Strategy 4: agar sirf ek fdownload.php link hai toh wahi Fast Direct hai
+    var allFd = [];
+    var allFdRe = /(https?:\/\/[^\s"')<\]]*fdownload\.php[^\s"')<\]]*)/gi;
+    var af;
+    while ((af = allFdRe.exec(html)) !== null) allFd.push(af[1]);
+    if (allFd.length === 1) return allFd[0];
+
+    // Strategy 5: 2+ links hain — "cloud direct" wali skip karo, baaki pehli lo
+    if (allFd.length > 1) {
+      // Cloud Direct ka URL r2.dev ya pub- se hota hai, fdownload nahi
+      // Toh allFd mein jo "cloud" label ke saath nahi — woh Fast Direct
+      // Simple: markdown mein Cloud Direct ke baad wali link lo
+      var cloudPos = html.toLowerCase().indexOf('cloud direct');
+      var fastPos  = html.toLowerCase().indexOf('fast direct');
+      if (fastPos !== -1 && fastPos > cloudPos) {
+        // Fast Direct baad mein hai — allFd mein se cloud ke baad wali
+        return allFd[allFd.length - 1];
+      }
+      return allFd[0];
+    }
+
+    return null;
+  }
+
+  // Proxy 1: allorigins
+  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(filesdlUrl))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var html = data.contents || '';
+      if (!html) throw new Error('empty');
+      var link = parseForFastDirect(html);
+      if (!link) throw new Error('not_found');
+      resultBox.style.color = '#4ade80';
+      resultBox.innerHTML = '✅ Fast Direct Link:'
+        + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
+        + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
+        + '<button onclick="navigator.clipboard.writeText(\'' + link.replace(/'/g,"\\'") + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
+        + '<button onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:4px 10px;background:#1d4ed8;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Open</button>'
+        + '</div>';
+    })
+    .catch(function(){
+      // Proxy 2: corsproxy.io
+      fetch('https://corsproxy.io/?' + encodeURIComponent(filesdlUrl))
+        .then(function(r){ return r.text(); })
+        .then(function(html){
+          var link = parseForFastDirect(html);
+          if (!link) throw new Error('not_found');
+          resultBox.style.color = '#4ade80';
+          resultBox.innerHTML = '✅ Fast Direct Link:'
+            + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
+            + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
+            + '<button onclick="navigator.clipboard.writeText(\'' + link.replace(/'/g,"\\'") + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
+            + '<button onclick="window.open(\'' + link.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:4px 10px;background:#1d4ed8;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Open</button>'
+            + '</div>';
+        })
+        .catch(function(){
+          resultBox.style.color = '#f87171';
+          resultBox.innerHTML = '❌ Fetch nahi ho saka. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+        });
+    });
+}
 
 function mlCloseSubModal() {
   document.getElementById('ml-submodal').style.display = 'none';
