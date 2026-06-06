@@ -2302,6 +2302,10 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <label>URL (linkmake.in bhi kaam karega ✅)</label>
             <input class="fi" id="ml-url" placeholder="https://linkmake.in/view/QBm2lRodTZ" />
           </div>
+          <div class="fgg" style="flex:1;min-width:200px;">
+            <label>Movie Firebase Key <span style="color:#f59e0b;font-size:0.7rem;">(Save ke liye)</span></label>
+            <input class="fi" id="ml-moviekey" placeholder="Firebase key paste karo" />
+          </div>
           <button class="btn btn-p" onclick="mlAddLink()" style="height:40px;padding:0 20px;">Add Link</button>
         </div>
       </div>
@@ -2511,6 +2515,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
   <div id="edit-box">
     <button id="edit-close" onclick="closeEdit()">✕</button>
     <h2>✏️ Edit Content</h2>
+    <div id="edit-firebase-key" style="display:none;margin-bottom:12px;padding:7px 12px;background:#1a1a0a;border:1px solid #854d0e;border-radius:8px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:0.72rem;color:#fbbf24;font-weight:700;">🔑 Firebase Key:</span>
+      <code id="edit-key-text" style="font-size:0.75rem;color:#fde68a;flex:1;word-break:break-all;"></code>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('edit-key-text').textContent);toast('✅ Key copied!')" style="padding:3px 10px;background:#854d0e;border:none;border-radius:5px;color:#fde68a;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>
+    </div>
     <div class="fg">
       <div class="fgg full"><label>Title</label><input class="fi" id="et"/></div>
       <div class="fgg"><label>Year</label><input class="fi" id="ey"/></div>
@@ -3418,6 +3427,11 @@ function onEditCatChange(){
 function openEdit(key){
   var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
   editKey=key;
+  // Firebase key dikhao
+  var keyEl = document.getElementById('edit-key-text');
+  var keyBox = document.getElementById('edit-firebase-key');
+  if (keyEl) keyEl.textContent = key;
+  if (keyBox) keyBox.style.display = 'flex';
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
   sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('etrailer',m.trailerUrl||'');
@@ -8426,6 +8440,7 @@ function mlRender() {
       + '<div style="flex:1;min-width:0;">'
       + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lnk.title || 'Untitled Link') + '</div>'
       + '<div style="font-size:0.72rem;color:var(--grey2);word-break:break-all;">' + lnk.url + '</div>'
+      + (lnk.movieKey ? '<div style="font-size:0.68rem;color:#f59e0b;margin-top:2px;">🎬 Movie Key: ' + lnk.movieKey + '</div>' : '<div style="font-size:0.68rem;color:#6b7280;margin-top:2px;">⚠️ Movie Key nahi — Save kaam nahi karega</div>')
       + '</div>'
       + '<div style="display:flex;gap:7px;flex-shrink:0;">'
       + '<button class="btn btn-b" onclick="window.open(\x27'+lnk.url+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
@@ -8439,6 +8454,7 @@ function mlRender() {
 function mlAddLink() {
   var title = document.getElementById('ml-title').value.trim();
   var url = document.getElementById('ml-url').value.trim();
+  var movieKey = document.getElementById('ml-moviekey').value.trim();
   if (!url) { toast('URL daalo pehle!', 1); return; }
   if (!url.startsWith('http')) { toast('Valid URL daalo (http...)', 1); return; }
   
@@ -8446,6 +8462,7 @@ function mlAddLink() {
   db.ref('mylinks/' + key).set({
     title: title || 'Untitled',
     url: url,
+    movieKey: movieKey || '',
     ts: Date.now()
   }, function(err) {
     if (err) { toast('Save nahi hua!', 1); }
@@ -8453,6 +8470,7 @@ function mlAddLink() {
       toast('Link save ho gaya!');
       document.getElementById('ml-title').value = '';
       document.getElementById('ml-url').value = '';
+      document.getElementById('ml-moviekey').value = '';
     }
   });
 }
@@ -8466,7 +8484,9 @@ function mlDelete(id) {
 }
 
 function mlShowSubLinks(id, url) {
-  window._mlCurrentMovieKey = id; // store movie key for auto-save
+  // movieKey: pehle Link Manager entry ki movieKey, warna lnk.id
+  var lnk = _mlLinks.find(function(l){ return l.id === id; });
+  window._mlCurrentMovieKey = (lnk && lnk.movieKey) ? lnk.movieKey : '';
   var modal = document.getElementById('ml-submodal');
   var loading = document.getElementById('ml-sub-loading');
   var subList = document.getElementById('ml-sub-list');
@@ -8605,10 +8625,11 @@ function mlShowSubLinks(id, url) {
     var label = (lnk.label||'').substring(0,120);
     var q = lnk._q || detectQuality(lnk.url||'', lnk.label||'');
     var qBadge = q ? '<span style="padding:2px 8px;border-radius:4px;font-size:0.62rem;font-weight:700;background:'+q.bg+';color:'+q.color+';border:1px solid '+q.border+';margin-right:6px;flex-shrink:0;">'+q.tag+'</span>' : '';
-    var uid = 'mlsl-' + i + '-' + Date.now();
+    var uid = 'mlsl-' + i + '-' + Math.random().toString(36).substr(2,6);
     var isFileDL = /filesdl\.in|filesdl\.top/i.test(lnk.url||lnk);
+    var safeLabel = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var fetchBtn = isFileDL
-      ? '<button onclick="mlFetchFastDirect(\'' + safeUrl + '\',\'' + uid + '\')" style="padding:6px 10px;font-size:0.72rem;font-weight:700;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;cursor:pointer;white-space:nowrap;">⚡ Fetch</button>'
+      ? '<button onclick="mlFetchFastDirect(\'' + safeUrl + '\',\'' + uid + '\',\'' + safeLabel + '\')" style="padding:6px 10px;font-size:0.72rem;font-weight:700;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;cursor:pointer;white-space:nowrap;">⚡ Fetch</button>'
       : '';
     return '<div id="'+uid+'" style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;margin-bottom:6px;">'
       + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
@@ -8721,7 +8742,7 @@ function mlAutoSave(link, movieKey, field, btn) {
 }
 
 // ── FileDL Fast Direct auto-fetch from popup link ──
-function mlFetchFastDirect(filesdlUrl, uid) {
+function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
   var card = document.getElementById(uid);
   if (!card) return;
   var resultBox = card.querySelector('.ml-fetch-result');
@@ -8806,21 +8827,22 @@ function mlFetchFastDirect(filesdlUrl, uid) {
         if (!html || html.length < 100) { tryFdProxy(); return; }
         var link = parseForFastDirect(html);
         if (!link) { tryFdProxy(); return; }
-        showFastDirectResult(link, filesdlUrl);
+        // Page title se quality nikalo, plus original link label bhi use karo
+        var titleMatch = html.match(/#+\s*(.+)|<title[^>]*>([^<]+)/i);
+        var pageTitle = titleMatch ? (titleMatch[1]||titleMatch[2]||'') : '';
+        showFastDirectResult(link, filesdlUrl, (linkLabel||'') + ' ' + pageTitle);
       })
       .catch(function(){ clearTimeout(t); tryFdProxy(); });
   }
   tryFdProxy();
 
-  function showFastDirectResult(link, srcUrl) {
+  function showFastDirectResult(link, srcUrl, linkLabel) {
     var movieKey = window._mlCurrentMovieKey || '';
     var safeLink = link.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    // Detect quality from filesdl page label (in parent card) or URL
-    var cardLabel = (card.querySelector('.ml-fetch-result') ? card.textContent : '').toLowerCase();
-    var qMap = { '4k':'download4k', '2160p':'download4k', 'uhd':'download4k', '1080p':'download1080p', 'fhd':'download1080p', '720p':'download720p', '480p':'download480p' };
     var qLabel = { 'download4k':'4K', 'download1080p':'1080p', 'download720p':'720p', 'download480p':'480p' };
     var field = 'download480p'; // default
-    var combinedText = (card.textContent + ' ' + srcUrl).toLowerCase();
+    // Quality sirf is link ke label aur URL se detect karo — card.textContent nahi
+    var combinedText = ((linkLabel||'') + ' ' + srcUrl).toLowerCase();
     if (combinedText.match(/2160p|\b4k\b|uhd/)) field = 'download4k';
     else if (combinedText.match(/1080p|fhd/)) field = 'download1080p';
     else if (combinedText.match(/720p/)) field = 'download720p';
