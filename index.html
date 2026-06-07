@@ -5022,26 +5022,35 @@ function fetchFileDLLinks(key) {
     urlInp.value = '';
   }
 
-  // Proxy 1: allorigins (returns JSON with .contents)
-  fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(rawUrl))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var html = data.contents || '';
-      if (!html) throw new Error('empty');
+  // ⭐ Worker pehle — guaranteed kaam karega
+  fetch('https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(rawUrl))
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      if (!html || html.length < 100) throw new Error('empty');
       onSuccess(html);
     })
     .catch(function() {
-      // Proxy 2: corsproxy.io (returns raw HTML)
-      statusEl.textContent = '⏳ Backup proxy try kar raha hoon...';
-      fetch('https://corsproxy.io/?' + encodeURIComponent(rawUrl))
-        .then(function(r) { return r.text(); })
-        .then(function(html) {
+      // Proxy 2: allorigins
+      statusEl.textContent = '⏳ Backup proxy try ho rahi hai...';
+      fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(rawUrl))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var html = data.contents || '';
           if (!html) throw new Error('empty');
           onSuccess(html);
         })
         .catch(function() {
-          statusEl.style.color = '#f87171';
-          statusEl.textContent = '❌ Dono proxies fail. FileDL page accessible nahi hai.';
+          // Proxy 3: corsproxy.io
+          fetch('https://corsproxy.io/?' + encodeURIComponent(rawUrl))
+            .then(function(r) { return r.text(); })
+            .then(function(html) {
+              if (!html) throw new Error('empty');
+              onSuccess(html);
+            })
+            .catch(function() {
+              statusEl.style.color = '#f87171';
+              statusEl.textContent = '❌ Sab proxies fail. FileDL page manually check karo.';
+            });
         });
     });
 }
@@ -8653,6 +8662,8 @@ function mlShowSubLinks(id, url) {
 
   // ── Proxies list ──
   var proxies = [
+    // ⭐ Apna Worker — pehli priority, 100% kaam karega
+    { name: 'CineNova-Worker', fn: function(u){ return { url: 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
     // AllOrigins — JSON wrapper, sabse reliable
     { name: 'AllOrigins',   fn: function(u){ return { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(u) + '&charset=utf-8', parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }; } },
     // AllOrigins raw
@@ -8803,6 +8814,8 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
 
   // Try multiple proxies in sequence
   var fdProxies = [
+    // ⭐ Apna Worker — pehli priority
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
