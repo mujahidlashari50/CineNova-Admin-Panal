@@ -584,6 +584,9 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
     <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
+    <div class="nav-section-title">Earnings</div>
+    <div class="nav-item" id="nav-withdrawals" onclick="show('withdrawals')" style="color:#22c55e;">💸 Withdrawals <span class="nav-count" id="wd-pending-count" style="background:#f59e0b;">0</span></div>
+    <div class="nav-item" id="nav-earners" onclick="show('earners')">💰 Top Earners</div>
   </div>
 
   <div id="content">
@@ -2576,6 +2579,88 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════
+      WITHDRAWALS SECTION
+    ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-withdrawals">
+      <div class="sec-title">💸 <span>Withdrawals</span></div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="num" id="wd-stat-pending">0</div>
+          <div class="lbl">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="wd-stat-paid">0</div>
+          <div class="lbl">Paid</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="wd-stat-total-pkr">0</div>
+          <div class="lbl">Total Paid (PKR)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="wd-stat-users">0</div>
+          <div class="lbl">Total Users</div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="btn btn-p" id="wd-tab-pending" onclick="wdFilter('pending')" style="font-size:0.82rem;padding:8px 16px;">⏳ Pending</button>
+        <button class="btn btn-s" id="wd-tab-approved" onclick="wdFilter('approved')" style="font-size:0.82rem;padding:8px 16px;">✅ Approved</button>
+        <button class="btn btn-s" id="wd-tab-rejected" onclick="wdFilter('rejected')" style="font-size:0.82rem;padding:8px 16px;">❌ Rejected</button>
+        <button class="btn btn-s" id="wd-tab-all" onclick="wdFilter('all')" style="font-size:0.82rem;padding:8px 16px;">📋 All</button>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table id="wd-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">User</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Easypaisa #</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Amount</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Date</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Status</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="wd-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+      TOP EARNERS SECTION
+    ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-earners">
+      <div class="sec-title">💰 <span>Top Earners</span></div>
+      <div class="card">
+        <h3>All Users — Earning Summary</h3>
+        <div style="overflow-x:auto;">
+          <table id="earners-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">#</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">User</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Balance (PKR)</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Total Earned</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Downloads</th>
+              </tr>
+            </thead>
+            <tbody id="earners-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 </div>
 </div>
 
@@ -2754,10 +2839,15 @@ function loadScript(src,cb){
 loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',function(){
   loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js',function(){
     loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js',function(){
-      firebase.initializeApp(firebaseConfig);
-      db=firebase.database();window.storage=firebase.storage();
-      initLoginScreen();
-      fpCheckOnLoad();
+      loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',function(){
+        firebase.initializeApp(firebaseConfig);
+        db=firebase.database();window.storage=firebase.storage();
+        window._adminDbReady = true;
+        initLoginScreen();
+        fpCheckOnLoad();
+        // Withdrawal pending count load karo
+        wdLoadPendingCount();
+      });
     });
   });
 });
@@ -3179,6 +3269,8 @@ function show(name){
   if(name==='adtimer'){atpLoadSettings();}
   if(name==='push'){puLoadAll();}
   if(name==='mylinks'){mlLoadAll();}
+  if(name==='withdrawals'){wdLoadAll();}
+  if(name==='earners'){earnersLoad();}
 }
 
 function showCat(cat){
@@ -9584,6 +9676,339 @@ function mlCloseSubModal() {
   document.getElementById('ml-submodal').style.display = 'none';
 }
 
+</script>
+
+<!-- ══════════════════════════════════════════════════
+  WITHDRAWAL & EARNERS MANAGEMENT JS
+══════════════════════════════════════════════════ -->
+<script>
+// ── State ──
+var wdAllData = [];
+var wdCurrentFilter = 'pending';
+
+// db ready hone ka wait karo
+function wdWaitDb(cb) {
+  if (window.db) { cb(); return; }
+  var t = setInterval(function() {
+    if (window.db) { clearInterval(t); cb(); }
+  }, 300);
+}
+
+// Called when withdrawals section opens
+function wdLoadAll() {
+  var tbody = document.getElementById('wd-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
+
+  wdWaitDb(function() {
+    db.ref('withdrawals').orderByChild('ts').once('value', function(snap) {
+      wdAllData = [];
+      snap.forEach(function(c) {
+        var d = c.val();
+        d._key = c.key;
+        wdAllData.unshift(d);
+      });
+      wdUpdateStats();
+      wdRender();
+    }, function(err) {
+      var tbody = document.getElementById('wd-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#f87171;">❌ Firebase error: ' + err.message + '</td></tr>';
+    });
+  });
+}
+
+function wdFilter(f) {
+  wdCurrentFilter = f;
+  ['pending','approved','rejected','all'].forEach(function(t) {
+    var btn = document.getElementById('wd-tab-' + t);
+    if (!btn) return;
+    btn.className = (t === f) ? 'btn btn-p' : 'btn btn-s';
+    btn.style.fontSize = '0.82rem';
+    btn.style.padding = '8px 16px';
+  });
+  wdRender();
+}
+
+function wdRender() {
+  var tbody = document.getElementById('wd-tbody');
+  if (!tbody) return;
+
+  var list = wdCurrentFilter === 'all'
+    ? wdAllData
+    : wdAllData.filter(function(d) { return d.status === wdCurrentFilter; });
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Koi record nahi</td></tr>';
+    return;
+  }
+
+  var html = '';
+  list.forEach(function(d) {
+    var dt = new Date(d.ts);
+    var dateStr = dt.getDate() + '/' + (dt.getMonth()+1) + '/' + dt.getFullYear();
+    var statusBadge = {
+      pending:  '<span style="background:#78350f;color:#fbbf24;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">⏳ Pending</span>',
+      approved: '<span style="background:#14532d;color:#4ade80;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">✅ Approved</span>',
+      rejected: '<span style="background:#450a0a;color:#f87171;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">❌ Rejected</span>'
+    }[d.status] || '';
+
+    var safeEp = (d.easypaisa||'').replace(/'/g,"\\'");
+    var safeKey = d._key;
+    var actions = '';
+    // Email button — har row mein (jahan email ho)
+    var emailBtn = d.email
+      ? '<button onclick="wdSendManualEmail(\'' + safeKey + '\')" style="padding:5px 10px;background:#1e3a5f;border:none;border-radius:6px;color:#60a5fa;font-size:0.72rem;font-weight:700;cursor:pointer;margin-top:5px;display:block;">📧 Mail Bhejo</button>'
+      : '';
+    if (d.status === 'pending') {
+      actions = '<button onclick="wdApprove(\'' + d._key + '\')" style="padding:5px 12px;background:#14532d;border:none;border-radius:6px;color:#4ade80;font-size:0.75rem;font-weight:700;cursor:pointer;margin-right:5px;">✅ Approve</button>'
+              + '<button onclick="wdReject(\'' + d._key + '\')" style="padding:5px 12px;background:#450a0a;border:none;border-radius:6px;color:#f87171;font-size:0.75rem;font-weight:700;cursor:pointer;">❌ Reject</button>'
+              + emailBtn;
+    } else {
+      actions = emailBtn;
+    }
+
+    html += '<tr style="border-bottom:1px solid #1e1e1e;">'
+      + '<td style="padding:12px 16px;"><div style="font-weight:600;font-size:0.85rem;">' + escHtml(d.name||'User') + '</div><div style="font-size:0.72rem;color:#666;">' + escHtml(d.email||'') + '</div></td>'
+      + '<td style="padding:12px 16px;"><span style="font-family:monospace;color:#60a5fa;">' + escHtml(d.easypaisa||'') + '</span><button onclick="navigator.clipboard.writeText(\'' + safeEp + '\');toast(\'✅ Copied!\')" style="margin-left:6px;padding:2px 7px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.65rem;cursor:pointer;">Copy</button></td>'
+      + '<td style="padding:12px 16px;"><span style="font-family:\'Bebas Neue\',cursive;font-size:1.2rem;color:#22c55e;">PKR ' + (d.amount||0) + '</span></td>'
+      + '<td style="padding:12px 16px;color:#888;font-size:0.8rem;">' + dateStr + '</td>'
+      + '<td style="padding:12px 16px;">' + statusBadge + '</td>'
+      + '<td style="padding:12px 16px;">' + actions + '</td>'
+      + '</tr>';
+  });
+
+  tbody.innerHTML = html;
+}
+
+// ── Manual Email Send ──
+function wdSendManualEmail(key) {
+  db.ref('withdrawals/' + key).once('value', function(snap) {
+    var d = snap.val();
+    if (!d) { toast('❌ Data nahi mila'); return; }
+    if (!d.email) { toast('⚠️ Is user ka email save nahi hai'); return; }
+    var type = d.status === 'approved' ? 'approved' : (d.status === 'rejected' ? 'rejected' : 'pending');
+    // Custom message modal dikhao
+    wdShowEmailModal(key, d, type);
+  });
+}
+
+function wdShowEmailModal(key, d, type) {
+  // Purana modal hata do
+  var old = document.getElementById('cv-email-modal');
+  if (old) old.remove();
+
+  var method = d.method ? d.method.charAt(0).toUpperCase() + d.method.slice(1) : 'Easypaisa';
+  var defaultMsg = type === 'approved'
+    ? 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (d.accountNumber||d.easypaisa||'') + '\n\nPayment 24 hours mein bhej di jayegi. Shukriya CineNova use karne ka!\n\n— CineNova Team'
+    : type === 'rejected'
+    ? 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho ya sawal ho to reply karen.\n\n— CineNova Team'
+    : 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request receive ho gayi hai. Hum process kar rahe hain.\n\n— CineNova Team';
+
+  var defaultSubject = type === 'approved'
+    ? '✅ CineNova — Aapka Withdrawal Approve Ho Gaya! PKR ' + d.amount
+    : type === 'rejected'
+    ? '❌ CineNova — Withdrawal Request Rejected PKR ' + d.amount
+    : '⏳ CineNova — Withdrawal Update PKR ' + d.amount;
+
+  var modal = document.createElement('div');
+  modal.id = 'cv-email-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  modal.innerHTML = '<div style="background:#111;border:1px solid #222;border-radius:16px;width:100%;max-width:520px;padding:24px;font-family:Outfit,sans-serif;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">'
+    + '<div style="font-size:1.1rem;font-weight:700;color:#fff;">📧 Mail Bhejo</div>'
+    + '<button onclick="document.getElementById(\'cv-email-modal\').remove()" style="background:none;border:none;color:#666;font-size:1.3rem;cursor:pointer;">×</button>'
+    + '</div>'
+    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">To</div>'
+    + '<div style="background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:10px 14px;color:#60a5fa;font-size:0.85rem;margin-bottom:14px;">' + escHtml(d.email||'') + '</div>'
+    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Subject</div>'
+    + '<input id="cv-email-subject" value="' + escHtml(defaultSubject) + '" style="width:100%;padding:10px 14px;background:#0d0d0d;border:1px solid #222;border-radius:8px;color:#fff;font-size:0.85rem;font-family:Outfit,sans-serif;outline:none;margin-bottom:14px;box-sizing:border-box;"/>'
+    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Message</div>'
+    + '<textarea id="cv-email-body" rows="8" style="width:100%;padding:10px 14px;background:#0d0d0d;border:1px solid #222;border-radius:8px;color:#fff;font-size:0.82rem;font-family:Outfit,sans-serif;outline:none;resize:vertical;margin-bottom:16px;box-sizing:border-box;">' + defaultMsg + '</textarea>'
+    + '<button onclick="wdDoSendEmail(\'' + escHtml(d.email||'') + '\',\'' + escHtml(d.name||'User') + '\')" style="width:100%;padding:12px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:9px;color:#fff;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;">📤 Send Mail</button>'
+    + '<div id="cv-email-send-msg" style="text-align:center;margin-top:10px;font-size:0.82rem;min-height:18px;"></div>'
+    + '</div>';
+  document.body.appendChild(modal);
+}
+
+function wdDoSendEmail(toEmail, toName) {
+  var subject = (document.getElementById('cv-email-subject').value || '').trim();
+  var message = (document.getElementById('cv-email-body').value || '').trim();
+  var msgEl   = document.getElementById('cv-email-send-msg');
+  if (!subject || !message) { msgEl.style.color='#f87171'; msgEl.textContent='❌ Subject aur message dono bharo'; return; }
+
+  msgEl.style.color = '#f59e0b';
+  msgEl.textContent = '⏳ Bhej raha hun...';
+
+  var formData = new FormData();
+  formData.append('_to',       toEmail);
+  formData.append('_subject',  subject);
+  formData.append('message',   message);
+  formData.append('_replyto',  'cinenovamovies@gmail.com');
+  formData.append('_from',     'CineNova <cinenovamovies@gmail.com>');
+  formData.append('_template', 'box');
+  formData.append('_captcha',  'false');
+
+  fetch('https://formsubmit.co/ajax/cinenovamovies@gmail.com', {
+    method: 'POST',
+    body: formData
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.success === 'true' || res.success === true) {
+      msgEl.style.color = '#22c55e';
+      msgEl.textContent = '✅ Mail send ho gayi!';
+      setTimeout(function(){ var m=document.getElementById('cv-email-modal'); if(m) m.remove(); }, 1500);
+    } else {
+      msgEl.style.color = '#f87171';
+      msgEl.textContent = '❌ FormSubmit error — dobara try karo';
+    }
+  }).catch(function() {
+    msgEl.style.color = '#f87171';
+    msgEl.textContent = '❌ Network error — internet check karo';
+  });
+}
+
+// ── FormSubmit Email (auto on approve/reject) ──
+function cvSendWithdrawEmail(type, wdData) {
+  try {
+    var userEmail = wdData.email || '';
+    if (!userEmail) { toast('⚠️ User ka email nahi mila'); return; }
+
+    var method = wdData.method ? wdData.method.charAt(0).toUpperCase() + wdData.method.slice(1) : 'Easypaisa';
+    var isApproved = type === 'approved';
+
+    var subject = isApproved
+      ? '✅ CineNova Withdrawal Approved — PKR ' + wdData.amount
+      : '❌ CineNova Withdrawal Rejected — PKR ' + wdData.amount;
+
+    var message = isApproved
+      ? 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (wdData.accountNumber || wdData.easypaisa || '') + '\n\nPayment 24 hours mein bhej di jayegi.\n\n— CineNova Team'
+      : 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho to reply karen: cinenovamovies@gmail.com\n\n— CineNova Team';
+
+    var formData = new FormData();
+    formData.append('_to',        userEmail);
+    formData.append('_subject',   subject);
+    formData.append('message',    message);
+    formData.append('_replyto',   'cinenovamovies@gmail.com');
+    formData.append('_from',      'CineNova <cinenovamovies@gmail.com>');
+    formData.append('_template',  'box');
+    formData.append('_captcha',   'false');
+
+    fetch('https://formsubmit.co/ajax/cinenovamovies@gmail.com', {
+      method: 'POST',
+      body: formData
+    }).then(function(r) { return r.json(); }).then(function(res) {
+      if (res.success === 'true' || res.success === true) {
+        toast('📧 Mail send ho gayi: ' + userEmail);
+      } else {
+        toast('⚠️ Mail nahi gayi — FormSubmit error', 1);
+      }
+    }).catch(function() {
+      toast('⚠️ Mail send nahi hui — internet check karo', 1);
+    });
+  } catch(e) { console.warn('FormSubmit error:', e); }
+}
+
+function wdApprove(key) {
+  if (!confirm('Approve kar dun? Easypaisa/JazzCash pe bhej dena manually.')) return;
+  // Firebase se pehle data lo phir status update karo
+  db.ref('withdrawals/' + key).once('value', function(snap) {
+    var wdData = snap.val() || {};
+    db.ref('withdrawals/' + key).update({ status: 'approved', approvedAt: Date.now() }).then(function() {
+      toast('✅ Approved! Ab payment bhejo.');
+      cvSendWithdrawEmail('approved', wdData);
+      wdLoadAll();
+    });
+  });
+}
+
+function wdReject(key) {
+  if (!confirm('Reject karna chahte ho?')) return;
+  db.ref('withdrawals/' + key).once('value', function(snap) {
+    var wdData = snap.val() || {};
+    db.ref('withdrawals/' + key).update({ status: 'rejected', rejectedAt: Date.now() }).then(function() {
+      toast('❌ Rejected.');
+      cvSendWithdrawEmail('rejected', wdData);
+      wdLoadAll();
+    });
+  });
+}
+
+function wdUpdateStats() {
+  var pending = 0, paid = 0, totalPkr = 0;
+  var uids = {};
+  wdAllData.forEach(function(d) {
+    if (d.status === 'pending') pending++;
+    if (d.status === 'approved') { paid++; totalPkr += (d.amount||0); }
+    if (d.uid) uids[d.uid] = 1;
+  });
+  var el1 = document.getElementById('wd-stat-pending');
+  var el2 = document.getElementById('wd-stat-paid');
+  var el3 = document.getElementById('wd-stat-total-pkr');
+  var el4 = document.getElementById('wd-stat-users');
+  if (el1) el1.textContent = pending;
+  if (el2) el2.textContent = paid;
+  if (el3) el3.textContent = totalPkr;
+  if (el4) el4.textContent = Object.keys(uids).length;
+  var badge = document.getElementById('wd-pending-count');
+  if (badge) badge.textContent = pending;
+}
+
+// ── Top Earners ──
+function earnersLoad() {
+  var tbody = document.getElementById('earners-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
+
+  wdWaitDb(function() {
+    db.ref('earnings').once('value', function(snap) {
+      var users = [];
+      snap.forEach(function(c) {
+        var d = c.val();
+        var dlCount = d.dlLog ? Object.keys(d.dlLog).length : 0;
+        users.push({
+          uid: c.key,
+          name: (d.profile && d.profile.name) || 'User',
+          email: (d.profile && d.profile.email) || '',
+          balance: d.balance || 0,
+          totalEarned: d.totalEarned || 0,
+          downloads: dlCount
+        });
+      });
+
+      users.sort(function(a, b) { return b.totalEarned - a.totalEarned; });
+
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Abhi koi user nahi</td></tr>';
+        return;
+      }
+
+      var html = '';
+      users.forEach(function(u, i) {
+        var rank = i + 1;
+        var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
+        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
+          + '<td style="padding:12px 16px;font-family:\'Bebas Neue\',cursive;font-size:1.1rem;color:#e50914;">' + medal + '</td>'
+          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(u.name) + '</div><div style="font-size:0.72rem;color:#555;">' + escHtml(u.email) + '</div></td>'
+          + '<td style="padding:12px 16px;"><span style="color:#22c55e;font-weight:700;font-size:1rem;">PKR ' + u.balance + '</span></td>'
+          + '<td style="padding:12px 16px;color:#888;">PKR ' + u.totalEarned + '</td>'
+          + '<td style="padding:12px 16px;color:#888;">' + u.downloads + '</td>'
+          + '</tr>';
+      });
+      tbody.innerHTML = html;
+    }, function(err) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#f87171;">❌ ' + err.message + '</td></tr>';
+    });
+  });
+}
+
+// Pending count — sidebar badge, real-time
+function wdLoadPendingCount() {
+  wdWaitDb(function() {
+    db.ref('withdrawals').orderByChild('status').equalTo('pending').on('value', function(snap) {
+      var cnt = 0;
+      snap.forEach(function() { cnt++; });
+      var badge = document.getElementById('wd-pending-count');
+      if (badge) badge.textContent = cnt;
+    });
+  });
+}
 </script>
 </body>
 </html>
