@@ -549,6 +549,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     
     <div class="nav-section-title">Content</div>
     <div class="nav-item" id="nav-add" onclick="show('add')">➕ Add Movie / Series</div>
+    <div class="nav-item" id="nav-bulkfetch" onclick="show('bulkfetch')" style="color:#60a5fa;">⚡ Bulk URL Fetch</div>
     <div class="nav-item" id="nav-movies" onclick="show('movies')">🎬 All Content <span class="nav-count" id="mc">0</span></div>
     
     <div class="nav-section-title">Categories</div>
@@ -614,8 +615,73 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     </div>
 
     <!-- ADD CONTENT -->
+    <!-- ═══ BULK URL FETCH SECTION ═══ -->
+    <div class="section" id="sec-bulkfetch">
+      <div class="sec-title">⚡ Bulk <span>URL Fetch</span></div>
+
+      <div class="card" style="border-color:rgba(59,130,246,0.35);">
+        <h3 style="color:#60a5fa;">STEP 1 — LINKS PASTE KARO</h3>
+        <div style="color:var(--grey);font-size:0.8rem;margin-bottom:12px;">FilmyFly ya kisi bhi site ke links paste karo — ek line mein ek link. 4-5 ya jitne chahein.</div>
+        <textarea id="bfu-urls" class="fi" rows="6" placeholder="https://filmyfly.racing/page-download/6663/The-Boroughs-S01...&#10;https://filmyfly.racing/page-download/6725/Teach-You-a-Lesson...&#10;https://filmyfly.racing/page-download/6721/Brown-S01..."></textarea>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+          <button class="btn" onclick="bfuStart()" id="bfu-fetch-btn" style="background:#1d4ed8;color:#fff;padding:11px 26px;">⚡ Fetch All Links</button>
+          <button class="btn btn-s" onclick="bfuClear()">🗑 Clear</button>
+          <span id="bfu-url-count" style="color:var(--grey);font-size:0.8rem;"></span>
+        </div>
+      </div>
+
+      <div id="bfu-progress-wrap" style="display:none;">
+        <div class="card" style="border-color:rgba(245,158,11,0.3);">
+          <h3 style="color:#fbbf24;">FETCHING... <span id="bfu-prog-text" style="font-weight:400;color:var(--grey);">0/0</span></h3>
+          <div style="background:#1a1a1a;border-radius:6px;height:8px;overflow:hidden;margin-bottom:10px;">
+            <div id="bfu-prog-bar" style="height:100%;background:linear-gradient(90deg,#1d4ed8,#60a5fa);width:0%;transition:width 0.4s;"></div>
+          </div>
+          <div id="bfu-prog-log" style="font-size:0.75rem;color:var(--grey);max-height:100px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <div id="bfu-queue-wrap" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;">
+            📋 QUEUE — <span id="bfu-queue-count" style="color:var(--red);">0</span> movies ready
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn" onclick="bfuSaveAll()" id="bfu-save-btn" style="background:#16a34a;color:#fff;padding:10px 22px;">💾 Save All to Firebase</button>
+            <button class="btn btn-s" onclick="bfuClearQueue()">🗑 Queue Clear</button>
+          </div>
+        </div>
+        <div id="bfu-queue-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <div id="bfu-done-wrap" style="display:none;" class="card" style="border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.05);">
+        <div style="text-align:center;padding:10px 0;">
+          <div style="font-size:2rem;margin-bottom:8px;">✅</div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:1px;color:#4ade80;" id="bfu-done-msg">Saved!</div>
+          <button class="btn btn-s" onclick="bfuClear()" style="margin-top:12px;">🔄 Naye Links Fetch Karo</button>
+        </div>
+      </div>
+    </div>
+    <!-- ═══ END BULK URL FETCH ═══ -->
+
     <div class="section" id="sec-add">
       <div class="sec-title">➕ Add <span>Movie / Series</span></div>
+
+      <!-- ═══ FILMYFLY AUTO-FETCH ═══ -->
+      <div class="card" style="border-color:rgba(59,130,246,0.35);background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(0,0,0,0));">
+        <h3 style="color:#60a5fa;">⚡ AUTO-FETCH FROM FILMYFLY / ANY SITE</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">FilmyFly, FilmyWap ya kisi bhi movie site ka link paste karo — data automatically form mein aa jayega.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div class="fgg" style="flex:1;min-width:280px;">
+            <label>Movie/Series Page URL</label>
+            <input class="fi" id="ff-url" placeholder="https://filmyfly.racing/page-download/6663/..." style="border-color:rgba(59,130,246,0.4);"/>
+          </div>
+          <button class="btn" onclick="filmyflyFetch()" id="ff-btn" style="background:#1d4ed8;color:#fff;height:40px;padding:0 22px;white-space:nowrap;">⚡ Fetch Data</button>
+        </div>
+        <div id="ff-status" style="margin-top:12px;display:none;font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
+        <div id="ff-preview" style="display:none;margin-top:14px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px;"></div>
+      </div>
+      <!-- ═══ END AUTO-FETCH ═══ -->
+
       <div class="card"><h3>Basic Info</h3>
         <div class="fg">
           <div class="fgg full"><label>Title *</label><input class="fi" id="ft" placeholder="Movie or Series title"/></div>
@@ -2312,6 +2378,9 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
       <div class="card">
         <h3>SAVED LINKS <span id="ml-total" style="color:var(--red);margin-left:6px;">0</span></h3>
+        <div style="margin-bottom:12px;">
+          <input class="fi" id="ml-search" placeholder="🔍 Title ya URL se search karo..." oninput="mlRender()" style="width:100%;"/>
+        </div>
         <div id="ml-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;"></div>
         <div id="ml-empty" style="text-align:center;color:var(--grey2);padding:30px 0;font-size:0.85rem;">No links saved yet.</div>
       </div>
@@ -3275,6 +3344,604 @@ function filterM(){
 }
 
 // ═══ ADD MOVIE ═══
+// ── FILMYFLY / ANY SITE AUTO-FETCH ──
+function filmyflyFetch() {
+  var url = document.getElementById('ff-url').value.trim();
+  if (!url || !url.startsWith('http')) { toast('❌ Valid URL daalo!', 1); return; }
+
+  var btn = document.getElementById('ff-btn');
+  var status = document.getElementById('ff-status');
+  var preview = document.getElementById('ff-preview');
+  btn.disabled = true;
+  btn.textContent = '⏳ Fetching...';
+  status.style.display = 'block';
+  status.style.background = 'rgba(245,158,11,0.1)';
+  status.style.color = '#fbbf24';
+  status.textContent = '⏳ Page fetch ho raha hai...';
+  preview.style.display = 'none';
+
+  var proxies = [
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+    { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+  ];
+  var tried = 0;
+
+  function tryNext() {
+    if (tried >= proxies.length) {
+      btn.disabled = false; btn.textContent = '⚡ Fetch Data';
+      status.style.background = 'rgba(229,9,20,0.1)'; status.style.color = '#f87171';
+      status.textContent = '❌ Fetch nahi hua. URL check karo ya manually bharo.';
+      return;
+    }
+    var p = proxies[tried++];
+    status.textContent = '⏳ ' + p.name + ' se try... (' + tried + '/' + proxies.length + ')';
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 10000);
+    fetch(p.getUrl(url), { signal: ctrl.signal })
+      .then(function(r){ clearTimeout(t); return r.text(); })
+      .then(function(raw){
+        var html = p.parse(raw);
+        if (!html || html.length < 300) { tryNext(); return; }
+        var data = parseSitePage(html, url);
+        if (!data || !data.title) { tryNext(); return; }
+        applyFetchedData(data);
+      })
+      .catch(function(){ clearTimeout(t); tryNext(); });
+  }
+
+  function parseSitePage(html, srcUrl) {
+    var data = {};
+
+    // ── Helpers ──
+    function meta(name) {
+      var m = html.match(new RegExp('meta[^>]+(?:name|property)=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+               || html.match(new RegExp('meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:name|property)=["\']' + name + '["\']', 'i'));
+      return m ? m[1].trim() : '';
+    }
+    function tag(t, cls) {
+      var m = html.match(new RegExp('<'+t+'[^>]*class=["\'][^"\']*'+cls+'[^"\']*["\'][^>]*>([\s\S]*?)<\/'+t+'>', 'i'));
+      return m ? m[1].replace(/<[^>]+>/g,'').trim() : '';
+    }
+    function h2After(label) {
+      // FilmyFly: after label text, grab next line content
+      var re = new RegExp(label + '[:\s]*<\/[^>]+>\s*([^<\n]+)', 'i');
+      var m = html.match(re);
+      return m ? m[1].replace(/<[^>]+>/g,'').trim() : '';
+    }
+    function getTextAfterLabel(lbl) {
+      var idx = html.toLowerCase().indexOf(lbl.toLowerCase());
+      if (idx === -1) return '';
+      var snippet = html.substring(idx + lbl.length, idx + lbl.length + 300);
+      return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|\n]/)[0].trim();
+    }
+
+    // ── Title ──
+    var ogTitle = meta('og:title') || meta('twitter:title');
+    var pageTitle = (html.match(/<title[^>]*>([^<]+)/) || [])[1] || '';
+    // Clean up: remove site name, "Download", "FilmyFly" etc.
+    var rawTitle = ogTitle || pageTitle;
+    rawTitle = rawTitle.replace(/\s*[\|–-]\s*(FilmyFly|Filmy4wap|Download|HD|Movies?)[^]*/i, '').trim();
+    // Extract clean title (remove quality/format suffixes)
+    var cleanTitle = rawTitle.replace(/\s*(Hindi|English|Dual Audio|HEVC|ESub|WEBRip|BluRay|720p|1080p|480p|4K|Season|\bS\d+\b|\b\d{4}\b).*/i, '').trim();
+    data.title = cleanTitle || rawTitle;
+
+    // ── Year ──
+    var yearM = rawTitle.match(/\b(20\d{2})\b/) || html.match(/Release Date[^>]*>.*?(20\d{2})/i);
+    data.year = yearM ? yearM[1] : '';
+
+    // ── Thumbnail ──
+    data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+
+    // ── Description ──
+    var desc = meta('og:description') || meta('meta-description') || '';
+    // FilmyFly specific — Description block
+    var descBlock = html.match(/Description[^:]*:<\/[^>]+>\s*<[^>]+>([\s\S]*?)<\/[^>]+>/i);
+    if (descBlock) {
+      var cleanDesc = descBlock[1].replace(/<[^>]+>/g,'').trim();
+      if (cleanDesc.length > 20) desc = cleanDesc;
+    }
+    // Also try simple paragraph after "Description"
+    var descSimple = html.match(/Description:\s*<\/[^>]*>\s*([^<]{30,})/i);
+    if (descSimple) desc = descSimple[1].trim();
+    data.description = desc.substring(0, 600);
+
+    // ── Language ──
+    var lang = getTextAfterLabel('Language:');
+    if (!lang) lang = meta('meta-description').match(/(?:Hindi|English|Tamil|Telugu|Urdu|Punjabi)[^,]*/i)?.[0] || '';
+    data.language = lang.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').substring(0,60).trim();
+
+    // ── Genre ──
+    var genre = meta('meta-news_keywords').split(',')[0] || '';
+    var genreBlock = html.match(/Genre[^:]*:\s*<\/[^>]+>\s*([^<\n]+)/i);
+    if (genreBlock) genre = genreBlock[1].replace(/<[^>]+>/g,'').trim();
+    data.genre_raw = genre.trim();
+
+    // ── Duration ──
+    var dur = getTextAfterLabel('Duration:');
+    data.duration = dur.replace(/<[^>]+>/g,'').substring(0,30).trim();
+
+    // ── Starcast ──
+    var cast = getTextAfterLabel('Starcast:');
+    data.cast = cast.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').substring(0,200).trim();
+
+    // ── Size ──
+    var sizeBlock = html.match(/Size[^:]*:\s*<\/[^>]+>\s*([\s\S]*?)<\/[^>]+>/i);
+    var sizeRaw = sizeBlock ? sizeBlock[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim() : '';
+    if (!sizeRaw) {
+      var sizeMeta = (meta('og:description') + ' ' + meta('meta-description')).match(/file size\s*([\d\.\w\s,GB MBgbmb]+)/i);
+      if (sizeMeta) sizeRaw = sizeMeta[1].trim();
+    }
+    // Parse individual sizes: 1.1Gb 2.1Gb 5.6Gb => 480p:1.1GB, 720p:2.1GB, 1080p:5.6GB
+    var sizeTokens = sizeRaw.match(/[\d\.]+\s*(?:GB?|MB?)\b/gi) || [];
+    data.size_raw = sizeRaw;
+    data.size480 = sizeTokens[0] ? sizeTokens[0].toUpperCase().replace('B','B') : '';
+    data.size720 = sizeTokens[1] ? sizeTokens[1].toUpperCase() : '';
+    data.size1080 = sizeTokens[2] ? sizeTokens[2].toUpperCase() : '';
+
+    // ── Quality ──
+    var qual = '';
+    if (/4K|2160p/i.test(rawTitle)) qual = '4K HEVC';
+    else if (/1080p/i.test(rawTitle)) qual = '1080p WEB-DL';
+    else if (/720p/i.test(rawTitle)) qual = '720p WEB-DL';
+    else if (/480p/i.test(rawTitle)) qual = '480p WEB-DL';
+    else if (/HEVC/i.test(rawTitle)) qual = 'HEVC';
+    else if (/BluRay/i.test(rawTitle)) qual = 'BluRay';
+    else if (/WEBRip/i.test(rawTitle)) qual = 'WEBRip';
+    data.quality = qual;
+
+    // ── Category detect ──
+    var cat = 'hollywood';
+    if (/\bS\d{2}\b|Web Series|Season/i.test(rawTitle + ' ' + html.substring(0,3000))) cat = 'webseries';
+    else if (/Bollywood|Hindi Movie/i.test(html.substring(0,3000))) cat = 'bollywood';
+    else if (/South|Telugu|Tamil|Tollywood/i.test(html.substring(0,3000))) cat = 'tollywood';
+    data.category = cat;
+
+    // ── Download link ──
+    var dlLink = '';
+    var dlReg = /<a[^>]+href=["'](https?:\/\/(?:linkmake\.in|linkm\.in|short\.|shrink\.|linkshort\.)[^\s"']+)["']/gi;
+    var dm;
+    while ((dm = dlReg.exec(html)) !== null) { dlLink = dm[1]; break; }
+    if (!dlLink) {
+      // Fallback: any non-image, non-css download link
+      var fallback = html.match(/href=["'](https?:\/\/(?:filesdl|terabox|mega|drive\.google|pixeldrain)[^\s"']+)["']/i);
+      if (fallback) dlLink = fallback[1];
+    }
+    data.download_link = dlLink;
+
+    // ── Screenshot ──
+    var ssMatch = html.match(/screenshot[^>]*>([\s\S]*?)<img[^>]+src=["']([^"']+)["']/i);
+    if (ssMatch) data.screenshot = ssMatch[2];
+
+    return data;
+  }
+
+  function mapGenre(genreRaw) {
+    var g = (genreRaw||'').toLowerCase();
+    if (g.includes('action')) return 'action';
+    if (g.includes('adventure')) return 'adventure';
+    if (g.includes('comedy')) return 'comedy';
+    if (g.includes('crime')) return 'crime';
+    if (g.includes('drama')) return 'drama';
+    if (g.includes('fantasy')) return 'fantasy';
+    if (g.includes('horror')) return 'horror';
+    if (g.includes('mystery')) return 'mystery';
+    if (g.includes('romance')) return 'romance';
+    if (g.includes('sci')) return 'scifi';
+    if (g.includes('thriller')) return 'thriller';
+    if (g.includes('animation')) return 'animation';
+    if (g.includes('biography')) return 'biography';
+    if (g.includes('family')) return 'family';
+    if (g.includes('history')) return 'history';
+    if (g.includes('war')) return 'war';
+    if (g.includes('superhero')) return 'superhero';
+    if (g.includes('music')) return 'music';
+    if (g.includes('sport')) return 'sport';
+    return '';
+  }
+
+  function applyFetchedData(data) {
+    btn.disabled = false; btn.textContent = '⚡ Fetch Data';
+
+    // Fill form fields
+    function sv(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; }
+
+    sv('ft', data.title);
+    sv('fy', data.year);
+    sv('fl', data.language);
+    sv('fq', data.quality);
+    sv('fd', data.description);
+    sv('fth', data.thumbnail);
+    sv('fs4', data.size480);
+    sv('fs7', data.size720);
+    sv('fs10', data.size1080);
+    if (data.download_link) {
+      sv('fd4', data.download_link);
+      sv('fd7', data.download_link);
+      sv('fd10', data.download_link);
+    }
+
+    // Category
+    var catEl = document.getElementById('fc');
+    if (catEl && data.category) {
+      catEl.value = data.category;
+      onCatChange();
+    }
+
+    // Genre
+    var mappedGenre = mapGenre(data.genre_raw);
+    var genEl = document.getElementById('fg');
+    if (genEl && mappedGenre) genEl.value = mappedGenre;
+
+    // Thumbnail preview
+    if (data.thumbnail) prvw(data.thumbnail, 'tp');
+
+    // Screenshot
+    if (data.screenshot) {
+      var ssInput = document.getElementById('fss');
+      if (ssInput) ssInput.value = data.screenshot;
+      var ssWrap = document.getElementById('ss-add-wrap');
+      if (ssWrap && data.screenshot) {
+        var id2 = 'ss-add-0'; var img = data.screenshot.replace(/"/g,'&quot;');
+        var existing = document.getElementById(id2);
+        if (!existing) {
+          ssWrap.innerHTML += '<div style="position:relative;display:inline-block;margin:4px;" id="ss-wrap-'+id2+'">'
+            + '<img src="'+img+'" style="height:80px;border-radius:6px;" onerror="this.style.display=\'none\'">'
+            + '<button class="ss-del" onclick="this.parentElement.remove();syncSs(\'add\')">×</button></div>';
+        }
+      }
+    }
+
+    // Status/success message
+    status.style.background = 'rgba(34,197,94,0.1)';
+    status.style.color = '#4ade80';
+    status.textContent = '✅ Data form mein fill ho gaya! Check karo aur Save karo.';
+
+    // Preview card
+    preview.style.display = 'block';
+    preview.innerHTML = '<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">'
+      + (data.thumbnail ? '<img src="'+data.thumbnail+'" style="width:70px;border-radius:7px;flex-shrink:0;" onerror="this.style.display=\'none\'">' : '')
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">' + (data.title||'') + (data.year?' <span style="color:#888;font-size:0.8rem;">('+data.year+')</span>':'') + '</div>'
+      + '<div style="font-size:0.75rem;color:var(--grey);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">'
+      + (data.language ? '<span>🌐 '+data.language+'</span>' : '')
+      + (data.genre_raw ? '<span>🎭 '+data.genre_raw+'</span>' : '')
+      + (data.quality ? '<span>📺 '+data.quality+'</span>' : '')
+      + (data.size_raw ? '<span>💾 '+data.size_raw+'</span>' : '')
+      + '</div>'
+      + (data.cast ? '<div style="font-size:0.72rem;color:#888;margin-bottom:4px;">👥 '+data.cast.substring(0,100)+'</div>' : '')
+      + (data.download_link ? '<div style="font-size:0.7rem;color:#60a5fa;">🔗 '+data.download_link+'</div>' : '<div style="font-size:0.7rem;color:#f87171;">⚠️ Download link nahi mila — manually bharo</div>')
+      + '</div></div>';
+
+    // Scroll to form
+    setTimeout(function(){
+      var formCard = document.querySelector('#sec-add .card:nth-child(3)');
+      if (formCard) formCard.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 300);
+
+    toast('✅ ' + (data.title||'Data') + ' — form mein fill ho gaya!');
+  }
+
+  tryNext();
+}
+
+// ═══ BULK URL FETCH ═══
+var _bfuQueue = []; // { url, data, status: 'pending'|'fetching'|'done'|'error' }
+
+function bfuStart() {
+  var raw = (document.getElementById('bfu-urls').value || '').trim();
+  if (!raw) { toast('❌ Koi URL nahi hai!', 1); return; }
+  var urls = raw.split(/\n/).map(function(u){ return u.trim(); }).filter(function(u){ return u.startsWith('http'); });
+  if (!urls.length) { toast('❌ Valid URLs nahi mili!', 1); return; }
+
+  _bfuQueue = urls.map(function(u){ return { url: u, data: null, status: 'pending' }; });
+  document.getElementById('bfu-progress-wrap').style.display = 'block';
+  document.getElementById('bfu-queue-wrap').style.display = 'none';
+  document.getElementById('bfu-done-wrap').style.display = 'none';
+  document.getElementById('bfu-fetch-btn').disabled = true;
+
+  var total = _bfuQueue.length;
+  var done = 0;
+  var log = document.getElementById('bfu-prog-log');
+
+  function fetchOne(idx) {
+    if (idx >= total) {
+      document.getElementById('bfu-fetch-btn').disabled = false;
+      bfuRenderQueue();
+      return;
+    }
+    var item = _bfuQueue[idx];
+    item.status = 'fetching';
+    document.getElementById('bfu-prog-text').textContent = (idx+1) + '/' + total;
+    document.getElementById('bfu-prog-bar').style.width = (((idx+1)/total)*100) + '%';
+    log.innerHTML += '<div>⏳ Fetching: ' + item.url.split('/').pop().substring(0,50) + '...</div>';
+    log.scrollTop = log.scrollHeight;
+
+    bfuFetchSingle(item.url, function(data) {
+      if (data && data.title) {
+        item.data = data;
+        item.status = 'done';
+        log.innerHTML += '<div style="color:#4ade80;">✅ ' + data.title + '</div>';
+      } else {
+        item.status = 'error';
+        log.innerHTML += '<div style="color:#f87171;">❌ Failed: ' + item.url.split('/').pop().substring(0,40) + '</div>';
+      }
+      log.scrollTop = log.scrollHeight;
+      done++;
+      setTimeout(function(){ fetchOne(idx + 1); }, 400);
+    });
+  }
+  fetchOne(0);
+}
+
+function bfuFetchSingle(url, cb) {
+  var proxies = [
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+    { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+  ];
+  var tried = 0;
+  function tryNext() {
+    if (tried >= proxies.length) { cb(null); return; }
+    var p = proxies[tried++];
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 10000);
+    fetch(p.getUrl(url), { signal: ctrl.signal })
+      .then(function(r){ clearTimeout(t); return r.text(); })
+      .then(function(raw){
+        var html = p.parse(raw);
+        if (!html || html.length < 300) { tryNext(); return; }
+        var data = bfuParsePage(html, url);
+        if (!data || !data.title) { tryNext(); return; }
+        cb(data);
+      })
+      .catch(function(){ clearTimeout(t); tryNext(); });
+  }
+  tryNext();
+}
+
+function bfuParsePage(html, srcUrl) {
+  var data = {};
+  function meta(name) {
+    var m = html.match(new RegExp('meta[^>]+(?:name|property)=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+             || html.match(new RegExp('meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:name|property)=["\']' + name + '["\']', 'i'));
+    return m ? m[1].trim() : '';
+  }
+  function getTextAfterLabel(lbl) {
+    var idx = html.toLowerCase().indexOf(lbl.toLowerCase());
+    if (idx === -1) return '';
+    var snippet = html.substring(idx + lbl.length, idx + lbl.length + 300);
+    return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|\n]/)[0].trim();
+  }
+
+  var ogTitle = meta('og:title') || meta('twitter:title') || (html.match(/<title[^>]*>([^<]+)/)||[])[1] || '';
+  ogTitle = ogTitle.replace(/\s*[\|–-]\s*(FilmyFly|Filmy4wap|Download|HD|Movies?)[^]*/i, '').trim();
+  var cleanTitle = ogTitle.replace(/\s*(Hindi|English|Dual Audio|HEVC|ESub|WEBRip|BluRay|720p|1080p|480p|4K|Season|\bS\d+\b|\b\d{4}\b).*/i, '').trim();
+  data.title = cleanTitle || ogTitle;
+
+  var yearM = ogTitle.match(/\b(20\d{2})\b/);
+  data.year = yearM ? yearM[1] : '';
+  data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+
+  var desc = meta('og:description') || meta('description') || '';
+  var descSimple = html.match(/Description:\s*<\/[^>]*>\s*([^<]{30,})/i);
+  if (descSimple) desc = descSimple[1].trim();
+  data.description = desc.substring(0, 600);
+
+  var lang = getTextAfterLabel('Language:');
+  data.language = lang.replace(/<[^>]+>/g,'').substring(0,60).trim();
+
+  var genreBlock = html.match(/Genre[^:]*:\s*<\/[^>]+>\s*([^<\n]+)/i);
+  data.genre_raw = genreBlock ? genreBlock[1].replace(/<[^>]+>/g,'').trim() : '';
+
+  var cast = getTextAfterLabel('Starcast:');
+  data.cast = cast.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').substring(0,200).trim();
+
+  var sizeBlock = html.match(/Size[^:]*:\s*<\/[^>]+>\s*([\s\S]*?)<\/[^>]+>/i);
+  var sizeRaw = sizeBlock ? sizeBlock[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim() : '';
+  if (!sizeRaw) { var sm = (meta('og:description')).match(/file size\s*([\d\.\w\s,GBMBgbmb]+)/i); if(sm) sizeRaw = sm[1].trim(); }
+  var sizeTokens = sizeRaw.match(/[\d\.]+\s*(?:GB?|MB?)\b/gi) || [];
+  data.size_raw = sizeRaw;
+  data.size480 = sizeTokens[0] ? sizeTokens[0].toUpperCase() : '';
+  data.size720 = sizeTokens[1] ? sizeTokens[1].toUpperCase() : '';
+  data.size1080 = sizeTokens[2] ? sizeTokens[2].toUpperCase() : '';
+
+  var qual = '';
+  if (/4K|2160p/i.test(ogTitle)) qual = '4K HEVC';
+  else if (/1080p/i.test(ogTitle)) qual = '1080p WEB-DL';
+  else if (/720p/i.test(ogTitle)) qual = '720p WEB-DL';
+  else if (/HEVC/i.test(ogTitle)) qual = 'HEVC';
+  else if (/BluRay/i.test(ogTitle)) qual = 'BluRay';
+  data.quality = qual;
+
+  var cat = 'hollywood';
+  if (/\bS\d{2}\b|Web Series|Season/i.test(ogTitle + ' ' + html.substring(0,3000))) cat = 'webseries';
+  else if (/Bollywood/i.test(html.substring(0,3000))) cat = 'bollywood';
+  else if (/South|Telugu|Tamil|Tollywood/i.test(html.substring(0,3000))) cat = 'tollywood';
+  data.category = cat;
+
+  var dlLink = '';
+  var dlReg = /<a[^>]+href=["'](https?:\/\/(?:linkmake\.in|linkm\.in)[^\s"']+)["']/gi;
+  var dm; while ((dm = dlReg.exec(html)) !== null) { dlLink = dm[1]; break; }
+  data.download_link = dlLink;
+
+  var genreMap = { action:'action',adventure:'adventure',comedy:'comedy',crime:'crime',drama:'drama',fantasy:'fantasy',horror:'horror',mystery:'mystery',romance:'romance','sci':'scifi',thriller:'thriller',animation:'animation',biography:'biography',family:'family',history:'history',war:'war',superhero:'superhero',music:'music',sport:'sport' };
+  var gRaw = (data.genre_raw||'').toLowerCase();
+  data.genre = '';
+  Object.keys(genreMap).forEach(function(k){ if (!data.genre && gRaw.includes(k)) data.genre = genreMap[k]; });
+
+  return data;
+}
+
+function bfuRenderQueue() {
+  var ready = _bfuQueue.filter(function(i){ return i.status === 'done'; });
+  var failed = _bfuQueue.filter(function(i){ return i.status === 'error'; });
+
+  document.getElementById('bfu-progress-wrap').style.display = 'none';
+  document.getElementById('bfu-queue-wrap').style.display = 'block';
+  document.getElementById('bfu-queue-count').textContent = ready.length;
+
+  var list = document.getElementById('bfu-queue-list');
+  list.innerHTML = _bfuQueue.map(function(item, idx) {
+    if (item.status === 'error') {
+      return '<div style="background:#1a0a0a;border:1px solid rgba(229,9,20,0.3);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;">'
+        + '<span style="font-size:1.2rem;">❌</span>'
+        + '<div style="flex:1;min-width:0;font-size:0.78rem;color:#f87171;word-break:break-all;">' + item.url + '</div>'
+        + '<button class="btn btn-s" onclick="bfuRetry('+idx+')" style="padding:6px 12px;font-size:0.75rem;">Retry</button>'
+        + '</div>';
+    }
+    var d = item.data;
+    var saved = item.saved;
+    return '<div id="bfu-item-'+idx+'" style="background:var(--card2);border:1px solid '+(saved?'rgba(34,197,94,0.4)':'var(--border)')+';border-radius:10px;padding:13px 16px;">'
+      + '<div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">'
+      + (d.thumbnail ? '<img src="'+d.thumbnail+'" style="width:52px;height:74px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display=\'none\'">' : '<div style="width:52px;height:74px;background:#222;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🎬</div>')
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;">'+(saved?'✅ ':'')+(d.title||'Untitled')+(d.year?' <span style="color:#888;font-size:0.75rem;">('+d.year+')</span>':'')+'</div>'
+      + '<div style="font-size:0.72rem;color:var(--grey);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">'
+      + (d.language ? '<span>🌐 '+d.language+'</span>' : '')
+      + (d.genre_raw ? '<span>🎭 '+d.genre_raw+'</span>' : '')
+      + (d.quality ? '<span>📺 '+d.quality+'</span>' : '')
+      + (d.size_raw ? '<span>💾 '+d.size_raw+'</span>' : '')
+      + '</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">'
+      // Editable title
+      + '<input id="bfu-title-'+idx+'" value="'+(d.title||'').replace(/"/g,'&quot;')+'" style="padding:5px 9px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.75rem;flex:1;min-width:150px;outline:none;font-family:Outfit,sans-serif;" placeholder="Title edit karo"/>'
+      // Category select
+      + '<select id="bfu-cat-'+idx+'" style="padding:5px 9px;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.75rem;outline:none;font-family:Outfit,sans-serif;">'
+      + ['hollywood','bollywood','tollywood','webseries','animation'].map(function(c){ return '<option value="'+c+'"'+(d.category===c?' selected':'')+'>'+c+'</option>'; }).join('')
+      + '</select>'
+      + '</div>'
+      + (d.download_link ? '<div style="font-size:0.68rem;color:#60a5fa;margin-top:4px;">🔗 '+d.download_link+'</div>' : '<div style="font-size:0.68rem;color:#f59e0b;margin-top:4px;">⚠️ Download link nahi mila</div>')
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">'
+      + (saved
+        ? '<span style="color:#4ade80;font-size:0.8rem;font-weight:700;">✅ Saved</span>'
+        : '<button onclick="bfuSaveOne('+idx+',this)" style="padding:7px 14px;background:#16a34a;border:none;border-radius:7px;color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save</button>')
+      + '<button onclick="bfuRemove('+idx+')" style="padding:7px 14px;background:#1a1a1a;border:1px solid #333;border-radius:7px;color:#888;font-size:0.78rem;cursor:pointer;">✕ Remove</button>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function bfuSaveOne(idx, btn) {
+  var item = _bfuQueue[idx];
+  if (!item || !item.data) return;
+  var d = item.data;
+
+  // Read edited title and category
+  var titleEl = document.getElementById('bfu-title-'+idx);
+  var catEl = document.getElementById('bfu-cat-'+idx);
+  if (titleEl) d.title = titleEl.value.trim() || d.title;
+  if (catEl) d.category = catEl.value || d.category;
+
+  if (!d.title) { toast('❌ Title empty hai!', 1); return; }
+  if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+
+  var m = {
+    title: d.title,
+    year: d.year || '',
+    category: d.category || 'hollywood',
+    genre: d.genre || '',
+    language: d.language || '',
+    quality: d.quality || '',
+    description: d.description || '',
+    thumbnail: d.thumbnail || '',
+    download480p: d.download_link || '',
+    download720p: d.download_link || '',
+    download1080p: d.download_link || '',
+    size480: d.size480 || '',
+    size720: d.size720 || '',
+    size1080: d.size1080 || '',
+    addedAt: Date.now()
+  };
+  Object.keys(m).forEach(function(k){ if(!m[k] && k !== 'addedAt') delete m[k]; });
+
+  db.ref('movies').push(m).then(function() {
+    item.saved = true;
+    toast('✅ ' + d.title + ' saved!');
+    var wrap = document.getElementById('bfu-item-'+idx);
+    if (wrap) {
+      wrap.style.borderColor = 'rgba(34,197,94,0.4)';
+      if (btn) { btn.textContent = '✅ Saved!'; btn.style.background = '#166534'; }
+    }
+  }).catch(function(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save'; }
+    toast('❌ ' + e.message, 1);
+  });
+}
+
+function bfuSaveAll() {
+  var pending = _bfuQueue.filter(function(i){ return i.status === 'done' && !i.saved; });
+  if (!pending.length) { toast('Sab already saved!'); return; }
+  var btn = document.getElementById('bfu-save-btn');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+  var idx = 0;
+  function saveNext() {
+    if (idx >= _bfuQueue.length) {
+      btn.disabled = false; btn.textContent = '💾 Save All to Firebase';
+      document.getElementById('bfu-done-wrap').style.display = 'block';
+      var savedCount = _bfuQueue.filter(function(i){ return i.saved; }).length;
+      document.getElementById('bfu-done-msg').textContent = savedCount + ' movies Firebase mein save ho gayi! 🎉';
+      toast('✅ ' + savedCount + ' movies saved!');
+      return;
+    }
+    var item = _bfuQueue[idx];
+    if (item.status === 'done' && !item.saved) {
+      bfuSaveOne(idx, null);
+      setTimeout(function(){ idx++; saveNext(); }, 500);
+    } else {
+      idx++; saveNext();
+    }
+  }
+  saveNext();
+}
+
+function bfuRemove(idx) {
+  _bfuQueue.splice(idx, 1);
+  bfuRenderQueue();
+}
+
+function bfuRetry(idx) {
+  var item = _bfuQueue[idx];
+  if (!item) return;
+  item.status = 'fetching';
+  bfuRenderQueue();
+  bfuFetchSingle(item.url, function(data) {
+    if (data && data.title) { item.data = data; item.status = 'done'; }
+    else { item.status = 'error'; }
+    bfuRenderQueue();
+  });
+}
+
+function bfuClearQueue() {
+  _bfuQueue = [];
+  document.getElementById('bfu-queue-wrap').style.display = 'none';
+  document.getElementById('bfu-done-wrap').style.display = 'none';
+}
+
+function bfuClear() {
+  _bfuQueue = [];
+  document.getElementById('bfu-urls').value = '';
+  document.getElementById('bfu-progress-wrap').style.display = 'none';
+  document.getElementById('bfu-queue-wrap').style.display = 'none';
+  document.getElementById('bfu-done-wrap').style.display = 'none';
+  document.getElementById('bfu-fetch-btn').disabled = false;
+  document.getElementById('bfu-url-count').textContent = '';
+}
+
+// URL count live update
+document.addEventListener('DOMContentLoaded', function() {
+  var ta = document.getElementById('bfu-urls');
+  if (ta) ta.addEventListener('input', function() {
+    var count = (ta.value.trim().split(/\n/).filter(function(u){ return u.trim().startsWith('http'); })).length;
+    document.getElementById('bfu-url-count').textContent = count ? count + ' link' + (count>1?'s':'') + ' detected' : '';
+  });
+});
+
 function onCatChange(){
   var cat=document.getElementById('fc').value;var ws=cat==='webseries';
   document.getElementById('ep-movie-card').style.display=ws?'block':'none';
@@ -8436,15 +9103,29 @@ function mlRender() {
   
   total.textContent = _mlLinks.length;
   if (navCount) navCount.textContent = _mlLinks.length;
-  
+
+  // Search filter
+  var searchEl = document.getElementById('ml-search');
+  var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  var filtered = query
+    ? _mlLinks.filter(function(l){ return (l.title||'').toLowerCase().includes(query) || (l.url||'').toLowerCase().includes(query); })
+    : _mlLinks;
+
   if (_mlLinks.length === 0) {
     list.innerHTML = '';
     empty.style.display = 'block';
+    empty.textContent = 'No links saved yet.';
+    return;
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'No results for "' + query + '"';
     return;
   }
   empty.style.display = 'none';
   
-  list.innerHTML = _mlLinks.map(function(lnk) {
+  list.innerHTML = filtered.map(function(lnk) {
     return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
       + '<div style="flex:1;min-width:0;">'
       + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lnk.title || 'Untitled Link') + '</div>'
@@ -8637,6 +9318,7 @@ function mlShowSubLinks(id, url) {
     var uid = 'mlsl-' + i + '-' + Math.random().toString(36).substr(2,6);
     var isFileDL = /filesdl\.in|filesdl\.top/i.test(lnk.url||lnk);
     var safeLabel = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var sizeFieldId = 'ml-size-' + uid;
     var fetchBtn = isFileDL
       ? '<button onclick="mlFetchFastDirect(\'' + safeUrl + '\',\'' + uid + '\',\'' + safeLabel + '\')" style="padding:6px 10px;font-size:0.72rem;font-weight:700;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;cursor:pointer;white-space:nowrap;">⚡ Fetch</button>'
       : '';
@@ -8649,11 +9331,15 @@ function mlShowSubLinks(id, url) {
       + (label ? '<span style="font-size:0.78rem;color:#fbbf24;font-weight:700;">' + label + '</span>' : '')
       + '</div>'
       + '<div style="font-size:0.71rem;word-break:break-all;color:#93c5fd;">' + (lnk.url||lnk) + '</div>'
+      + (q ? '<div style="margin-top:6px;"><input id="'+sizeFieldId+'" placeholder="Size likhو e.g. 900 MB / 2.1 GB" style="padding:5px 9px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.72rem;width:100%;max-width:260px;outline:none;font-family:Outfit,sans-serif;" /></div>' : '')
       + '</div>'
-      + '<div style="display:flex;gap:6px;flex-shrink:0;">'
+      + '<div style="display:flex;gap:6px;flex-shrink:0;flex-direction:column;align-items:flex-end;">'
+      + '<div style="display:flex;gap:6px;">'
       + fetchBtn
       + '<button class="btn btn-b" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" style="padding:6px 13px;font-size:0.75rem;">Open</button>'
       + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + safeUrl + '\');toast(\'Copied!\')" style="padding:6px 10px;font-size:0.75rem;">Copy</button>'
+      + '</div>'
+      + (q && window._mlCurrentMovieKey && !isFileDL ? '<button onclick="mlAutoSaveWithSize(\'' + safeUrl + '\',window._mlCurrentMovieKey,\'' + q.tag + '\',\'' + sizeFieldId + '\',this)" style="padding:5px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save ' + q.tag + '</button>' : '')
       + '</div>'
       + '</div>'
       + '<div class="ml-fetch-result" style="display:none;margin-top:8px;padding:8px 10px;background:#0a1a0a;border:1px solid #166534;border-radius:7px;font-size:0.75rem;"></div>'
@@ -8731,12 +9417,19 @@ function mlShowSubLinks(id, url) {
 function mlRetryFetch(url) { mlShowSubLinks("retry", url); }
 
 // ── Auto-save Fast Direct link to Firebase ──
-function mlAutoSave(link, movieKey, field, btn) {
+function mlAutoSave(link, movieKey, field, sizeInputId, btn) {
   if (!movieKey || movieKey === 'retry') { toast('❌ Movie key nahi mila!', 1); return; }
   btn.disabled = true;
   btn.textContent = '⏳...';
   var update = {};
   update['movies/' + movieKey + '/' + field] = link;
+  // Size bhi save karo agar diya gaya ho
+  var sizeFieldMap = { download4k:'size4k', download1080p:'size1080', download720p:'size720', download480p:'size480' };
+  var sizeEl = sizeInputId ? document.getElementById(sizeInputId) : null;
+  var sizeVal = sizeEl ? sizeEl.value.trim() : '';
+  if (sizeVal && sizeFieldMap[field]) {
+    update['movies/' + movieKey + '/' + sizeFieldMap[field]] = sizeVal;
+  }
   db.ref().update(update).then(function() {
     btn.textContent = '✅ Saved!';
     btn.style.background = '#166534';
@@ -8744,12 +9437,19 @@ function mlAutoSave(link, movieKey, field, btn) {
     var fieldMap = { download4k: 'lm-d4k-', download1080p: 'lm-d10-', download720p: 'lm-d7-', download480p: 'lm-d4-' };
     var inp = document.getElementById((fieldMap[field] || 'lm-d4-') + movieKey);
     if (inp) inp.value = link;
-    toast('✅ ' + field.replace('download','') + ' link save ho gaya!');
+    toast('✅ ' + field.replace('download','') + ' link' + (sizeVal ? ' + size' : '') + ' save ho gaya!');
   }).catch(function(e) {
     btn.disabled = false;
     btn.textContent = '💾 Save';
     toast('❌ ' + e.message, 1);
   });
+}
+
+// ── Direct link save with size (non-filesdl) ──
+function mlAutoSaveWithSize(link, movieKey, qTag, sizeInputId, btn) {
+  var fieldMap = { '4K':'download4k', '1080p':'download1080p', '720p':'download720p', '480p':'download480p', '360p':'download480p' };
+  var field = fieldMap[qTag] || 'download480p';
+  mlAutoSave(link, movieKey, field, sizeInputId, btn);
 }
 
 // ── FileDL Fast Direct auto-fetch from popup link ──
@@ -8861,8 +9561,13 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
     else if (combinedText.match(/720p/)) field = 'download720p';
     else if (combinedText.match(/480p/)) field = 'download480p';
 
+    // Size field ID card ke parent se dhundo
+    var sizeFieldMap = { 'download4k':'ml-size-', 'download1080p':'ml-size-', 'download720p':'ml-size-', 'download480p':'ml-size-' };
+    var sizeInputId = 'ml-size-' + uid; // uid is in scope from renderSingleLink
+    var safeSizeInputId = sizeInputId.replace(/'/g,"\\'");
+
     var saveBtn = movieKey && movieKey !== 'retry'
-      ? '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',this)" style="padding:4px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>'
+      ? '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',\'' + safeSizeInputId + '\',this)" style="padding:4px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>'
       : '';
 
     resultBox.style.color = '#4ade80';
