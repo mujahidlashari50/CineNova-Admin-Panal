@@ -1647,6 +1647,17 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
           <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
             <div>
+              <div style="font-size:0.88rem;font-weight:700;">💰 Earning Wallet</div>
+              <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Website pe Wallet / Login button show hoga ya nahi</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="sl-walletEnabled-status">OFF</span>
+              <div class="toggle-wrap" id="sl-walletEnabled-wrap" onclick="toggleSlider('walletEnabled')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
+            <div>
               <div style="font-size:0.88rem;font-weight:700;">⭐ Featured Banner</div>
               <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Home page par featured movie ka bada banner</div>
             </div>
@@ -2620,7 +2631,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <thead>
               <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
                 <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Easypaisa #</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Account / Number</th>
                 <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Amount</th>
                 <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Date</th>
                 <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Status</th>
@@ -2937,10 +2948,12 @@ function loadWebsiteSettings() {
     if (s.notice) document.getElementById('ws-notice').value = s.notice;
     if (s.footer) document.getElementById('ws-footer').value = s.footer;
     // Load slider states
-    var sliders = {featuredBanner:'sl-featured'};
+    var sliders = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled'};
     Object.keys(sliders).forEach(function(key) {
       var prefix = sliders[key];
-      var isOn = s.sliders && s.sliders[key] === true;
+      var isOn = key === 'walletEnabled'
+        ? s.walletEnabled === true
+        : (s.sliders && s.sliders[key] === true);
       var wrap = document.getElementById(prefix + '-wrap');
       var status = document.getElementById(prefix + '-status');
       if (wrap) { wrap.classList.toggle('on', isOn); }
@@ -2957,8 +2970,8 @@ function loadWebsiteSettings() {
 }
 
 // ─── Slider toggle function ───
-var sliderStates = {featuredBanner:false};
-var sliderPrefixes = {featuredBanner:'sl-featured'};
+var sliderStates = {featuredBanner:false, walletEnabled:false};
+var sliderPrefixes = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled'};
 
 function toggleSlider(key) {
   sliderStates[key] = !sliderStates[key];
@@ -2967,10 +2980,11 @@ function toggleSlider(key) {
   var status = document.getElementById(prefix + '-status');
   if (wrap)   wrap.classList.toggle('on', sliderStates[key]);
   if (status) { status.innerText = sliderStates[key] ? 'ON' : 'OFF'; status.style.color = sliderStates[key] ? 'var(--green)' : 'var(--grey)'; }
-  // Save to Firebase settings/sliders/key
-  var update = {};
-  update['sliders/' + key] = sliderStates[key];
-  db.ref('settings').update(update).then(function() {
+  // walletEnabled direct path pe save hota hai
+  var saveRef = key === 'walletEnabled'
+    ? db.ref('settings/walletEnabled').set(sliderStates[key])
+    : db.ref('settings').update((function(){ var u={}; u['sliders/'+key]=sliderStates[key]; return u; })());
+  saveRef.then(function() {
     toast((sliderStates[key] ? '✅ ' : '🔴 ') + key + ' ' + (sliderStates[key] ? 'ON' : 'OFF') + ' updated!');
   }).catch(function(e) { toast('❌ ' + e.message, 1); });
 }
@@ -9751,7 +9765,17 @@ function wdRender() {
       rejected: '<span style="background:#450a0a;color:#f87171;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">❌ Rejected</span>'
     }[d.status] || '';
 
-    var safeEp = (d.easypaisa||'').replace(/'/g,"\\'");
+    var acctNum = d.method === 'bank' ? (d.accountNumber||'') : (d.easypaisa||'');
+    var acctLabel = d.method === 'bank'
+      ? (d.bankName ? '<span style="font-size:0.68rem;color:#f59e0b;display:block;">' + escHtml(d.bankName) + '</span>' : '')
+        + (d.bankTitle ? '<span style="font-size:0.68rem;color:#888;display:block;">' + escHtml(d.bankTitle) + '</span>' : '')
+      : '';
+    var methodBadge = d.method === 'bank'
+      ? '<span style="font-size:0.65rem;background:#1e3a5f;color:#60a5fa;padding:1px 6px;border-radius:10px;margin-right:4px;">🏦 Bank</span>'
+      : d.method === 'jazzcash'
+      ? '<span style="font-size:0.65rem;background:#3b0764;color:#c084fc;padding:1px 6px;border-radius:10px;margin-right:4px;">🔴 JazzCash</span>'
+      : '<span style="font-size:0.65rem;background:#14532d;color:#4ade80;padding:1px 6px;border-radius:10px;margin-right:4px;">🟢 Easypaisa</span>';
+    var safeEp = acctNum.replace(/'/g,"\\'");
     var safeKey = d._key;
     var actions = '';
     // Email button — har row mein (jahan email ho)
@@ -9768,7 +9792,7 @@ function wdRender() {
 
     html += '<tr style="border-bottom:1px solid #1e1e1e;">'
       + '<td style="padding:12px 16px;"><div style="font-weight:600;font-size:0.85rem;">' + escHtml(d.name||'User') + '</div><div style="font-size:0.72rem;color:#666;">' + escHtml(d.email||'') + '</div></td>'
-      + '<td style="padding:12px 16px;"><span style="font-family:monospace;color:#60a5fa;">' + escHtml(d.easypaisa||'') + '</span><button onclick="navigator.clipboard.writeText(\'' + safeEp + '\');toast(\'✅ Copied!\')" style="margin-left:6px;padding:2px 7px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.65rem;cursor:pointer;">Copy</button></td>'
+      + '<td style="padding:12px 16px;">' + methodBadge + '<span style="font-family:monospace;color:#60a5fa;">' + escHtml(acctNum) + '</span>' + (acctNum ? '<button onclick="navigator.clipboard.writeText(\'' + safeEp + '\');toast(\'✅ Copied!\')" style="margin-left:6px;padding:2px 7px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.65rem;cursor:pointer;">Copy</button>' : '') + acctLabel + '</td>'
       + '<td style="padding:12px 16px;"><span style="font-family:\'Bebas Neue\',cursive;font-size:1.2rem;color:#22c55e;">PKR ' + (d.amount||0) + '</span></td>'
       + '<td style="padding:12px 16px;color:#888;font-size:0.8rem;">' + dateStr + '</td>'
       + '<td style="padding:12px 16px;">' + statusBadge + '</td>'
