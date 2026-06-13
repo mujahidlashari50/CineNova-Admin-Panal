@@ -459,6 +459,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 <!-- Plyr.io -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -9983,6 +9984,11 @@ function wdShowEmailModal(key, d, type) {
   document.body.appendChild(modal);
 }
 
+// ── EmailJS Config ──
+var EMAILJS_SERVICE_ID  = 'service_kqf592b';
+var EMAILJS_TEMPLATE_ID = 'template_4mu2j4q';
+var EMAILJS_PUBLIC_KEY  = '9t0mjDb8UfHOPpnix';
+
 function wdDoSendEmail(toEmail, toName) {
   var subject = (document.getElementById('cv-email-subject').value || '').trim();
   var message = (document.getElementById('cv-email-body').value || '').trim();
@@ -9992,30 +9998,17 @@ function wdDoSendEmail(toEmail, toName) {
   msgEl.style.color = '#f59e0b';
   msgEl.textContent = '⏳ Bhej raha hun...';
 
-  // ── Method 1: Web3Forms (free, no verification, custom _to supported) ──
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      access_key: getW3fKey(),
-      to: toEmail,
-      subject: subject,
-      message: message,
-      from_name: 'CineNova Admin',
-      replyto: 'cinenovamovies@gmail.com'
-    })
-  }).then(function(r){ return r.json(); }).then(function(res) {
-    if (res.success) {
-      msgEl.style.color = '#22c55e';
-      msgEl.textContent = '✅ Mail send ho gayi!';
-      setTimeout(function(){ var m=document.getElementById('cv-email-modal'); if(m) m.remove(); }, 1500);
-    } else {
-      // ── Method 2: mailto fallback ──
-      wdMailtoFallback(toEmail, subject, message, msgEl);
-    }
-  }).catch(function() {
-    // ── Method 2: mailto fallback ──
-    wdMailtoFallback(toEmail, subject, message, msgEl);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: toEmail,
+    subject: subject,
+    message: message
+  }, EMAILJS_PUBLIC_KEY).then(function() {
+    msgEl.style.color = '#22c55e';
+    msgEl.textContent = '✅ Mail send ho gayi!';
+    setTimeout(function(){ var m=document.getElementById('cv-email-modal'); if(m) m.remove(); }, 1500);
+  }, function(err) {
+    msgEl.style.color = '#f87171';
+    msgEl.textContent = '❌ Mail send nahi hui: ' + (err && err.text ? err.text : 'Error');
   });
 }
 
@@ -10048,25 +10041,14 @@ function cvSendWithdrawEmail(type, wdData) {
       ? 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (wdData.accountNumber || wdData.easypaisa || '') + '\n\nPayment 24 hours mein bhej di jayegi.\n\n— CineNova Team'
       : 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho to reply karen: cinenovamovies@gmail.com\n\n— CineNova Team';
 
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        access_key: getW3fKey(),
-        to: userEmail,
-        subject: subject,
-        message: message,
-        from_name: 'CineNova Admin',
-        replyto: 'cinenovamovies@gmail.com'
-      })
-    }).then(function(r) { return r.json(); }).then(function(res) {
-      if (res.success) {
-        toast('📧 Mail send ho gayi: ' + userEmail);
-      } else {
-        toast('⚠️ Auto mail nahi gayi — Mail Bhejo button se manually bhejo', 1);
-      }
-    }).catch(function() {
-      toast('⚠️ Mail send nahi hui — internet check karo', 1);
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: userEmail,
+      subject: subject,
+      message: message
+    }, EMAILJS_PUBLIC_KEY).then(function() {
+      toast('📧 Mail send ho gayi: ' + userEmail);
+    }, function() {
+      toast('⚠️ Auto mail nahi gayi — Mail Bhejo button se manually bhejo', 1);
     });
   } catch(e) { console.warn('Email error:', e); }
 }
