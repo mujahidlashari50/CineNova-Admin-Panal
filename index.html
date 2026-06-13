@@ -2903,7 +2903,7 @@ loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',f
     loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js',function(){
       loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',function(){
         firebase.initializeApp(firebaseConfig);
-        db=firebase.database();window.storage=firebase.storage();
+        db=window.db=firebase.database();window.storage=firebase.storage();
         window._adminDbReady = true;
         initLoginScreen();
         fpCheckOnLoad();
@@ -10069,7 +10069,6 @@ function cvSendWithdrawEmail(type, wdData) {
       toast('⚠️ Mail send nahi hui — internet check karo', 1);
     });
   } catch(e) { console.warn('Email error:', e); }
-}
 }
 
 function wdApprove(key) {
