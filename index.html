@@ -807,6 +807,24 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div class="fgg"><label>4K Size</label><input class="fi" id="fs4k" placeholder="8 GB"/></div>
         </div>
       </div>
+      <div class="card" style="border-color:rgba(34,197,94,0.3);background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(0,0,0,0));"><h3 style="color:#22c55e;">🔍 SEO Settings (Optional)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">Yeh fields Google ranking ke liye hain. Khali chodne par automatically title se generate hoga.</div>
+        <div class="fg">
+          <div class="fgg full"><label>SEO Title <span style="color:#555;font-weight:400;">(Google mein jo title dikhay — 60 chars max)</span></label>
+            <input class="fi" id="fseoTitle" placeholder="Spider-Man No Way Home (2021) Full Movie HD — CineNova" maxlength="80"/>
+          </div>
+          <div class="fgg full"><label>SEO Description <span style="color:#555;font-weight:400;">(Google snippet — 155 chars max)</span></label>
+            <textarea class="fi" id="fseoDesc" rows="2" placeholder="Watch Spider-Man No Way Home 2021 full movie free in HD on CineNova. No login required..." maxlength="200"></textarea>
+          </div>
+          <div class="fgg"><label>SEO Keywords <span style="color:#555;font-weight:400;">(comma separated)</span></label>
+            <input class="fi" id="fseoKeywords" placeholder="spider man, no way home, 2021, hd movie, cinenova"/>
+          </div>
+          <div class="fgg"><label>SEO Slug <span style="color:#555;font-weight:400;">(URL mein use hoga — lowercase, hyphens only)</span></label>
+            <input class="fi" id="fseoSlug" placeholder="spider-man-no-way-home-2021" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
+            <div style="font-size:0.7rem;color:#555;margin-top:5px;">💡 Link: cinenova.site/?m=<span id="fseoSlug-preview" style="color:#22c55e;">your-slug</span></div>
+          </div>
+        </div>
+      </div>
       <div class="form-actions">
         <button class="btn btn-p" onclick="addMovie()">✅ Save</button>
         <button class="btn btn-s" onclick="clrForm()">🗑 Clear</button>
@@ -1585,6 +1603,29 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <!-- SETTINGS -->
     <div class="section" id="sec-settings">
       <div class="sec-title">⚙️ <span>Settings</span></div>
+
+      <!-- WEB3FORMS SETUP -->
+      <div class="card" style="border-color:rgba(59,130,246,0.3);background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(0,0,0,0));">
+        <h3 style="color:#60a5fa;">📧 Email Setup (Withdrawal Notifications)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">
+          Web3Forms se user ko email jaati hai jab withdrawal approve/reject ho. Free hai — koi signup nahi chahiye bas Access Key daalo.
+        </div>
+        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:9px;padding:14px;margin-bottom:14px;font-size:0.8rem;color:#93c5fd;">
+          <strong>Setup steps:</strong><br/>
+          1. <a href="https://web3forms.com" target="_blank" style="color:#60a5fa;">web3forms.com</a> pe jao → apna email daalo → Access Key milega<br/>
+          2. Woh key neeche paste karo → Save karo
+        </div>
+        <div class="fgg">
+          <label>Web3Forms Access Key</label>
+          <div style="display:flex;gap:8px;">
+            <input class="fi" id="set-w3f-key" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="flex:1;"/>
+            <button class="btn btn-b" onclick="saveW3fKey()" style="white-space:nowrap;">💾 Save</button>
+          </div>
+          <div id="set-w3f-status" style="font-size:0.75rem;margin-top:6px;color:#555;">
+            Current key: <span id="set-w3f-current" style="color:#22c55e;"></span>
+          </div>
+        </div>
+      </div>
 
       <!-- GOFILE TOKEN CARD REMOVED -->
 
@@ -2774,6 +2815,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ep-edit-wrap"></div>
         <button class="add-ep-btn" onclick="addEpBlock('edit')">+ Add Episode</button>
       </div>
+      <div class="fgg full" style="grid-column:1/-1;margin-top:8px;padding-top:14px;border-top:1px solid rgba(34,197,94,0.2);">
+        <div style="font-size:0.6rem;color:#22c55e;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">🔍 SEO Settings</div>
+        <div class="fg">
+          <div class="fgg full"><label>SEO Title</label><input class="fi" id="eseoTitle" placeholder="Google mein jo title dikhay..."/></div>
+          <div class="fgg full"><label>SEO Description</label><textarea class="fi" id="eseoDesc" rows="2" placeholder="Google snippet — 155 chars..."></textarea></div>
+          <div class="fgg"><label>SEO Keywords</label><input class="fi" id="eseoKeywords" placeholder="keyword1, keyword2, ..."/></div>
+          <div class="fgg"><label>SEO Slug <span style="color:#555;font-weight:400;">(URL slug)</span></label>
+            <input class="fi" id="eseoSlug" placeholder="movie-title-year" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')"/>
+            <div style="font-size:0.7rem;color:#555;margin-top:4px;">cinenova.site/?m=<span id="eseoSlug-preview" style="color:#22c55e;">slug</span></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="form-actions">
       <button class="btn btn-p" onclick="saveEdit()">💾 Save Changes</button>
@@ -2781,8 +2834,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     </div>
   </div>
 </div>
-
-<!-- CONFIRM DELETE MODAL -->
 <div id="confirm-modal">
   <div id="confirm-box">
     <h3>🗑 Delete?</h3>
@@ -2914,8 +2965,8 @@ function applyProfile(){
     document.getElementById('set-av-ph').style.display='none';
   }
   // Firebase se bhi check karo — agar localStorage khali hai ya match nahi
-  if(window.db){
-    window.db.ref('settings/adminPic').once('value').then(function(snap){
+  if(db){
+    db.ref('settings/adminPic').once('value').then(function(snap){
       var fbPic = snap.val();
       if(fbPic && fbPic !== pic){
         localStorage.setItem(ADMIN_PIC_KEY, fbPic);
@@ -3196,6 +3247,41 @@ function resetProxyStatus(){
   if(log){log.style.display='none';log.innerHTML='';}
 }
 
+// ── Web3Forms Key Management ──
+var W3F_KEY_STORAGE = 'cv_w3f_key';
+function getW3fKey() {
+  return localStorage.getItem(W3F_KEY_STORAGE) || '4b8b2b2e-6f1a-4e2a-b3c1-2d9e8f7a0c3d';
+}
+function saveW3fKey() {
+  var val = (document.getElementById('set-w3f-key') || {}).value || '';
+  val = val.trim();
+  if (!val) { toast('❌ Key daalo pehle!', 1); return; }
+  localStorage.setItem(W3F_KEY_STORAGE, val);
+  var sp = document.getElementById('set-w3f-current');
+  if (sp) sp.textContent = val.substring(0,8) + '...';
+  toast('✅ Web3Forms key save ho gayi!');
+}
+function loadW3fKeyUI() {
+  var k = localStorage.getItem(W3F_KEY_STORAGE);
+  var inp = document.getElementById('set-w3f-key');
+  var sp = document.getElementById('set-w3f-current');
+  if (k && inp) inp.value = k;
+  if (sp) sp.textContent = k ? k.substring(0,8) + '...' : 'Default key use ho rahi hai';
+}
+document.addEventListener('DOMContentLoaded', loadW3fKeyUI);
+
+// SEO Slug live preview
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'fseoSlug') {
+    var prev = document.getElementById('fseoSlug-preview');
+    if (prev) prev.textContent = e.target.value || 'your-slug';
+  }
+  if (e.target && e.target.id === 'eseoSlug') {
+    var prev = document.getElementById('eseoSlug-preview');
+    if (prev) prev.textContent = e.target.value || 'slug';
+  }
+});
+
 // ═══ TMDB AUTOFILL ═══
 var TMDB_API = 'b28ca4fbe7f15cd17c1df4869ac2d236';
 var TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w300';
@@ -3261,6 +3347,20 @@ function tmdbFillForm(id, mediaType) {
       document.getElementById('fl').value = langMap[m.original_language] || m.original_language || '';
       // Go to add section
       show('add');
+      // ✅ SEO fields auto-fill
+      var autoSlug = (title + (year ? '-' + year : '')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+      var quality = document.getElementById('fq').value || 'HD';
+      var lang = document.getElementById('fl').value || '';
+      var seoTitle = title + (year ? ' (' + year + ')' : '') + (quality ? ' ' + quality : '') + ' Free Download — CineNova';
+      var seoDesc = desc ? desc.substring(0, 155) + (desc.length > 155 ? '...' : '') : 'Watch ' + title + (year ? ' (' + year + ')' : '') + ' free in HD on CineNova. No login required.';
+      var seoKeywords = [title, year, lang, genre, 'free movie', 'hd download', 'cinenova'].filter(Boolean).join(', ');
+
+      var el;
+      el = document.getElementById('fseoTitle'); if (el) el.value = seoTitle;
+      el = document.getElementById('fseoDesc');  if (el) el.value = seoDesc;
+      el = document.getElementById('fseoKeywords'); if (el) el.value = seoKeywords;
+      el = document.getElementById('fseoSlug');  if (el && !el.value) { el.value = autoSlug; var sp=document.getElementById('fseoSlug-preview');if(sp)sp.textContent=autoSlug; }
+
       toast('✅ Data filled! Just add video link and download links.');
     })
     .catch(function() { toast('❌ Failed to load data', 1); });
@@ -3726,6 +3826,25 @@ function filmyflyFetch() {
       if (formCard) formCard.scrollIntoView({ behavior:'smooth', block:'start' });
     }, 300);
 
+    // ✅ SEO fields auto-fill (title, desc, keywords, slug)
+    if (data.title) {
+      var autoSlug = (data.title + (data.year ? '-' + data.year : '')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+      var qual = (document.getElementById('fq') || {}).value || 'HD';
+      var langVal = (document.getElementById('fl') || {}).value || '';
+      var genreVal = (document.getElementById('fg') || {}).value || '';
+      var autoSeoTitle = data.title + (data.year ? ' (' + data.year + ')' : '') + (qual ? ' ' + qual : '') + ' Free Download — CineNova';
+      var autoSeoDesc  = data.description
+        ? data.description.substring(0, 155) + (data.description.length > 155 ? '...' : '')
+        : 'Watch ' + data.title + (data.year ? ' (' + data.year + ')' : '') + ' free in HD on CineNova. No login required.';
+      var autoSeoKeys  = [data.title, data.year, langVal, genreVal, 'free movie', 'hd download', 'cinenova'].filter(Boolean).join(', ');
+
+      var el2;
+      el2 = document.getElementById('fseoTitle');    if (el2) el2.value = autoSeoTitle;
+      el2 = document.getElementById('fseoDesc');     if (el2) el2.value = autoSeoDesc;
+      el2 = document.getElementById('fseoKeywords'); if (el2) el2.value = autoSeoKeys;
+      el2 = document.getElementById('fseoSlug');     if (el2) { el2.value = autoSlug; var sp=document.getElementById('fseoSlug-preview');if(sp)sp.textContent=autoSlug; }
+    }
+
     toast('✅ ' + (data.title||'Data') + ' — form mein fill ho gaya!');
   }
 
@@ -4066,6 +4185,7 @@ function addMovie(){
     thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
     download1080p:gv('fd10'),size1080:gv('fs10'),download4k:gv('fd4k'),size4k:gv('fs4k'),
+    seoTitle:gv('fseoTitle'),seoDesc:gv('fseoDesc'),seoKeywords:gv('fseoKeywords'),seoSlug:gv('fseoSlug'),
     addedAt:Date.now()};
   if(ws){var net=gv('fnetwork');var st=gv('fstatus');var seas=gv('fseasons');
     if(net)m.network=net;if(st)m.status=st;if(seas)m.seasons=seas;
@@ -4076,7 +4196,7 @@ function addMovie(){
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 function clrForm(){
-  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseoTitle','fseoDesc','fseoKeywords','fseoSlug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('tp').style.display='none';
   document.getElementById('ep-movie-card').style.display='none';
   document.getElementById('field-network').style.display='none';
@@ -4211,6 +4331,9 @@ function openEdit(key){
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
+  // SEO fields populate karo
+  sv('eseoTitle',m.seoTitle||'');sv('eseoDesc',m.seoDesc||'');sv('eseoKeywords',m.seoKeywords||'');sv('eseoSlug',m.seoSlug||'');
+  var esp=document.getElementById('eseoSlug-preview');if(esp)esp.textContent=m.seoSlug||'slug';
   if(m.thumbnail)prvw(m.thumbnail,'ep');
   plyrPreview(m.videoUrl||'','ev-preview','ev-plyr-inst');
   loadSsRowsForEdit(m.screenshots||'');
@@ -4254,7 +4377,8 @@ function saveEdit(){
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
     thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
-    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k')};
+    download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
+    seoTitle:gv('eseoTitle'),seoDesc:gv('eseoDesc'),seoKeywords:gv('eseoKeywords'),seoSlug:gv('eseoSlug')};
   if(ws){m.network=gv('enetwork');m.status=gv('estatus');var seas=gv('eseasons');if(seas)m.seasons=seas;var eps=collectEpisodes('edit');if(eps&&eps.length)m.episodes=eps;else m.episodes=null;}
   Object.keys(m).forEach(function(k){if(!m[k]&&k!=='episodes')delete m[k];});
   // ✅ Jab bhi movie update ho, addedAt ko current time pe set karo
@@ -4432,7 +4556,7 @@ function uploadImg(input,fieldId,previewId,progId){
 }
 function applyProfilePicEverywhere(url){
   localStorage.setItem(ADMIN_PIC_KEY, url);
-  if(window.db){ window.db.ref('settings/adminPic').set(url).catch(function(){}); }
+  if(db){ db.ref('settings/adminPic').set(url).catch(function(){}); }
   var av=document.getElementById('settings-avatar-prev');
   if(av){av.src=url;av.style.display='block';}
   var ph=document.getElementById('set-av-ph');
@@ -4504,7 +4628,7 @@ function _profilePicBase64Fallback(file){
     // localStorage mein store karo (base64)
     try{
       localStorage.setItem(ADMIN_PIC_KEY, b64);
-      if(window.db){ window.db.ref('settings/adminPic').set(b64).catch(function(){}); }
+      if(db){ db.ref('settings/adminPic').set(b64).catch(function(){}); }
     }catch(ex){
       toast('❌ Image is too large for localStorage!',1);
       return;
@@ -5305,7 +5429,7 @@ function biProcessNext(names,idx){
     var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-skip');}
     setTimeout(function(){biProcessNext(names,idx+1);},200);return;
   }
-  var TKEY='b28ca4fbe7f15cd17c1df4869ac2d236';
+  var TKEY=TMDB_API;
   fetch('https://api.themoviedb.org/3/search/multi?api_key='+TKEY+'&query='+encodeURIComponent(name)+'&language=en-US&page=1')
     .then(function(r){return r.json();})
     .then(function(data){
@@ -5329,6 +5453,9 @@ function biProcessNext(names,idx){
       var mel=document.getElementById('bimeta-'+idx);if(mel)mel.textContent=year+(rating?' · ⭐'+rating:'')+'  · '+cat;
       var pel=document.getElementById('bipos-'+idx);if(pel&&poster){pel.src='https://wsrv.nl/?url='+encodeURIComponent(poster)+'&w=80&h=112&fit=cover&output=jpg';pel.style.display='block';}
       var obj={title:title,year:year,rating:rating,category:cat,genre:genre,description:desc,thumbnail:poster,addedAt:Date.now()};
+      // ✅ SEO slug auto-generate
+      var bSlug=(title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+      if(bSlug)obj.seoSlug=bSlug;
       Object.keys(obj).forEach(function(k){if(!obj[k]&&k!=='addedAt')delete obj[k];});
       db.ref('movies').push(obj).then(function(){
         biOk++;biSetRowSt(idx,'ok','✅ Saved!');
@@ -5355,7 +5482,7 @@ function biSetRowSt(idx,type,msg){
 // ═══ END BULK IMPORT ═══
 
 
-var AI_KEY = 'b28ca4fbe7f15cd17c1df4869ac2d236';
+var AI_KEY = TMDB_API;
 var aiSelectedSrcs = ['hollywood_popular'];
 var aiFetchedMovies = [];
 var aiSelectedKeys = {};
@@ -5567,6 +5694,9 @@ function aiImportSelected(){
     if(m._src==='animation'||m.genre_ids&&m.genre_ids.indexOf(16)>-1){ cat='animation'; genre='animation'; }
 
     var obj = {title:title, year:year, rating:rating, category:cat, genre:genre, description:desc, thumbnail:poster, addedAt:Date.now()};
+    // ✅ SEO slug auto-generate
+    var aiSlug=(title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    if(aiSlug)obj.seoSlug=aiSlug;
     Object.keys(obj).forEach(function(k){ if(!obj[k]&&k!=='addedAt') delete obj[k]; });
 
     db.ref('movies').push(obj).then(function(){
@@ -9862,34 +9992,46 @@ function wdDoSendEmail(toEmail, toName) {
   msgEl.style.color = '#f59e0b';
   msgEl.textContent = '⏳ Bhej raha hun...';
 
-  var formData = new FormData();
-  formData.append('_to',       toEmail);
-  formData.append('_subject',  subject);
-  formData.append('message',   message);
-  formData.append('_replyto',  'cinenovamovies@gmail.com');
-  formData.append('_from',     'CineNova <cinenovamovies@gmail.com>');
-  formData.append('_template', 'box');
-  formData.append('_captcha',  'false');
-
-  fetch('https://formsubmit.co/ajax/cinenovamovies@gmail.com', {
+  // ── Method 1: Web3Forms (free, no verification, custom _to supported) ──
+  fetch('https://api.web3forms.com/submit', {
     method: 'POST',
-    body: formData
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      access_key: getW3fKey(),
+      to: toEmail,
+      subject: subject,
+      message: message,
+      from_name: 'CineNova Admin',
+      replyto: 'cinenovamovies@gmail.com'
+    })
   }).then(function(r){ return r.json(); }).then(function(res) {
-    if (res.success === 'true' || res.success === true) {
+    if (res.success) {
       msgEl.style.color = '#22c55e';
       msgEl.textContent = '✅ Mail send ho gayi!';
       setTimeout(function(){ var m=document.getElementById('cv-email-modal'); if(m) m.remove(); }, 1500);
     } else {
-      msgEl.style.color = '#f87171';
-      msgEl.textContent = '❌ FormSubmit error — dobara try karo';
+      // ── Method 2: mailto fallback ──
+      wdMailtoFallback(toEmail, subject, message, msgEl);
     }
   }).catch(function() {
-    msgEl.style.color = '#f87171';
-    msgEl.textContent = '❌ Network error — internet check karo';
+    // ── Method 2: mailto fallback ──
+    wdMailtoFallback(toEmail, subject, message, msgEl);
   });
 }
 
-// ── FormSubmit Email (auto on approve/reject) ──
+function wdMailtoFallback(toEmail, subject, message, msgEl) {
+  // Gmail/mail client se open karo as fallback
+  var mailtoUrl = 'mailto:' + encodeURIComponent(toEmail)
+    + '?subject=' + encodeURIComponent(subject)
+    + '&body=' + encodeURIComponent(message);
+  window.open(mailtoUrl, '_blank');
+  if (msgEl) {
+    msgEl.style.color = '#f59e0b';
+    msgEl.textContent = '📧 Mail client mein khul gaya — wahan se bhejo';
+  }
+}
+
+// ── Web3Forms Email (auto on approve/reject) ──
 function cvSendWithdrawEmail(type, wdData) {
   try {
     var userEmail = wdData.email || '';
@@ -9906,28 +10048,28 @@ function cvSendWithdrawEmail(type, wdData) {
       ? 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (wdData.accountNumber || wdData.easypaisa || '') + '\n\nPayment 24 hours mein bhej di jayegi.\n\n— CineNova Team'
       : 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho to reply karen: cinenovamovies@gmail.com\n\n— CineNova Team';
 
-    var formData = new FormData();
-    formData.append('_to',        userEmail);
-    formData.append('_subject',   subject);
-    formData.append('message',    message);
-    formData.append('_replyto',   'cinenovamovies@gmail.com');
-    formData.append('_from',      'CineNova <cinenovamovies@gmail.com>');
-    formData.append('_template',  'box');
-    formData.append('_captcha',   'false');
-
-    fetch('https://formsubmit.co/ajax/cinenovamovies@gmail.com', {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: getW3fKey(),
+        to: userEmail,
+        subject: subject,
+        message: message,
+        from_name: 'CineNova Admin',
+        replyto: 'cinenovamovies@gmail.com'
+      })
     }).then(function(r) { return r.json(); }).then(function(res) {
-      if (res.success === 'true' || res.success === true) {
+      if (res.success) {
         toast('📧 Mail send ho gayi: ' + userEmail);
       } else {
-        toast('⚠️ Mail nahi gayi — FormSubmit error', 1);
+        toast('⚠️ Auto mail nahi gayi — Mail Bhejo button se manually bhejo', 1);
       }
     }).catch(function() {
       toast('⚠️ Mail send nahi hui — internet check karo', 1);
     });
-  } catch(e) { console.warn('FormSubmit error:', e); }
+  } catch(e) { console.warn('Email error:', e); }
+}
 }
 
 function wdApprove(key) {
