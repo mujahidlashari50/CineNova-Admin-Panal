@@ -2328,6 +2328,19 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <textarea class="fi" id="atp-bot-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Bottom Ad Code paste karo -->"></textarea>
         </div>
 
+        <!-- Direct Link Ad -->
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">🔗 Direct Link Ad <span style="font-size:0.72rem;color:var(--grey);">(Download click pe naya tab khulta hai)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="atp-direct-ad-status">OFF</span>
+              <div class="toggle-wrap" id="atp-direct-ad-wrap" onclick="atpToggleAd('direct')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <input class="fi" id="atp-direct-ad-link" type="text" style="font-size:0.83rem;" placeholder="https://www.effectivecpmnetwork.com/xxxxx?key=xxxxx"/>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">CPM network ka direct/monetized link daalo. OFF rakhne pe koi link open nahi hoga.</div>
+        </div>
+
         <button class="btn btn-p" onclick="atpSaveAds()">💾 Save All Ads</button>
       </div>
 
@@ -9340,6 +9353,7 @@ var _atpEnabled = false;
 var _atpTopAdOn = false;
 var _atpBotAdOn = false;
 var _atpMidAdOn = false;
+var _atpDirectAdOn = false;
 var _atpLoaded  = false;
 
 function atpLoadSettings() {
@@ -9352,18 +9366,21 @@ function atpLoadSettings() {
     _atpTopAdOn = !!d.topAdEnabled;
     _atpBotAdOn = !!d.botAdEnabled;
     _atpMidAdOn = !!d.midAdEnabled;
+    _atpDirectAdOn = !!d.directAdEnabled;
 
     // Apply toggles
     _atpSetToggle('atp-toggle-wrap', _atpEnabled);
     _atpSetToggle('atp-top-ad-wrap', _atpTopAdOn);
     _atpSetToggle('atp-bot-ad-wrap', _atpBotAdOn);
     _atpSetToggle('atp-mid-ad-wrap', _atpMidAdOn);
+    _atpSetToggle('atp-direct-ad-wrap', _atpDirectAdOn);
 
     // Labels
     document.getElementById('atp-status-label').textContent = _atpEnabled ? 'ON' : 'OFF';
     document.getElementById('atp-top-ad-status').textContent = _atpTopAdOn ? 'ON' : 'OFF';
     document.getElementById('atp-bot-ad-status').textContent = _atpBotAdOn ? 'ON' : 'OFF';
     document.getElementById('atp-mid-ad-status').textContent = _atpMidAdOn ? 'ON' : 'OFF';
+    document.getElementById('atp-direct-ad-status').textContent = _atpDirectAdOn ? 'ON' : 'OFF';
 
     // Fields
     if(d.timerSec) document.getElementById('atp-timer-sec').value = d.timerSec;
@@ -9372,6 +9389,7 @@ function atpLoadSettings() {
     if(d.topAdCode) document.getElementById('atp-top-ad-code').value = d.topAdCode;
     if(d.botAdCode) document.getElementById('atp-bot-ad-code').value = d.botAdCode;
     if(d.midAdCode) document.getElementById('atp-mid-ad-code').value = d.midAdCode;
+    if(d.directAdLink) document.getElementById('atp-direct-ad-link').value = d.directAdLink;
 
     atpUpdatePreview();
   });
@@ -9402,6 +9420,10 @@ function atpToggleAd(type) {
     _atpBotAdOn = !_atpBotAdOn;
     _atpSetToggle('atp-bot-ad-wrap', _atpBotAdOn);
     document.getElementById('atp-bot-ad-status').textContent = _atpBotAdOn ? 'ON' : 'OFF';
+  } else if(type === 'direct') {
+    _atpDirectAdOn = !_atpDirectAdOn;
+    _atpSetToggle('atp-direct-ad-wrap', _atpDirectAdOn);
+    document.getElementById('atp-direct-ad-status').textContent = _atpDirectAdOn ? 'ON' : 'OFF';
   }
 }
 
@@ -9427,7 +9449,9 @@ function atpSaveAds() {
     midAdEnabled: _atpMidAdOn,
     topAdCode: document.getElementById('atp-top-ad-code').value,
     botAdCode: document.getElementById('atp-bot-ad-code').value,
-    midAdCode: document.getElementById('atp-mid-ad-code').value
+    midAdCode: document.getElementById('atp-mid-ad-code').value,
+    directAdEnabled: _atpDirectAdOn,
+    directAdLink: document.getElementById('atp-direct-ad-link').value.trim()
   }, function(err) {
     if(err) toast('❌ Ads save nahi hue', 1);
     else toast('✅ Ads Code Save! Website pe foran update hoga.');
