@@ -649,37 +649,50 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="section" id="sec-add">
       <div class="sec-title">➕ Add <span>Movie / Series</span></div>
 
-      <!-- ═══ FILMYFLY AUTO-FETCH ═══ -->
+      <!-- ═══ UNIVERSAL AUTO-FETCH ═══ -->
       <div class="card" style="border-color:rgba(59,130,246,0.35);background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(0,0,0,0));">
-        <h3 style="color:#60a5fa;">⚡ AUTO-FETCH FROM FILMYFLY / ANY SITE</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">FilmyFly, FilmyWap ya kisi bhi movie site ka link paste karo — data automatically form mein aa jayega.</div>
+        <h3 style="color:#60a5fa;">⚡ UNIVERSAL AUTO-FETCH — KISI BHI SITE SE</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:10px;">Kisi bhi movie/series site ka link paste karo — FilmyFly, KatMovieHD, FilmyWap, MoviesDA, 9xMovies, ya koi bhi. Title, poster, description aur download links auto fill ho jayenge.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">FilmyFly ✓</span>
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">KatMovieHD ✓</span>
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">9xMovies ✓</span>
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">MoviesDA ✓</span>
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">FilmyWap ✓</span>
+          <span style="font-size:0.7rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;padding:3px 10px;border-radius:20px;">Aur Bhi ✓</span>
+        </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div class="fgg" style="flex:1;min-width:280px;">
-            <label>Movie/Series Page URL</label>
-            <input class="fi" id="ff-url" placeholder="https://filmyfly.racing/page-download/6663/..." style="border-color:rgba(59,130,246,0.4);"/>
+            <label>Kisi Bhi Movie/Series Page Ka URL</label>
+            <input class="fi" id="ff-url" placeholder="https://katmoviehd.sh/movie-name/ ya koi bhi link..." style="border-color:rgba(59,130,246,0.4);"/>
           </div>
-          <button class="btn" onclick="filmyflyFetch()" id="ff-btn" style="background:#1d4ed8;color:#fff;height:40px;padding:0 22px;white-space:nowrap;">⚡ Fetch Data</button>
+          <button class="btn" onclick="filmyflyFetch()" id="ff-btn" style="background:#1d4ed8;color:#fff;height:40px;padding:0 22px;white-space:nowrap;">⚡ Fetch Karo</button>
         </div>
         <div id="ff-status" style="margin-top:12px;display:none;font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
         <div id="ff-preview" style="display:none;margin-top:14px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px;"></div>
       </div>
-      <!-- ═══ END AUTO-FETCH ═══ -->
+      <!-- ═══ END UNIVERSAL AUTO-FETCH ═══ -->
 
-      <!-- ═══ KATDRAMA AUTO-FETCH ═══ -->
+      <!-- ═══ KDRAMA AUTO-FETCH ═══ -->
       <div class="card" style="border-color:rgba(234,179,8,0.35);background:linear-gradient(135deg,rgba(234,179,8,0.05),rgba(0,0,0,0));margin-top:14px;">
-        <h3 style="color:#facc15;">🇰🇷 AUTO-FETCH FROM KATDRAMA.NET</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">KatDrama.net ka kisi bhi drama/movie page ka link paste karo — title, poster, rating, description aur download links sab auto fill ho jayenge.</div>
+        <h3 style="color:#facc15;">🇰🇷 K-DRAMA / ASIAN CONTENT AUTO-FETCH</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:10px;">KatDrama, DramaDay, AsianCrush ya kisi bhi Korean/Asian drama site ka link paste karo — data form mein aa jayega.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="font-size:0.7rem;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">KatDrama ✓</span>
+          <span style="font-size:0.7rem;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">DramaDay ✓</span>
+          <span style="font-size:0.7rem;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">Koi Bhi Link ✓</span>
+        </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div class="fgg" style="flex:1;min-width:280px;">
-            <label>KatDrama Page URL</label>
-            <input class="fi" id="kd-url" placeholder="https://katdrama.net/my-royal-nemesis-2026-s01-eng/" style="border-color:rgba(234,179,8,0.4);"/>
+            <label>K-Drama / Asian Site URL</label>
+            <input class="fi" id="kd-url" placeholder="https://katdrama.net/drama-name/ ya koi bhi Asian site link..." style="border-color:rgba(234,179,8,0.4);"/>
           </div>
           <button class="btn" onclick="katdramaFetch()" id="kd-btn" style="background:linear-gradient(135deg,#854d0e,#ca8a04);color:#fff;height:40px;padding:0 22px;white-space:nowrap;">🇰🇷 Fetch Data</button>
         </div>
         <div id="kd-status" style="margin-top:12px;display:none;font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
         <div id="kd-preview" style="display:none;margin-top:14px;background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.2);border-radius:10px;padding:14px;"></div>
       </div>
-      <!-- ═══ END KATDRAMA AUTO-FETCH ═══ -->
+      <!-- ═══ END KDRAMA AUTO-FETCH ═══ -->
 
       <div class="card"><h3>Basic Info</h3>
         <div class="fg">
@@ -3658,7 +3671,7 @@ function filmyflyFetch() {
   preview.style.display = 'none';
 
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -3714,12 +3727,17 @@ function filmyflyFetch() {
       return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|\n]/)[0].trim();
     }
 
+    // ── IMDb Rating ──
+    var ratingM = html.match(/imdb[^>]*>[\s\S]{0,80}?([\d]\.[0-9])\s*(?:\/\s*10)?/i)
+                || html.match(/rating[^>]*>[\s\S]{0,50}?([\d]\.[0-9])\s*\/\s*10/i)
+                || html.match(/(\d\.\d)[\s]*\/[\s]*10/);
+    data.imdb = ratingM ? ratingM[1] : '';
+
     // ── Title ──
-    var ogTitle = meta('og:title') || meta('twitter:title');
     var pageTitle = (html.match(/<title[^>]*>([^<]+)/) || [])[1] || '';
     // Clean up: remove site name, "Download", "FilmyFly" etc.
     var rawTitle = ogTitle || pageTitle;
-    rawTitle = rawTitle.replace(/\s*[\|–-]\s*(FilmyFly|Filmy4wap|Download|HD|Movies?)[^]*/i, '').trim();
+    rawTitle = rawTitle.replace(/\s*[\|–\-»]\s*(FilmyFly|Filmy4wap|KatMovieHD|KatMovie|9xMovies?|MoviesDA|FilmyWap|Download|HD|Movies?|Watch Online)[^]*/i, '').trim();
     // Extract clean title (remove quality/format suffixes)
     var cleanTitle = rawTitle.replace(/\s*(Hindi|English|Dual Audio|HEVC|ESub|WEBRip|BluRay|720p|1080p|480p|4K|Season|\bS\d+\b|\b\d{4}\b).*/i, '').trim();
     data.title = cleanTitle || rawTitle;
@@ -3846,6 +3864,7 @@ function filmyflyFetch() {
 
     sv('ft', data.title);
     sv('fy', data.year);
+    sv('fr', data.imdb);
     sv('fl', data.language);
     sv('fq', data.quality);
     sv('fd', data.description);
@@ -3946,7 +3965,7 @@ function filmyflyFetch() {
 function katdramaFetch() {
   var url = (document.getElementById('kd-url').value || '').trim();
   if (!url || !url.startsWith('http')) { toast('❌ Valid KatDrama URL daalo!', 1); return; }
-  if (!url.includes('katdrama.net')) { toast('⚠️ Sirf katdrama.net links yahan kaam karte hain', 1); return; }
+  // Removed domain restriction — any URL works
 
   var btn    = document.getElementById('kd-btn');
   var status = document.getElementById('kd-status');
@@ -3960,7 +3979,7 @@ function katdramaFetch() {
   preview.style.display = 'none';
 
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -4344,7 +4363,7 @@ function bfuStart() {
 
 function bfuFetchSingle(url, cb) {
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -6490,7 +6509,7 @@ function fetchFileDLLinks(key) {
   }
 
   // ⭐ Worker pehle — guaranteed kaam karega
-  fetch('https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(rawUrl))
+  fetch('https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(rawUrl))
     .then(function(r) { return r.text(); })
     .then(function(html) {
       if (!html || html.length < 100) throw new Error('empty');
@@ -8658,7 +8677,7 @@ function rssFetchFeed(url, defaultCat, cb) {
   var cleanUrl = url.split('#')[0].split('?')[0];
 
   var proxies = [
-    { getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }
@@ -10394,7 +10413,7 @@ function mlShowSubLinks(id, url) {
   // ── Proxies list ──
   var proxies = [
     // ⭐ Apna Worker — pehli priority, 100% kaam karega
-    { name: 'CineNova-Worker', fn: function(u){ return { url: 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
+    { name: 'CineNova-Worker', fn: function(u){ return { url: 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
     // AllOrigins — JSON wrapper, sabse reliable
     { name: 'AllOrigins',   fn: function(u){ return { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(u) + '&charset=utf-8', parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }; } },
     // AllOrigins raw
@@ -10560,7 +10579,7 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
   // Try multiple proxies in sequence
   var fdProxies = [
     // ⭐ Apna Worker — pehli priority
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://lingering-cell-428e.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
