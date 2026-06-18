@@ -545,6 +545,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-section-title">System</div>
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
+    <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly Importer</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
     <div class="nav-item" id="nav-bulk" onclick="show('bulk')">📋 Bulk Import (Names)</div>
     <div class="nav-item" id="nav-pipeimport" onclick="show('pipeimport')">📥 Pipe Importer</div>
@@ -2030,6 +2031,81 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
+    <!-- ═══ FILMYFLY IMPORTER ═══ -->
+    <div class="section" id="sec-ffimport">
+      <div class="sec-title">⚡ FilmyFly <span>Importer</span></div>
+
+      <!-- Step 1: Site URL -->
+      <div class="card">
+        <h3>Step 1 — FilmyFly Site URL Daalo</h3>
+        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">FilmyFly ya usi jaisi site ka URL daalo — panel khud saari posts fetch karega, har movie ka data nikaalega aur Firebase mein save karega.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+          <div class="fgg" style="flex:1;min-width:280px;">
+            <label>Site / Category URL</label>
+            <input class="fi" id="ffi-site-url" placeholder="https://filmyfly.builders/ ya category page URL..." style="border-color:rgba(245,158,11,0.4);"/>
+          </div>
+          <div class="fgg" style="min-width:120px;">
+            <label>Pages Fetch Karo</label>
+            <select class="fi" id="ffi-pages" style="border-color:rgba(245,158,11,0.4);">
+              <option value="1">1 Page (~10)</option>
+              <option value="2">2 Pages (~20)</option>
+              <option value="3" selected>3 Pages (~30)</option>
+              <option value="5">5 Pages (~50)</option>
+              <option value="10">10 Pages (~100)</option>
+            </select>
+          </div>
+          <button onclick="ffiFetchPosts()" id="ffi-fetch-btn" class="btn btn-p" style="height:42px;padding:0 24px;">🔍 Posts Fetch Karo</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.builders ✓</span>
+          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.racing ✓</span>
+          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">Koi bhi similar site ✓</span>
+        </div>
+        <div id="ffi-fetch-status" style="margin-top:10px;font-size:0.82rem;display:none;padding:10px 14px;border-radius:8px;"></div>
+      </div>
+
+      <!-- Step 2: Posts List -->
+      <div class="card" id="ffi-posts-card" style="display:none;">
+        <h3>Step 2 — Posts Select Karo</h3>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+          <button onclick="ffiSelectAll()" class="btn btn-s" style="padding:7px 14px;font-size:0.8rem;">✅ Sab Select</button>
+          <button onclick="ffiDeselectAll()" class="btn btn-s" style="padding:7px 14px;font-size:0.8rem;">❌ Deselect</button>
+          <span style="font-size:0.78rem;color:var(--grey);">Selected: <span id="ffi-sel-count" style="color:#fff;font-weight:700;">0</span> / <span id="ffi-total-count">0</span></span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+            <label style="font-size:0.75rem;color:var(--grey);">Default Category:</label>
+            <select class="fi" id="ffi-default-cat" style="padding:6px 10px;font-size:0.8rem;width:auto;">
+              <option value="hollywood">🌟 Hollywood</option>
+              <option value="bollywood">🎭 Bollywood</option>
+              <option value="tollywood">🎬 Tollywood</option>
+              <option value="webseries">📺 Web Series</option>
+              <option value="animation">🧸 Animation</option>
+              <option value="kdrama">🇰🇷 K-Drama</option>
+            </select>
+          </div>
+        </div>
+        <div id="ffi-posts-list" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
+        <div style="margin-top:14px;">
+          <button onclick="ffiStartImport()" id="ffi-import-btn" class="btn btn-p">⚡ Import Karo (Selected Posts)</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="bi-progress-wrap" id="ffi-prog-wrap" style="display:none;">
+        <div class="bi-progress-text" id="ffi-prog-title">Importing...</div>
+        <div class="bi-progress-sub" id="ffi-prog-sub"></div>
+        <div class="bi-pbar-bg"><div class="bi-pbar" id="ffi-pbar" style="width:0%"></div></div>
+        <div class="bi-stats-row">
+          <div class="bi-stat">✅ Saved: <span class="ok" id="ffi-s-ok">0</span></div>
+          <div class="bi-stat">⚠️ Skip: <span class="skip" id="ffi-s-skip">0</span></div>
+          <div class="bi-stat">❌ Error: <span class="err" id="ffi-s-err">0</span></div>
+        </div>
+      </div>
+
+      <!-- Results Queue -->
+      <div id="ffi-queue" style="display:flex;flex-direction:column;gap:8px;margin-top:12px;"></div>
+    </div>
+    <!-- ═══ END FILMYFLY IMPORTER ═══ -->
+
     <!-- ═══ SERVER MOVIES ═══ -->
     <div class="section" id="sec-servermovies">
       <div class="sec-title">🌐 Server <span>Movies</span></div>
@@ -3499,6 +3575,7 @@ function show(name){
   if(name==='bulkedit'){if(typeof bulkEditLoad==='function')bulkEditLoad();}
   if(name==='duplicates'){if(typeof dupLoad==='function')dupLoad();}
   if(name==='posterfill'){if(typeof posterFillLoad==='function')posterFillLoad();}
+  if(name==='ffimport'){document.getElementById('ffi-fetch-status').style.display='none';}
 }
 
 function showCat(cat){
@@ -9930,6 +10007,7 @@ function mlExtractFinalLink(html) {
 // 🎬 FILMYFLY FETCH — Single Page + Site
 // ══════════════════════════════════════════
 var _mlFfProxies = [
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -10161,6 +10239,7 @@ function mlFfAddSelected() {
 // 🎬 FILMYFLY PAGE → LINKMAKE FETCH
 // ══════════════════════════════════════════
 var _mlFfProxies = [
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -10973,6 +11052,406 @@ function earnersLoad() {
 }
 
 // Pending count — sidebar badge, real-time
+// ═══════════════════════════════════════════
+// ⚡ FILMYFLY IMPORTER
+// ═══════════════════════════════════════════
+var _ffiPosts = [];       // { url, title, checked }
+var _ffiImporting = false;
+var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
+
+var _ffiProxies = [
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+  { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+];
+
+function _ffiFetch(url, cb) {
+  var idx = 0;
+  function next() {
+    if (idx >= _ffiProxies.length) { cb(null); return; }
+    var p = _ffiProxies[idx++];
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 12000);
+    fetch(p.getUrl(url), { signal: ctrl.signal })
+      .then(function(r){ clearTimeout(t); return r.text(); })
+      .then(function(raw){
+        var html = p.parse(raw);
+        if (html && html.length > 200) { cb(html); } else { next(); }
+      })
+      .catch(function(){ clearTimeout(t); next(); });
+  }
+  next();
+}
+
+// ── Step 1: Fetch post links from site ──
+function ffiFetchPosts() {
+  var siteUrl  = (document.getElementById('ffi-site-url').value || '').trim();
+  var maxPages = parseInt((document.getElementById('ffi-pages')||{}).value) || 3;
+  var status   = document.getElementById('ffi-fetch-status');
+  var btn      = document.getElementById('ffi-fetch-btn');
+
+  if (!siteUrl) {
+    alert('URL daalo pehle!');
+    return;
+  }
+  if (!siteUrl.startsWith('http')) {
+    alert('Valid URL chahiye — https:// se start hona chahiye');
+    return;
+  }
+
+  _ffiPosts = [];
+  btn.disabled = true; btn.textContent = '⏳ Fetching...';
+  status.style.display = 'block';
+  status.style.background = 'rgba(245,158,11,0.1)';
+  status.style.color = '#fbbf24';
+  status.textContent = '⏳ Page 1 fetch ho raha hai...';
+
+  document.getElementById('ffi-posts-card').style.display = 'none';
+  document.getElementById('ffi-prog-wrap').style.display = 'none';
+  document.getElementById('ffi-queue').innerHTML = '';
+
+  var allFound = {};
+  var baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
+
+  function fetchPage(pageNum) {
+    var url = pageNum === 1 ? siteUrl : (siteUrl + (siteUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum);
+    status.textContent = '⏳ Page ' + pageNum + ' / ' + maxPages + ' fetch ho raha hai...';
+
+    _ffiFetch(url, function(html) {
+      if (html) {
+        // Pattern 1: /page-download/123/title.html
+        var re1 = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]*\.html)/gi;
+        var m;
+        while ((m = re1.exec(html)) !== null) {
+          var u = m[1].startsWith('http') ? m[1] : baseHost + m[1];
+          u = u.replace(/&amp;/g,'&');
+          if (!allFound[u]) { allFound[u] = 1; _ffiPosts.push({ url: u, title: ffiTitleFromUrl(u), checked: true }); }
+        }
+        // Pattern 2: WordPress post links
+        var re2 = /href=["'](https?:\/\/[^"'#?]+\/(?:\d{4}\/\d{2}\/\d{2}\/|[^"'#?]*(?:download|movie|film|hindi)[^"'#?]*\/))[^"'#?]*["']/gi;
+        while ((m = re2.exec(html)) !== null) {
+          var u2 = m[1].replace(/&amp;/g,'&').replace(/\/$/, '/');
+          if (!allFound[u2] && u2.includes(baseHost.replace('https://','').replace('http://',''))) {
+            allFound[u2] = 1; _ffiPosts.push({ url: u2, title: ffiTitleFromUrl(u2), checked: true });
+          }
+        }
+        // Pattern 3: article/h2/h3 links
+        var re3 = /<(?:h2|h3|article)[^>]*>[\s\S]*?<a[^>]+href=["'](https?:\/\/[^"'#?]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+        while ((m = re3.exec(html)) !== null) {
+          var u3 = m[1].replace(/&amp;/g,'&');
+          var ttl = m[2].replace(/<[^>]+>/g,'').trim();
+          if (!allFound[u3] && u3.includes(baseHost.replace('https://','').replace('http://','')) && ttl.length > 3) {
+            allFound[u3] = 1; _ffiPosts.push({ url: u3, title: ttl || ffiTitleFromUrl(u3), checked: true });
+          }
+        }
+      }
+
+      if (pageNum < maxPages) {
+        setTimeout(function(){ fetchPage(pageNum + 1); }, 800);
+      } else {
+        btn.disabled = false; btn.textContent = '🔍 Posts Fetch Karo';
+        if (_ffiPosts.length === 0) {
+          status.style.background = 'rgba(229,9,20,0.1)'; status.style.color = '#f87171';
+          status.textContent = '❌ Koi post nahi mila. URL check karo ya worker update karo.';
+        } else {
+          status.style.background = 'rgba(34,197,94,0.1)'; status.style.color = '#4ade80';
+          status.textContent = '✅ ' + _ffiPosts.length + ' posts mile! Ab select karo aur import karo.';
+          ffiRenderPosts();
+        }
+      }
+    });
+  }
+
+  fetchPage(1);
+}
+
+function ffiTitleFromUrl(url) {
+  try {
+    var path = new URL(url).pathname;
+    var slug = path.replace(/\/page-download\/\d+\//,'').replace(/\.html$/,'').replace(/\//g,'').replace(/-/g,' ').trim();
+    return slug.split(' ').map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
+  } catch(e) { return url; }
+}
+
+function ffiRenderPosts() {
+  var list = document.getElementById('ffi-posts-list');
+  document.getElementById('ffi-posts-card').style.display = 'block';
+  document.getElementById('ffi-total-count').textContent = _ffiPosts.length;
+
+  list.innerHTML = '';
+  _ffiPosts.forEach(function(p, i) {
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;cursor:pointer;transition:0.2s;';
+    div.innerHTML = '<input type="checkbox" id="ffi-chk-'+i+'" ' + (p.checked?'checked':'') + ' style="accent-color:#e50914;width:16px;height:16px;cursor:pointer;flex-shrink:0;">'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.title) + '</div>'
+      + '<div style="font-size:0.68rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.url) + '</div>'
+      + '</div>';
+    div.querySelector('input').addEventListener('change', function(e) {
+      _ffiPosts[i].checked = e.target.checked;
+      ffiUpdateSelCount();
+    });
+    div.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'INPUT') {
+        var chk = div.querySelector('input');
+        chk.checked = !chk.checked;
+        _ffiPosts[i].checked = chk.checked;
+        ffiUpdateSelCount();
+      }
+    });
+    list.appendChild(div);
+  });
+  ffiUpdateSelCount();
+}
+
+function ffiUpdateSelCount() {
+  var cnt = _ffiPosts.filter(function(p){ return p.checked; }).length;
+  document.getElementById('ffi-sel-count').textContent = cnt;
+}
+
+function ffiSelectAll() { _ffiPosts.forEach(function(p){ p.checked=true; }); ffiRenderPosts(); }
+function ffiDeselectAll() { _ffiPosts.forEach(function(p){ p.checked=false; }); ffiRenderPosts(); }
+
+// ── Step 2: Import selected posts ──
+function ffiStartImport() {
+  if (_ffiImporting) { toast('Import chal raha hai!', 1); return; }
+  var selected = _ffiPosts.filter(function(p){ return p.checked; });
+  if (!selected.length) { toast('❌ Koi post select nahi!', 1); return; }
+
+  _ffiImporting = true;
+  var defaultCat = document.getElementById('ffi-default-cat').value || 'hollywood';
+  var ok=0, skip=0, err=0;
+  var queue = document.getElementById('ffi-queue');
+  queue.innerHTML = '';
+
+  document.getElementById('ffi-prog-wrap').style.display = 'block';
+  document.getElementById('ffi-import-btn').disabled = true;
+  document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
+
+  // Existing titles check
+  var existingTitles = {};
+  allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
+
+  // Render queue items
+  selected.forEach(function(p, i) {
+    var item = document.createElement('div');
+    item.className = 'bi-item';
+    item.id = 'ffi-item-' + i;
+    item.innerHTML = '<span class="bi-num">' + (i+1) + '</span>'
+      + '<div class="bi-info"><div class="bi-title" id="ffi-t-'+i+'">' + escHtml(p.title) + '</div>'
+      + '<div class="bi-meta" id="ffi-m-'+i+'">' + escHtml(p.url) + '</div></div>'
+      + '<span class="bi-status wait" id="ffi-st-'+i+'">⏳ Wait</span>';
+    queue.appendChild(item);
+  });
+
+  function processOne(n) {
+    if (n >= selected.length) {
+      _ffiImporting = false;
+      document.getElementById('ffi-import-btn').disabled = false;
+      document.getElementById('ffi-import-btn').textContent = '⚡ Import Karo (Selected Posts)';
+      document.getElementById('ffi-prog-title').textContent = '✅ Import Mukammal!';
+      document.getElementById('ffi-prog-sub').textContent = ok + ' save, ' + skip + ' skip, ' + err + ' error';
+      document.getElementById('ffi-pbar').style.width = '100%';
+      toast('✅ ' + ok + ' movies import ho gayi!');
+      return;
+    }
+
+    var p = selected[n];
+    var pct = Math.round((n / selected.length) * 100);
+    document.getElementById('ffi-prog-title').textContent = 'Importing ' + (n+1) + ' / ' + selected.length;
+    document.getElementById('ffi-prog-sub').textContent = p.title;
+    document.getElementById('ffi-pbar').style.width = pct + '%';
+    document.getElementById('ffi-s-ok').textContent = ok;
+    document.getElementById('ffi-s-skip').textContent = skip;
+    document.getElementById('ffi-s-err').textContent = err;
+
+    var item = document.getElementById('ffi-item-' + n);
+    if (item) { item.className = 'bi-item bi-active'; document.getElementById('ffi-st-'+n).textContent = '🔄 Fetch...'; document.getElementById('ffi-st-'+n).className = 'bi-status running'; }
+
+    // Fetch post page
+    _ffiFetch(p.url, function(html) {
+      if (!html) {
+        err++;
+        if (item) { item.className='bi-item bi-err'; document.getElementById('ffi-st-'+n).textContent='❌ Fetch fail'; document.getElementById('ffi-st-'+n).className='bi-status err'; }
+        setTimeout(function(){ processOne(n+1); }, 400);
+        return;
+      }
+
+      // Parse data from page
+      var data = ffiParsePage(html, p.url);
+      if (!data.title) data.title = p.title;
+
+      // Check duplicate
+      if (existingTitles[data.title.toLowerCase()]) {
+        skip++;
+        if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent='⚠️ Already Exists'; document.getElementById('ffi-st-'+n).className='bi-status skip'; }
+        setTimeout(function(){ processOne(n+1); }, 200);
+        return;
+      }
+
+      if (item) document.getElementById('ffi-st-'+n).textContent = '🔄 TMDB...';
+
+      // TMDB se extra data
+      ffiTmdbEnrich(data.title, data.year, function(tmdb) {
+        if (tmdb) {
+          if (!data.thumbnail && tmdb.poster) data.thumbnail = tmdb.poster;
+          if (!data.rating && tmdb.rating) data.rating = tmdb.rating;
+          if (!data.description && tmdb.description) data.description = tmdb.description;
+          if (!data.genre && tmdb.genre) data.genre = tmdb.genre;
+          if (!data.year && tmdb.year) data.year = tmdb.year;
+          if (tmdb.category) data.category = tmdb.category;
+        }
+        if (!data.category) data.category = defaultCat;
+
+        // Update title display
+        if (item) {
+          document.getElementById('ffi-t-'+n).textContent = data.title;
+          document.getElementById('ffi-m-'+n).textContent = (data.year||'') + (data.category?' | '+data.category:'') + (data.rating?' | ⭐'+data.rating:'');
+          if (data.thumbnail) {
+            var img = document.createElement('img');
+            img.src = data.thumbnail; img.className = 'bi-poster';
+            item.insertBefore(img, item.children[1]);
+          }
+        }
+
+        // Build Firebase object
+        var obj = {
+          title: data.title,
+          addedAt: Date.now()
+        };
+        if (data.year) obj.year = data.year;
+        if (data.rating) obj.rating = data.rating;
+        if (data.category) obj.category = data.category;
+        if (data.genre) obj.genre = data.genre;
+        if (data.description) obj.description = data.description.substring(0, 600);
+        if (data.thumbnail) obj.thumbnail = data.thumbnail;
+        if (data.language) obj.language = data.language;
+        if (data.quality) obj.quality = data.quality;
+        if (data.cast) obj.cast = data.cast;
+        if (data.download_link) {
+          obj.download480p = data.download_link;
+          obj.download720p = data.download_link;
+          obj.download1080p = data.download_link;
+        }
+        // SEO slug
+        var slug = (data.title + (data.year?'-'+data.year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+        if (slug) obj.seoSlug = slug;
+
+        db.ref('movies').push(obj).then(function() {
+          ok++;
+          existingTitles[data.title.toLowerCase()] = true;
+          if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Saved'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
+          setTimeout(function(){ processOne(n+1); }, 400);
+        }).catch(function() {
+          err++;
+          if (item) { item.className='bi-item bi-err'; document.getElementById('ffi-st-'+n).textContent='❌ Save fail'; document.getElementById('ffi-st-'+n).className='bi-status err'; }
+          setTimeout(function(){ processOne(n+1); }, 400);
+        });
+      });
+    });
+  }
+
+  processOne(0);
+}
+
+// ── Parse page HTML ──
+function ffiParsePage(html, srcUrl) {
+  var data = {};
+
+  function meta(name) {
+    var m = html.match(new RegExp('meta[^>]+(?:name|property)=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+             || html.match(new RegExp('meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:name|property)=["\']' + name + '["\']', 'i'));
+    return m ? m[1].trim() : '';
+  }
+  function getTextAfterLabel(lbl) {
+    var idx = html.toLowerCase().indexOf(lbl.toLowerCase());
+    if (idx === -1) return '';
+    var snippet = html.substring(idx + lbl.length, idx + lbl.length + 300);
+    return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|\n]/)[0].trim();
+  }
+
+  // Title
+  var ogTitle = meta('og:title') || meta('twitter:title') || (html.match(/<title[^>]*>([^<]+)/) || [])[1] || '';
+  ogTitle = ogTitle.replace(/\s*[\|–\-»]\s*(FilmyFly|Filmy4wap|KatMovieHD|Download|HD|Movies?|Watch Online)[^]*/i,'').trim();
+  data.title = ogTitle.replace(/\s*(Hindi|English|Dual Audio|HEVC|WEBRip|BluRay|720p|1080p|480p|4K|Season|\bS\d+\b|\b\d{4}\b).*/i,'').trim();
+
+  // Year
+  var yearM = ogTitle.match(/\b(20\d{2})\b/) || html.match(/Release[^>]*>.*?(20\d{2})/i);
+  data.year = yearM ? yearM[1] : '';
+
+  // Thumbnail
+  data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+
+  // Description
+  data.description = meta('og:description') || meta('description') || '';
+
+  // Language
+  data.language = getTextAfterLabel('Language:').replace(/<[^>]+>/g,'').substring(0,60).trim();
+
+  // Quality
+  var qual = '';
+  if (/4K|2160p/i.test(ogTitle)) qual = '4K HEVC';
+  else if (/1080p/i.test(ogTitle)) qual = '1080p WEB-DL';
+  else if (/720p/i.test(ogTitle)) qual = '720p WEB-DL';
+  else if (/480p/i.test(ogTitle)) qual = '480p WEB-DL';
+  data.quality = qual;
+
+  // Rating
+  var ratingM = html.match(/imdb[^>]*>[\s\S]{0,80}?([\d]\.[0-9])/i) || html.match(/(\d\.\d)[\s]*\/[\s]*10/);
+  data.rating = ratingM ? ratingM[1] : '';
+
+  // Cast
+  data.cast = getTextAfterLabel('Starcast:').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').substring(0,200).trim();
+
+  // Category
+  var cat = 'hollywood';
+  if (/\bS\d{2}\b|Web Series|Season/i.test(ogTitle + ' ' + html.substring(0,3000))) cat = 'webseries';
+  else if (/Bollywood|Hindi Movie/i.test(html.substring(0,3000))) cat = 'bollywood';
+  else if (/South|Telugu|Tamil|Tollywood/i.test(html.substring(0,3000))) cat = 'tollywood';
+  data.category = cat;
+
+  // Download links — linkmake, filesdl, etc.
+  var dlLink = '';
+  var dlReg = /<a[^>]+href=["'](https?:\/\/(?:linkmake\.in|linkm\.in|short\.|shrink\.|linkshort\.)[^\s"']+)["']/gi;
+  var dm = dlReg.exec(html);
+  if (dm) dlLink = dm[1];
+  if (!dlLink) {
+    var fallback = html.match(/href=["'](https?:\/\/(?:filesdl|terabox|mega|drive\.google|pixeldrain)[^\s"']+)["']/i);
+    if (fallback) dlLink = fallback[1];
+  }
+  data.download_link = dlLink;
+
+  return data;
+}
+
+// ── TMDB enrich ──
+function ffiTmdbEnrich(title, year, cb) {
+  var apiKey = typeof TMDB_API !== 'undefined' ? TMDB_API : (typeof TKEY !== 'undefined' ? TKEY : '');
+  if (!apiKey) { cb(null); return; }
+  var q = encodeURIComponent(title);
+  var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      var results = (res.results || []);
+      if (year) results = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(year); }) || results;
+      var m = results[0];
+      if (!m) { cb(null); return; }
+      var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
+      cb({
+        poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
+        rating: m.vote_average ? m.vote_average.toFixed(1) : '',
+        description: m.overview || '',
+        year: (m.release_date || m.first_air_date || '').substring(0,4),
+        genre: genreMap[m.genre_ids && m.genre_ids[0]] || '',
+        category: m.media_type === 'tv' ? 'webseries' : ''
+      });
+    })
+    .catch(function(){ cb(null); });
+}
+// ═══ END FILMYFLY IMPORTER ═══
+
 function wdLoadPendingCount() {
   wdWaitDb(function() {
     db.ref('withdrawals').orderByChild('status').equalTo('pending').on('value', function(snap) {
