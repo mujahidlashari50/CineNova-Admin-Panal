@@ -778,6 +778,12 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div id="fvlc-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="fvlc-preview-url"></span></div>
           <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 PixelDrain pe file upload karo → link mein se sirf ID copy karo (last part) → yahan paste karo</div>
         </div>
+        <div class="fgg full" style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);">
+          <label>🔗 Direct VLC Link <span style="color:#555;font-weight:400;">(Pixeldrain ke bagair — koi bhi direct video link)</span></label>
+          <input class="fi" id="fvlc2" placeholder="https://example.com/video.mp4" oninput="fvlc2Preview(this.value)"/>
+          <div id="fvlc2-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="fvlc2-preview-url"></span></div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Agar Pixeldrain nahi use karna, ya kisi aur host ka direct link hai, to poora link yahan paste karo — yeh bhi MX Player/VLC mein chalega</div>
+        </div>
       </div>
       <div class="card"><h3>🎬 Trailer (Optional)</h3>
         <div style="color:var(--grey);font-size:0.78rem;margin-bottom:12px;">YouTube trailer ka embed link ya embed code dalo. Jis post mein dalo ga, sirf usi post ke popup mein <strong style="color:#fff;">Watch Trailer</strong> button aayega.</div>
@@ -2855,6 +2861,12 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="evlc-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="evlc-preview-url"></span></div>
         <div style="font-size:0.7rem;color:#555;margin-top:4px;">📱 Mobile Watch Now → MX Player open hoga | Khali chhodo agar nahi lagana</div>
       </div>
+      <div class="fgg full" style="margin-top:-8px;padding-top:14px;border-top:1px dashed var(--border);">
+        <label>🔗 Direct VLC Link <span style="color:#555;font-weight:400;">(Pixeldrain ke bagair — koi bhi direct video link)</span></label>
+        <input class="fi" id="evlc2" placeholder="https://example.com/video.mp4" oninput="evlc2Preview(this.value)"/>
+        <div id="evlc2-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="evlc2-preview-url"></span></div>
+        <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Agar Pixeldrain nahi use karna, ya kisi aur host ka direct link hai, to poora link yahan paste karo</div>
+      </div>
       <div class="fgg full">
         <label>🎬 Trailer Link (YouTube embed)</label>
         <input class="fi" id="etrailer" placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
@@ -4613,7 +4625,7 @@ function addMovie(){
   var eps=ws?collectEpisodes('movie'):null;
   var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
     language:gv('fl'),quality:gv('fq'),size:gv('fsz'),description:gv('fd'),
-    thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',trailerUrl:toYtEmbed(gv('ftrailer')),
+    thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',vlcUrl2:gv('fvlc2'),trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
     download1080p:gv('fd10'),size1080:gv('fs10'),download4k:gv('fd4k'),size4k:gv('fs4k'),
     seoTitle:gv('fseoTitle'),seoDesc:gv('fseoDesc'),seoKeywords:gv('fseoKeywords'),seoSlug:gv('fseoSlug'),
@@ -4627,7 +4639,7 @@ function addMovie(){
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 function clrForm(){
-  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseoTitle','fseoDesc','fseoKeywords','fseoSlug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','fvlc2','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseoTitle','fseoDesc','fseoKeywords','fseoSlug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('tp').style.display='none';
   document.getElementById('ep-movie-card').style.display='none';
   document.getElementById('field-network').style.display='none';
@@ -4660,6 +4672,31 @@ function evlcPreview(val) {
   val = val.trim();
   if (val) {
     url.textContent = 'https://pixeldrain.com/api/file/' + val;
+    prev.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+// Direct VLC Link (any host) preview
+function fvlc2Preview(val) {
+  var prev = document.getElementById('fvlc2-preview');
+  var url  = document.getElementById('fvlc2-preview-url');
+  if (!prev || !url) return;
+  val = val.trim();
+  if (val) {
+    url.textContent = val;
+    prev.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+function evlc2Preview(val) {
+  var prev = document.getElementById('evlc2-preview');
+  var url  = document.getElementById('evlc2-preview-url');
+  if (!prev || !url) return;
+  val = val.trim();
+  if (val) {
+    url.textContent = val;
     prev.style.display = 'block';
   } else {
     prev.style.display = 'none';
@@ -4836,7 +4873,7 @@ function openEdit(key){
   if (keyBox) keyBox.style.display = 'flex';
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
-  sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('etrailer',m.trailerUrl||'');
+  sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('evlc2',m.vlcUrl2||'');sv('etrailer',m.trailerUrl||'');
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
@@ -4884,7 +4921,7 @@ function saveEdit(){
   var cat=gv('ec');var ws=cat==='webseries';
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
-    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',trailerUrl:toYtEmbed(gv('etrailer')),
+    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
     download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
     seoTitle:gv('eseoTitle'),seoDesc:gv('eseoDesc'),seoKeywords:gv('eseoKeywords'),seoSlug:gv('eseoSlug')};
