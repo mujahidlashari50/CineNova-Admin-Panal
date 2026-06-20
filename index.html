@@ -2472,7 +2472,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div class="fgg" style="flex:1;min-width:220px;">
             <label>Link Title (Optional)</label>
-            <input class="fi" id="ml-title" placeholder="e.g. Movie Pack 1" />
+            <input class="fi" id="ml-title" placeholder="e.g. Movie Pack 1" oninput="mlAutoMatchSingleKey()" />
           </div>
           <div class="fgg" style="flex:2;min-width:280px;">
             <label>URL (linkmake.in bhi kaam karega ✅)</label>
@@ -2480,7 +2480,10 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </div>
           <div class="fgg" style="flex:1;min-width:200px;">
             <label>Movie Firebase Key <span style="color:#f59e0b;font-size:0.7rem;">(Save ke liye)</span></label>
-            <input class="fi" id="ml-moviekey" placeholder="Firebase key paste karo" />
+            <div style="position:relative;">
+              <input class="fi" id="ml-moviekey" placeholder="Auto-fill ho jayega title se" autocomplete="off" style="padding-right:30px;" />
+              <button onclick="mlPickKeySingle()" title="Movie chuno manually" type="button" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:4px;cursor:pointer;font-size:0.75rem;">🔎</button>
+            </div>
           </div>
           <button class="btn btn-p" onclick="mlAddLink()" style="height:40px;padding:0 20px;">Add Link</button>
         </div>
@@ -3741,6 +3744,9 @@ function loadAllContent(){
     renderDash();
     renderTable(allMovies);
     updateCounts();
+    // My Links: jo links bina key ke save hue thay unhe ab dobara match karke fix karo
+    // (race condition: link tab save hua jab movies list abhi load nahi hui thi)
+    if (typeof mlAutoFixUnmatched === 'function') mlAutoFixUnmatched();
     // Update link manager no-links badge
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
@@ -9794,6 +9800,7 @@ function mlRender() {
       + '</div>'
       + '<div style="display:flex;gap:7px;flex-shrink:0;">'
       + '<button class="btn btn-b" onclick="window.open(\x27'+lnk.url+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
+      + (!lnk.movieKey ? '<button class="btn" style="background:#854d0e;color:#fde68a;padding:7px 13px;font-size:0.78rem;" onclick="mlFixKey(\x27'+lnk.id+'\x27,\x27'+(lnk.title||'').replace(/'/g,"\\'")+'\x27)">🔑 Fix Key</button>' : '')
       + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+lnk.id+'\x27,\x27'+lnk.url+'\x27)">Sub Links</button>'
       + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+lnk.id+'\x27)">Del</button>'
       + '</div>'
@@ -9864,6 +9871,154 @@ function mlExtractTitleFromUrl(url) {
   } catch(e) { return ''; }
 }
 
+// Pehle se saved links jinke paas movieKey nahi hai unhe dobara try karo
+// (jab movies list load ho jaye, kyunki link save hote waqt list abhi khaali thi)
+function mlAutoFixUnmatched() {
+  if (!Array.isArray(window._mlLinks) || !_mlLinks.length) return;
+  _mlLinks.forEach(function(lnk) {
+    if (lnk.movieKey) return;
+    var match = mlFindMovieByTitle(lnk.title);
+    if (match) {
+      db.ref('mylinks/' + lnk.id).update({ movieKey: match.key }).catch(function(){});
+    }
+  });
+}
+
+// Already-saved link ke liye manually key set/fix karo
+function mlFixKey(linkId, title) {
+  // Pehle ek baar phir auto-match try karo
+  var match = mlFindMovieByTitle(title);
+  if (match) {
+    db.ref('mylinks/' + linkId).update({ movieKey: match.key }).then(function() {
+      toast('✅ Key mil gayi: ' + match.title);
+    });
+    return;
+  }
+  mlOpenMoviePicker(function(picked) {
+    if (!picked) return;
+    db.ref('mylinks/' + linkId).update({ movieKey: picked.key }).then(function() {
+      toast('✅ Key set: ' + picked.title);
+    });
+  });
+}
+
+// Chhota searchable movie picker — modal kholne ki zaroorat nahi
+function mlOpenMoviePicker(onPick) {
+  var old = document.getElementById('ml-picker-ovl');
+  if (old) old.remove();
+  var ovl = document.createElement('div');
+  ovl.id = 'ml-picker-ovl';
+  ovl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ovl.innerHTML =
+    '<div style="background:#111;border:1px solid #333;border-radius:12px;padding:18px;max-width:420px;width:100%;max-height:70vh;display:flex;flex-direction:column;">' +
+      '<div style="font-weight:700;margin-bottom:10px;color:#fff;">🎬 Movie Chuno</div>' +
+      '<input id="ml-picker-search" class="fi" placeholder="Title type karo..." style="margin-bottom:10px;" autofocus />' +
+      '<div id="ml-picker-list" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px;"></div>' +
+      '<button id="ml-picker-close" class="btn" style="margin-top:10px;background:#222;color:#aaa;">Cancel</button>' +
+    '</div>';
+  document.body.appendChild(ovl);
+
+  function renderList(q) {
+    var listEl = document.getElementById('ml-picker-list');
+    var qn = mlNormTitle(q);
+    var list = (window.allMovies || []);
+    if (qn) list = list.filter(function(m){ return mlNormTitle(m.title).indexOf(qn) !== -1; });
+    list = list.slice(0, 40);
+    listEl.innerHTML = list.map(function(m) {
+      return '<div data-key="' + m.key + '" class="ml-pick-item" style="padding:8px 10px;background:#1a1a1a;border-radius:7px;cursor:pointer;font-size:0.85rem;color:#eee;">' + (m.title || 'Untitled') + '</div>';
+    }).join('') || '<div style="color:#666;font-size:0.82rem;padding:8px;">Koi movie nahi mili</div>';
+    listEl.querySelectorAll('.ml-pick-item').forEach(function(it) {
+      it.onclick = function() {
+        var key = it.getAttribute('data-key');
+        var m = (window.allMovies || []).find(function(x){ return x.key === key; });
+        ovl.remove();
+        onPick(m || null);
+      };
+    });
+  }
+  renderList('');
+  document.getElementById('ml-picker-search').oninput = function() { renderList(this.value); };
+  document.getElementById('ml-picker-close').onclick = function() { ovl.remove(); onPick(null); };
+  ovl.onclick = function(e) { if (e.target === ovl) { ovl.remove(); onPick(null); } };
+}
+
+
+// Movie title ko allMovies list se match karke uska Firebase key khud-ba-khud
+// nikal leta hai — manually modal khol kar key copy-paste karne ki zaroorat nahi.
+function mlNormTitle(s) {
+  return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function mlFindMovieByTitle(title) {
+  var t = mlNormTitle(title);
+  if (!t || t.length < 3) return null;
+  var list = window.allMovies || [];
+  var best = null, bestScore = 0;
+  list.forEach(function(m) {
+    var mt = mlNormTitle(m.title);
+    if (!mt) return;
+    var score = 0;
+    if (mt === t) score = 1000;
+    else if (t.indexOf(mt) !== -1 || mt.indexOf(t) !== -1) score = Math.min(mt.length, t.length);
+    if (score > bestScore) { bestScore = score; best = m; }
+  });
+  // Bohot chhota/weak match avoid karo (galat movie se link na judd jaye)
+  if (best && bestScore >= 5) return best;
+  return null;
+}
+// Bulk row mein manually movie pick karke key fill karo
+function mlPickKeyForRow(btn) {
+  var row = btn.closest('div[id^="mlbr_"]');
+  if (!row) return;
+  var keyInp = row.querySelectorAll('input')[2];
+  mlOpenMoviePicker(function(picked) {
+    if (!picked) return;
+    keyInp.value = picked.key;
+    keyInp.style.borderColor = 'rgba(34,197,94,0.5)';
+    keyInp.style.color = '#4ade80';
+    keyInp.title = '✅ Manually picked: ' + picked.title;
+    mlBulkUpdatePreview();
+  });
+}
+// Single ADD NEW LINK form ke liye manual pick
+function mlPickKeySingle() {
+  mlOpenMoviePicker(function(picked) {
+    if (!picked) return;
+    var keyInp = document.getElementById('ml-moviekey');
+    keyInp.value = picked.key;
+    keyInp.style.borderColor = 'rgba(34,197,94,0.5)';
+    keyInp.style.color = '#4ade80';
+    keyInp.title = '✅ Manually picked: ' + picked.title;
+  });
+}
+// Bulk row mein title se key auto-fill karo (sirf agar key khaali ho — manual override hamesha jeetay ga)
+function mlAutoMatchRowKey(row) {
+  if (!row) return;
+  var inputs = row.querySelectorAll('input');
+  var titleInp = inputs[3], keyInp = inputs[2];
+  if (!titleInp || !keyInp || keyInp.value.trim()) return;
+  var match = mlFindMovieByTitle(titleInp.value);
+  if (match) {
+    keyInp.value = match.key;
+    keyInp.style.borderColor = 'rgba(34,197,94,0.5)';
+    keyInp.style.color = '#4ade80';
+    keyInp.title = '✅ Auto-matched: ' + match.title;
+  }
+  mlBulkUpdatePreview();
+}
+// Single ADD NEW LINK form ke liye
+function mlAutoMatchSingleKey() {
+  var titleInp = document.getElementById('ml-title');
+  var keyInp = document.getElementById('ml-moviekey');
+  if (!titleInp || !keyInp || keyInp.value.trim()) return;
+  var match = mlFindMovieByTitle(titleInp.value);
+  if (match) {
+    keyInp.value = match.key;
+    keyInp.style.borderColor = 'rgba(34,197,94,0.5)';
+    keyInp.style.color = '#4ade80';
+    keyInp.title = '✅ Auto-matched: ' + match.title;
+  }
+}
+
 // Ek row banana
 function mlBulkAddRow(prefillUrl, prefillKey, prefillTitle) {
   var container = document.getElementById('ml-bulk-rows');
@@ -9878,7 +10033,10 @@ function mlBulkAddRow(prefillUrl, prefillKey, prefillTitle) {
       '<input class="fi" placeholder="⬇️ Auto fetch hoga..." style="font-size:0.78rem;padding:9px 32px 9px 10px;color:#e879f9;background:rgba(232,121,249,0.04);border-color:rgba(232,121,249,0.2);" readonly />' +
       '<button onclick="mlBulkFetchOne(this)" title="Fetch final link" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:4px;cursor:pointer;font-size:0.75rem;">⚡</button>' +
     '</div>' +
-    '<input class="fi" placeholder="-OFirebaseKey" style="font-size:0.82rem;padding:9px 10px;color:#f59e0b;" />' +
+    '<div style="position:relative;">' +
+      '<input class="fi" placeholder="-OFirebaseKey" style="font-size:0.82rem;padding:9px 28px 9px 10px;color:#f59e0b;" />' +
+      '<button onclick="mlPickKeyForRow(this)" title="Movie chuno manually" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:22px;height:22px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:4px;cursor:pointer;font-size:0.7rem;">🔎</button>' +
+    '</div>' +
     '<input class="fi" placeholder="Title..." style="font-size:0.82rem;padding:9px 10px;color:#4ade80;" />' +
     '<button onclick="mlBulkRemoveRow(\'' + rid + '\')" style="width:34px;height:34px;background:#1a1a1a;border:1px solid #333;color:#555;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Row hatao">✕</button>';
   container.appendChild(row);
@@ -9889,6 +10047,10 @@ function mlBulkAddRow(prefillUrl, prefillKey, prefillTitle) {
   if (prefillUrl)   inputs[0].value = prefillUrl;
   if (prefillKey)   inputs[2].value = prefillKey;
   if (prefillTitle) inputs[3].value = prefillTitle;
+  // Title se firebase key auto-match karne ki koshish karo
+  if (prefillTitle && !prefillKey) mlAutoMatchRowKey(row);
+  // User khud title type/edit kare to bhi auto-match try ho
+  inputs[3].setAttribute('oninput', 'mlAutoMatchRowKey(this.closest(\'div[id^="mlbr_"]\'))');
 
   mlBulkUpdatePreview();
   // Focus first empty URL input
@@ -9912,6 +10074,7 @@ function mlBulkUrlChange(inp) {
     var title = mlExtractTitleFromUrl(url);
     if (title) titleInp.value = title;
   }
+  mlAutoMatchRowKey(row);
   mlBulkUpdatePreview();
 }
 
