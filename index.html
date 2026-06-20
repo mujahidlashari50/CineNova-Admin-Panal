@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>CineNova Admin — Master Panel</title>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
@@ -569,6 +569,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-section-title">Earnings</div>
     <div class="nav-item" id="nav-withdrawals" onclick="show('withdrawals')" style="color:#22c55e;">💸 Withdrawals <span class="nav-count" id="wd-pending-count" style="background:#f59e0b;">0</span></div>
     <div class="nav-item" id="nav-earners" onclick="show('earners')">💰 Top Earners</div>
+    <div class="nav-item" id="nav-fraud" onclick="show('fraud')" style="color:#f87171;">🛡️ Fraud &amp; Bans <span class="nav-count" id="fraud-count" style="background:#f87171;">0</span></div>
   </div>
 
   <div id="content">
@@ -2865,10 +2866,82 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
-</div>
-</div>
+    <!-- ══════════════════════════════════════════════════
+    FRAUD & BANS
+    ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-fraud">
+      <div class="sec-title">🛡️ <span>Fraud &amp; Bans</span></div>
 
-<!-- EDIT MODAL -->
+      <div class="card" style="margin-bottom:18px;">
+        <h3>🚫 Manually Ban User</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:10px;">
+          <div style="flex:1;min-width:220px;">
+            <label style="font-size:0.75rem;color:var(--grey);display:block;margin-bottom:5px;">User UID</label>
+            <input class="fi" id="fraud-manual-uid" placeholder="Firebase UID paste karo" style="width:100%;"/>
+          </div>
+          <button onclick="fraudManualBan()" style="padding:10px 18px;background:#f87171;border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;">🚫 Ban User</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <h3>🔴 Banned Users <span id="fraud-banned-count" style="color:#f87171;">(0)</span></h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Reason</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Banned At</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Last IP / Country</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="fraud-banned-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <h3>🟡 Flagged Users <span style="font-size:0.75rem;color:var(--grey);font-weight:400;">(daily limit baar baar hit ki ho)</span></h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Flag Count</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="fraud-flagged-tbody">
+              <tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🛰️ VPN/Proxy Attempts</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">VPN Attempts</th>
+                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="fraud-vpn-tbody">
+              <tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+</div>
+</div>
 <div id="edit-modal">
   <div id="edit-box">
     <button id="edit-close" onclick="closeEdit()">✕</button>
@@ -3060,27 +3133,87 @@ var ssEditRows = [];
 
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY)||ADMIN_PASS_DEFAULT; }
 
-// ═══ FIREBASE LOAD ═══
-function loadScript(src,cb){
-  var s=document.createElement('script');s.src=src;
-  s.onload=cb;s.onerror=function(){alert('Firebase failed to load. Please check your internet connection.');};
+// ═══ FIREBASE LOAD WITH INTERNATIONAL CDN FALLBACK ═══
+// gstatic.com kuch countries mein block hai (China, Iran, Russia etc)
+// jsDelivr fallback lagaya hai — yeh globally accessible hai
+var _FB_VER = '10.14.1';
+var _FB_PRIMARY = 'https://www.gstatic.com/firebasejs/' + _FB_VER + '/';
+var _FB_FALLBACK = 'https://cdn.jsdelivr.net/npm/firebase@' + _FB_VER + '/';
+var _FB_LOADED_FROM = 'primary'; // track karo kahan se load hua
+
+function loadScript(src, cb, fallbackSrc) {
+  var done = false;
+  var s = document.createElement('script');
+  s.src = src;
+  var timer = setTimeout(function() {
+    if (done) return;
+    done = true;
+    // Timeout — try fallback
+    if (fallbackSrc) {
+      _FB_LOADED_FROM = 'fallback';
+      var s2 = document.createElement('script');
+      s2.src = fallbackSrc;
+      s2.onload = cb;
+      s2.onerror = function() { cb(); }; // cb anyway, error handle karega
+      document.body.appendChild(s2);
+    } else { cb(); }
+  }, 6000);
+  s.onload = function() {
+    if (done) return; done = true; clearTimeout(timer); cb();
+  };
+  s.onerror = function() {
+    if (done) return; done = true; clearTimeout(timer);
+    if (fallbackSrc) {
+      _FB_LOADED_FROM = 'fallback';
+      var s2 = document.createElement('script');
+      s2.src = fallbackSrc;
+      s2.onload = cb;
+      s2.onerror = function() { showFbError(); };
+      document.body.appendChild(s2);
+    } else { showFbError(); }
+  };
   document.body.appendChild(s);
 }
-loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',function(){
-  loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js',function(){
-    loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js',function(){
-      loadScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',function(){
-        firebase.initializeApp(firebaseConfig);
-        db=window.db=firebase.database();window.storage=firebase.storage();
-        window._adminDbReady = true;
-        initLoginScreen();
-        fpCheckOnLoad();
-        // Withdrawal pending count load karo
-        wdLoadPendingCount();
-      });
-    });
-  });
-});
+
+function showFbError() {
+  var el = document.getElementById('login-err');
+  if (el) el.textContent = '❌ Firebase load nahi hua. Internet check karo ya VPN use karo.';
+  else alert('Firebase load nahi hua. Internet check karo.');
+}
+
+loadScript(
+  _FB_PRIMARY + 'firebase-app-compat.js',
+  function(){
+    loadScript(
+      _FB_PRIMARY + 'firebase-database-compat.js',
+      function(){
+        loadScript(
+          _FB_PRIMARY + 'firebase-storage-compat.js',
+          function(){
+            loadScript(
+              _FB_PRIMARY + 'firebase-auth-compat.js',
+              function(){
+                try {
+                  firebase.initializeApp(firebaseConfig);
+                  db=window.db=firebase.database();
+                  window.storage=firebase.storage();
+                  window._adminDbReady = true;
+                  initLoginScreen();
+                  fpCheckOnLoad();
+                  wdLoadPendingCount();
+                } catch(e) { showFbError(); }
+              },
+              _FB_FALLBACK + 'firebase-auth-compat.min.js'
+            );
+          },
+          _FB_FALLBACK + 'firebase-storage-compat.min.js'
+        );
+      },
+      _FB_FALLBACK + 'firebase-database-compat.min.js'
+    );
+  },
+  _FB_FALLBACK + 'firebase-app-compat.min.js'
+);
 
 // ═══ LOGIN SCREEN ═══
 function initLoginScreen(){
@@ -3567,6 +3700,7 @@ function show(name){
   if(name==='mylinks'){mlLoadAll();}
   if(name==='withdrawals'){wdLoadAll();}
   if(name==='earners'){earnersLoad();}
+  if(name==='fraud'){fraudLoad();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
   if(name==='views'){if(typeof uaLoadAll==='function')uaLoadAll();}
   if(name==='requests'){if(typeof loadRequests==='function')loadRequests();}
@@ -11005,6 +11139,181 @@ function wdUpdateStats() {
 }
 
 // ── Top Earners ──
+// ═══════════════════════════════════════════
+// 🛡️ FRAUD & BANS MANAGEMENT
+// ═══════════════════════════════════════════
+function fraudLoad() {
+  fraudLoadBanned();
+  fraudLoadFlagged();
+  fraudLoadVpn();
+}
+
+function fraudGetProfile(uid, cb) {
+  db.ref('earnings/'+uid+'/profile').once('value', function(s) {
+    var p = s.val() || {};
+    cb({ name: p.name || 'Unknown', email: p.email || '' });
+  });
+}
+
+function fraudLoadBanned() {
+  var tbody = document.getElementById('fraud-banned-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
+  wdWaitDb(function() {
+    db.ref('fraud/banned').once('value', function(snap) {
+      var uids = [];
+      snap.forEach(function(c) { if (c.val() === true) uids.push(c.key); });
+
+      var cntEl = document.getElementById('fraud-banned-count');
+      if (cntEl) cntEl.textContent = '(' + uids.length + ')';
+      var navCnt = document.getElementById('fraud-count');
+      if (navCnt) navCnt.textContent = uids.length;
+
+      if (!uids.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Koi banned user nahi</td></tr>';
+        return;
+      }
+
+      var rows = {};
+      var done = 0;
+      uids.forEach(function(uid) {
+        db.ref('fraud/stats/'+uid).once('value', function(s) {
+          var d = s.val() || {};
+          fraudGetProfile(uid, function(prof) {
+            rows[uid] = {
+              name: prof.name, email: prof.email,
+              reason: d.banReason || 'Manual ban',
+              bannedAt: d.bannedAt ? new Date(d.bannedAt).toLocaleString() : '—',
+              ip: d.lastIP || '—', country: d.lastCountry || '—'
+            };
+            done++;
+            if (done === uids.length) fraudRenderBanned(rows, uids);
+          });
+        });
+      });
+    }, function(err) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#f87171;">❌ ' + err.message + '</td></tr>';
+    });
+  });
+}
+
+function fraudRenderBanned(rows, uids) {
+  var tbody = document.getElementById('fraud-banned-tbody');
+  var html = '';
+  uids.forEach(function(uid) {
+    var r = rows[uid];
+    html += '<tr style="border-bottom:1px solid #1e1e1e;">'
+      + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(r.name) + '</div><div style="font-size:0.72rem;color:#555;">' + escHtml(r.email) + '</div><div style="font-size:0.68rem;color:#444;">' + uid + '</div></td>'
+      + '<td style="padding:12px 16px;color:#f87171;">' + escHtml(r.reason) + '</td>'
+      + '<td style="padding:12px 16px;color:#888;">' + r.bannedAt + '</td>'
+      + '<td style="padding:12px 16px;color:#888;">' + escHtml(r.ip) + ' / ' + escHtml(r.country) + '</td>'
+      + '<td style="padding:12px 16px;"><button onclick="fraudUnban(\'' + uid + '\')" style="padding:6px 14px;background:#22c55e;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">✅ Unban</button></td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function fraudUnban(uid) {
+  if (!confirm('Is user ko unban karna hai?')) return;
+  var updates = {};
+  updates['fraud/banned/'+uid] = null;
+  updates['fraud/vpnAttempts/'+uid] = null;
+  updates['fraud/flagged/'+uid] = null;
+  updates['fraud/stats/'+uid+'/banReason'] = null;
+  updates['fraud/stats/'+uid+'/bannedAt'] = null;
+  db.ref().update(updates, function(err) {
+    if (err) { toast('❌ ' + err.message); return; }
+    toast('✅ User unban ho gaya');
+    fraudLoad();
+  });
+}
+
+function fraudManualBan() {
+  var uid = document.getElementById('fraud-manual-uid').value.trim();
+  if (!uid) { toast('❌ UID likho pehle'); return; }
+  if (!confirm('Is UID ko ban karna hai?\n' + uid)) return;
+  var updates = {};
+  updates['fraud/banned/'+uid] = true;
+  updates['fraud/stats/'+uid+'/banReason'] = 'Manual ban by admin';
+  updates['fraud/stats/'+uid+'/bannedAt'] = Date.now();
+  db.ref().update(updates, function(err) {
+    if (err) { toast('❌ ' + err.message); return; }
+    toast('✅ User ban ho gaya');
+    document.getElementById('fraud-manual-uid').value = '';
+    fraudLoad();
+  });
+}
+
+function fraudLoadFlagged() {
+  var tbody = document.getElementById('fraud-flagged-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
+  db.ref('fraud/flagged').once('value', function(snap) {
+    var items = [];
+    snap.forEach(function(c) { items.push({ uid: c.key, count: c.val() }); });
+    items.sort(function(a,b){ return b.count - a.count; });
+
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Koi flagged user nahi</td></tr>';
+      return;
+    }
+
+    var html = '';
+    var done = 0;
+    items.forEach(function(it) {
+      fraudGetProfile(it.uid, function(prof) {
+        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
+          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(prof.name) + '</div><div style="font-size:0.68rem;color:#444;">' + it.uid + '</div></td>'
+          + '<td style="padding:12px 16px;color:#fbbf24;font-weight:700;">' + it.count + 'x</td>'
+          + '<td style="padding:12px 16px;"><button onclick="fraudManualBanUid(\'' + it.uid + '\')" style="padding:6px 14px;background:#f87171;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">🚫 Ban</button></td>'
+          + '</tr>';
+        done++;
+        if (done === items.length) tbody.innerHTML = html;
+      });
+    });
+  });
+}
+
+function fraudLoadVpn() {
+  var tbody = document.getElementById('fraud-vpn-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
+  db.ref('fraud/vpnAttempts').once('value', function(snap) {
+    var items = [];
+    snap.forEach(function(c) { items.push({ uid: c.key, count: c.val() }); });
+    items.sort(function(a,b){ return b.count - a.count; });
+
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Koi VPN attempt nahi</td></tr>';
+      return;
+    }
+
+    var html = '';
+    var done = 0;
+    items.forEach(function(it) {
+      fraudGetProfile(it.uid, function(prof) {
+        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
+          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(prof.name) + '</div><div style="font-size:0.68rem;color:#444;">' + it.uid + '</div></td>'
+          + '<td style="padding:12px 16px;color:#fb923c;font-weight:700;">' + it.count + 'x</td>'
+          + '<td style="padding:12px 16px;"><button onclick="fraudManualBanUid(\'' + it.uid + '\')" style="padding:6px 14px;background:#f87171;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">🚫 Ban</button></td>'
+          + '</tr>';
+        done++;
+        if (done === items.length) tbody.innerHTML = html;
+      });
+    });
+  });
+}
+
+function fraudManualBanUid(uid) {
+  if (!confirm('Is user ko ban karna hai?')) return;
+  var updates = {};
+  updates['fraud/banned/'+uid] = true;
+  updates['fraud/stats/'+uid+'/banReason'] = 'Manual ban by admin';
+  updates['fraud/stats/'+uid+'/bannedAt'] = Date.now();
+  db.ref().update(updates, function(err) {
+    if (err) { toast('❌ ' + err.message); return; }
+    toast('✅ User ban ho gaya');
+    fraudLoad();
+  });
+}
+
 function earnersLoad() {
   var tbody = document.getElementById('earners-tbody');
   if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
@@ -11462,6 +11771,19 @@ function wdLoadPendingCount() {
     });
   });
 }
+
+// Sidebar badge — banned users count, real-time
+function fraudLoadBadgeCount() {
+  wdWaitDb(function() {
+    db.ref('fraud/banned').on('value', function(snap) {
+      var cnt = 0;
+      snap.forEach(function(c) { if (c.val() === true) cnt++; });
+      var badge = document.getElementById('fraud-count');
+      if (badge) badge.textContent = cnt;
+    });
+  });
+}
+fraudLoadBadgeCount();
 </script>
 </body>
 </html>
