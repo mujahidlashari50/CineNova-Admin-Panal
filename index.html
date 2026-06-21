@@ -3382,12 +3382,25 @@ async function tfaHmacSha1(keyBytes, msgBytes){
   var sig = await crypto.subtle.sign('HMAC', key, new Uint8Array(msgBytes));
   return Array.from(new Uint8Array(sig));
 }
+// Convert a counter T (53-bit safe integer) into 8 big-endian bytes.
+// NOTE: JS bitwise ops (>>> and <<) only operate on 32-bit ints — shifting
+// by 32+ wraps around (shift amount is taken mod 32), so doing
+// (T >>> (i*8)) for i=4..7 incorrectly repeats the low 4 bytes instead of
+// producing the high 4 bytes. Splitting into hi/lo 32-bit halves first
+// avoids that wraparound bug.
+function tfaCounterToBytes(T){
+  var hi = Math.floor(T / 4294967296); // bits 32-63
+  var lo = T % 4294967296;             // bits 0-31 (T is always positive here)
+  var msg = [];
+  for(var i=3;i>=0;i--){ msg.push((hi>>>(i*8))&0xff); }
+  for(var i=3;i>=0;i--){ msg.push((lo>>>(i*8))&0xff); }
+  return msg;
+}
 // TOTP — returns 6-digit code for current 30s window
 async function tfaGetCode(secret){
   var keyBytes = tfaBase32Decode(secret);
   var T = Math.floor(Date.now()/1000/30);
-  var msg = [];
-  for(var i=7;i>=0;i--){ msg.push((T>>>(i*8))&0xff); }
+  var msg = tfaCounterToBytes(T);
   var hmac = await tfaHmacSha1(keyBytes, msg);
   var offset = hmac[19] & 0x0f;
   var code = ((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
@@ -3399,8 +3412,7 @@ async function tfaValidate(secret, userCode){
   var T = Math.floor(Date.now()/1000/30);
   for(var delta=-1; delta<=1; delta++){
     var t = T + delta;
-    var msg = [];
-    for(var i=7;i>=0;i--){ msg.push((t>>>(i*8))&0xff); }
+    var msg = tfaCounterToBytes(t);
     var hmac = await tfaHmacSha1(keyBytes, msg);
     var offset = hmac[19]&0x0f;
     var code = ((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
@@ -5833,27 +5845,11 @@ function tfaSetup(){
     +'<div style="font-size:0.72rem;color:#666;margin-bottom:4px;">Manual Secret Key (app mein manually daalo):</div>'
     +'<div class="tfa-secret-box">' + secret.match(/.{1,4}/g).join(' ') + '</div>'
     +'<div style="font-size:0.75rem;color:#888;margin-bottom:12px;">⚠️ Yeh secret sirf aapke browser mein save hoga. App mein zaroor add karo!</div>'
-    +'<div id="tfa-debug-code" style="font-size:0.72rem;color:#fbbf24;margin-bottom:10px;font-family:monospace;"></div>'
     +'<div class="tfa-verify-row">'
     +'<input class="fi" id="tfa-setup-code" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" style="letter-spacing:4px;font-weight:700;text-align:center;"/>'
     +'<button class="btn btn-p" onclick="tfaConfirmSetup(\''+secret+'\')" style="white-space:nowrap;padding:11px 18px;font-size:0.82rem;">✅ Confirm Enable</button>'
     +'</div>'
     +'<div id="tfa-setup-err" style="color:var(--red);font-size:0.78rem;margin-top:8px;"></div>';
-
-  // DEBUG: show browser's own computed code + system time, refreshes every 2s.
-  // Compare this number to your Authenticator app's number — if they differ,
-  // it's a clock/time-sync issue, not a code bug. Remove this block once fixed.
-  if(window._tfaDebugTimer) clearInterval(window._tfaDebugTimer);
-  function _tfaDebugTick(){
-    var el = document.getElementById('tfa-debug-code');
-    if(!el){ clearInterval(window._tfaDebugTimer); return; }
-    tfaGetCode(secret).then(function(c){
-      var now = new Date();
-      el.innerText = 'DEBUG — browser code: ' + c + '  |  browser time: ' + now.toString();
-    });
-  }
-  _tfaDebugTick();
-  window._tfaDebugTimer = setInterval(_tfaDebugTick, 2000);
 }
 
 function tfaConfirmSetup(secret){
