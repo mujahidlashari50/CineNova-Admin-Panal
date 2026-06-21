@@ -48,6 +48,27 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .btn-red{width:100%;padding:13px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:0.2s;}
 .btn-red:hover{background:var(--red2);box-shadow:0 4px 20px var(--red-glow);}
 #login-err{color:var(--red);font-size:0.82rem;margin-top:10px;min-height:18px;}
+/* ── 2FA OTP SCREEN ── */
+#tfa-screen{display:none;position:fixed;inset:0;z-index:10000;background:radial-gradient(ellipse at center,#0d0000 0%,#000 70%);align-items:center;justify-content:center;}
+#tfa-screen.show{display:flex;}
+.tfa-box{background:rgba(20,20,20,0.97);border:1px solid rgba(229,9,20,0.28);border-radius:18px;padding:40px 36px;width:100%;max-width:360px;text-align:center;box-shadow:0 0 80px rgba(229,9,20,0.12);}
+.tfa-logo{font-family:'Bebas Neue',cursive;font-size:2.4rem;color:var(--red);letter-spacing:4px;margin-bottom:4px;text-shadow:0 0 40px var(--red-glow);}
+.tfa-logo span{color:#fff;}
+.tfa-sub{color:var(--grey);font-size:0.78rem;margin-bottom:20px;letter-spacing:1.2px;text-transform:uppercase;}
+.tfa-hint{font-size:0.8rem;color:#888;margin-bottom:16px;line-height:1.5;}
+.tfa-inp{width:100%;padding:14px 16px;background:rgba(20,20,20,0.85);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:10px;text-align:center;outline:none;transition:0.2s;font-family:'Outfit',sans-serif;margin-bottom:14px;}
+.tfa-inp:focus{border-color:var(--red);box-shadow:0 0 0 2px var(--red-glow);}
+#tfa-err{color:var(--red);font-size:0.82rem;margin-top:6px;min-height:18px;}
+.tfa-back-link{color:#444;font-size:0.75rem;cursor:pointer;margin-top:12px;text-decoration:underline;text-underline-offset:3px;}
+.tfa-back-link:hover{color:var(--grey);}
+/* ── Settings 2FA section ── */
+.tfa-qr-wrap{text-align:center;padding:16px;background:var(--card2);border-radius:10px;margin-bottom:12px;}
+.tfa-qr-wrap img{width:180px;height:180px;border-radius:6px;background:#fff;padding:8px;}
+.tfa-secret-box{background:rgba(229,9,20,0.07);border:1px solid rgba(229,9,20,0.2);border-radius:8px;padding:12px 16px;font-size:0.82rem;letter-spacing:2px;font-weight:700;color:var(--red);word-break:break-all;margin:10px 0;text-align:center;}
+.tfa-verify-row{display:flex;gap:10px;align-items:center;}
+.tfa-verify-row .fi{flex:1;letter-spacing:4px;font-weight:700;text-align:center;}
+/* ── Login lockout banner ── */
+#login-lockout-banner{display:none;background:rgba(229,9,20,0.08);border:1px solid rgba(229,9,20,0.3);border-radius:8px;padding:12px 16px;font-size:0.8rem;color:#f87171;margin-bottom:12px;text-align:center;line-height:1.5;}
 /* MAIN */
 #main-panel{display:none;padding-top:62px;}
 #sidebar{position:fixed;top:62px;left:0;bottom:0;width:218px;background:rgba(9,9,9,0.99);border-right:1px solid rgba(229,9,20,0.14);display:flex;flex-direction:column;padding:16px 0;z-index:900;overflow-y:auto;}
@@ -455,9 +476,23 @@ tr:hover td{background:rgba(229,9,20,0.04);}
       <img id="lgn-pic" src="" alt="" style="display:none;width:82px;height:82px;border-radius:50%;object-fit:cover;border:3px solid var(--red);box-shadow:0 0 20px var(--red-glow);margin:0 auto 8px;"/>
     </div>
     <div id="lgn-welcome" style="font-size:0.88rem;color:#fff;font-weight:700;margin-bottom:16px;display:none;">👋 Welcome back, <span id="lgn-wname" style="color:var(--red);"></span></div>
+    <div id="login-lockout-banner"></div>
     <input class="inp" id="ap" type="password" placeholder="🔑 Password dalein" autocomplete="current-password"/>
     <button class="btn-red" id="login-btn">LOGIN</button>
     <div id="login-err"></div>
+  </div>
+</div>
+
+<!-- 2FA OTP VERIFICATION SCREEN -->
+<div id="tfa-screen">
+  <div class="tfa-box">
+    <div class="tfa-logo">Cine<span>Nova</span></div>
+    <div class="tfa-sub">Two-Factor Authentication</div>
+    <div class="tfa-hint">📱 Google Authenticator app khol kar<br><strong style="color:#fff;">CineNova Admin</strong> ka 6-digit code daalen</div>
+    <input class="tfa-inp" id="tfa-inp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="one-time-code"/>
+    <button class="btn-red" id="tfa-verify-btn" onclick="tfaVerify()">✅ VERIFY</button>
+    <div id="tfa-err"></div>
+    <div class="tfa-back-link" onclick="tfaCancel()">↩ Wapas password pe jayen</div>
   </div>
 </div>
 
@@ -1643,6 +1678,15 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <button class="btn btn-p" style="padding:10px 14px;font-size:0.8rem;white-space:nowrap;" onclick="saveSiteUrl()">Save</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 2FA SECURITY CARD -->
+      <div class="card" style="margin-top:16px;" id="tfa-settings-card">
+        <h3>🛡️ Two-Factor Authentication (2FA)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:16px;">Login ke waqt Google Authenticator se extra security. Sirf aapke phone se panel khulega.</div>
+        <div id="tfa-status-area">
+          <!-- Filled by JS -->
         </div>
       </div>
 
@@ -3115,6 +3159,13 @@ var ADMIN_PIC_KEY  = 'cv_admin_pic';
 var ADMIN_PASS_KEY = 'cv_pass';
 var SITE_URL_KEY   = 'cv_site_url';
 
+// ─── Login Security Constants ───
+var LOGIN_ATTEMPT_KEY  = 'cv_login_attempts';   // {count, lockUntil}
+var LOGIN_MAX_ATTEMPTS = 5;                      // max galat attempts
+var LOGIN_LOCKOUT_MS   = 15 * 60 * 1000;        // 15 min lockout
+var TFA_SECRET_KEY     = 'cv_2fa_secret';       // TOTP secret (localStorage)
+var TFA_ENABLED_KEY    = 'cv_2fa_enabled';      // '1' if enabled
+
 var firebaseConfig = {
   apiKey: "AIzaSyACX5MktMm99R2ThEbfrtwrh5ZAzT5tCM0",
   authDomain: "cinenova-8987c.firebaseapp.com",
@@ -3220,6 +3271,7 @@ loadScript(
 
 // ═══ LOGIN SCREEN ═══
 function initLoginScreen(){
+  loginUpdateBanner(); // Check if locked on load
   var pic  = localStorage.getItem(ADMIN_PIC_KEY);
   var name = localStorage.getItem(ADMIN_NAME_KEY) || 'MujahidLashari';
   if(pic){
@@ -3240,20 +3292,215 @@ document.addEventListener('DOMContentLoaded', function(){
   if(lBtn) lBtn.onclick = doLogin;
   var passInput = document.getElementById('ap');
   if(passInput) passInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  var tfaInput = document.getElementById('tfa-inp');
+  if(tfaInput) tfaInput.addEventListener('keydown', function(e){ if(e.key==='Enter') tfaVerify(); });
   var loBtn = document.getElementById('logout-btn');
   if(loBtn) loBtn.onclick = doLogout;
 });
 
+// ═══════════════════════════════════════════════════
+// 🔒 LOGIN ATTEMPT SECURITY + 2FA (TOTP)
+// ═══════════════════════════════════════════════════
+
+/* ── Attempt tracking ── */
+function loginGetAttempts(){
+  try{ return JSON.parse(localStorage.getItem(LOGIN_ATTEMPT_KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+function loginSaveAttempts(obj){ localStorage.setItem(LOGIN_ATTEMPT_KEY, JSON.stringify(obj)); }
+function loginReset(){ localStorage.removeItem(LOGIN_ATTEMPT_KEY); }
+
+function loginIsLocked(){
+  var a = loginGetAttempts();
+  if(!a.lockUntil) return false;
+  if(Date.now() < a.lockUntil) return true;
+  loginReset();
+  return false;
+}
+function loginLockRemaining(){
+  var a = loginGetAttempts();
+  if(!a.lockUntil) return 0;
+  return Math.max(0, Math.ceil((a.lockUntil - Date.now()) / 60000));
+}
+function loginBumpAttempt(){
+  var a = loginGetAttempts();
+  a.count = (a.count||0) + 1;
+  if(a.count >= LOGIN_MAX_ATTEMPTS){
+    a.lockUntil = Date.now() + LOGIN_LOCKOUT_MS;
+  }
+  loginSaveAttempts(a);
+  return a.count;
+}
+function loginRemainingAttempts(){
+  var a = loginGetAttempts();
+  return LOGIN_MAX_ATTEMPTS - (a.count||0);
+}
+
+/* ── Lockout banner ── */
+function loginUpdateBanner(){
+  var banner = document.getElementById('login-lockout-banner');
+  var btn    = document.getElementById('login-btn');
+  var inp    = document.getElementById('ap');
+  if(!banner) return;
+  if(loginIsLocked()){
+    var mins = loginLockRemaining();
+    banner.style.display = 'block';
+    banner.innerHTML = '🔒 Zyada galat attempts! <br>Panel <strong>' + mins + ' minute</strong> ke liye lock hai.<br>Baad mein try karein.';
+    if(btn) btn.disabled = true;
+    if(inp) inp.disabled = true;
+    // Auto-refresh every 30s
+    if(!loginUpdateBanner._tid){
+      loginUpdateBanner._tid = setInterval(function(){
+        if(!loginIsLocked()){ clearInterval(loginUpdateBanner._tid); loginUpdateBanner._tid = null; loginUpdateBanner(); }
+        else{ loginUpdateBanner(); }
+      }, 30000);
+    }
+  } else {
+    banner.style.display = 'none';
+    if(btn) btn.disabled = false;
+    if(inp) inp.disabled = false;
+  }
+}
+
+/* ── TOTP helpers (RFC 6238 / SHA-1 HMAC) ── */
+// Base32 decode
+function tfaBase32Decode(s){
+  var alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  s=s.toUpperCase().replace(/\s/g,'');
+  var bits=0, val=0, out=[];
+  for(var i=0;i<s.length;i++){
+    var idx=alpha.indexOf(s[i]);
+    if(idx===-1) continue;
+    val=(val<<5)|idx; bits+=5;
+    if(bits>=8){ out.push((val>>>(bits-8))&0xff); bits-=8; }
+  }
+  return out;
+}
+// HMAC-SHA1 via SubtleCrypto (async)
+async function tfaHmacSha1(keyBytes, msgBytes){
+  var key = await crypto.subtle.importKey('raw', new Uint8Array(keyBytes), {name:'HMAC',hash:'SHA-1'}, false, ['sign']);
+  var sig = await crypto.subtle.sign('HMAC', key, new Uint8Array(msgBytes));
+  return Array.from(new Uint8Array(sig));
+}
+// TOTP — returns 6-digit code for current 30s window
+async function tfaGetCode(secret){
+  var keyBytes = tfaBase32Decode(secret);
+  var T = Math.floor(Date.now()/1000/30);
+  var msg = [];
+  for(var i=7;i>=0;i--){ msg.push((T>>>(i*8))&0xff); }
+  var hmac = await tfaHmacSha1(keyBytes, msg);
+  var offset = hmac[19] & 0x0f;
+  var code = ((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
+  return String(code % 1000000).padStart(6,'0');
+}
+// Validate: check current + prev window (±30s tolerance)
+async function tfaValidate(secret, userCode){
+  var keyBytes = tfaBase32Decode(secret);
+  var T = Math.floor(Date.now()/1000/30);
+  for(var delta=-1; delta<=1; delta++){
+    var t = T + delta;
+    var msg = [];
+    for(var i=7;i>=0;i--){ msg.push((t>>>(i*8))&0xff); }
+    var hmac = await tfaHmacSha1(keyBytes, msg);
+    var offset = hmac[19]&0x0f;
+    var code = ((hmac[offset]&0x7f)<<24)|((hmac[offset+1]&0xff)<<16)|((hmac[offset+2]&0xff)<<8)|(hmac[offset+3]&0xff);
+    if(String(code%1000000).padStart(6,'0') === String(userCode).padStart(6,'0')) return true;
+  }
+  return false;
+}
+// Generate random Base32 secret
+function tfaGenSecret(){
+  var alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  var s='';
+  for(var i=0;i<32;i++) s+=alpha[Math.floor(Math.random()*32)];
+  return s;
+}
+// QR code URL for Google Authenticator
+function tfaQrUrl(secret, label){
+  var issuer='CineNova Admin';
+  var uri='otpauth://totp/'+encodeURIComponent(label||issuer)+'?secret='+secret+'&issuer='+encodeURIComponent(issuer)+'&algorithm=SHA1&digits=6&period=30';
+  return 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(uri);
+}
+
+/* ── State: password passed but waiting for 2FA ── */
+var _tfaPending = false;
+
+/* ── Main doLogin ── */
 function doLogin(){
-  var p=document.getElementById('ap').value.trim();
-  if(p===getPass()){
+  var errEl = document.getElementById('login-err');
+  // Check lockout
+  if(loginIsLocked()){
+    loginUpdateBanner();
+    return;
+  }
+  var p = document.getElementById('ap').value.trim();
+  if(p === getPass()){
+    // Password correct — check 2FA
+    if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
+      var secret = localStorage.getItem(TFA_SECRET_KEY);
+      if(secret){
+        _tfaPending = true;
+        document.getElementById('login-screen').style.display = 'none';
+        var tfaScreen = document.getElementById('tfa-screen');
+        tfaScreen.classList.add('show');
+        var inp = document.getElementById('tfa-inp');
+        if(inp){ inp.value=''; inp.focus(); }
+        document.getElementById('tfa-err').innerText='';
+        loginReset(); // password was correct, reset attempts
+        return;
+      }
+    }
+    // No 2FA — proceed
+    loginReset();
     sessionStorage.setItem('cva','1');
     showPanel();
   } else {
-    document.getElementById('login-err').innerText='❌ Password galat hai!';
+    var count = loginBumpAttempt();
+    if(loginIsLocked()){
+      loginUpdateBanner();
+      if(errEl) errEl.innerText='';
+    } else {
+      var rem = LOGIN_MAX_ATTEMPTS - count;
+      if(errEl) errEl.innerText='❌ Password galat hai! ' + rem + ' attempt(s) baqi hain.';
+    }
     document.getElementById('ap').value='';
     document.getElementById('ap').focus();
   }
+}
+
+/* ── 2FA verify ── */
+function tfaVerify(){
+  var userCode = (document.getElementById('tfa-inp').value||'').replace(/\s/g,'');
+  var errEl    = document.getElementById('tfa-err');
+  var secret   = localStorage.getItem(TFA_SECRET_KEY);
+  if(!userCode || userCode.length<6){
+    if(errEl) errEl.innerText='❌ 6-digit code daalen';
+    return;
+  }
+  var btn = document.getElementById('tfa-verify-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Checking...'; }
+  tfaValidate(secret, userCode).then(function(ok){
+    if(btn){ btn.disabled=false; btn.textContent='✅ VERIFY'; }
+    if(ok){
+      _tfaPending = false;
+      document.getElementById('tfa-screen').classList.remove('show');
+      sessionStorage.setItem('cva','1');
+      showPanel();
+    } else {
+      if(errEl) errEl.innerText='❌ Galat code! App check karein (30s mein change hota hai)';
+      document.getElementById('tfa-inp').value='';
+      document.getElementById('tfa-inp').focus();
+    }
+  });
+}
+
+/* ── 2FA cancel — back to password screen ── */
+function tfaCancel(){
+  _tfaPending = false;
+  document.getElementById('tfa-screen').classList.remove('show');
+  document.getElementById('login-screen').style.display='';
+  document.getElementById('ap').value='';
+  document.getElementById('login-err').innerText='';
 }
 function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; location.reload(); }
 
@@ -3692,7 +3939,7 @@ function show(name){
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
   if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}
-  if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length;}
+  if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkcheck'){renderLcResults(lcBrokenMovies);}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -5544,6 +5791,96 @@ function saveSiteUrl(){
   var url=document.getElementById('site-url').value.trim();
   if(url)localStorage.setItem(SITE_URL_KEY,url);
   toast('✅ Website URL saved!');
+}
+
+// ═══════════════════════════════════════════════════
+// 🛡️ 2FA SETTINGS UI
+// ═══════════════════════════════════════════════════
+function tfaRenderSettings(){
+  var area = document.getElementById('tfa-status-area');
+  if(!area) return;
+  var enabled = localStorage.getItem(TFA_ENABLED_KEY)==='1';
+  var secret  = localStorage.getItem(TFA_SECRET_KEY)||'';
+  if(enabled && secret){
+    area.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;padding:14px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:9px;margin-bottom:12px;">'
+      +'<span style="font-size:1.4rem;">✅</span>'
+      +'<div><div style="font-weight:700;color:#22c55e;font-size:0.9rem;">2FA Enabled Hai</div>'
+      +'<div style="font-size:0.72rem;color:#888;margin-top:2px;">Login ke waqt Google Authenticator code mangega</div></div>'
+      +'</div>'
+      +'<button class="btn btn-s" onclick="tfaDisable()" style="font-size:0.82rem;padding:10px 18px;">🔓 2FA Disable Karo</button>';
+  } else {
+    area.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;padding:14px;background:rgba(229,9,20,0.05);border:1px solid rgba(229,9,20,0.15);border-radius:9px;margin-bottom:16px;">'
+      +'<span style="font-size:1.4rem;">⚠️</span>'
+      +'<div><div style="font-weight:700;color:#f87171;font-size:0.9rem;">2FA Disabled Hai</div>'
+      +'<div style="font-size:0.72rem;color:#888;margin-top:2px;">Sirf password se login ho raha hai — 2FA enable karo</div></div>'
+      +'</div>'
+      +'<button class="btn btn-p" onclick="tfaSetup()" style="font-size:0.85rem;">📱 2FA Setup Karo (Google Authenticator)</button>'
+      +'<div id="tfa-setup-area" style="display:none;margin-top:18px;"></div>';
+  }
+}
+
+function tfaSetup(){
+  var setupArea = document.getElementById('tfa-setup-area');
+  if(!setupArea){ tfaRenderSettings(); return; }
+  var secret = tfaGenSecret();
+  var qrUrl  = tfaQrUrl(secret, 'CineNova Admin');
+  setupArea.style.display='block';
+  setupArea.innerHTML =
+    '<div style="font-size:0.82rem;color:var(--grey);margin-bottom:12px;">1️⃣ Google Authenticator open karo<br>2️⃣ <strong style="color:#fff;">+</strong> > <strong style="color:#fff;">"QR Code Scan"</strong> karo ya secret key daalo<br>3️⃣ Code verify karo phir 2FA enable hoga</div>'
+    +'<div class="tfa-qr-wrap"><img src="'+qrUrl+'" alt="QR Code" onerror="this.style.display=\'none\'"><div style="font-size:0.68rem;color:#666;margin-top:6px;">Scan nahi ho raha? Neeche secret key use karo</div></div>'
+    +'<div style="font-size:0.72rem;color:#666;margin-bottom:4px;">Manual Secret Key (app mein manually daalo):</div>'
+    +'<div class="tfa-secret-box">' + secret.match(/.{1,4}/g).join(' ') + '</div>'
+    +'<div style="font-size:0.75rem;color:#888;margin-bottom:12px;">⚠️ Yeh secret sirf aapke browser mein save hoga. App mein zaroor add karo!</div>'
+    +'<div id="tfa-debug-code" style="font-size:0.72rem;color:#fbbf24;margin-bottom:10px;font-family:monospace;"></div>'
+    +'<div class="tfa-verify-row">'
+    +'<input class="fi" id="tfa-setup-code" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" style="letter-spacing:4px;font-weight:700;text-align:center;"/>'
+    +'<button class="btn btn-p" onclick="tfaConfirmSetup(\''+secret+'\')" style="white-space:nowrap;padding:11px 18px;font-size:0.82rem;">✅ Confirm Enable</button>'
+    +'</div>'
+    +'<div id="tfa-setup-err" style="color:var(--red);font-size:0.78rem;margin-top:8px;"></div>';
+
+  // DEBUG: show browser's own computed code + system time, refreshes every 2s.
+  // Compare this number to your Authenticator app's number — if they differ,
+  // it's a clock/time-sync issue, not a code bug. Remove this block once fixed.
+  if(window._tfaDebugTimer) clearInterval(window._tfaDebugTimer);
+  function _tfaDebugTick(){
+    var el = document.getElementById('tfa-debug-code');
+    if(!el){ clearInterval(window._tfaDebugTimer); return; }
+    tfaGetCode(secret).then(function(c){
+      var now = new Date();
+      el.innerText = 'DEBUG — browser code: ' + c + '  |  browser time: ' + now.toString();
+    });
+  }
+  _tfaDebugTick();
+  window._tfaDebugTimer = setInterval(_tfaDebugTick, 2000);
+}
+
+function tfaConfirmSetup(secret){
+  var code = (document.getElementById('tfa-setup-code').value||'').replace(/\s/g,'');
+  var errEl = document.getElementById('tfa-setup-err');
+  if(!code||code.length<6){ if(errEl) errEl.innerText='❌ 6-digit code daalen'; return; }
+  var btn = document.querySelector('#tfa-setup-area .btn-p');
+  if(btn){ btn.disabled=true; btn.textContent='⏳...'; }
+  tfaValidate(secret, code).then(function(ok){
+    if(btn){ btn.disabled=false; btn.textContent='✅ Confirm Enable'; }
+    if(ok){
+      localStorage.setItem(TFA_SECRET_KEY, secret);
+      localStorage.setItem(TFA_ENABLED_KEY,'1');
+      toast('✅ 2FA Enable ho gaya!');
+      tfaRenderSettings();
+    } else {
+      if(errEl) errEl.innerText='❌ Galat code — app check karein (30s mein change hota hai)';
+    }
+  });
+}
+
+function tfaDisable(){
+  if(!confirm('2FA disable karna chahte ho? Login sirf password se hoga.')) return;
+  localStorage.removeItem(TFA_ENABLED_KEY);
+  localStorage.removeItem(TFA_SECRET_KEY);
+  toast('🔓 2FA Disable ho gaya');
+  tfaRenderSettings();
 }
 
 // ═══ LINK CHECKER ═══
