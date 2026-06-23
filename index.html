@@ -2523,13 +2523,47 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <input class="fi" id="ml-url" placeholder="https://linkmake.in/view/QBm2lRodTZ" />
           </div>
           <div class="fgg" style="flex:1;min-width:200px;">
-            <label>Movie Firebase Key <span style="color:#f59e0b;font-size:0.7rem;">(Save ke liye)</span></label>
+            <label>Movie / Series Firebase Key <span style="color:#f59e0b;font-size:0.7rem;">(Save ke liye)</span></label>
             <div style="position:relative;">
               <input class="fi" id="ml-moviekey" placeholder="Auto-fill ho jayega title se" autocomplete="off" style="padding-right:30px;" />
               <button onclick="mlPickKeySingle()" title="Movie chuno manually" type="button" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:4px;cursor:pointer;font-size:0.75rem;">🔎</button>
             </div>
           </div>
           <button class="btn btn-p" onclick="mlAddLink()" style="height:40px;padding:0 20px;">Add Link</button>
+        </div>
+
+        <!-- ── Web Series Episode Info (optional) ── -->
+        <div style="margin-top:12px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.2);border-radius:9px;padding:12px 14px;">
+          <div style="font-size:0.68rem;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📺 Web Series Episode Info <span style="color:#555;font-weight:400;font-size:0.65rem;">(sirf web series ke liye — movie ke liye khali chodho)</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="fgg" style="min-width:80px;">
+              <label>Season #</label>
+              <input class="fi" id="ml-ep-season" type="number" min="1" placeholder="1" style="width:80px;" />
+            </div>
+            <div class="fgg" style="min-width:80px;">
+              <label>Ep. From</label>
+              <input class="fi" id="ml-ep-from" type="number" min="1" placeholder="1" style="width:80px;" oninput="mlEpLabelPreview()" />
+            </div>
+            <div class="fgg" style="min-width:80px;">
+              <label>Ep. To</label>
+              <input class="fi" id="ml-ep-to" type="number" min="1" placeholder="5" style="width:80px;" oninput="mlEpLabelPreview()" />
+            </div>
+            <div class="fgg" style="min-width:120px;">
+              <label>Quality</label>
+              <select class="fi" id="ml-ep-quality" style="width:120px;">
+                <option value="">-- All / Mix --</option>
+                <option value="480p">480p</option>
+                <option value="720p">720p</option>
+                <option value="1080p">1080p</option>
+                <option value="4K">4K</option>
+              </select>
+            </div>
+            <div class="fgg" style="flex:1;min-width:160px;">
+              <label>Episode Label <span style="color:#555;font-size:0.65rem;">(auto-fill)</span></label>
+              <input class="fi" id="ml-ep-label" placeholder="Ep.01-05 ya Part-01" style="color:#4ade80;" />
+            </div>
+          </div>
+          <div style="font-size:0.68rem;color:#555;margin-top:8px;">💡 Ek link mein <strong style="color:#aaa;">kitne episodes hain</strong> woh yahan likho — e.g. Ep. From=1, To=5 matlab is link mein Episode 1 se 5 hain. Baad mein Sub Links se quality-wise link save karo.</div>
         </div>
       </div>
 
@@ -2644,7 +2678,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="background:var(--card);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:26px;width:100%;max-width:680px;margin:auto;position:relative;">
           <button onclick="mlCloseSubModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--grey);font-size:1.3rem;cursor:pointer;">X</button>
           <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:1px;margin-bottom:4px;">🔗 Download <span style="color:#3b82f6;">Links</span> <span style="font-size:0.75rem;font-weight:400;color:#555;font-family:'Outfit',sans-serif;">480p · 720p · 1080p · 4K</span></div>
-          <div id="ml-sub-parent-url" style="font-size:0.72rem;color:var(--grey2);margin-bottom:16px;word-break:break-all;"></div>
+          <div id="ml-sub-parent-url" style="font-size:0.72rem;color:var(--grey2);margin-bottom:8px;word-break:break-all;"></div>
+          <div id="ml-moviekey-bar" style="margin-bottom:14px;"></div>
           <div id="ml-sub-loading" style="text-align:center;padding:20px;color:var(--grey);">Loading...</div>
           <div id="ml-sub-list" style="display:flex;flex-direction:column;gap:8px;"></div>
           <div id="ml-sub-empty" style="display:none;text-align:center;color:var(--grey2);padding:20px;">No sub-links found.</div>
@@ -10125,42 +10160,80 @@ function mlRender() {
   empty.style.display = 'none';
   
   list.innerHTML = filtered.map(function(lnk) {
-    return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+    // Episode badge for web series links
+    var epBadge = '';
+    if (lnk.epFrom || lnk.epLabel) {
+      var epText = lnk.epLabel || ('S' + (lnk.epSeason||'1') + ' Ep.' + (lnk.epFrom||'?') + (lnk.epTo && lnk.epTo != lnk.epFrom ? '-' + lnk.epTo : ''));
+      var qColor = lnk.epQuality === '1080p' ? '#e50914' : lnk.epQuality === '720p' ? '#f59e0b' : lnk.epQuality === '4K' ? '#a855f7' : '#22c55e';
+      epBadge = '<div style="display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap;">'
+        + '<span style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;font-size:0.63rem;font-weight:700;padding:2px 8px;border-radius:10px;">📺 ' + epText + '</span>'
+        + (lnk.epQuality ? '<span style="background:rgba(255,255,255,0.05);border:1px solid #333;color:'+qColor+';font-size:0.63rem;font-weight:700;padding:2px 7px;border-radius:10px;">' + lnk.epQuality + '</span>' : '')
+        + '</div>';
+    }
+    var safeUrl = (lnk.url||'').replace(/'/g,"\\'");
+    var safeId  = (lnk.id||'').replace(/'/g,"\\'");
+    var safeTit = (lnk.title||'').replace(/'/g,"\\'");
+    var borderColor = lnk.epFrom ? 'rgba(34,197,94,0.25)' : 'var(--border)';
+    return '<div style="background:var(--card2);border:1px solid '+borderColor+';border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
       + '<div style="flex:1;min-width:0;">'
       + '<div style="font-weight:700;font-size:0.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lnk.title || 'Untitled Link') + '</div>'
-      + '<div style="font-size:0.72rem;color:var(--grey2);word-break:break-all;">' + lnk.url + '</div>'
-      + (lnk.movieKey ? '<div style="font-size:0.68rem;color:#f59e0b;margin-top:2px;">🎬 Movie Key: ' + lnk.movieKey + '</div>' : '<div style="font-size:0.68rem;color:#6b7280;margin-top:2px;">⚠️ Movie Key nahi — Save kaam nahi karega</div>')
+      + '<div style="font-size:0.72rem;color:var(--grey2);word-break:break-all;">' + (lnk.url||'') + '</div>'
+      + (lnk.movieKey ? '<div style="font-size:0.68rem;color:#f59e0b;margin-top:2px;">🎬 Key: ' + lnk.movieKey + '</div>' : '<div style="font-size:0.68rem;color:#6b7280;margin-top:2px;">⚠️ Movie Key nahi — Save kaam nahi karega</div>')
+      + epBadge
       + '</div>'
-      + '<div style="display:flex;gap:7px;flex-shrink:0;">'
-      + '<button class="btn btn-b" onclick="window.open(\x27'+lnk.url+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
-      + (!lnk.movieKey ? '<button class="btn" style="background:#854d0e;color:#fde68a;padding:7px 13px;font-size:0.78rem;" onclick="mlFixKey(\x27'+lnk.id+'\x27,\x27'+(lnk.title||'').replace(/'/g,"\\'")+'\x27)">🔑 Fix Key</button>' : '')
-      + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+lnk.id+'\x27,\x27'+lnk.url+'\x27)">Sub Links</button>'
-      + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+lnk.id+'\x27)">Del</button>'
+      + '<div style="display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap;">'
+      + '<button class="btn btn-b" onclick="window.open(\x27'+safeUrl+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
+      + (!lnk.movieKey ? '<button class="btn" style="background:#854d0e;color:#fde68a;padding:7px 13px;font-size:0.78rem;" onclick="mlFixKey(\x27'+safeId+'\x27,\x27'+safeTit+'\x27)">🔑 Fix Key</button>' : '')
+      + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+safeId+'\x27,\x27'+safeUrl+'\x27)">Sub Links</button>'
+      + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+safeId+'\x27)">Del</button>'
       + '</div>'
       + '</div>';
   }).join('');
 }
 
+function mlEpLabelPreview() {
+  var from = (document.getElementById('ml-ep-from')||{}).value||'';
+  var to   = (document.getElementById('ml-ep-to')||{}).value||'';
+  var lbl  = document.getElementById('ml-ep-label');
+  if (!lbl) return;
+  if (!from) { lbl.value = ''; return; }
+  var padded = function(n){ return n < 10 ? '0'+n : ''+n; };
+  lbl.value = from && to && to !== from
+    ? 'Ep.' + padded(parseInt(from)) + '-' + padded(parseInt(to))
+    : 'Ep.' + padded(parseInt(from));
+}
+
 function mlAddLink() {
-  var title = document.getElementById('ml-title').value.trim();
-  var url = document.getElementById('ml-url').value.trim();
+  var title    = document.getElementById('ml-title').value.trim();
+  var url      = document.getElementById('ml-url').value.trim();
   var movieKey = document.getElementById('ml-moviekey').value.trim();
   if (!url) { toast('URL daalo pehle!', 1); return; }
   if (!url.startsWith('http')) { toast('Valid URL daalo (http...)', 1); return; }
-  
-  var key = db.ref('mylinks').push().key;
-  db.ref('mylinks/' + key).set({
+
+  // Episode info
+  var epSeason  = (document.getElementById('ml-ep-season')||{}).value||'';
+  var epFrom    = (document.getElementById('ml-ep-from')||{}).value||'';
+  var epTo      = (document.getElementById('ml-ep-to')||{}).value||'';
+  var epQuality = (document.getElementById('ml-ep-quality')||{}).value||'';
+  var epLabel   = (document.getElementById('ml-ep-label')||{}).value||'';
+
+  var data = {
     title: title || 'Untitled',
     url: url,
     movieKey: movieKey || '',
     ts: Date.now()
-  }, function(err) {
+  };
+  if (epFrom) { data.epSeason = epSeason || '1'; data.epFrom = epFrom; data.epTo = epTo || epFrom; data.epQuality = epQuality; data.epLabel = epLabel; }
+
+  var key = db.ref('mylinks').push().key;
+  db.ref('mylinks/' + key).set(data, function(err) {
     if (err) { toast('Save nahi hua!', 1); }
     else {
       toast('Link save ho gaya!');
-      document.getElementById('ml-title').value = '';
-      document.getElementById('ml-url').value = '';
-      document.getElementById('ml-moviekey').value = '';
+      ['ml-title','ml-url','ml-moviekey','ml-ep-season','ml-ep-from','ml-ep-to','ml-ep-label'].forEach(function(id){
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      var qs = document.getElementById('ml-ep-quality'); if (qs) qs.value = '';
     }
   });
 }
@@ -10950,6 +11023,8 @@ function mlShowSubLinks(id, url) {
   // movieKey: pehle Link Manager entry ki movieKey, warna lnk.id
   var lnk = _mlLinks.find(function(l){ return l.id === id; });
   window._mlCurrentMovieKey = (lnk && lnk.movieKey) ? lnk.movieKey : '';
+  window._mlCurrentLnk = lnk || null; // episode info ke liye
+  window._mlCurrentPartInfo = null;   // reset on each modal open
   var modal = document.getElementById('ml-submodal');
   var loading = document.getElementById('ml-sub-loading');
   var subList = document.getElementById('ml-sub-list');
@@ -10962,6 +11037,9 @@ function mlShowSubLinks(id, url) {
   subList.innerHTML = '';
   subEmpty.style.display = 'none';
   parentUrl.textContent = url;
+
+  // ── Movie Key Bar: modal ke andar dikhao/change karo ──
+  mlRenderKeyBar();
 
   // Ignore karo yeh domains (linkmake.in HATAYA gaya — wahan se links chahiye)
   var ignDomains = ['link2me','jiolink','google.','facebook.','twitter.','t.me','telegram.','youtube.','instagram.','bit.ly','tinyurl','goo.gl','policy','dmca','contact','login','signup','privacy','linkmake.in/login','linkmake.in/signup','linkmake.in/policy','linkmake.in/dmca','linkmake.in/contact'];
@@ -10982,129 +11060,353 @@ function mlShowSubLinks(id, url) {
     return null;
   }
 
-  function extractDownloadLinks(html, srcUrl) {
-    var results = [];
-    var seen = {};
+  // ═══════════════════════════════════════════════════════
+  // LINKMAKE PAGE PARSER — Part-wise (Ep.01-05, Ep.06-10)
+  // ═══════════════════════════════════════════════════════
 
-    // 1. Markdown links: [Label](url) — allorigins returns markdown format
-    var mdReg = /\[([^\]]+)\]\((https?:\/\/[^\s"')\]]+)/g; // handles [text](url "title") format
-    var m;
-    while ((m = mdReg.exec(html)) !== null) {
-      var lnk = m[2].trim();
-      var txt = m[1].trim();
-      if (isIgnored(lnk)) continue;
-      if (lnk === srcUrl) continue;
-      if (seen[lnk]) continue;
-      seen[lnk] = true;
-      results.push({ url: lnk, label: txt });
+  // Part heading text se episode range parse karo
+  function parsePartHeading(txt) {
+    var r = { partNum: null, epFrom: null, epTo: null, raw: txt.trim() };
+    var pm = txt.match(/part[\s\-]*(\d+)/i);
+    if (pm) r.partNum = parseInt(pm[1]);
+    // Ep.01-05 range
+    var em = txt.match(/ep[\.\s\-]*(\d+)\s*[-\u2013]+\s*(\d+)/i);
+    if (em) { r.epFrom = parseInt(em[1]); r.epTo = parseInt(em[2]); }
+    else {
+      // Individual episode: "Episode -01", "Episode-01", "Episode 01"
+      var ei = txt.match(/episode[\s\-]*(\d+)/i);
+      if (ei) { r.epFrom = parseInt(ei[1]); r.epTo = parseInt(ei[1]); }
+      else {
+        var es = txt.match(/ep[\.\s\-]*(\d+)/i);
+        if (es) { r.epFrom = parseInt(es[1]); r.epTo = parseInt(es[1]); }
+      }
     }
-
-    // 2. HTML anchor tags
-    var aReg = /<a[^>]+href=["']([^"'#][^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
-    while ((m = aReg.exec(html)) !== null) {
-      var lnk = m[1].trim();
-      var txt = m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
-      if (!lnk.startsWith('http')) continue;
-      if (lnk === srcUrl) continue;
-      if (isIgnored(lnk)) continue;
-      if (seen[lnk]) continue;
-      seen[lnk] = true;
-      results.push({ url: lnk, label: txt });
-    }
-
-    // 3. Plain bare URLs (last resort)
-    var uReg = /(https?:\/\/[^\s"'<>\)\]]+)/g;
-    while ((m = uReg.exec(html)) !== null) {
-      var u = m[1].replace(/[,;)\]\.]+$/, '');
-      if (isIgnored(u)) continue;
-      if (u === srcUrl) continue;
-      if (seen[u]) continue;
-      seen[u] = true;
-      results.push({ url: u, label: '' });
-    }
-    return results;
+    return r;
   }
 
-  function renderLinks(links) {
+  // ── MAIN PARSER: Linkmake HTML → Part groups ──
+  // Linkmake structure (plain text):
+  //   <<<<~~ {Part-01 (Ep.01-05)}~~>>>>
+  //   <a href="https://filesdl...">Download 480p...</a>
+  //   <a href="...">Download 720p...</a>
+  //   <<<<~~ {Part-02 (Ep.06-10)}~~>>>>
+  //   <a href="...">Download 480p...</a>  ...
+  function extractPartGroups(rawHtml, srcUrl) {
+    var parts  = [];
+    var seen   = {};
+
+    // ── Step 1: HTML ke saare tokens extract karo in order ──
+    // Token = ya toh plain text chunk ya <a> tag
+    // Hum rawHtml ko split karte hain on <a> tags
+    // Baaki text mein Part headings dhundte hain
+
+    // Pehle saare <a> tags aur unke positions nikalte hain
+    var aRe = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+    var tokens = []; // { type:'text'|'link', pos, text, href, label }
+    var lastEnd = 0;
+    var m;
+
+    while ((m = aRe.exec(rawHtml)) !== null) {
+      // Text before this <a>
+      if (m.index > lastEnd) {
+        tokens.push({ type: 'text', pos: lastEnd, text: rawHtml.slice(lastEnd, m.index) });
+      }
+      // The <a> itself
+      var hrefM = m[1].match(/href=["']([^"']+)["']/i);
+      var href  = hrefM ? hrefM[1].trim() : '';
+      var label = m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      tokens.push({ type: 'link', pos: m.index, href: href, label: label });
+      lastEnd = m.index + m[0].length;
+    }
+    // Remaining text
+    if (lastEnd < rawHtml.length) {
+      tokens.push({ type: 'text', pos: lastEnd, text: rawHtml.slice(lastEnd) });
+    }
+
+    // ── Step 2: Token stream process karo ──
+    var currentPart = null;
+
+    tokens.forEach(function(tok) {
+      if (tok.type === 'text') {
+        // Strip HTML tags from text, look for Part headings
+        var plain = tok.text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+        // Scan for Part/Episode headings
+        // Formats supported:
+        //  Part-01 (Ep.01-05)   — filmyfly style
+        //  Part-01               — part only
+        //  Ep.01-05              — ep range only
+        //  Episode -01 / Episode-01 / Episode 01  — individual episode (linkmake style)
+        var headingRe = /(?:Part[\s\-]*(\d+)[^\n]{0,80}?Ep[\.\s]*(\d+)\s*[-\u2013]\s*(\d+)|Part[\s\-]*(\d+)[^\n]{0,80}?Episode[\s\-]*(\d+)|Part[\s\-]*(\d+)|Episode[\s\x00-\x1f\-]*(\d+)|Ep[\.\s]*(\d+)\s*[-\u2013]\s*(\d+))/gi;
+        var hm;
+        while ((hm = headingRe.exec(plain)) !== null) {
+          var pi = { partNum: null, epFrom: null, epTo: null, raw: hm[0].trim() };
+          if (hm[1]) {
+            // Part-XX Ep.AA-BB
+            pi.partNum = parseInt(hm[1]);
+            pi.epFrom  = parseInt(hm[2]); pi.epTo = parseInt(hm[3]);
+          } else if (hm[4]) {
+            // Part-XX Episode-NN
+            pi.partNum = parseInt(hm[4]);
+            pi.epFrom  = parseInt(hm[5]); pi.epTo = parseInt(hm[5]);
+          } else if (hm[6]) {
+            // Part-XX only
+            pi.partNum = parseInt(hm[6]);
+          } else if (hm[7]) {
+            // Episode-NN (individual episode — epFrom = epTo = N)
+            pi.epFrom = parseInt(hm[7]); pi.epTo = parseInt(hm[7]);
+          } else if (hm[8]) {
+            // Ep.AA-BB range
+            pi.epFrom = parseInt(hm[8]); pi.epTo = parseInt(hm[9]);
+          }
+          currentPart = { partInfo: pi, links: [] };
+          parts.push(currentPart);
+        }
+      } else {
+        // It's a link token
+        var href = tok.href;
+        if (!href || !href.startsWith('http')) return;
+        if (isIgnored(href)) return;
+        if (href === srcUrl) return;
+        if (seen[href]) return;
+        seen[href] = true;
+        var q = detectQuality(href, tok.label);
+        var entry = { url: href, label: tok.label, quality: q };
+        if (!currentPart) {
+          // Links before any heading — create a default part
+          currentPart = { partInfo: { partNum: 1, epFrom: null, epTo: null, raw: '' }, links: [] };
+          parts.push(currentPart);
+        }
+        currentPart.links.push(entry);
+      }
+    });
+
+    // ── Step 3: Empty parts hatao ──
+    parts = parts.filter(function(p) { return p.links.length > 0; });
+
+    // ── Fallback: kuch nahi mila ──
+    if (parts.length === 0) {
+      var fb = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+      var fm; var flinks = [];
+      while ((fm = fb.exec(rawHtml)) !== null) {
+        var fh = fm[1].trim();
+        var ft = fm[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+        if (isIgnored(fh) || fh === srcUrl || seen[fh]) continue;
+        seen[fh] = true;
+        flinks.push({ url: fh, label: ft, quality: detectQuality(fh, ft) });
+      }
+      if (flinks.length > 0) parts.push({ partInfo: { partNum: null, epFrom: null, epTo: null, raw: '' }, links: flinks });
+    }
+
+    return parts;
+  }
+
+  // Old function alias for compatibility
+  function extractDownloadLinks(html, srcUrl) {
+    var parts = extractPartGroups(html, srcUrl);
+    var all = [];
+    parts.forEach(function(p) { p.links.forEach(function(l) { all.push(l); }); });
+    return all;
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // renderLinks — Part-wise display
+  // ─────────────────────────────────────────────────────────
+  function renderLinks(html, srcUrl) {
+    // Accept old (links array) OR new (raw HTML) call
+    var parts;
+    if (typeof html === 'string') {
+      parts = extractPartGroups(html, srcUrl);
+    } else {
+      // Called with links array (old path)
+      var links = html;
+      if (!links || links.length === 0) {
+        loading.style.display = 'none';
+        subEmpty.style.display = 'block';
+        subEmpty.innerHTML = '😕 Koi link nahi mili.<br><small style="color:#555;">Page JavaScript se links load karta hai — manually open karo.</small>';
+        return;
+      }
+      parts = [{ partInfo: { partNum: null, epFrom: null, epTo: null, raw: '' }, links: links }];
+    }
+
     loading.style.display = 'none';
-    if (!links || links.length === 0) {
+
+    if (!parts || parts.length === 0 || parts.every(function(p){ return p.links.length === 0; })) {
       subEmpty.style.display = 'block';
       subEmpty.innerHTML = '😕 Koi link nahi mili.<br><small style="color:#555;">Page JavaScript se links load karta hai — manually open karo.</small>';
       return;
     }
 
-    // Quality groups mein organize karo
-    var groups = { '4K': [], '1080p': [], '720p': [], '480p': [], '360p': [], 'Other': [] };
-    links.forEach(function(lnk) {
-      var q = detectQuality(lnk.url||'', lnk.label||'');
-      if (q) groups[q.tag].push(Object.assign({}, lnk, { _q: q }));
-      else groups['Other'].push(lnk);
-    });
+    var isWebSeries = parts.length > 1 || (parts[0] && parts[0].partInfo.epFrom);
 
-    // Check karo koi quality group hai
-    var hasQuality = ['4K','1080p','720p','480p','360p'].some(function(k){ return groups[k].length > 0; });
-
-    var html = '';
-
-    if (hasQuality) {
-      // Quality tabs header
-      html += '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;">';
-      ['4K','1080p','720p','480p','360p'].forEach(function(q) {
-        if (groups[q].length === 0) return;
-        var qInfo = groups[q][0]._q;
-        html += '<span style="padding:4px 12px;border-radius:20px;background:'+qInfo.bg+';border:1px solid '+qInfo.border+';color:'+qInfo.color+';font-size:0.75rem;font-weight:700;">'+q+' ('+groups[q].length+')</span>';
-      });
-      html += '</div>';
-
-      // Quality sections dikhao
-      ['4K','1080p','720p','480p','360p'].forEach(function(q) {
-        if (groups[q].length === 0) return;
-        var qInfo = groups[q][0]._q;
-        html += '<div style="margin-bottom:14px;">'
-          + '<div style="font-size:0.72rem;font-weight:700;color:'+qInfo.color+';text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:6px 10px;background:'+qInfo.bg+';border-left:3px solid '+qInfo.color+';border-radius:0 6px 6px 0;">▶ '+q+' Links</div>';
-        groups[q].forEach(function(lnk, i) {
-          html += renderSingleLink(lnk, i);
+    // ── FIX: Agar lnk mein epFrom set hai lekin parts mein nahi ──
+    // (Page se headings parse nahi hui) — lnk ki info inject karo
+    var lnkHasEp = window._mlCurrentLnk && window._mlCurrentLnk.epFrom;
+    if (lnkHasEp && !isWebSeries) {
+      var lnkEpFrom   = parseInt(window._mlCurrentLnk.epFrom) || 1;
+      var lnkEpTo     = parseInt(window._mlCurrentLnk.epTo || window._mlCurrentLnk.epFrom) || lnkEpFrom;
+      var lnkEpSeason = window._mlCurrentLnk.epSeason || '1';
+      // Single part — sab links ko same ep range dedo
+      // Multiple parts — har part ko sequential assign karo
+      if (parts.length === 1) {
+        parts[0].partInfo.epFrom   = lnkEpFrom;
+        parts[0].partInfo.epTo     = lnkEpTo;
+        parts[0].partInfo.epSeason = lnkEpSeason;
+        parts[0].partInfo.raw      = 'Ep.' + lnkEpFrom + (lnkEpTo !== lnkEpFrom ? '-' + lnkEpTo : '') + ' (S' + lnkEpSeason + ')';
+      } else {
+        // Multiple parts — per-quality links honge — season set karo sirf
+        parts.forEach(function(p) {
+          if (p.partInfo.epFrom === null) {
+            p.partInfo.epFrom   = lnkEpFrom;
+            p.partInfo.epTo     = lnkEpTo;
+            p.partInfo.epSeason = lnkEpSeason;
+          } else {
+            p.partInfo.epSeason = lnkEpSeason; // season hamesha lnk se
+          }
         });
-        html += '</div>';
-      });
-
-      // Baki Other links
-      if (groups['Other'].length > 0) {
-        html += '<div style="margin-bottom:14px;">'
-          + '<div style="font-size:0.72rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:6px 10px;background:rgba(100,100,100,0.08);border-left:3px solid #555;border-radius:0 6px 6px 0;">▶ Other Links</div>';
-        groups['Other'].forEach(function(lnk, i) { html += renderSingleLink(lnk, i); });
-        html += '</div>';
       }
-    } else {
-      // Koi quality detect nahi hua — simple list
-      links.forEach(function(lnk, i) { html += renderSingleLink(lnk, i); });
+      isWebSeries = true;
     }
 
-    subList.innerHTML = html;
+    // ── Season: har part mein epSeason set karo lnk se agar missing hai ──
+    if (lnkHasEp) {
+      var lnkSeason = window._mlCurrentLnk.epSeason || '1';
+      parts.forEach(function(p) {
+        if (!p.partInfo.epSeason) p.partInfo.epSeason = lnkSeason;
+      });
+    }
+    var outerHtml = '';
+
+    // Summary bar
+    var totalLinks = parts.reduce(function(a, p){ return a + p.links.length; }, 0);
+    outerHtml += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid #1e1e1e;border-radius:8px;">'
+      + '<span style="font-size:0.72rem;color:#aaa;">📦 <strong style="color:#fff;">' + parts.length + ' Part</strong> mila</span>'
+      + '<span style="font-size:0.72rem;color:#555;">|</span>'
+      + '<span style="font-size:0.72rem;color:#aaa;"><strong style="color:#fff;">' + totalLinks + '</strong> total links</span>'
+      + (isWebSeries ? '<span style="font-size:0.72rem;color:#4ade80;margin-left:auto;">📺 Web Series Mode</span>' : '')
+      + '</div>';
+
+    parts.forEach(function(part, pIdx) {
+      var pi = part.partInfo;
+      // Part header
+      var partLabel = '';
+      var padE = function(n){ return n < 10 ? '0'+n : ''+n; };
+      if (pi.partNum) partLabel += 'Part-' + padE(pi.partNum);
+      if (pi.epFrom !== null && pi.epTo !== null) {
+        if (pi.epFrom === pi.epTo) {
+          // Single episode
+          partLabel += (partLabel ? ' ' : '') + 'Episode-' + padE(pi.epFrom);
+        } else {
+          // Episode range
+          partLabel += (partLabel ? ' ' : '') + '(Ep.' + padE(pi.epFrom) + '-' + padE(pi.epTo) + ')';
+        }
+      }
+      if (!partLabel && pi.raw) partLabel = pi.raw;
+      if (!partLabel) partLabel = 'Links';
+
+      outerHtml += '<div style="margin-bottom:18px;border:1px solid rgba(59,130,246,0.2);border-radius:10px;overflow:hidden;">';
+
+      // Part heading bar
+      outerHtml += '<div style="background:rgba(59,130,246,0.1);border-bottom:1px solid rgba(59,130,246,0.2);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+        + '<span style="font-size:0.78rem;font-weight:700;color:#60a5fa;">📂 ' + partLabel + '</span>';
+
+      // Episode range badge + "Ep Save" quick-fill
+      if (pi.epFrom !== null && window._mlCurrentMovieKey) {
+        var padE2 = function(n){ return n < 10 ? '0'+n : ''+n; };
+        var epLabel = 'Ep.' + padE2(pi.epFrom) + (pi.epTo && pi.epTo !== pi.epFrom ? '-' + padE2(pi.epTo) : '');
+        outerHtml += '<span style="font-size:0.68rem;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;padding:2px 8px;border-radius:10px;">' + epLabel + '</span>';
+        // Quality buttons for this part — one click save all qualities
+        var partQualities = [];
+        part.links.forEach(function(lk) {
+          if (lk.quality && partQualities.indexOf(lk.quality.tag) === -1) partQualities.push(lk.quality.tag);
+        });
+        if (partQualities.length > 0) {
+          outerHtml += '<span style="font-size:0.65rem;color:#555;">Quick Save:</span>';
+          partQualities.forEach(function(qt) {
+            var qLink = part.links.find(function(lk){ return lk.quality && lk.quality.tag === qt; });
+            if (!qLink) return;
+            var qBg = qt==='1080p'?'#e50914':qt==='720p'?'#f59e0b':qt==='4K'?'#a855f7':'#22c55e';
+            var safeQUrl = qLink.url.replace(/'/g,"\\'");
+            outerHtml += '<button onclick="mlSaveToEpisodeDirectly(\'' + safeQUrl + '\',\'' + window._mlCurrentMovieKey + '\',\'' + qt + '\',' + (pi.epFrom||1) + ',' + (pi.epTo||pi.epFrom||1) + ',\'' + (window._mlCurrentLnk&&window._mlCurrentLnk.epSeason||'1') + '\',this)" '
+              + 'style="padding:3px 10px;background:rgba(0,0,0,0.4);border:1px solid '+qBg+';color:'+qBg+';border-radius:5px;cursor:pointer;font-size:0.68rem;font-weight:700;font-family:Outfit,sans-serif;">💾 '+qt+'</button>';
+          });
+        }
+      }
+      outerHtml += '</div>';
+
+      // Links inside this part
+      // Set current part info so Save buttons know which episodes to update
+      var partInfoJson = JSON.stringify({ epFrom: pi.epFrom, epTo: pi.epTo !== undefined ? pi.epTo : pi.epFrom, epSeason: pi.epSeason || '1' });
+      // data-ep-range: simple "epFrom|epTo|epSeason" for child cards to read
+      var epRangeStr = (pi.epFrom !== null && pi.epFrom !== undefined)
+        ? (pi.epFrom + '|' + (pi.epTo !== null ? pi.epTo : pi.epFrom) + '|' + (pi.epSeason || '1'))
+        : '';
+      outerHtml += '<div style="padding:10px 10px 4px 10px;" data-part-info=\'' + partInfoJson.replace(/'/g, '&apos;') + '\' data-ep-range="' + epRangeStr + '" onmouseenter="window._mlCurrentPartInfo=JSON.parse(this.dataset.partInfo)" onclick="window._mlCurrentPartInfo=JSON.parse(this.dataset.partInfo)">';
+      part.links.forEach(function(lk, lIdx) {
+        outerHtml += renderSingleLink(lk, pIdx * 100 + lIdx, pi);
+      });
+      outerHtml += '</div></div>';
+    });
+
+    subList.innerHTML = outerHtml;
   }
 
-  function renderSingleLink(lnk, i) {
+  function renderSingleLink(lnk, i, partInfo) {
     var safeUrl = (lnk.url||lnk).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var label = (lnk.label||'').substring(0,120);
-    var q = lnk._q || detectQuality(lnk.url||'', lnk.label||'');
+    var q = lnk.quality || lnk._q || detectQuality(lnk.url||'', lnk.label||'');
     var qBadge = q ? '<span style="padding:2px 8px;border-radius:4px;font-size:0.62rem;font-weight:700;background:'+q.bg+';color:'+q.color+';border:1px solid '+q.border+';margin-right:6px;flex-shrink:0;">'+q.tag+'</span>' : '';
     var uid = 'mlsl-' + i + '-' + Math.random().toString(36).substr(2,6);
     var isFileDL = /filesdl\.in|filesdl\.top/i.test(lnk.url||lnk);
-    var safeLabel = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var safeLabel = label.replace(/'/g,"\\'");
     var sizeFieldId = 'ml-size-' + uid;
     var fetchBtn = isFileDL
       ? '<button onclick="mlFetchFastDirect(\'' + safeUrl + '\',\'' + uid + '\',\'' + safeLabel + '\')" style="padding:6px 10px;font-size:0.72rem;font-weight:700;background:#166534;border:1px solid #22c55e;border-radius:6px;color:#4ade80;cursor:pointer;white-space:nowrap;">⚡ Fetch</button>'
       : '';
-    return '<div id="'+uid+'" style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;margin-bottom:6px;">'
+
+    // ── partInfo directly encode in button — no runtime window dependency ──
+    var pi = partInfo || null;
+    var lnkEpInfo = window._mlCurrentLnk;
+    // hasPi: partInfo se ya lnk se episode info available hai
+    var hasPi = (pi && pi.epFrom !== null && pi.epFrom !== undefined)
+             || (lnkEpInfo && lnkEpInfo.epFrom);
+    var ef = (pi && pi.epFrom !== null && pi.epFrom !== undefined)
+           ? pi.epFrom
+           : (lnkEpInfo ? (parseInt(lnkEpInfo.epFrom) || 1) : null);
+    var et = (pi && pi.epTo !== null && pi.epTo !== undefined)
+           ? pi.epTo
+           : (lnkEpInfo ? (parseInt(lnkEpInfo.epTo || lnkEpInfo.epFrom) || ef) : ef);
+    var es = (pi && pi.epSeason)
+           || (lnkEpInfo && lnkEpInfo.epSeason)
+           || '1';
+
+    // Save button: agar partInfo hai → episode mein save, warna movie download field mein
+    var saveBtn = '';
+    if (q && window._mlCurrentMovieKey && !isFileDL) {
+      if (hasPi) {
+        // ✅ Web Series — episode section mein directly save
+        saveBtn = '<button onclick="mlSaveToEpisodeDirectly(\'' + safeUrl + '\',\'' + window._mlCurrentMovieKey + '\',\'' + q.tag + '\',' + ef + ',' + et + ',\'' + es + '\',this,\'' + sizeFieldId + '\')" '
+          + 'style="padding:5px 14px;background:linear-gradient(135deg,#065f46,#059669);border:1px solid #22c55e;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">📺 Save ' + q.tag + '</button>';
+      } else {
+        // 🎬 Normal movie — download field mein save
+        saveBtn = '<button onclick="mlAutoSaveWithSize(\'' + safeUrl + '\',window._mlCurrentMovieKey,\'' + q.tag + '\',\'' + sizeFieldId + '\',this)" '
+          + 'style="padding:5px 14px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save ' + q.tag + '</button>';
+      }
+    }
+
+    // After filesdl fetch — show save button too
+    var fetchSaveAttr = hasPi
+      ? 'data-ep-save="mlSaveToEpisodeDirectly|' + ef + '|' + et + '|' + es + '"'
+      : '';
+
+    return '<div id="'+uid+'" style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;margin-bottom:6px;" ' + fetchSaveAttr + '>'
       + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
-      + '<span style="color:var(--red);font-weight:700;font-size:0.8rem;min-width:20px;flex-shrink:0;">' + (i+1) + '</span>'
       + '<div style="flex:1;min-width:0;">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:3px;">'
       + qBadge
       + (label ? '<span style="font-size:0.78rem;color:#fbbf24;font-weight:700;">' + label + '</span>' : '')
       + '</div>'
       + '<div style="font-size:0.71rem;word-break:break-all;color:#93c5fd;">' + (lnk.url||lnk) + '</div>'
-      + (q ? '<div style="margin-top:6px;"><input id="'+sizeFieldId+'" placeholder="Size likhو e.g. 900 MB / 2.1 GB" style="padding:5px 9px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.72rem;width:100%;max-width:260px;outline:none;font-family:Outfit,sans-serif;" /></div>' : '')
+      + (q ? '<div style="margin-top:6px;"><input id="'+sizeFieldId+'" placeholder="Size e.g. 155 MB / 2.1 GB" style="padding:5px 9px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.72rem;width:100%;max-width:260px;outline:none;font-family:Outfit,sans-serif;" /></div>' : '')
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0;flex-direction:column;align-items:flex-end;">'
       + '<div style="display:flex;gap:6px;">'
@@ -11112,7 +11414,7 @@ function mlShowSubLinks(id, url) {
       + '<button class="btn btn-b" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" style="padding:6px 13px;font-size:0.75rem;">Open</button>'
       + '<button class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + safeUrl + '\');toast(\'Copied!\')" style="padding:6px 10px;font-size:0.75rem;">Copy</button>'
       + '</div>'
-      + (q && window._mlCurrentMovieKey && !isFileDL ? '<button onclick="mlAutoSaveWithSize(\'' + safeUrl + '\',window._mlCurrentMovieKey,\'' + q.tag + '\',\'' + sizeFieldId + '\',this)" style="padding:5px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save ' + q.tag + '</button>' : '')
+      + saveBtn
       + '</div>'
       + '</div>'
       + '<div class="ml-fetch-result" style="display:none;margin-top:8px;padding:8px 10px;background:#0a1a0a;border:1px solid #166534;border-radius:7px;font-size:0.75rem;"></div>'
@@ -11174,9 +11476,12 @@ function mlShowSubLinks(id, url) {
       .then(function(text) {
         var html = req.parse(text);
         if (!html || html.length < 200) { tryNext(); return; }
-        var links = extractDownloadLinks(html, url);
-        if (links.length === 0) { tryNext(); return; }
-        renderLinks(links);
+        // Pass raw HTML directly so Part headings can be parsed
+        var checkLinks = extractDownloadLinks(html, url);
+        if (checkLinks.length === 0) { tryNext(); return; }
+        window._mlLastFetchedHtml = html;
+        window._mlLastFetchedUrl = url;
+        renderLinks(html, url);
       })
       .catch(function(err) {
         clearTimeout(timer);
@@ -11219,10 +11524,142 @@ function mlAutoSave(link, movieKey, field, sizeInputId, btn) {
 }
 
 // ── Direct link save with size (non-filesdl) ──
+// ── Direct episode save from Sub Links (uses parsed Part info, no form needed) ──
+function mlSaveToEpisodeDirectly(link, movieKey, qTag, epFrom, epTo, epSeason, btn, sizeInputId) {
+  if (!movieKey) { toast('❌ Movie Key nahi!', 1); return; }
+  var dlFieldMap = { '4K':'dl4k', '1080p':'dl1080', '720p':'dl720', '480p':'dl480', '360p':'dl480' };
+  var szFieldMap = { '4K':'sz4k', '1080p':'sz1080', '720p':'sz720', '480p':'sz480', '360p':'sz480' };
+  var dlField = dlFieldMap[qTag] || 'dl480';
+  var szField = szFieldMap[qTag] || 'sz480';
+  var sizeEl  = sizeInputId ? document.getElementById(sizeInputId) : null;
+  var sizeVal = sizeEl ? sizeEl.value.trim() : '';
+
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  db.ref('movies/' + movieKey + '/episodes').once('value', function(snap) {
+    var episodes = [];
+    if (snap.exists()) snap.forEach(function(c) { episodes.push(c.val()); });
+
+    var updated = 0, added = 0;
+    for (var epNum = parseInt(epFrom); epNum <= parseInt(epTo); epNum++) {
+      var found = false;
+      for (var i = 0; i < episodes.length; i++) {
+        if (String(episodes[i].season||'1') === String(epSeason) && String(episodes[i].episode) === String(epNum)) {
+          episodes[i][dlField] = link;
+          if (sizeVal) episodes[i][szField] = sizeVal;
+          found = true; updated++; break;
+        }
+      }
+      if (!found) {
+        var ne = { season: String(epSeason), episode: String(epNum), title: 'Episode ' + epNum };
+        ne[dlField] = link;
+        if (sizeVal) ne[szField] = sizeVal;
+        episodes.push(ne);
+        added++;
+      }
+    }
+
+    db.ref('movies/' + movieKey + '/episodes').set(episodes, function(err) {
+      if (err) {
+        btn.disabled = false; btn.textContent = '📺 Ep Save';
+        toast('❌ ' + err.message, 1);
+      } else {
+        btn.textContent = '✅'; btn.style.background = '#166534';
+        var padE = function(n){ return n<10?'0'+n:''+n; };
+        var msg = '✅ S' + epSeason + ' Ep.' + padE(epFrom) + (epTo !== epFrom ? '-' + padE(epTo) : '') + ' [' + qTag + '] save!';
+        if (added)   msg += ' (+' + added + ' new)';
+        if (updated) msg += ' (' + updated + ' upd)';
+        toast(msg);
+      }
+    });
+  });
+}
+
 function mlAutoSaveWithSize(link, movieKey, qTag, sizeInputId, btn) {
+  // Agar current link web series part hai (epFrom set hai) → episode mein save karo
+  if (window._mlCurrentPartInfo && window._mlCurrentPartInfo.epFrom !== null) {
+    var pi = window._mlCurrentPartInfo;
+    mlSaveToEpisodeDirectly(link, movieKey, qTag, pi.epFrom, pi.epTo || pi.epFrom, pi.epSeason || '1', btn, sizeInputId);
+    return;
+  }
+  // Movie download field mein save karo (normal movies)
   var fieldMap = { '4K':'download4k', '1080p':'download1080p', '720p':'download720p', '480p':'download480p', '360p':'download480p' };
   var field = fieldMap[qTag] || 'download480p';
   mlAutoSave(link, movieKey, field, sizeInputId, btn);
+}
+
+// ── Web Series: Episode range ke liye Firebase update ──
+// Is link ke saath jitne episodes hain unhe Firebase episodes array mein save karo
+function mlSaveToEpisode(link, movieKey, qTag, sizeInputId, btn) {
+  if (!movieKey) { toast('❌ Movie Key nahi mila!', 1); return; }
+  var lnk = window._mlCurrentLnk;
+  if (!lnk || !lnk.epFrom) { toast('❌ Episode info nahi — pehle link mein Episode From/To set karo', 1); return; }
+
+  var epFrom    = parseInt(lnk.epFrom) || 1;
+  var epTo      = parseInt(lnk.epTo || lnk.epFrom) || epFrom;
+  var epSeason  = lnk.epSeason || '1';
+  var sizeEl    = sizeInputId ? document.getElementById(sizeInputId) : null;
+  var sizeVal   = sizeEl ? sizeEl.value.trim() : '';
+
+  // Quality → Firebase episode field
+  var dlFieldMap = { '4K':'dl4k', '1080p':'dl1080', '720p':'dl720', '480p':'dl480', '360p':'dl480' };
+  var szFieldMap = { '4K':'sz4k', '1080p':'sz1080', '720p':'sz720', '480p':'sz480', '360p':'sz480' };
+  var dlField = dlFieldMap[qTag] || 'dl480';
+  var szField = szFieldMap[qTag] || 'sz480';
+
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  // Firebase se existing episodes fetch karo
+  db.ref('movies/' + movieKey + '/episodes').once('value', function(snap) {
+    var episodes = [];
+    if (snap.exists()) {
+      snap.forEach(function(c) { episodes.push(c.val()); });
+    }
+
+    var updated = 0;
+    var added = 0;
+
+    for (var epNum = epFrom; epNum <= epTo; epNum++) {
+      // Existing episode dhundo (same season + episode number)
+      var found = false;
+      for (var i = 0; i < episodes.length; i++) {
+        var ep = episodes[i];
+        if (String(ep.season || '1') === String(epSeason) && String(ep.episode) === String(epNum)) {
+          episodes[i][dlField] = link;
+          if (sizeVal) episodes[i][szField] = sizeVal;
+          found = true;
+          updated++;
+          break;
+        }
+      }
+      // Nahi mila — naya episode add karo
+      if (!found) {
+        var newEp = { season: epSeason, episode: String(epNum), title: 'Episode ' + epNum };
+        newEp[dlField] = link;
+        if (sizeVal) newEp[szField] = sizeVal;
+        episodes.push(newEp);
+        added++;
+      }
+    }
+
+    // Firebase mein save karo
+    db.ref('movies/' + movieKey + '/episodes').set(episodes, function(err) {
+      if (err) {
+        btn.disabled = false;
+        btn.textContent = '📺 Ep Save';
+        toast('❌ ' + err.message, 1);
+      } else {
+        btn.textContent = '✅ Saved!';
+        btn.style.background = '#166534';
+        var msg = '✅ S' + epSeason + ' Ep.' + epFrom + (epTo !== epFrom ? '-' + epTo : '') + ' [' + qTag + '] save ho gaya!';
+        if (added)   msg += ' (' + added + ' new)';
+        if (updated) msg += ' (' + updated + ' updated)';
+        toast(msg);
+      }
+    });
+  });
 }
 
 // ── FileDL Fast Direct auto-fetch from popup link ──
@@ -11339,9 +11776,34 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
     var sizeInputId = 'ml-size-' + uid; // uid is in scope from renderSingleLink
     var safeSizeInputId = sizeInputId.replace(/'/g,"\\'");
 
-    var saveBtn = movieKey && movieKey !== 'retry'
-      ? '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',\'' + safeSizeInputId + '\',this)" style="padding:4px 10px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>'
-      : '';
+    // Check if this card has episode info (data-ep-save attribute)
+    var epSaveAttr = card ? card.getAttribute('data-ep-save') : null;
+    // Also check parent part container
+    if (!epSaveAttr && card) {
+      var partContainer = card.closest('[data-ep-range]');
+      if (partContainer) {
+        var epRange = partContainer.getAttribute('data-ep-range');
+        if (epRange) epSaveAttr = 'mlSaveToEpisodeDirectly|' + epRange;
+      }
+    }
+
+    var qTagFromField = { 'download4k':'4K', 'download1080p':'1080p', 'download720p':'720p', 'download480p':'480p' };
+    var saveBtn = '';
+    if (movieKey && movieKey !== 'retry') {
+      if (epSaveAttr) {
+        // Web series — episode section mein save
+        var epParts = epSaveAttr.replace('mlSaveToEpisodeDirectly|','').split('|');
+        var epF = parseInt(epParts[0])||1, epT = parseInt(epParts[1])||epF, epS = epParts[2] || '1';
+        var qTagLabel = qTagFromField[field] || '480p';
+        saveBtn = '<button onclick="mlSaveToEpisodeDirectly(\'' + safeLink + '\',\'' + movieKey + '\',\'' + qTagLabel + '\''
+          + ',' + epF + ',' + epT + ',\'' + epS + '\',this,\'' + safeSizeInputId + '\')" '
+          + 'style="padding:4px 14px;background:linear-gradient(135deg,#065f46,#059669);border:1px solid #22c55e;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">📺 Save ' + qTagLabel + '</button>';
+      } else {
+        // Normal movie — download field mein save
+        saveBtn = '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',\'' + safeSizeInputId + '\',this)" '
+          + 'style="padding:4px 14px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>';
+      }
+    }
 
     resultBox.style.color = '#4ade80';
     resultBox.innerHTML = '✅ Fast Direct Link:'
@@ -11355,6 +11817,109 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
 
 function mlCloseSubModal() {
   document.getElementById('ml-submodal').style.display = 'none';
+}
+
+// ── Movie Key Bar: sub-modal ke andar movie key status + inline change ──
+function mlRenderKeyBar() {
+  var bar = document.getElementById('ml-moviekey-bar');
+  if (!bar) return;
+  var mk = window._mlCurrentMovieKey || '';
+  var lnk = window._mlCurrentLnk;
+  var lnkTitle = lnk ? (lnk.title || lnk.url || '') : '';
+  // Find movie title from allMovies
+  var movie = mk ? (allMovies || []).find(function(m){ return m.key === mk; }) : null;
+  var movieTitle = movie ? (movie.title || mk) : '';
+
+  if (mk) {
+    bar.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:9px;padding:9px 14px;">'
+      + '<span style="font-size:0.75rem;color:#4ade80;font-weight:700;">🎬 Linked:</span>'
+      + '<span style="font-size:0.75rem;color:#f0fdf4;flex:1;">' + movieTitle + '</span>'
+      + '<span style="font-size:0.65rem;color:#555;font-family:monospace;">' + mk + '</span>'
+      + '<button onclick="mlChangeKeyInModal()" style="padding:4px 12px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);border-radius:6px;color:#93c5fd;font-size:0.72rem;cursor:pointer;">✏️ Change</button>'
+      + '</div>';
+  } else {
+    bar.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);border-radius:9px;padding:10px 14px;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+      + '<span style="font-size:0.78rem;color:#f87171;font-weight:700;">⚠️ Movie Key nahi — Save kaam nahi karega</span>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;">'
+      + '<input id="ml-bar-search" placeholder="Movie naam search karo..." oninput="mlBarSearch()" style="flex:1;padding:6px 10px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.78rem;outline:none;font-family:Outfit,sans-serif;" />'
+      + '</div>'
+      + '<div id="ml-bar-results" style="margin-top:6px;max-height:160px;overflow-y:auto;"></div>'
+      + '</div>';
+    // Auto fill search with link title
+    setTimeout(function(){
+      var inp = document.getElementById('ml-bar-search');
+      if (inp && lnkTitle) { inp.value = lnkTitle.substring(0,30); mlBarSearch(); }
+    }, 50);
+  }
+}
+
+function mlChangeKeyInModal() {
+  var bar = document.getElementById('ml-moviekey-bar');
+  if (!bar) return;
+  var lnk = window._mlCurrentLnk;
+  var lnkTitle = lnk ? (lnk.title || '') : '';
+  bar.innerHTML = '<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:9px;padding:10px 14px;">'
+    + '<div style="font-size:0.75rem;color:#93c5fd;font-weight:700;margin-bottom:8px;">🔍 Movie search karo:</div>'
+    + '<div style="display:flex;gap:6px;">'
+    + '<input id="ml-bar-search" placeholder="Movie naam..." oninput="mlBarSearch()" style="flex:1;padding:6px 10px;background:rgba(13,13,13,0.9);border:1px solid #2a2a2a;border-radius:6px;color:#fff;font-size:0.78rem;outline:none;font-family:Outfit,sans-serif;" />'
+    + '<button onclick="mlRenderKeyBar()" style="padding:6px 10px;background:transparent;border:1px solid #333;border-radius:6px;color:#888;font-size:0.72rem;cursor:pointer;">Cancel</button>'
+    + '</div>'
+    + '<div id="ml-bar-results" style="margin-top:6px;max-height:160px;overflow-y:auto;"></div>'
+    + '</div>';
+  setTimeout(function(){
+    var inp = document.getElementById('ml-bar-search');
+    if (inp) { inp.value = lnkTitle.substring(0,30); inp.focus(); mlBarSearch(); }
+  }, 50);
+}
+
+function mlBarSearch() {
+  var q = (document.getElementById('ml-bar-search')||{}).value || '';
+  var res = document.getElementById('ml-bar-results');
+  if (!res) return;
+  if (q.length < 2) { res.innerHTML = ''; return; }
+  var matches = (allMovies || []).filter(function(m){
+    return (m.title||'').toLowerCase().indexOf(q.toLowerCase()) !== -1;
+  }).slice(0, 8);
+  if (!matches.length) { res.innerHTML = '<div style="font-size:0.75rem;color:#555;padding:6px;">Koi match nahi mila</div>'; return; }
+  res.innerHTML = matches.map(function(m){
+    return '<div onclick="mlBarSelectMovie(\'' + m.key + '\',\'' + (m.title||'').replace(/'/g,"\\'") + '\')" style="padding:7px 10px;border-radius:6px;cursor:pointer;font-size:0.78rem;display:flex;align-items:center;gap:8px;margin-bottom:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">'
+      + (m.thumbnail ? '<img src="'+m.thumbnail+'" style="width:32px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display=\'none\'" />' : '<div style="width:32px;height:45px;background:#111;border-radius:4px;flex-shrink:0;"></div>')
+      + '<div><div style="color:#f0fdf4;font-weight:600;">' + (m.title||m.key) + '</div>'
+      + '<div style="font-size:0.65rem;color:#555;font-family:monospace;">' + m.key + '</div></div>'
+      + '</div>';
+  }).join('');
+}
+
+function mlBarSelectMovie(key, title) {
+  window._mlCurrentMovieKey = key;
+  // Firebase mein bhi update karo agar current link hai
+  if (window._mlCurrentLnk && window._mlCurrentLnk.id) {
+    db.ref('mylinks/' + window._mlCurrentLnk.id).update({ movieKey: key }).catch(function(){});
+    window._mlCurrentLnk.movieKey = key;
+    // Local array bhi update
+    var lnkObj = (_mlLinks||[]).find(function(l){ return l.id === window._mlCurrentLnk.id; });
+    if (lnkObj) lnkObj.movieKey = key;
+  }
+  mlRenderKeyBar();
+  toast('✅ ' + title + ' linked!');
+  // Sub-list re-render if html already fetched
+  if (window._mlLastFetchedHtml && window._mlLastFetchedUrl) {
+    // mlShowSubLinks closure ke andar renderLinks accessible nahi — isliye page se dobara open karo
+    var subList = document.getElementById('ml-sub-list');
+    if (subList) {
+      subList.innerHTML = '<div style="text-align:center;padding:16px;font-size:0.82rem;color:#f59e0b;">🔄 Movie link ho gayi! <strong>Sub-links reload</strong> ke liye neeche button dabao</div>'
+        + '<div style="text-align:center;"><button onclick="mlReloadSubLinks()" style="padding:8px 20px;background:#1d4ed8;border:none;border-radius:7px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">🔄 Reload Links</button></div>';
+    }
+  }
+}
+
+function mlReloadSubLinks() {
+  if (!window._mlCurrentLnk) return;
+  var lnk = window._mlCurrentLnk;
+  mlCloseSubModal();
+  setTimeout(function(){ mlShowSubLinks(lnk.id, lnk.url || lnk.filmyflyUrl || ''); }, 150);
 }
 
 </script>
