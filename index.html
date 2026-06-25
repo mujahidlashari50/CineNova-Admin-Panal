@@ -3325,6 +3325,20 @@ function initLoginScreen(){
 
 // ── Login event bindings (sync — run immediately) ──
 document.addEventListener('DOMContentLoaded', function(){
+
+  // ── DOMAIN LOCK ──
+  var allowedHost = 'admin.cinenova.site';
+  if(window.location.hostname !== allowedHost){
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:#000;color:#e50914;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:99999;font-family:sans-serif;text-align:center;padding:20px;';
+    overlay.innerHTML = '<div style="font-size:3rem;margin-bottom:16px;">\u{1F6AB}</div>'
+      + '<div style="font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:10px;">Access Denied</div>'
+      + '<div style="color:#888;font-size:0.9rem;">Yeh panel sirf <strong style="color:#e50914;">admin.cinenova.site</strong> pe kaam karta hai</div>';
+    document.body.appendChild(overlay);
+    return; // baaki sab events bind mat karo
+  }
+
+  // ── LOGIN EVENTS ──
   var lBtn = document.getElementById('login-btn');
   if(lBtn) lBtn.onclick = doLogin;
   var passInput = document.getElementById('ap');
@@ -3475,21 +3489,6 @@ function tfaQrUrl(secret, label){
 
 /* ── State: password passed but waiting for 2FA ── */
 
-// ═══════════════════════════════════════════════
-// SECURITY: DOMAIN LOCK
-// ═══════════════════════════════════════════════
-(function(){
-  var allowed = 'admin.cinenova.site';
-  var current = window.location.hostname;
-  if(current !== allowed){
-    document.body.innerHTML = '<div style="background:#000;color:#e50914;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:sans-serif;text-align:center;padding:20px;">'
-      + '<div style="font-size:3rem;margin-bottom:16px;">🚫</div>'
-      + '<div style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">Access Denied</div>'
-      + '<div style="color:#888;font-size:0.9rem;">Yeh panel sirf <strong style=\'color:#fff;\'>admin.cinenova.site</strong> pe kaam karta hai</div>'
-      + '</div>';
-    throw new Error('Domain not allowed: ' + current);
-  }
-})();
 
 // ═══════════════════════════════════════════════
 // SECURITY: LOGIN ALERT EMAIL
