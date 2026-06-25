@@ -3286,6 +3286,7 @@ loadScript(
                   firebase.initializeApp(firebaseConfig);
                   db=window.db=firebase.database();
                   window.storage=firebase.storage();
+                  window.auth=firebase.auth();
                   window._adminDbReady = true;
                   initLoginScreen();
                   fpCheckOnLoad();
@@ -3482,25 +3483,56 @@ function doLogin(){
   }
   var p = document.getElementById('ap').value.trim();
   if(p === getPass()){
-    // Password correct — check 2FA
-    if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
-      var secret = localStorage.getItem(TFA_SECRET_KEY);
-      if(secret){
-        _tfaPending = true;
-        document.getElementById('login-screen').style.display = 'none';
-        var tfaScreen = document.getElementById('tfa-screen');
-        tfaScreen.classList.add('show');
-        var inp = document.getElementById('tfa-inp');
-        if(inp){ inp.value=''; inp.focus(); }
-        document.getElementById('tfa-err').innerText='';
-        loginReset(); // password was correct, reset attempts
-        return;
+    // Password correct — Firebase Auth se sign in karo
+    var btn = document.getElementById('login-btn');
+    if(btn){ btn.disabled=true; btn.textContent='⏳ Logging in...'; }
+    if(errEl) errEl.innerText='';
+
+    function _proceedAfterAuth(){
+      if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
+      if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
+        var secret = localStorage.getItem(TFA_SECRET_KEY);
+        if(secret){
+          _tfaPending = true;
+          document.getElementById('login-screen').style.display = 'none';
+          var tfaScreen = document.getElementById('tfa-screen');
+          tfaScreen.classList.add('show');
+          var inp = document.getElementById('tfa-inp');
+          if(inp){ inp.value=''; inp.focus(); }
+          document.getElementById('tfa-err').innerText='';
+          loginReset();
+          return;
+        }
       }
+      loginReset();
+      sessionStorage.setItem('cva','1');
+      showPanel();
     }
-    // No 2FA — proceed
-    loginReset();
-    sessionStorage.setItem('cva','1');
-    showPanel();
+
+    if(window.auth){
+      var adminEmail = _ge();
+      if(errEl) errEl.innerText='⏳ Firebase se connect ho raha hai...';
+      window.auth.signInWithEmailAndPassword(adminEmail, p)
+        .then(function(userCred){
+          if(errEl) errEl.innerText='';
+          _proceedAfterAuth();
+        })
+        .catch(function(e){
+          if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
+          console.error('Firebase signIn failed:', e.code, e.message);
+          if(e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential'){
+            if(errEl) errEl.innerText='❌ Firebase Auth: Pehle Console mein user banao (Step 2 dekhein)';
+          } else if(e.code === 'auth/network-request-failed'){
+            if(errEl) errEl.innerText='❌ Network error — internet check karo';
+          } else if(e.code === 'auth/operation-not-allowed'){
+            if(errEl) errEl.innerText='❌ Firebase Console mein Email/Password Auth enable karo';
+          } else {
+            if(errEl) errEl.innerText='❌ Firebase error: ' + e.message;
+          }
+        });
+    } else {
+      _proceedAfterAuth();
+    }
   } else {
     var count = loginBumpAttempt();
     if(loginIsLocked()){
@@ -3549,7 +3581,7 @@ function tfaCancel(){
   document.getElementById('ap').value='';
   document.getElementById('login-err').innerText='';
 }
-function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; location.reload(); }
+function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; if(window.auth){ window.auth.signOut().catch(function(){}); } location.reload(); }
 
 function _oldShowPanel_removed(){ return; }
 
@@ -6498,6 +6530,15 @@ function showPanel(){
   document.getElementById('main-panel').style.display='block';
   if(isMobile()) document.getElementById('mob-bottomnav').style.display='flex';
   applyProfile();
+  // Firebase Auth user ka UID settings mein save karo (rules ke liye zaroori)
+  if(window.auth && window.auth.currentUser){
+    var uid = window.auth.currentUser.uid;
+    db.ref('settings/adminUid').once('value').then(function(snap){
+      if(!snap.exists() || snap.val() !== uid){
+        db.ref('settings/adminUid').set(uid).catch(function(){});
+      }
+    });
+  }
   loadAllContent();
   loadWebsiteSettings();
   loadAds();
