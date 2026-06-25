@@ -477,7 +477,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     </div>
     <div id="lgn-welcome" style="font-size:0.88rem;color:#fff;font-weight:700;margin-bottom:16px;display:none;">👋 Welcome back, <span id="lgn-wname" style="color:var(--red);"></span></div>
     <div id="login-lockout-banner"></div>
-    <input class="inp" id="ae" type="email" placeholder="📧 Email dalein" autocomplete="email"/>
     <input class="inp" id="ap" type="password" placeholder="🔑 Password dalein" autocomplete="current-password"/>
     <button class="btn-red" id="login-btn">LOGIN</button>
     <div id="login-err"></div>
@@ -3287,7 +3286,6 @@ loadScript(
                   firebase.initializeApp(firebaseConfig);
                   db=window.db=firebase.database();
                   window.storage=firebase.storage();
-                  window.auth=firebase.auth();
                   window._adminDbReady = true;
                   initLoginScreen();
                   fpCheckOnLoad();
@@ -3326,18 +3324,8 @@ function initLoginScreen(){
 // ── Login event bindings (sync — run immediately) ──
 document.addEventListener('DOMContentLoaded', function(){
   var lBtn = document.getElementById('login-btn');
-  // Domain Lock
-  if(window.location.hostname !== 'admin.cinenova.site'){
-    var ol=document.createElement('div');
-    ol.style.cssText='position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:sans-serif;text-align:center;';
-    ol.innerHTML='<div style="font-size:3rem">🚫</div><div style="color:#e50914;font-size:1.3rem;font-weight:700;margin:10px 0">Access Denied</div><div style="color:#888;font-size:0.85rem">Sirf admin.cinenova.site pe kaam karta hai</div>';
-    document.body.appendChild(ol);
-    return;
-  }
   if(lBtn) lBtn.onclick = doLogin;
   var passInput = document.getElementById('ap');
-  var emailInp = document.getElementById('ae');
-  if(emailInp) emailInp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ document.getElementById('ap').focus(); } });
   if(passInput) passInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
   var tfaInput = document.getElementById('tfa-inp');
   if(tfaInput) tfaInput.addEventListener('keydown', function(e){ if(e.key==='Enter') tfaVerify(); });
@@ -3487,43 +3475,45 @@ var _tfaPending = false;
 /* ── Main doLogin ── */
 function doLogin(){
   var errEl = document.getElementById('login-err');
-  var btn   = document.getElementById('login-btn');
-  var email = (document.getElementById('ae').value||'').trim();
-  var pass  = (document.getElementById('ap').value||'').trim();
-
-  if(!email || !pass){
-    if(errEl) errEl.innerText='❌ Email aur password dono daalein';
+  // Check lockout
+  if(loginIsLocked()){
+    loginUpdateBanner();
     return;
   }
-  if(!window.auth){
-    if(errEl) errEl.innerText='❌ Firebase load nahi hua, refresh karo';
-    return;
-  }
-
-  if(btn){ btn.disabled=true; btn.textContent='⏳ Logging in...'; }
-  if(errEl) errEl.innerText='';
-
-  window.auth.signInWithEmailAndPassword(email, pass)
-    .then(function(userCred){
-      if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
-      sessionStorage.setItem('cva','1');
-      showPanel();
-    })
-    .catch(function(e){
-      if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
-      if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
-        if(errEl) errEl.innerText='❌ Email ya password galat hai';
-      } else if(e.code==='auth/too-many-requests'){
-        if(errEl) errEl.innerText='❌ Zyada attempts — thodi der baad try karo';
-      } else if(e.code==='auth/network-request-failed'){
-        if(errEl) errEl.innerText='❌ Network error — internet check karo';
-      } else {
-        if(errEl) errEl.innerText='❌ Error: '+e.code;
+  var p = document.getElementById('ap').value.trim();
+  if(p === getPass()){
+    // Password correct — check 2FA
+    if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
+      var secret = localStorage.getItem(TFA_SECRET_KEY);
+      if(secret){
+        _tfaPending = true;
+        document.getElementById('login-screen').style.display = 'none';
+        var tfaScreen = document.getElementById('tfa-screen');
+        tfaScreen.classList.add('show');
+        var inp = document.getElementById('tfa-inp');
+        if(inp){ inp.value=''; inp.focus(); }
+        document.getElementById('tfa-err').innerText='';
+        loginReset(); // password was correct, reset attempts
+        return;
       }
-      document.getElementById('ap').value='';
-    });
+    }
+    // No 2FA — proceed
+    loginReset();
+    sessionStorage.setItem('cva','1');
+    showPanel();
+  } else {
+    var count = loginBumpAttempt();
+    if(loginIsLocked()){
+      loginUpdateBanner();
+      if(errEl) errEl.innerText='';
+    } else {
+      var rem = LOGIN_MAX_ATTEMPTS - count;
+      if(errEl) errEl.innerText='❌ Password galat hai! ' + rem + ' attempt(s) baqi hain.';
+    }
+    document.getElementById('ap').value='';
+    document.getElementById('ap').focus();
+  }
 }
-
 
 /* ── 2FA verify ── */
 function tfaVerify(){
@@ -3559,7 +3549,7 @@ function tfaCancel(){
   document.getElementById('ap').value='';
   document.getElementById('login-err').innerText='';
 }
-function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; if(window.auth){ window.auth.signOut().catch(function(){}); } location.reload(); }
+function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; location.reload(); }
 
 function _oldShowPanel_removed(){ return; }
 
@@ -6508,10 +6498,6 @@ function showPanel(){
   document.getElementById('main-panel').style.display='block';
   if(isMobile()) document.getElementById('mob-bottomnav').style.display='flex';
   applyProfile();
-  if(window.auth && window.auth.currentUser){
-    var _uid = window.auth.currentUser.uid;
-    db.ref('settings/adminUid').set(_uid).catch(function(){});
-  }
   loadAllContent();
   loadWebsiteSettings();
   loadAds();
@@ -6533,13 +6519,6 @@ var _fpPageLoadHandled=false;
 function fpCheckOnLoad(){
   if(_fpPageLoadHandled) return;
   _fpPageLoadHandled=true;
-  if(window.auth){
-    window.auth.onAuthStateChanged(function(user){
-      if(user){ sessionStorage.setItem('cva','1'); showPanel(); }
-      else { sessionStorage.removeItem('cva'); }
-    });
-    return;
-  }
   if(sessionStorage.getItem('cva')==='1'){ showPanel(); return; }
   if(isMobile()&&localStorage.getItem(FP_ENABLED_KEY)==='yes'){ fpShowLock(); }
 }
