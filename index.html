@@ -477,7 +477,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     </div>
     <div id="lgn-welcome" style="font-size:0.88rem;color:#fff;font-weight:700;margin-bottom:16px;display:none;">👋 Welcome back, <span id="lgn-wname" style="color:var(--red);"></span></div>
     <div id="login-lockout-banner"></div>
-    <input class="inp" id="ae" type="email" placeholder="📧 Email dalein" autocomplete="email" style="margin-bottom:10px;"/>
+    <input class="inp" id="ae" type="email" placeholder="📧 Email dalein" autocomplete="email"/>
     <input class="inp" id="ap" type="password" placeholder="🔑 Password dalein" autocomplete="current-password"/>
     <button class="btn-red" id="login-btn">LOGIN</button>
     <div id="login-err"></div>
@@ -3325,26 +3325,20 @@ function initLoginScreen(){
 
 // ── Login event bindings (sync — run immediately) ──
 document.addEventListener('DOMContentLoaded', function(){
-
-  // ── DOMAIN LOCK ──
-  var allowedHost = 'admin.cinenova.site';
-  if(window.location.hostname !== allowedHost){
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:#000;color:#e50914;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:99999;font-family:sans-serif;text-align:center;padding:20px;';
-    overlay.innerHTML = '<div style="font-size:3rem;margin-bottom:16px;">\u{1F6AB}</div>'
-      + '<div style="font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:10px;">Access Denied</div>'
-      + '<div style="color:#888;font-size:0.9rem;">Yeh panel sirf <strong style="color:#e50914;">admin.cinenova.site</strong> pe kaam karta hai</div>';
-    document.body.appendChild(overlay);
-    return; // baaki sab events bind mat karo
-  }
-
-  // ── LOGIN EVENTS ──
   var lBtn = document.getElementById('login-btn');
+  // Domain Lock
+  if(window.location.hostname !== 'admin.cinenova.site'){
+    var ol=document.createElement('div');
+    ol.style.cssText='position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:sans-serif;text-align:center;';
+    ol.innerHTML='<div style="font-size:3rem">🚫</div><div style="color:#e50914;font-size:1.3rem;font-weight:700;margin:10px 0">Access Denied</div><div style="color:#888;font-size:0.85rem">Sirf admin.cinenova.site pe kaam karta hai</div>';
+    document.body.appendChild(ol);
+    return;
+  }
   if(lBtn) lBtn.onclick = doLogin;
   var passInput = document.getElementById('ap');
+  var emailInp = document.getElementById('ae');
+  if(emailInp) emailInp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ document.getElementById('ap').focus(); } });
   if(passInput) passInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-  var emailInput = document.getElementById('ae');
-  if(emailInput) emailInput.addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('ap').focus(); });
   var tfaInput = document.getElementById('tfa-inp');
   if(tfaInput) tfaInput.addEventListener('keydown', function(e){ if(e.key==='Enter') tfaVerify(); });
   var loBtn = document.getElementById('logout-btn');
@@ -3488,47 +3482,6 @@ function tfaQrUrl(secret, label){
 }
 
 /* ── State: password passed but waiting for 2FA ── */
-
-
-// ═══════════════════════════════════════════════
-// SECURITY: LOGIN ALERT EMAIL
-// ═══════════════════════════════════════════════
-function sendLoginAlertEmail(userEmail){
-  try {
-    var now    = new Date();
-    var time   = now.toLocaleString('en-PK', {timeZone:'Asia/Karachi', hour12:true});
-    var ua     = navigator.userAgent;
-    var device = /Mobile|Android|iPhone/i.test(ua) ? '📱 Mobile' : '💻 Desktop';
-    var browser= ua.indexOf('Chrome') > -1 ? 'Chrome'
-               : ua.indexOf('Firefox') > -1 ? 'Firefox'
-               : ua.indexOf('Safari') > -1 ? 'Safari' : 'Unknown';
-
-    var subject = '🔐 CineNova Admin Login Alert';
-    var message = 'Admin panel mein login hua!
-
-'
-      + '📅 Time: ' + time + '
-'
-      + '📧 Email: ' + userEmail + '
-'
-      + device + ' | ' + browser + '
-
-'
-      + 'Agar yeh aap nahi the to apna password turant change karein.
-
-'
-      + '— CineNova Security System';
-
-    if(typeof emailjs !== 'undefined'){
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: userEmail,
-        subject:  subject,
-        message:  message
-      }, EMAILJS_PUBLIC_KEY);
-    }
-  } catch(e){ console.warn('Login alert email error:', e); }
-}
-
 var _tfaPending = false;
 
 /* ── Main doLogin ── */
@@ -3543,7 +3496,7 @@ function doLogin(){
     return;
   }
   if(!window.auth){
-    if(errEl) errEl.innerText='❌ Firebase load nahi hua, page refresh karo';
+    if(errEl) errEl.innerText='❌ Firebase load nahi hua, refresh karo';
     return;
   }
 
@@ -3553,20 +3506,6 @@ function doLogin(){
   window.auth.signInWithEmailAndPassword(email, pass)
     .then(function(userCred){
       if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
-      // 2FA check
-      if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
-        var secret = localStorage.getItem(TFA_SECRET_KEY);
-        if(secret){
-          _tfaPending = true;
-          document.getElementById('login-screen').style.display='none';
-          document.getElementById('tfa-screen').classList.add('show');
-          var inp=document.getElementById('tfa-inp');
-          if(inp){inp.value='';inp.focus();}
-          document.getElementById('tfa-err').innerText='';
-          return;
-        }
-      }
-      sendLoginAlertEmail(userCred.user.email);
       sessionStorage.setItem('cva','1');
       showPanel();
     })
@@ -3574,14 +3513,12 @@ function doLogin(){
       if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
       if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
         if(errEl) errEl.innerText='❌ Email ya password galat hai';
-      } else if(e.code==='auth/invalid-email'){
-        if(errEl) errEl.innerText='❌ Email format galat hai';
       } else if(e.code==='auth/too-many-requests'){
         if(errEl) errEl.innerText='❌ Zyada attempts — thodi der baad try karo';
       } else if(e.code==='auth/network-request-failed'){
         if(errEl) errEl.innerText='❌ Network error — internet check karo';
       } else {
-        if(errEl) errEl.innerText='❌ Error: '+e.message;
+        if(errEl) errEl.innerText='❌ Error: '+e.code;
       }
       document.getElementById('ap').value='';
     });
@@ -5889,29 +5826,16 @@ function loadSsRowsForEdit(ssString){
 
 // ═══ SETTINGS ═══
 function changePassword(){
-  var cur  = document.getElementById('cur-pw').value.trim();
-  var nw   = document.getElementById('new-pw').value.trim();
-  var nw2  = document.getElementById('new-pw2').value.trim();
-  if(!nw||nw.length<6){toast('❌ Password kam az kam 6 characters ka hona chahiye!',1);return;}
-  if(nw!==nw2){toast('❌ Dono naye password match nahi hote!',1);return;}
-  if(!window.auth||!window.auth.currentUser){toast('❌ Firebase Auth session nahi mila, dobara login karo',1);return;}
-  window.auth.currentUser.updatePassword(nw)
-    .then(function(){
-      toast('✅ Password Firebase mein update ho gaya!');
-      document.getElementById('cur-pw').value='';
-      document.getElementById('new-pw').value='';
-      document.getElementById('new-pw2').value='';
-    })
-    .catch(function(e){
-      if(e.code==='auth/requires-recent-login'){
-        toast('❌ Security ke liye dobara login karo phir password change karo',1);
-      } else {
-        toast('❌ Error: '+e.message,1);
-      }
-    });
+  var cur=document.getElementById('cur-pw').value.trim();
+  var nw=document.getElementById('new-pw').value.trim();
+  var nw2=document.getElementById('new-pw2').value.trim();
+  if(cur!==getPass()){toast('❌ Purana password galat hai!',1);return;}
+  if(!nw||nw.length<6){toast('❌ New password must be at least 6 characters!',1);return;}
+  if(nw!==nw2){toast('❌ Both new passwords do not match!',1);return;}
+  localStorage.setItem(ADMIN_PASS_KEY,nw);
+  toast('✅ Password updated successfully!');
+  document.getElementById('cur-pw').value='';document.getElementById('new-pw').value='';document.getElementById('new-pw2').value='';
 }
-
-
 function changeAdminName(){
   var name=document.getElementById('new-admin-name').value.trim();
   if(!name){toast('❌ Name cannot be empty!',1);return;}
@@ -6584,36 +6508,24 @@ function showPanel(){
   document.getElementById('main-panel').style.display='block';
   if(isMobile()) document.getElementById('mob-bottomnav').style.display='flex';
   applyProfile();
-  // Firebase Auth user ka UID settings mein save karo (rules ke liye zaroori)
-  function _afterUidSave(){
-    loadAllContent();
-    loadWebsiteSettings();
-    loadAds();
-    renderProxyManagerUI();
-    var su=localStorage.getItem(SITE_URL_KEY);
-    if(su)document.getElementById('site-url').value=su;
-    fpSetupAfterLogin();
-    db.ref('contacts').once('value',function(snap){
-      var unread=0;
-      if(snap.exists())snap.forEach(function(c){if((c.val().status||'unread')==='unread')unread++;});
-      var badge=document.getElementById('contact-count');
-      if(badge)badge.textContent=unread||'';
-    });
-  }
   if(window.auth && window.auth.currentUser){
-    var uid = window.auth.currentUser.uid;
-    db.ref('settings/adminUid').once('value').then(function(snap){
-      if(!snap.exists() || snap.val() !== uid){
-        db.ref('settings/adminUid').set(uid).then(function(){
-          _afterUidSave();
-        }).catch(function(){ _afterUidSave(); });
-      } else {
-        _afterUidSave();
-      }
-    }).catch(function(){ _afterUidSave(); });
-  } else {
-    _afterUidSave();
+    var _uid = window.auth.currentUser.uid;
+    db.ref('settings/adminUid').set(_uid).catch(function(){});
   }
+  loadAllContent();
+  loadWebsiteSettings();
+  loadAds();
+  renderProxyManagerUI();
+  var su=localStorage.getItem(SITE_URL_KEY);
+  if(su)document.getElementById('site-url').value=su;
+  fpSetupAfterLogin();
+  // Load contact badge count
+  db.ref('contacts').once('value',function(snap){
+    var unread=0;
+    if(snap.exists())snap.forEach(function(c){if((c.val().status||'unread')==='unread')unread++;});
+    var badge=document.getElementById('contact-count');
+    if(badge)badge.textContent=unread||'';
+  });
 }
 
 // PAGE LOAD CHECK
@@ -6621,16 +6533,10 @@ var _fpPageLoadHandled=false;
 function fpCheckOnLoad(){
   if(_fpPageLoadHandled) return;
   _fpPageLoadHandled=true;
-  // Sirf Firebase Auth state check karo — sessionStorage secondary hai
   if(window.auth){
     window.auth.onAuthStateChanged(function(user){
-      if(user){
-        sessionStorage.setItem('cva','1');
-        showPanel();
-      } else {
-        sessionStorage.removeItem('cva');
-        // Login screen visible rahega
-      }
+      if(user){ sessionStorage.setItem('cva','1'); showPanel(); }
+      else { sessionStorage.removeItem('cva'); }
     });
     return;
   }
