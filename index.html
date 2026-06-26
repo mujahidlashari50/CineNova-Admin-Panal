@@ -2665,6 +2665,60 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
       <!-- ══ END BULK ADD LINKS CARD ══ -->
 
+      <!-- ══ BATCH DL FETCH FROM FIREBASE MOVIES ══ -->
+      <div class="card" style="margin-bottom:20px;border-color:rgba(168,85,247,0.35);">
+        <h3 style="display:flex;align-items:center;justify-content:space-between;">
+          <span>🚀 BATCH DL FETCH <span style="color:#a855f7;">(Firebase Movies → Auto DL Links)</span></span>
+          <span style="font-size:0.68rem;color:#555;font-weight:400;">50 movies at a time</span>
+        </h3>
+
+        <!-- Info -->
+        <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.78rem;color:#c084fc;">
+          💡 Firebase se <strong>50 movies</strong> load hoti hain jinke download links empty hain aur <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:#e879f9;">sourceUrl</code> available hai. Proxy se DL links fetch hokar Firebase mein auto-update ho jaate hain.
+        </div>
+
+        <!-- Controls -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+          <select id="bdf-cat" class="fi" style="width:160px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
+            <option value="all">-- All Categories --</option>
+            <option value="hollywood">Hollywood</option>
+            <option value="bollywood">Bollywood</option>
+            <option value="tollywood">Tollywood</option>
+            <option value="webseries">Web Series</option>
+            <option value="animation">Animation</option>
+          </select>
+          <select id="bdf-filter" class="fi" style="width:200px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
+            <option value="empty">Only Empty DL Links</option>
+            <option value="all">All Movies (update karo)</option>
+          </select>
+          <select id="bdf-limit" class="fi" style="width:120px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
+            <option value="10">10 movies</option>
+            <option value="25">25 movies</option>
+            <option value="50" selected>50 movies</option>
+            <option value="100">100 movies</option>
+          </select>
+          <button onclick="bdfLoad()" id="bdf-load-btn" style="padding:9px 20px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;color:#fff;font-weight:700;border-radius:7px;cursor:pointer;font-size:0.85rem;font-family:'Outfit',sans-serif;white-space:nowrap;">🔍 Movies Load Karo</button>
+          <button onclick="bdfStartAll()" id="bdf-start-btn" disabled style="padding:9px 20px;background:linear-gradient(135deg,#065f46,#059669);border:none;color:#fff;font-weight:700;border-radius:7px;cursor:pointer;font-size:0.85rem;font-family:'Outfit',sans-serif;white-space:nowrap;opacity:0.5;">⚡ Sab Fetch &amp; Save</button>
+          <button onclick="bdfStop()" id="bdf-stop-btn" style="display:none;padding:9px 18px;background:linear-gradient(135deg,#7f1d1d,#e50914);border:none;color:#fff;font-weight:700;border-radius:7px;cursor:pointer;font-size:0.85rem;font-family:'Outfit',sans-serif;">⏹ Stop</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="bdf-prog-wrap" style="display:none;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:8px;padding:12px 16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span id="bdf-prog-text" style="font-size:0.82rem;color:#c084fc;font-weight:700;"></span>
+            <span id="bdf-prog-stats" style="font-size:0.72rem;color:#888;"></span>
+          </div>
+          <div style="height:6px;background:#1e1e1e;border-radius:4px;overflow:hidden;">
+            <div id="bdf-prog-bar" style="height:100%;background:linear-gradient(90deg,#7c3aed,#22c55e);width:0%;transition:width 0.3s;"></div>
+          </div>
+        </div>
+
+        <!-- Queue Table -->
+        <div id="bdf-queue" style="display:none;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+        <div id="bdf-empty" style="text-align:center;color:#444;padding:24px 0;font-size:0.84rem;display:none;">Koi movie nahi mili — filter change karo ya pehle movies add karo.</div>
+      </div>
+      <!-- ══ END BATCH DL FETCH ══ -->
+
       <div class="card">
         <h3>SAVED LINKS <span id="ml-total" style="color:var(--red);margin-left:6px;">0</span></h3>
         <div style="margin-bottom:12px;">
@@ -12845,6 +12899,211 @@ function fraudLoadBadgeCount() {
   });
 }
 fraudLoadBadgeCount();
+
+// ══════════════════════════════════════════════════
+// 🚀 BATCH DL FETCH — Firebase Movies Auto Updater
+// ══════════════════════════════════════════════════
+var _bdfMovies   = [];
+var _bdfRunning  = false;
+var _bdfStopped  = false;
+
+function bdfLoad() {
+  var cat    = document.getElementById('bdf-cat').value;
+  var filter = document.getElementById('bdf-filter').value;
+  var limit  = parseInt(document.getElementById('bdf-limit').value) || 50;
+  var btn    = document.getElementById('bdf-load-btn');
+  var queue  = document.getElementById('bdf-queue');
+  var empty  = document.getElementById('bdf-empty');
+
+  btn.disabled = true; btn.textContent = '⏳ Loading...';
+  queue.style.display = 'none';
+  empty.style.display = 'none';
+  document.getElementById('bdf-prog-wrap').style.display = 'none';
+
+  wdWaitDb(function() {
+    db.ref('movies').once('value', function(snap) {
+      var all = [];
+      snap.forEach(function(c) {
+        var m = c.val(); m._key = c.key;
+        // sourceUrl check
+        if (!m.sourceUrl) return;
+        // category filter
+        if (cat !== 'all' && m.category !== cat) return;
+        // empty DL links filter
+        if (filter === 'empty') {
+          var hasLink = m.download480p || m.download720p || m.download1080p || m.download4k;
+          if (hasLink) return;
+        }
+        all.push(m);
+      });
+
+      // Latest first, take limit
+      all.sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+      _bdfMovies = all.slice(0, limit);
+
+      btn.disabled = false; btn.textContent = '🔍 Movies Load Karo';
+
+      if (_bdfMovies.length === 0) {
+        empty.style.display = 'block';
+        document.getElementById('bdf-start-btn').disabled = true;
+        document.getElementById('bdf-start-btn').style.opacity = '0.5';
+        return;
+      }
+
+      bdfRenderQueue();
+      document.getElementById('bdf-start-btn').disabled = false;
+      document.getElementById('bdf-start-btn').style.opacity = '1';
+    });
+  });
+}
+
+function bdfRenderQueue() {
+  var queue = document.getElementById('bdf-queue');
+  queue.innerHTML = '';
+  queue.style.display = 'flex';
+
+  _bdfMovies.forEach(function(m, i) {
+    var row = document.createElement('div');
+    row.id = 'bdf-row-' + i;
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;transition:0.2s;';
+    row.innerHTML =
+      '<div style="min-width:22px;text-align:center;font-family:\'Bebas Neue\',cursive;font-size:0.95rem;color:#333;">' + (i+1) + '</div>' +
+      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
+        '<div style="font-size:0.67rem;color:#444;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (m.sourceUrl||'') + '</div>' +
+      '</div>' +
+      '<div id="bdf-link-' + i + '" style="font-size:0.68rem;color:#555;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">—</div>' +
+      '<div id="bdf-status-' + i + '" style="font-size:0.72rem;font-weight:700;white-space:nowrap;color:#555;flex-shrink:0;">⏳ Wait</div>';
+    queue.appendChild(row);
+  });
+}
+
+function bdfUpdateRow(i, status, linkText, rowStyle) {
+  var row  = document.getElementById('bdf-row-' + i);
+  var stat = document.getElementById('bdf-status-' + i);
+  var lnk  = document.getElementById('bdf-link-' + i);
+  if (stat) stat.innerHTML = status;
+  if (lnk && linkText) { lnk.textContent = linkText; lnk.style.color = '#a855f7'; }
+  if (row && rowStyle) row.style.background = rowStyle;
+}
+
+function bdfUpdateProgress(done, total, ok, fail, skip) {
+  var wrap = document.getElementById('bdf-prog-wrap');
+  var bar  = document.getElementById('bdf-prog-bar');
+  var txt  = document.getElementById('bdf-prog-text');
+  var stat = document.getElementById('bdf-prog-stats');
+  wrap.style.display = 'block';
+  var pct = total > 0 ? Math.round((done/total)*100) : 0;
+  bar.style.width = pct + '%';
+  txt.textContent = done + ' / ' + total + ' (' + pct + '%)';
+  stat.innerHTML = '<span style="color:#22c55e;">✅ ' + ok + '</span>  <span style="color:#f87171;">❌ ' + fail + '</span>  <span style="color:#f59e0b;">⏭ ' + skip + '</span>';
+}
+
+function bdfStartAll() {
+  if (_bdfRunning) return;
+  if (_bdfMovies.length === 0) { toast('Pehle movies load karo!', 1); return; }
+
+  _bdfRunning = true;
+  _bdfStopped = false;
+
+  document.getElementById('bdf-start-btn').style.display = 'none';
+  document.getElementById('bdf-stop-btn').style.display  = '';
+  document.getElementById('bdf-load-btn').disabled = true;
+
+  var total = _bdfMovies.length;
+  var done = 0, ok = 0, fail = 0, skip = 0;
+
+  function processNext(i) {
+    if (_bdfStopped || i >= _bdfMovies.length) {
+      _bdfRunning = false;
+      document.getElementById('bdf-start-btn').style.display = '';
+      document.getElementById('bdf-stop-btn').style.display  = 'none';
+      document.getElementById('bdf-start-btn').disabled = false;
+      document.getElementById('bdf-start-btn').style.opacity = '1';
+      document.getElementById('bdf-load-btn').disabled = false;
+      var msg = _bdfStopped ? '⏹ Stopped — ' : '✅ Done — ';
+      toast(msg + ok + ' updated, ' + fail + ' fail, ' + skip + ' skip');
+      return;
+    }
+
+    var m = _bdfMovies[i];
+    bdfUpdateRow(i, '<span style="color:#60a5fa;animation:lcpulse 1s infinite;">⏳ Fetching...</span>', '', 'rgba(59,130,246,0.06)');
+
+    // Scroll row into view
+    var rowEl = document.getElementById('bdf-row-' + i);
+    if (rowEl) rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    _mlProxyFetch(m.sourceUrl, function(html) {
+      done++;
+
+      if (!html) {
+        fail++;
+        bdfUpdateRow(i, '<span style="color:#f87171;">❌ Fetch fail</span>', '', 'rgba(229,9,20,0.06)');
+        bdfUpdateProgress(done, total, ok, fail, skip);
+        setTimeout(function(){ processNext(i+1); }, 400);
+        return;
+      }
+
+      // Extract linkmake / DL links
+      var dlLink = '';
+      var linkmakers = [];
+      var lmRe = /https?:\/\/linkmake\.in\/[^\s"'<>&]+/gi;
+      var lm;
+      while ((lm = lmRe.exec(html)) !== null) {
+        var u = lm[0].trim();
+        if (linkmakers.indexOf(u) === -1) linkmakers.push(u);
+      }
+      if (linkmakers.length > 0) {
+        dlLink = linkmakers[0];
+      } else {
+        // Fallback: mega, pixeldrain, terabox, gdrive
+        var fbRe = /href=["'](https?:\/\/(?:mega\.nz|pixeldrain\.com|teraboxapp\.com|drive\.google\.com|1drv\.ms)[^\s"']+)["']/i;
+        var fb = fbRe.exec(html);
+        if (fb) dlLink = fb[1];
+      }
+
+      if (!dlLink) {
+        skip++;
+        bdfUpdateRow(i, '<span style="color:#f59e0b;">⏭ Link nahi mila</span>', '', 'rgba(251,191,36,0.04)');
+        bdfUpdateProgress(done, total, ok, fail, skip);
+        setTimeout(function(){ processNext(i+1); }, 400);
+        return;
+      }
+
+      // Save to Firebase movies
+      var updates = {};
+      if (!m.download480p)  updates['download480p']  = dlLink;
+      if (!m.download720p)  updates['download720p']  = dlLink;
+      if (!m.download1080p) updates['download1080p'] = dlLink;
+
+      db.ref('movies/' + m._key).update(updates, function(err) {
+        if (err) {
+          fail++;
+          bdfUpdateRow(i, '<span style="color:#f87171;">❌ Save fail</span>', dlLink, 'rgba(229,9,20,0.06)');
+        } else {
+          ok++;
+          // Also save to mylinks for reference
+          var mlData = { title: m.title||'Untitled', url: dlLink, movieKey: m._key, ts: Date.now() };
+          db.ref('mylinks').push(mlData);
+          bdfUpdateRow(i, '<span style="color:#22c55e;">✅ Saved!</span>', dlLink, 'rgba(34,197,94,0.05)');
+        }
+        bdfUpdateProgress(done, total, ok, fail, skip);
+        setTimeout(function(){ processNext(i+1); }, 500);
+      });
+    });
+  }
+
+  bdfUpdateProgress(0, total, 0, 0, 0);
+  processNext(0);
+}
+
+function bdfStop() {
+  _bdfStopped = true;
+  document.getElementById('bdf-stop-btn').disabled = true;
+  document.getElementById('bdf-stop-btn').textContent = '⏹ Stopping...';
+}
+// ══ END BATCH DL FETCH ══
 </script>
 </body>
 </html>
