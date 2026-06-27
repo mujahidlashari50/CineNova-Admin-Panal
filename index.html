@@ -639,6 +639,21 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="section" id="sec-bulkfetch">
       <div class="sec-title">⚡ Bulk <span>URL Fetch</span></div>
 
+      <!-- Category Scraper -->
+      <div class="card" style="border-color:rgba(139,92,246,0.4);margin-bottom:14px;">
+        <h3 style="color:#a78bfa;">🌐 CATEGORY PAGE SE LINKS NIKALO</h3>
+        <div style="color:var(--grey);font-size:0.8rem;margin-bottom:12px;">Category page URL do — saari movie post links automatically nikal ke Step 1 mein fill ho jaayengi.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="bfu-cat-url" class="fi" style="flex:1;min-width:200px;" placeholder="https://filmyfly.luxe/page-category/78/Marvel-Hollywood-Movies.html">
+          <button class="btn" onclick="bfuScrapeCategory()" style="background:#7c3aed;color:#fff;padding:10px 18px;white-space:nowrap;">🔍 Links Nikalo</button>
+        </div>
+        <div id="bfu-cat-status" style="margin-top:10px;font-size:0.8rem;color:var(--grey);display:none;"></div>
+        <div id="bfu-cat-pages" style="margin-top:10px;display:none;">
+          <div style="font-size:0.78rem;color:#a78bfa;margin-bottom:6px;">Pages found — select karo:</div>
+          <div id="bfu-cat-page-btns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
       <div class="card" style="border-color:rgba(59,130,246,0.35);">
         <h3 style="color:#60a5fa;">STEP 1 — LINKS PASTE KARO</h3>
         <div style="color:var(--grey);font-size:0.8rem;margin-bottom:12px;">FilmyFly ya kisi bhi site ke links paste karo — ek line mein ek link. 4-5 ya jitne chahein.</div>
@@ -4880,6 +4895,140 @@ function katdramaFetch() {
 // ═══ BULK URL FETCH ═══
 var _bfuQueue = []; // { url, data, status: 'pending'|'fetching'|'done'|'error' }
 
+
+function bfuScrapeCategory() {
+  var catUrl = (document.getElementById('bfu-cat-url').value || '').trim();
+  if (!catUrl || !catUrl.startsWith('http')) { toast('❌ Valid URL do!', 1); return; }
+
+  var statusEl = document.getElementById('bfu-cat-status');
+  var pagesEl  = document.getElementById('bfu-cat-pages');
+  statusEl.style.display = 'block';
+  statusEl.style.color = '#fbbf24';
+  statusEl.textContent = '⏳ Page fetch ho raha hai...';
+  pagesEl.style.display = 'none';
+
+  var workerUrl = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(catUrl);
+
+  fetch(workerUrl)
+    .then(function(r){ return r.text(); })
+    .then(function(html) {
+      if (!html || html.length < 200) throw new Error('Empty response');
+
+      // Extract all post/movie links from the page
+      var links = bfuExtractPostLinks(html, catUrl);
+
+      if (!links || links.length === 0) {
+        statusEl.style.color = '#f87171';
+        statusEl.textContent = '❌ Koi links nahi mile — site ka structure alag ho sakta hai';
+        return;
+      }
+
+      // Check for pagination
+      var nextPages = bfuExtractPagination(html, catUrl);
+
+      statusEl.style.color = '#4ade80';
+      statusEl.textContent = '✅ ' + links.length + ' links mile! Step 1 mein fill ho gayi.';
+
+      // Fill links into textarea
+      var textarea = document.getElementById('bfu-urls');
+      var existing = (textarea.value || '').trim();
+      var allLinks = existing ? existing + '\n' + links.join('\n') : links.join('\n');
+      textarea.value = allLinks;
+
+      // Update count
+      var countEl = document.getElementById('bfu-url-count');
+      if (countEl) countEl.textContent = links.length + ' URLs ready';
+
+      // Show pagination if found
+      if (nextPages.length > 0) {
+        pagesEl.style.display = 'block';
+        var btnsEl = document.getElementById('bfu-cat-page-btns');
+        btnsEl.innerHTML = '';
+        nextPages.forEach(function(pg, i) {
+          var btn = document.createElement('button');
+          btn.className = 'btn btn-s';
+          btn.style.cssText = 'background:#4c1d95;color:#c4b5fd;font-size:0.72rem;';
+          btn.textContent = 'Page ' + (i+2);
+          btn.onclick = (function(u){ return function(){
+            document.getElementById('bfu-cat-url').value = u;
+            bfuScrapeCategory();
+          }; })(pg);
+          btnsEl.appendChild(btn);
+        });
+      }
+
+      toast('✅ ' + links.length + ' links mile!');
+    })
+    .catch(function(e) {
+      statusEl.style.color = '#f87171';
+      statusEl.textContent = '❌ Fetch failed: ' + e.message;
+    });
+}
+
+function bfuExtractPostLinks(html, baseUrl) {
+  var links = [], seen = {};
+  var base = (baseUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
+
+  // Common patterns for movie/post links
+  var patterns = [
+    // FilmyFly style: /page-download/ID/Title
+    /href=["']((?:https?:\/\/[^"']*)?\/page-download\/[^"']+)/gi,
+    // FilmyFly category style  
+    /href=["']((?:https?:\/\/[^"']*)?\/page-[^"'\/]+\/\d+\/[^"']+)/gi,
+    // General post links with numeric ID
+    /href=["'](https?:\/\/[^"']*\/(?:post|movie|film|download|watch)\/?\d+[^"']*)/gi,
+    // Blogspot/WordPress style post links
+    /href=["'](https?:\/\/[^"']+\.html)["']/gi,
+    // Generic article links
+    /href=["'](https?:\/\/[^"'#?]+\/[a-zA-Z0-9\-]{10,}(?:\.html)?)['"]/gi
+  ];
+
+  // Try each pattern
+  for (var pi = 0; pi < patterns.length; pi++) {
+    var re = patterns[pi], m;
+    re.lastIndex = 0;
+    var found = [];
+    while ((m = re.exec(html)) !== null) {
+      var u = m[1].trim();
+      // Make absolute
+      if (u.startsWith('/')) u = base + u;
+      // Filter: skip category pages, images, css, js, social
+      if (/\.(jpg|png|gif|css|js|ico|svg|mp4|zip)/i.test(u)) continue;
+      if (/category|tag|page-category|author|search|feed|cdn|static|facebook|twitter|instagram|youtube/i.test(u)) continue;
+      if (u === baseUrl) continue;
+      // Must be same domain
+      if (base && u.indexOf(base.replace('https://','').replace('http://','')) === -1 && u.startsWith('http')) continue;
+      if (!seen[u]) { seen[u] = 1; found.push(u); }
+    }
+    if (found.length >= 3) { links = links.concat(found); break; }
+  }
+
+  // Deduplicate
+  var final = [], s2 = {};
+  links.forEach(function(u){ if (!s2[u]) { s2[u]=1; final.push(u); } });
+  return final;
+}
+
+function bfuExtractPagination(html, baseUrl) {
+  var pages = [], seen = {};
+  var base = (baseUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
+
+  // Find next page links
+  var re = /href=["']((?:https?:\/\/[^"']*)?\/[^"']*(?:page|pg)[^"']*\d+[^"']*)["']/gi, m;
+  while ((m = re.exec(html)) !== null) {
+    var u = m[1];
+    if (u.startsWith('/')) u = base + u;
+    if (u !== baseUrl && !seen[u]) { seen[u]=1; pages.push(u); }
+  }
+  // Also check /page/2/ style
+  var re2 = /href=["'](https?:\/\/[^"']+\/page\/\d+[^"']*)["']/gi;
+  while ((m = re2.exec(html)) !== null) {
+    var u = m[1];
+    if (u !== baseUrl && !seen[u]) { seen[u]=1; pages.push(u); }
+  }
+  return pages.slice(0, 10);
+}
+
 function bfuStart() {
   var raw = (document.getElementById('bfu-urls').value || '').trim();
   if (!raw) { toast('❌ Koi URL nahi hai!', 1); return; }
@@ -4926,6 +5075,139 @@ function bfuStart() {
   fetchOne(0);
 }
 
+
+function bfuFetchLinksForItem(idx, btn) {
+  var item = _bfuQueue[idx];
+  if (!item || !item.data) { toast('❌ Item nahi mila!', 1); return; }
+
+  var dlLink = item.data.download_link;
+  if (!dlLink) { toast('❌ Download link nahi hai is movie mein!', 1); return; }
+
+  var box = document.getElementById('bfu-links-box-' + idx);
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  if (box) box.innerHTML = '<div style="font-size:0.72rem;color:#fbbf24;padding:4px 0;">⏳ Links fetch ho rahe hain...</div>';
+
+  bfuFetchFileDLLinks(dlLink, function(links) {
+    btn.disabled = false;
+    btn.textContent = '⚡ Links';
+
+    if (!links || links.length === 0) {
+      if (box) box.innerHTML = '<div style="font-size:0.72rem;color:#f87171;padding:4px 0;">❌ Koi links nahi mile</div>';
+      toast('❌ Links nahi mile', 1);
+      return;
+    }
+
+    // Save links to item data
+    item.data.all_links = links;
+
+    // Render links in box
+    if (box) {
+      var icons = { 'fast': '⚡', 'cloud': '☁️', 'pixeldrain': '⬇️', 'gofile': '📁', 'telegram': '✈️', 'buzz': '🔊' };
+      box.innerHTML = '<div style="margin-top:4px;">'
+        + '<div style="font-size:0.68rem;color:#a78bfa;font-weight:700;margin-bottom:4px;">📥 ' + links.length + ' Links mile:</div>'
+        + links.map(function(lk, li) {
+            var lbl = (lk.label || '').toLowerCase();
+            var icon = lbl.indexOf('fast') > -1 ? '⚡'
+                     : lbl.indexOf('cloud') > -1 ? '☁️'
+                     : lbl.indexOf('pixeldrain') > -1 ? '⬇️'
+                     : lbl.indexOf('gofile') > -1 ? '📁'
+                     : lbl.indexOf('telegram') > -1 ? '✈️'
+                     : lbl.indexOf('buzz') > -1 ? '🔊' : '🔗';
+            var safeUrl = encodeURIComponent(lk.url);
+            return '<div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid #1e1e1e;border-radius:5px;padding:4px 7px;margin-bottom:3px;">'
+              + '<span style="font-size:0.72rem;">' + icon + '</span>'
+              + '<span style="font-size:0.63rem;color:#e2e8f0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lk.label || '').substring(0, 25) + '</span>'
+              + '<button data-u="' + safeUrl + '" onclick="navigator.clipboard.writeText(decodeURIComponent(this.dataset.u));toast(&quot;Copied!&quot;)" style="padding:2px 7px;background:#7f1d1d;border:none;border-radius:4px;color:#fca5a5;font-size:0.62rem;cursor:pointer;flex-shrink:0;">Copy</button>'
+              + '</div>';
+          }).join('')
+        + '</div>';
+    }
+
+    toast('✅ ' + links.length + ' links mile!');
+  });
+}
+
+function bfuFetchFileDLLinks(linkmakeUrl, cb) {
+  var worker = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=';
+
+  // Step 1: LinKMake page fetch karo — filesdl.in/cloud/ link nikalo
+  fetch(worker + encodeURIComponent(linkmakeUrl))
+    .then(function(r){ return r.text(); })
+    .then(function(html) {
+      if (!html || html.length < 100) { cb([]); return; }
+
+      // LinKMake page se filesdl cloud URLs nikalo
+      var cloudLinks = [];
+      var clRe = /https?:\/\/(?:new1\.)?filesdl\.in\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
+      var cm;
+      while ((cm = clRe.exec(html)) !== null) cloudLinks.push(cm[0]);
+
+      // Agar cloud link nahi mila - seedha href mein dhundho
+      if (!cloudLinks.length) {
+        var hrRe = /href=["'](https?:\/\/[^"'\s]*filesdl[^"'\s]*)["']/gi, hm;
+        while ((hm = hrRe.exec(html)) !== null) cloudLinks.push(hm[1]);
+      }
+
+      // Agar abhi bhi nahi mila - JS variable mein dhundho
+      if (!cloudLinks.length) {
+        var jsRe = /["'](https?:\/\/[^"'\s]*filesdl\.in[^"'\s]*)["']/gi, jm;
+        while ((jm = jsRe.exec(html)) !== null) cloudLinks.push(jm[1]);
+      }
+
+      if (!cloudLinks.length) {
+        // Last resort: linkmake page ke saare links check karo
+        var allLks = parseAllLinksFromHtml(html);
+        if (allLks.length) { cb(allLks); return; }
+        cb([]); return;
+      }
+
+      // Step 2: FileDL cloud page fetch karo — saare download links nikalo
+      bfuFetchFileDLPage(cloudLinks[0], function(links) {
+        cb(links || []);
+      });
+    })
+    .catch(function(e){ cb([]); });
+}
+
+function bfuFetchFileDLPage(filesdlUrl, cb) {
+  var workerBase = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=';
+  fetch(workerBase + encodeURIComponent(filesdlUrl))
+    .then(function(r){ return r.text(); })
+    .then(function(html) {
+      if (!html || html.length < 100) { cb([]); return; }
+      var links = parseAllLinksFromHtml(html);
+      cb(links);
+    })
+    .catch(function(){ cb([]); });
+}
+
+function parseAllLinksFromHtml(html) {
+  var results = [], seen = {};
+  function isJunk(u) {
+    if (/\.(jpg|png|gif|css|js|ico|svg|webp)/i.test(u)) return true;
+    if (/policy|privacy|dmca|signup|login|facebook|twitter|instagram/i.test(u)) return true;
+    if (/filesdl\.in\/cloud\//i.test(u)) return true;
+    return false;
+  }
+  // Markdown [Label](url)
+  var mdRe = /\[([^\]]{1,80})\]\((https?:\/\/[^)\s]{10,})\)/gi, mm;
+  while ((mm = mdRe.exec(html)) !== null) {
+    var u = mm[2].trim(), lbl = mm[1].trim();
+    if (isJunk(u)) continue;
+    if (!seen[u]) { seen[u]=1; results.push({label:lbl, url:u}); }
+  }
+  // HTML anchor
+  var aRe = /<a[^>]*href=["'](https?:\/\/[^"']{10,})["'][^>]*>([\s\S]{1,120}?)<\/a>/gi, am;
+  while ((am = aRe.exec(html)) !== null) {
+    var u = am[1].trim(), lbl = am[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    if (isJunk(u)) continue;
+    if (!lbl || lbl.length < 2) continue;
+    if (!seen[u]) { seen[u]=1; results.push({label:lbl, url:u}); }
+  }
+  return results;
+}
+
 function bfuFetchSingle(url, cb) {
   var proxies = [
     { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
@@ -4946,7 +5228,16 @@ function bfuFetchSingle(url, cb) {
         if (!html || html.length < 300) { tryNext(); return; }
         var data = bfuParsePage(html, url);
         if (!data || !data.title) { tryNext(); return; }
-        cb(data);
+        // Step 2: Agar linkmake/FileDL link mila hai toh usse bhi fetch karo
+        if (data.download_link) {
+          bfuFetchFileDLLinks(data.download_link, function(dlLinks) {
+            data.all_links = dlLinks || [];
+            cb(data);
+          });
+        } else {
+          data.all_links = [];
+          cb(data);
+        }
       })
       .catch(function(){ clearTimeout(t); tryNext(); });
   }
@@ -5064,12 +5355,32 @@ function bfuRenderQueue() {
       + ['hollywood','bollywood','tollywood','webseries','animation'].map(function(c){ return '<option value="'+c+'"'+(d.category===c?' selected':'')+'>'+c+'</option>'; }).join('')
       + '</select>'
       + '</div>'
-      + (d.download_link ? '<div style="font-size:0.68rem;color:#60a5fa;margin-top:4px;">🔗 '+d.download_link+'</div>' : '<div style="font-size:0.68rem;color:#f59e0b;margin-top:4px;">⚠️ Download link nahi mila</div>')
+      + (d.download_link ? '<div style="font-size:0.68rem;color:#60a5fa;margin-top:4px;word-break:break-all;">🔗 '+d.download_link+'</div>' : '<div style="font-size:0.68rem;color:#f59e0b;margin-top:4px;">⚠️ Download link nahi mila</div>')
+      + '<div id="bfu-links-box-'+idx+'" style="margin-top:6px;"></div>'
+      + (d.all_links && d.all_links.length > 0
+        ? '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
+          + '<div style="font-size:0.68rem;color:#a78bfa;font-weight:700;margin-bottom:2px;">📥 ' + d.all_links.length + ' Download Links:</div>'
+          + d.all_links.map(function(lk,li){
+              var icon = /fast.?direct/i.test(lk.label) ? '⚡'
+                       : /cloud.?direct/i.test(lk.label) ? '☁️'
+                       : /pixeldrain/i.test(lk.label) ? '⬇️'
+                       : /gofile/i.test(lk.label) ? '📁'
+                       : /telegram/i.test(lk.label) ? '✈️'
+                       : /buzz/i.test(lk.label) ? '🔊' : '🔗';
+              return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid #1e1e1e;border-radius:5px;padding:4px 7px;">'
+                + '<span style="font-size:0.7rem;">' + icon + '</span>'
+                + '<span style="font-size:0.65rem;color:#e2e8f0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lk.label||'').substring(0,28) + '</span>'
+                + '<button onclick="navigator.clipboard.writeText(\''+lk.url+'\');toast(\'Copied!\')" style="padding:2px 7px;background:#7f1d1d;border:none;border-radius:4px;color:#fca5a5;font-size:0.62rem;cursor:pointer;flex-shrink:0;">Copy</button>'
+                + '</div>';
+            }).join('')
+          + '</div>'
+        : (d.download_link ? '' : ''))
       + '</div>'
       + '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">'
       + (saved
         ? '<span style="color:#4ade80;font-size:0.8rem;font-weight:700;">✅ Saved</span>'
         : '<button onclick="bfuSaveOne('+idx+',this)" style="padding:7px 14px;background:#16a34a;border:none;border-radius:7px;color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">💾 Save</button>')
+      + '<button id="bfu-fetchlinks-'+idx+'" onclick="bfuFetchLinksForItem('+idx+',this)" style="padding:7px 14px;background:#1e3a5f;border:none;border-radius:7px;color:#7dd3fc;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">⚡ Links</button>'
       + '<button onclick="bfuRemove('+idx+')" style="padding:7px 14px;background:#1a1a1a;border:1px solid #333;border-radius:7px;color:#888;font-size:0.78rem;cursor:pointer;">✕ Remove</button>'
       + '</div>'
       + '</div>'
@@ -11725,6 +12036,31 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
   resultBox.style.color = '#f59e0b';
   resultBox.innerHTML = '⏳ Fast Direct link fetch ho rahi hai...';
 
+  function parseAllLinks(html) {
+    var results = [], seen = {};
+    function isJunk(u) {
+      if (/\.(jpg|png|gif|css|js|ico|svg|webp)/i.test(u)) return true;
+      if (/policy|privacy|dmca|signup|login|facebook|twitter|instagram/i.test(u)) return true;
+      return false;
+    }
+    // Markdown style [Label](url) — FileDL pages yahi use karte hain
+    var mdRe = /\[([^\]]{1,80})\]\((https?:\/\/[^)\s]{10,})\)/gi, mm;
+    while ((mm = mdRe.exec(html)) !== null) {
+      var u = mm[2].trim(), lbl = mm[1].trim();
+      if (isJunk(u)) continue;
+      if (!seen[u]) { seen[u]=1; results.push({label:lbl,url:u}); }
+    }
+    // HTML anchor style
+    var aRe = /<a\b[^>]*href=["'](https?:\/\/[^"']{10,})["'][^>]*>([\s\S]{1,120}?)<\/a>/gi, am;
+    while ((am = aRe.exec(html)) !== null) {
+      var u = am[1].trim(), lbl = am[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+      if (isJunk(u)) continue;
+      if (!lbl || lbl.length < 2) continue;
+      if (!seen[u]) { seen[u]=1; results.push({label:lbl,url:u}); }
+    }
+    return results;
+  }
+
   function parseForFastDirect(html) {
     // Strategy 1: Markdown [Fast Direct...](url) — sabse reliable
     var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^\s"')\]]+)/gi;
@@ -11802,71 +12138,142 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
       .then(function(raw){
         var html = p.parse(raw);
         if (!html || html.length < 100) { tryFdProxy(); return; }
-        var link = parseForFastDirect(html);
-        if (!link) { tryFdProxy(); return; }
         // Page title se quality nikalo, plus original link label bhi use karo
         var titleMatch = html.match(/#+\s*(.+)|<title[^>]*>([^<]+)/i);
         var pageTitle = titleMatch ? (titleMatch[1]||titleMatch[2]||'') : '';
-        showFastDirectResult(link, filesdlUrl, (linkLabel||'') + ' ' + pageTitle);
+        var allLinks = parseAllLinks(html);
+        var link = parseForFastDirect(html);
+        // Agar Fast Direct nahi mila lekin doosre links hain toh bhi dikhao
+        if (!link && (!allLinks || allLinks.length === 0)) { tryFdProxy(); return; }
+        var bestLink = link || (allLinks && allLinks[0] ? allLinks[0].url : '');
+        showFastDirectResult(bestLink, filesdlUrl, (linkLabel||'') + ' ' + pageTitle, allLinks);
       })
       .catch(function(){ clearTimeout(t); tryFdProxy(); });
   }
   tryFdProxy();
 
-  function showFastDirectResult(link, srcUrl, linkLabel) {
+  function showFastDirectResult(link, srcUrl, linkLabel, allLinks) {
     var movieKey = window._mlCurrentMovieKey || '';
-    var safeLink = link.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    var qLabel = { 'download4k':'4K', 'download1080p':'1080p', 'download720p':'720p', 'download480p':'480p' };
-    var field = 'download480p'; // default
-    // Quality sirf is link ke label aur URL se detect karo — card.textContent nahi
-    var combinedText = ((linkLabel||'') + ' ' + srcUrl).toLowerCase();
-    if (combinedText.match(/2160p|\b4k\b|uhd/)) field = 'download4k';
-    else if (combinedText.match(/1080p|fhd/)) field = 'download1080p';
-    else if (combinedText.match(/720p/)) field = 'download720p';
-    else if (combinedText.match(/480p/)) field = 'download480p';
-
-    // Size field ID card ke parent se dhundo
-    var sizeFieldMap = { 'download4k':'ml-size-', 'download1080p':'ml-size-', 'download720p':'ml-size-', 'download480p':'ml-size-' };
-    var sizeInputId = 'ml-size-' + uid; // uid is in scope from renderSingleLink
-    var safeSizeInputId = sizeInputId.replace(/'/g,"\\'");
-
-    // Check if this card has episode info (data-ep-save attribute)
+    var sizeInputId = 'ml-size-' + uid;
+    var safeSizeInputId = sizeInputId.replace(/['"]/g, '');
     var epSaveAttr = card ? card.getAttribute('data-ep-save') : null;
-    // Also check parent part container
     if (!epSaveAttr && card) {
-      var partContainer = card.closest('[data-ep-range]');
-      if (partContainer) {
-        var epRange = partContainer.getAttribute('data-ep-range');
-        if (epRange) epSaveAttr = 'mlSaveToEpisodeDirectly|' + epRange;
-      }
+      var pc = card.closest('[data-ep-range]');
+      if (pc) { var er = pc.getAttribute('data-ep-range'); if (er) epSaveAttr = 'mlSaveToEpisodeDirectly|' + er; }
     }
-
-    var qTagFromField = { 'download4k':'4K', 'download1080p':'1080p', 'download720p':'720p', 'download480p':'480p' };
-    var saveBtn = '';
-    if (movieKey && movieKey !== 'retry') {
-      if (epSaveAttr) {
-        // Web series — episode section mein save
-        var epParts = epSaveAttr.replace('mlSaveToEpisodeDirectly|','').split('|');
-        var epF = parseInt(epParts[0])||1, epT = parseInt(epParts[1])||epF, epS = epParts[2] || '1';
-        var qTagLabel = qTagFromField[field] || '480p';
-        saveBtn = '<button onclick="mlSaveToEpisodeDirectly(\'' + safeLink + '\',\'' + movieKey + '\',\'' + qTagLabel + '\''
-          + ',' + epF + ',' + epT + ',\'' + epS + '\',this,\'' + safeSizeInputId + '\')" '
-          + 'style="padding:4px 14px;background:linear-gradient(135deg,#065f46,#059669);border:1px solid #22c55e;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">📺 Save ' + qTagLabel + '</button>';
-      } else {
-        // Normal movie — download field mein save
-        saveBtn = '<button onclick="mlAutoSave(\'' + safeLink + '\',\'' + movieKey + '\',\'' + field + '\',\'' + safeSizeInputId + '\',this)" '
-          + 'style="padding:4px 14px;background:#7c3aed;border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">💾 Save ' + (qLabel[field]||'') + '</button>';
-      }
+    var epF=1,epT=1,epS='1';
+    if (epSaveAttr) {
+      var ep=epSaveAttr.replace('mlSaveToEpisodeDirectly|','').split('|');
+      epF=parseInt(ep[0])||1; epT=parseInt(ep[1])||epF; epS=ep[2]||'1';
     }
+    var ct = ((linkLabel||'')+' '+srcUrl).toLowerCase();
+    var mf = ct.match(/2160p|\b4k\b|uhd/) ? 'download4k'
+           : ct.match(/1080p|fhd/)         ? 'download1080p'
+           : ct.match(/720p/)               ? 'download720p'
+                                            : 'download480p';
+    var qlm = {'download4k':'4K','download1080p':'1080p','download720p':'720p','download480p':'480p'};
+    var links = (allLinks && allLinks.length) ? allLinks : [{label:'Fast Direct',url:link}];
 
+    function row(o) {
+      var u = o.url, lbl = o.label || u;
+      var safeU = encodeURIComponent(u);
+      var isFastDirect = /fast.?direct/i.test(lbl) || /fdownload\.php/i.test(u);
+      var isPixeldrain = /pixeldrain/i.test(lbl);
+      var icon = isFastDirect                  ? '&#9889;'
+               : /cloud.?direct/i.test(lbl)   ? '&#9729;'
+               : /pixeldrain/i.test(lbl)      ? '&#11015;'
+               : /gofile/i.test(lbl)          ? '&#128194;'
+               : /telegram/i.test(lbl)        ? '&#9992;'
+               : '&#128279;';
+      var qTag = qlm[mf] || '480p';
+      var rowId = 'ml-row-' + Math.random().toString(36).substr(2,6);
+      var sb = '', playerBtn = '';
+      if (movieKey && movieKey !== 'retry') {
+        var btnStyle = 'padding:3px 9px;border-radius:5px;font-size:0.68rem;font-weight:700;cursor:pointer;border:none;margin-left:3px;';
+        if (epSaveAttr) {
+          sb = '<button data-u="'+safeU+'" data-mk="'+movieKey+'" data-qt="'+qTag+'" data-ef="'+epF+'" data-et="'+epT+'" data-es="'+epS+'" data-si="'+safeSizeInputId+'" onclick="var d=this.dataset;mlSaveToEpisodeDirectly(decodeURIComponent(d.u),d.mk,d.qt,+d.ef,+d.et,d.es,this,d.si)" style="'+btnStyle+'background:#065f46;color:#4ade80;">Save</button>';
+        } else {
+          sb = '<button data-u="'+safeU+'" data-mk="'+movieKey+'" data-mf="'+mf+'" data-si="'+safeSizeInputId+'" onclick="var d=this.dataset;mlAutoSave(decodeURIComponent(d.u),d.mk,d.mf,d.si,this)" style="'+btnStyle+'background:#4c1d95;color:#c4b5fd;">Save</button>';
+        }
+        if (isPixeldrain) {
+          playerBtn = '<button data-u="'+safeU+'" data-mk="'+movieKey+'" onclick="mlSavePixeldrainAsPlayer(decodeURIComponent(this.dataset.u),this.dataset.mk,this)" style="'+btnStyle+'background:#1e3a5f;color:#7dd3fc;">&#9654; Player</button>';
+        }
+      }
+      var highlight = isFastDirect
+        ? 'background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);'
+        : isPixeldrain
+        ? 'background:rgba(99,179,237,0.07);border:1px solid rgba(99,179,237,0.3);'
+        : 'background:rgba(255,255,255,0.04);border:1px solid #222;';
+      var copyId = 'cp-' + Math.random().toString(36).substr(2,6);
+      return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin-bottom:5px;'+highlight+'border-radius:7px;flex-wrap:wrap;">'        + '<span style="font-size:0.85rem;">' + icon + '</span>'        + '<span style="font-size:0.7rem;color:#e2e8f0;font-weight:600;min-width:85px;flex-shrink:0;">' + lbl.substring(0,30).replace(/</g,'&lt;') + '</span>'        + '<span style="word-break:break-all;color:#93c5fd;font-size:0.64rem;flex:1;">' + u.substring(0,55) + (u.length>55?'...':'') + '</span>'        + '<button data-u="'+safeU+'" onclick="navigator.clipboard.writeText(decodeURIComponent(this.dataset.u));toast(&quot;Copied!&quot;)" style="padding:3px 8px;background:#7f1d1d;border:none;border-radius:5px;color:#fca5a5;font-size:0.68rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'        + sb + playerBtn + '</div>';
+    }
     resultBox.style.color = '#4ade80';
-    resultBox.innerHTML = '✅ Fast Direct Link:'
-      + '<div style="margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
-      + '<span style="word-break:break-all;color:#93c5fd;font-size:0.7rem;flex:1;">' + link + '</span>'
-      + '<button onclick="navigator.clipboard.writeText(\'' + safeLink + '\');toast(\'✅ Copied!\')" style="padding:4px 10px;background:var(--red);border:none;border-radius:5px;color:#fff;font-size:0.72rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
-      + saveBtn
-      + '</div>';
+    resultBox.innerHTML = '<div style="font-size:0.72rem;color:#4ade80;font-weight:700;margin-bottom:8px;">&#10003; ' + links.length + ' Links mile:</div>'
+      + links.map(row).join('');
   }
+}
+
+function mlSaveAsPlayer(link, movieKey, btn) {
+  if (!movieKey || movieKey === 'retry') { toast('❌ Movie key nahi mila!', 1); return; }
+  if (!link) { toast('❌ Link nahi mila!', 1); return; }
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  // Firebase mein videoUrl save karo
+  var update = {};
+  update['movies/' + movieKey + '/videoUrl'] = link;
+  db.ref().update(update).then(function() {
+    btn.textContent = '✅ Player!';
+    btn.style.background = '#1e4d2b';
+    btn.style.color = '#4ade80';
+    // Panel ka fv field bhi update karo (agar visible ho)
+    var fvEl = document.getElementById('fv');
+    if (fvEl) {
+      fvEl.value = link;
+      if (typeof plyrPreview === 'function') plyrPreview(link, 'fv-preview', 'fv-plyr-inst');
+    }
+    toast('✅ Player URL save ho gaya!');
+  }).catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = '▶ Player';
+    toast('❌ ' + e.message, 1);
+  });
+}
+
+function mlSavePixeldrainAsPlayer(link, movieKey, btn) {
+  if (!movieKey || movieKey === 'retry') { toast('❌ Movie key nahi mila!', 1); return; }
+  if (!link) { toast('❌ Link nahi mila!', 1); return; }
+
+  var streamUrl = link;
+
+  // Pixeldrain link ko /u/ID format mein save karo (theme embed player use karega)
+  var m = link.match(/pixeldrain\.com\/(?:u|api\/file)\/([a-zA-Z0-9]+)/);
+  if (m) {
+    streamUrl = 'https://pixeldrain.com/u/' + m[1];
+  } else {
+    // S3/iwebp links se ?download parameter remove karo
+    streamUrl = link.replace(/[?&]download.*$/i, '');
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  var update = {};
+  update['movies/' + movieKey + '/videoUrl'] = streamUrl;
+  db.ref().update(update).then(function() {
+    btn.textContent = '✅ Player!';
+    btn.style.background = '#1e4d2b';
+    btn.style.color = '#4ade80';
+    var fvEl = document.getElementById('fv');
+    if (fvEl) {
+      fvEl.value = streamUrl;
+      if (typeof plyrPreview === 'function') plyrPreview(streamUrl, 'fv-preview', 'fv-plyr-inst');
+    }
+    toast('✅ Stream URL save ho gaya!');
+  }).catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = '▶ Player';
+    toast('❌ ' + e.message, 1);
+  });
 }
 
 function mlCloseSubModal() {
