@@ -7453,8 +7453,13 @@ function fetchFileDLLinks(key) {
     }
     var quality = detectQuality(html);
     var label = fillField(quality, link);
+    // ⚠️ FRESH-LINK FIX: fdownload.php link mein expiry token hota hai jo
+    // kuch hafton mein expire ho jata hai. Isliye source URL (linkmake/FileDL
+    // page) ko bhi save karte hain — DL Worker isse HAR click par fresh
+    // resolve karega, taake stored link kabhi dead na ho.
+    db.ref('movies/' + key + '/dlSourceUrl').set(rawUrl);
     statusEl.style.color = '#4ade80';
-    statusEl.textContent = '✅ ' + label + ' field fill ho gaya! — Save karna mat bhoolo.';
+    statusEl.textContent = '✅ ' + label + ' field fill ho gaya! (source URL bhi save ho gaya — fresh links guaranteed) — Save karna mat bhoolo.';
     urlInp.value = '';
   }
 
@@ -10967,13 +10972,20 @@ function mlBulkSave() {
     if (index >= total) { finish(); return; }
     var item = lines[index];
     var key = db.ref('mylinks').push().key;
-    db.ref('mylinks/' + key).set({
+    var mlUpdates = {};
+    mlUpdates['mylinks/' + key] = {
       title: item.title,
       url: item.url,
       dlLink: item.dlLink || '',
       movieKey: item.movieKey || '',
       ts: Date.now() + index
-    }, function(err) {
+    };
+    // ⚠️ FRESH-LINK FIX: agar movieKey diya gaya hai, uski dlSourceUrl bhi
+    // set kar do — DL Worker ab isse fresh resolve karega har click par
+    if (item.movieKey) {
+      mlUpdates['movies/' + item.movieKey + '/dlSourceUrl'] = item.url;
+    }
+    db.ref().update(mlUpdates, function(err) {
       done++;
       if (err) { failed++; logLine('❌ [' + (index+1) + '] ' + item.title + ' — ' + err.message, '#f87171'); }
       else      { success++; logLine('✅ [' + (index+1) + '] ' + item.title + (item.movieKey ? ' 🔑' : ''), '#4ade80'); }
