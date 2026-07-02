@@ -11757,8 +11757,9 @@ function mlShowSubLinks(id, url) {
            || '1';
 
     // Save button: agar partInfo hai → episode mein save, warna movie download field mein
+    // ⭐ isFileDL hone par bhi Save dikhega — link ko seedha save karo, fetch zaroori nahi
     var saveBtn = '';
-    if (q && window._mlCurrentMovieKey && !isFileDL) {
+    if (q && window._mlCurrentMovieKey) {
       if (hasPi) {
         // ✅ Web Series — episode section mein directly save
         saveBtn = '<button onclick="mlSaveToEpisodeDirectly(\'' + safeUrl + '\',\'' + window._mlCurrentMovieKey + '\',\'' + q.tag + '\',' + ef + ',' + et + ',\'' + es + '\',this,\'' + sizeFieldId + '\')" '
@@ -12073,6 +12074,31 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
     return results;
   }
 
+  function parseForCloudFinal(allLinks, html) {
+    // 1) Label mein "cloud" aur "final" dono ho — sabse exact match ("Cloud Link (Final)")
+    if (allLinks && allLinks.length) {
+      for (var i=0;i<allLinks.length;i++) {
+        var lbl = (allLinks[i].label||'').toLowerCase();
+        if (lbl.indexOf('cloud') > -1 && lbl.indexOf('final') > -1) return allLinks[i].url;
+      }
+      // 2) URL pattern filesdl.top/cloud/ ya filesdl.in/cloud/ ya /drive/ — sirf yehi domain, HubCloud/SlowCloud/etc exclude
+      for (var j=0;j<allLinks.length;j++) {
+        var u = allLinks[j].url||'';
+        if (/filesdl\.(top|in)\/(cloud|drive)\//i.test(u) && !/fdownload\.php/i.test(u)) return u;
+      }
+    }
+    // 3) allLinks mein nahi mila — raw HTML text mein directly regex se dhundo
+    // (kabhi kabhi ye link JS variable / button data-attr mein hota hai, anchor tag mein nahi)
+    if (html) {
+      var rawRe = /https?:\/\/[a-zA-Z0-9.-]*filesdl\.(?:top|in)\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
+      var rm;
+      while ((rm = rawRe.exec(html)) !== null) {
+        if (!/fdownload\.php/i.test(rm[0])) return rm[0];
+      }
+    }
+    return null;
+  }
+
   function parseForFastDirect(html) {
     // Strategy 1: Markdown [Fast Direct...](url) — sabse reliable
     var mdRe = /\[([^\]]*fast\s*direct[^\]]*)\]\((https?:\/\/[^\s"')\]]+)/gi;
@@ -12124,6 +12150,21 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
     return null;
   }
 
+  // ⭐ Agar input khud ek Linkmake "link protector" page hai (jaise linkmake.in/view/xxx)
+  // to iske andar seedhe quality buttons ke href nikalo — koi mirror-chasing nahi
+  function extractLinkmakeButtons(html) {
+    var results = [];
+    // Pattern: <a href="URL" ...>...Download 380Mb {480p-HEVC}...</a>
+    var btnRe = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>\s*([\s\S]{0,80}?\{[^}]+\}[\s\S]{0,20}?)<\/a>/gi, bm;
+    while ((bm = btnRe.exec(html)) !== null) {
+      var url = bm[1].trim();
+      var text = bm[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+      var qm = text.match(/\{([^}]+)\}/);
+      results.push({ label: text, url: url, quality: qm ? qm[1] : '' });
+    }
+    return results;
+  }
+
   // Try multiple proxies in sequence
   var fdProxies = [
     // ⭐ Apna Worker — pehli priority
@@ -12153,16 +12194,62 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
         // Page title se quality nikalo, plus original link label bhi use karo
         var titleMatch = html.match(/#+\s*(.+)|<title[^>]*>([^<]+)/i);
         var pageTitle = titleMatch ? (titleMatch[1]||titleMatch[2]||'') : '';
+
+        // ⭐ Agar ye khud ek Linkmake page hai (linkmake.in/view/...) — seedhe quality
+        // buttons ke href nikalo aur wahi dikhao, koi mirror-page fetch nahi
+        if (/linkmake\.in\/view\//i.test(filesdlUrl)) {
+          var btnLinks = extractLinkmakeButtons(html);
+          if (!btnLinks.length) {
+            resultBox.style.color = '#f87171';
+            resultBox.innerHTML = '❌ Koi quality button nahi mila is page pe. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+            return;
+          }
+          showLinkmakeButtons(btnLinks, filesdlUrl);
+          return;
+        }
+
         var allLinks = parseAllLinks(html);
-        var link = parseForFastDirect(html);
-        // Agar Fast Direct nahi mila lekin doosre links hain toh bhi dikhao
-        if (!link && (!allLinks || allLinks.length === 0)) { tryFdProxy(); return; }
-        var bestLink = link || (allLinks && allLinks[0] ? allLinks[0].url : '');
-        showFastDirectResult(bestLink, filesdlUrl, (linkLabel||'') + ' ' + pageTitle, allLinks);
+        var cloudFinal = parseForCloudFinal(allLinks, html);
+        // ⭐ Sirf Cloud Link chahiye — Fast Direct ya kisi aur mirror pe fallback NAHI karna
+        if (!cloudFinal) {
+          resultBox.style.color = '#f87171';
+          resultBox.innerHTML = '❌ Cloud Link nahi mila is page pe. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+          return;
+        }
+        showFastDirectResult(cloudFinal, filesdlUrl, (linkLabel||'') + ' ' + pageTitle, allLinks);
       })
       .catch(function(){ clearTimeout(t); tryFdProxy(); });
   }
   tryFdProxy();
+
+  function showLinkmakeButtons(btnLinks, srcUrl) {
+    var movieKey = window._mlCurrentMovieKey || '';
+    var sizeInputId = 'ml-size-' + uid;
+    var safeSizeInputId = sizeInputId.replace(/['"]/g, '');
+    var qualToField = { '480': 'download480p', '720': 'download720p', '1080': 'download1080p', '4k': 'download4k', '2160': 'download4k' };
+    function row(o) {
+      var u = o.url, lbl = o.label || u, qtxt = (o.quality||'').toLowerCase();
+      var mf = /2160|4k|uhd/.test(qtxt) ? 'download4k'
+             : /1080/.test(qtxt)        ? 'download1080p'
+             : /720/.test(qtxt)         ? 'download720p'
+                                          : 'download480p';
+      var safeU = encodeURIComponent(u);
+      var sb = '';
+      if (movieKey && movieKey !== 'retry') {
+        var btnStyle = 'padding:3px 9px;border-radius:5px;font-size:0.68rem;font-weight:700;cursor:pointer;border:none;margin-left:3px;';
+        sb = '<button data-u="'+safeU+'" data-mk="'+movieKey+'" data-mf="'+mf+'" data-si="'+safeSizeInputId+'" onclick="var d=this.dataset;mlAutoSave(decodeURIComponent(d.u),d.mk,d.mf,d.si,this)" style="'+btnStyle+'background:#4c1d95;color:#c4b5fd;">Save</button>';
+      }
+      return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin-bottom:5px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.3);border-radius:7px;flex-wrap:wrap;">'
+        + '<span style="font-size:0.85rem;">&#9729;</span>'
+        + '<span style="font-size:0.7rem;color:#e2e8f0;font-weight:600;min-width:100px;flex-shrink:0;">' + lbl.substring(0,40).replace(/</g,'&lt;') + '</span>'
+        + '<span style="word-break:break-all;color:#93c5fd;font-size:0.64rem;flex:1;">' + u.substring(0,55) + (u.length>55?'...':'') + '</span>'
+        + '<button data-u="'+safeU+'" onclick="navigator.clipboard.writeText(decodeURIComponent(this.dataset.u));toast(&quot;Copied!&quot;)" style="padding:3px 8px;background:#7f1d1d;border:none;border-radius:5px;color:#fca5a5;font-size:0.68rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'
+        + sb + '</div>';
+    }
+    resultBox.style.color = '#4ade80';
+    resultBox.innerHTML = '<div style="font-size:0.72rem;color:#4ade80;font-weight:700;margin-bottom:8px;">&#10003; ' + btnLinks.length + ' Quality Links mile:</div>'
+      + btnLinks.map(row).join('');
+  }
 
   function showFastDirectResult(link, srcUrl, linkLabel, allLinks) {
     var movieKey = window._mlCurrentMovieKey || '';
@@ -12184,15 +12271,15 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
            : ct.match(/720p/)               ? 'download720p'
                                             : 'download480p';
     var qlm = {'download4k':'4K','download1080p':'1080p','download720p':'720p','download480p':'480p'};
-    var links = (allLinks && allLinks.length) ? allLinks : [{label:'Fast Direct',url:link}];
+    // ⭐ Sirf 1 best link dikhao (Cloud Link Final) — poori mirrors list hata di gayi hai
+    var links = [{label:'Cloud Link', url: link}];
 
     function row(o) {
       var u = o.url, lbl = o.label || u;
       var safeU = encodeURIComponent(u);
-      var isFastDirect = /fast.?direct/i.test(lbl) || /fdownload\.php/i.test(u);
+      var isCloud = /filesdl\.(top|in)\/(cloud|drive)\//i.test(u) || (/cloud/i.test(lbl) && /final/i.test(lbl));
       var isPixeldrain = /pixeldrain/i.test(lbl);
-      var icon = isFastDirect                  ? '&#9889;'
-               : /cloud.?direct/i.test(lbl)   ? '&#9729;'
+      var icon = isCloud                        ? '&#9729;'
                : /pixeldrain/i.test(lbl)      ? '&#11015;'
                : /gofile/i.test(lbl)          ? '&#128194;'
                : /telegram/i.test(lbl)        ? '&#9992;'
@@ -12211,16 +12298,21 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
           playerBtn = '<button data-u="'+safeU+'" data-mk="'+movieKey+'" onclick="mlSavePixeldrainAsPlayer(decodeURIComponent(this.dataset.u),this.dataset.mk,this)" style="'+btnStyle+'background:#1e3a5f;color:#7dd3fc;">&#9654; Player</button>';
         }
       }
-      var highlight = isFastDirect
-        ? 'background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);'
+      var highlight = isCloud
+        ? 'background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.3);'
         : isPixeldrain
         ? 'background:rgba(99,179,237,0.07);border:1px solid rgba(99,179,237,0.3);'
         : 'background:rgba(255,255,255,0.04);border:1px solid #222;';
       var copyId = 'cp-' + Math.random().toString(36).substr(2,6);
       return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin-bottom:5px;'+highlight+'border-radius:7px;flex-wrap:wrap;">'        + '<span style="font-size:0.85rem;">' + icon + '</span>'        + '<span style="font-size:0.7rem;color:#e2e8f0;font-weight:600;min-width:85px;flex-shrink:0;">' + lbl.substring(0,30).replace(/</g,'&lt;') + '</span>'        + '<span style="word-break:break-all;color:#93c5fd;font-size:0.64rem;flex:1;">' + u.substring(0,55) + (u.length>55?'...':'') + '</span>'        + '<button data-u="'+safeU+'" onclick="navigator.clipboard.writeText(decodeURIComponent(this.dataset.u));toast(&quot;Copied!&quot;)" style="padding:3px 8px;background:#7f1d1d;border:none;border-radius:5px;color:#fca5a5;font-size:0.68rem;font-weight:700;cursor:pointer;flex-shrink:0;">Copy</button>'        + sb + playerBtn + '</div>';
     }
+    if (!links[0].url) {
+      resultBox.style.color = '#f87171';
+      resultBox.innerHTML = '❌ Koi link nahi mila. <button onclick="window.open(\'' + filesdlUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+      return;
+    }
     resultBox.style.color = '#4ade80';
-    resultBox.innerHTML = '<div style="font-size:0.72rem;color:#4ade80;font-weight:700;margin-bottom:8px;">&#10003; ' + links.length + ' Links mile:</div>'
+    resultBox.innerHTML = '<div style="font-size:0.72rem;color:#4ade80;font-weight:700;margin-bottom:8px;">&#10003; Link mil gaya:</div>'
       + links.map(row).join('');
   }
 }
@@ -13176,6 +13268,9 @@ function ffiStartImport() {
           obj.download480p = data.download_link;
           obj.download720p = data.download_link;
           obj.download1080p = data.download_link;
+          // ⭐ Source link bhi save karo — taake "🎬 Linked:" panel mein ye
+          // movie khud-ba-khud link ho jaye aur quality rows fetch/save kaam karein
+          obj.dlSourceUrl = data.download_link;
         }
         // SEO slug
         var slug = (data.title + (data.year?'-'+data.year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
