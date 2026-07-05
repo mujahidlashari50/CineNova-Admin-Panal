@@ -596,7 +596,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-posterfill" onclick="show('posterfill')">🖼 Poster Auto-Fetch</div>
     <div class="nav-item" id="nav-linkcheck" onclick="show('linkcheck')">🔗 Link Checker <span id="lc-nav-badge" class="lc-nav-badge" style="display:none;">0</span></div>
     <div class="nav-item" id="nav-linkmanager" onclick="show('linkmanager')">📎 Link Manager <span class="nav-count" id="lm-no-link-count" style="background:#f59e0b;">0</span></div>
-    <div class="nav-item" id="nav-rss" onclick="show('rss')">📡 RSS Feed Manager</div>
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
     <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
@@ -1826,138 +1825,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
-    <!-- RSS FEED IMPORTER -->
-    <div class="section" id="sec-rss">
-      <div class="sec-title">📡 RSS Feed <span>Importer</span></div>
-
-      <!-- How it works -->
-      <div style="background:rgba(29,78,216,0.07);border:1px solid rgba(29,78,216,0.25);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#93c5fd;display:flex;gap:10px;align-items:flex-start;">
-        <span style="font-size:1.4rem;">💡</span>
-        <div>
-          <strong style="color:#fff;">Kaise kaam karta hai?</strong><br/>
-          Paste any website's RSS/Atom feed URL (e.g. Blogger, WordPress, movie sites) → Posts will be fetched → Select → Import to Firebase.<br/>
-          <strong style="color:#22c55e;">Auto-Sync ON karo</strong> toh har X minutes mein naye posts automatically import hote rahenge!
-        </div>
-      </div>
-
-      <!-- ADD RSS SOURCE -->
-      <div class="card" style="margin-bottom:16px;">
-        <h3>➕ Add New RSS Source</h3>
-        <div class="fg">
-          <div class="fgg full">
-            <label>RSS / Atom Feed URL *</label>
-            <input class="fi" id="rss-new-url" placeholder="https://example.com/feeds/posts/default?alt=rss  ya  https://site.com/feed"/>
-            <div style="font-size:0.7rem;color:#555;margin-top:5px;">
-              💡 Blogger: <code style="color:#888;">yoursite.blogspot.com/feeds/posts/default?alt=rss</code> &nbsp;|&nbsp;
-              WordPress: <code style="color:#888;">yoursite.com/feed</code>
-            </div>
-          </div>
-          <div class="fgg">
-            <label>Source Name (Optional)</label>
-            <input class="fi" id="rss-new-name" placeholder="e.g. FilmyFly, HDMovies4U..."/>
-          </div>
-          <div class="fgg">
-            <label>Default Category (Import pe lagao)</label>
-            <select class="fi" id="rss-new-cat">
-              <option value="hollywood">🌟 Hollywood</option>
-              <option value="bollywood">🎭 Bollywood</option>
-              <option value="tollywood">🎬 Tollywood</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Web Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
-          </div>
-          <div class="fgg" style="display:flex;align-items:flex-end;gap:10px;">
-            <div style="display:flex;align-items:center;gap:10px;flex:1;">
-              <span style="font-size:0.82rem;color:var(--grey);white-space:nowrap;">Auto-Sync</span>
-              <div class="toggle-wrap" id="rss-new-autosync-toggle" onclick="rssToggleNewSync()"><div class="toggle-btn"></div></div>
-              <span id="rss-new-autosync-label" style="font-size:0.78rem;color:var(--grey);">OFF</span>
-            </div>
-          </div>
-          <div class="fgg" id="rss-sync-interval-wrap" style="display:none;">
-            <label>Auto-Sync Interval</label>
-            <select class="fi" id="rss-new-interval">
-              <option value="15">Har 15 Minute</option>
-              <option value="30" selected>Har 30 Minute</option>
-              <option value="60">Har 1 Ghanta</option>
-              <option value="180">Har 3 Ghante</option>
-              <option value="360">Har 6 Ghante</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-p" onclick="rssAddSource()">➕ Add Source</button>
-          <button class="btn btn-b" onclick="rssFetchPreview()">🔍 Fetch Preview</button>
-        </div>
-        <div id="rss-add-status" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.82rem;"></div>
-      </div>
-
-      <!-- SAVED SOURCES LIST -->
-      <div class="card" style="margin-bottom:16px;">
-        <h3>📋 Saved RSS Sources</h3>
-        <div id="rss-sources-list">
-          <div style="text-align:center;padding:30px;color:#444;font-size:0.85rem;">Abhi koi source saved nahi — upar se add karo</div>
-        </div>
-      </div>
-
-      <!-- FETCHED POSTS PREVIEW & IMPORT -->
-      <div id="rss-import-section" style="display:none;">
-        <div class="card" style="margin-bottom:16px;">
-          <h3 id="rss-preview-heading">📥 Fetched Posts</h3>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-            <button class="btn btn-s" style="padding:8px 14px;font-size:0.8rem;" onclick="rssSelectAllPosts()">✅ Sab Select</button>
-            <button class="btn btn-s" style="padding:8px 14px;font-size:0.8rem;" onclick="rssDeselectAllPosts()">❌ Deselect</button>
-            <button class="btn btn-s" style="padding:8px 14px;font-size:0.8rem;" onclick="rssSelectNewOnly()">🆕 Sirf Naye</button>
-            <span style="font-size:0.82rem;color:var(--grey);">Selected: <strong id="rss-sel-count" style="color:#fff;">0</strong> / <strong id="rss-total-count" style="color:#fff;">0</strong></span>
-            <button class="btn btn-p" onclick="rssImportSelected()" style="margin-left:auto;padding:10px 22px;">⚡ Firebase Mein Import Karo</button>
-          </div>
-          <!-- Category override for import -->
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
-            <span style="font-size:0.78rem;color:var(--grey);">Import Category:</span>
-            <select class="fi" id="rss-import-cat" style="width:auto;padding:8px 12px;">
-              <option value="hollywood">🌟 Hollywood</option>
-              <option value="bollywood">🎭 Bollywood</option>
-              <option value="tollywood">🎬 Tollywood</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Web Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
-            <input class="fi" id="rss-import-search" placeholder="🔍 Posts search karo..." oninput="rssFilterPosts()" style="flex:1;min-width:160px;padding:8px 12px;"/>
-          </div>
-          <div id="rss-posts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
-        </div>
-
-        <!-- IMPORT PROGRESS -->
-        <div class="card" id="rss-prog-card" style="display:none;margin-bottom:16px;">
-          <h3>⚡ Import Progress</h3>
-          <div style="font-size:0.88rem;color:#fff;margin-bottom:6px;" id="rss-prog-title">Importing...</div>
-          <div style="font-size:0.75rem;color:var(--grey);margin-bottom:10px;" id="rss-prog-sub"></div>
-          <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:10px;">
-            <div id="rss-prog-bar" style="height:100%;background:var(--red);width:0%;transition:width 0.3s;border-radius:4px;"></div>
-          </div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;">
-            <span style="font-size:0.82rem;">✅ Saved: <strong id="rss-p-ok" style="color:#22c55e;">0</strong></span>
-            <span style="font-size:0.82rem;">⚠️ Skipped: <strong id="rss-p-skip" style="color:#f59e0b;">0</strong></span>
-            <span style="font-size:0.82rem;">❌ Error: <strong id="rss-p-err" style="color:var(--red);">0</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- AUTO SYNC STATUS -->
-      <div class="card">
-        <h3>🔄 Auto-Sync Status</h3>
-        <div id="rss-autosync-status">
-          <div style="text-align:center;padding:20px;color:#444;font-size:0.82rem;">Koi active auto-sync nahi — source add karte waqt Auto-Sync ON karo</div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-s" style="padding:8px 16px;font-size:0.8rem;" onclick="rssStopAllSync()">⏹ Sab Auto-Sync Rok Do</button>
-          <button class="btn btn-b" style="padding:8px 16px;font-size:0.8rem;" onclick="rssManualSyncAll()">🔄 Sab Ko Abhi Sync Karo</button>
-        </div>
-      </div>
-    </div>
-
     <!-- BULK IMPORT (Names) -->
     <div class="section" id="sec-bulk">
       <div class="sec-title">📋 Bulk Import <span>(Names)</span></div>
@@ -3165,6 +3032,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div class="plyr-preview-wrap" id="ev-preview"></div>
         </div>
       </div>
+      <div class="fgg full" style="background:rgba(76,29,149,0.06);border:1px solid rgba(196,181,253,0.2);border-radius:8px;padding:12px;">
+        <label style="color:#c4b5fd;">🎬 Video Source URL (Auto-Resolve — My Links se save hoti hai)</label>
+        <input class="fi" id="e-videoSourceUrl" placeholder="https://new6.filesdl.top/cloud/xxxxx"/>
+        <div style="font-size:0.68rem;color:#888;margin-top:5px;">💡 Yeh worker ke <code>/video</code> route ke liye hai — har play pe fresh Cloud Direct link resolve hoti hai, kabhi expire nahi hoti. My Links → "🎬 Video URL" se auto-save hoti hai, ya yahan manually filesdl/cloud page URL paste bhi kar sakte ho.</div>
+      </div>
       <div class="fgg full">
         <label>📲 PixelDrain File ID <span style="color:#555;font-weight:400;">(jaise: 7Ru6uMX7)</span></label>
         <div style="display:flex;align-items:center;gap:0;">
@@ -3184,6 +3056,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <label>🎬 Trailer Link (YouTube embed)</label>
         <input class="fi" id="etrailer" placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
         <div style="font-size:0.7rem;color:#555;margin-top:4px;">💡 Khali chhodo agar trailer nahi lagana</div>
+      </div>
+      <div class="fgg full" style="background:rgba(29,78,216,0.06);border:1px solid rgba(147,197,253,0.25);border-radius:8px;padding:12px;">
+        <label style="color:#93c5fd;">🔗 Quick Link Fetch (My Links jaisa — seedha 480p/720p/1080p/4K fields fill karo)</label>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <input class="fi" id="ed-fetch-url" placeholder="https://linkmake.in/view/xxx ya filesdl.top/cloud/xxx" style="flex:1;"/>
+          <button class="btn btn-p" style="padding:0 18px;white-space:nowrap;" onclick="edFetchLinks()">🔍 Fetch</button>
+        </div>
+        <div id="ed-fetch-result" style="margin-top:10px;font-size:0.78rem;"></div>
       </div>
       <div class="fgg"><label>480p Link</label><input class="fi" id="ed4"/></div>
       <div class="fgg"><label>480p Size</label><input class="fi" id="es4"/></div>
@@ -4059,7 +3939,6 @@ function show(name){
   if(name==='linkcheck'){renderLcResults(lcBrokenMovies);}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
-  if(name==='rss'){rssInit();}
   if(name==='contacts'){loadContacts();}
   if(name==='adtimer'){atpLoadSettings();}
   if(name==='push'){puLoadAll();}
@@ -5768,7 +5647,7 @@ function openEdit(key){
   if (keyBox) keyBox.style.display = 'flex';
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
-  sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('evlc2',m.vlcUrl2||'');sv('etrailer',m.trailerUrl||'');
+  sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('e-videoSourceUrl',m.videoSourceUrl||'');sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('evlc2',m.vlcUrl2||'');sv('etrailer',m.trailerUrl||'');
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
@@ -5816,7 +5695,7 @@ function saveEdit(){
   var cat=gv('ec');var ws=cat==='webseries';
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
-    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
+    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),videoSourceUrl:gv('e-videoSourceUrl'),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
     download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
     seoTitle:gv('eseoTitle'),seoDesc:gv('eseoDesc'),seoKeywords:gv('eseoKeywords'),seoSlug:gv('eseoSlug')};
@@ -9505,577 +9384,6 @@ function hdFetch() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// RSS FEED IMPORTER — Full System
-// ═══════════════════════════════════════════════════════════════
-
-var rssSources       = [];          // saved sources array
-var rssFetchedPosts  = [];          // currently fetched posts
-var rssFilteredPosts = [];          // after search filter
-var rssNewAutoSync   = false;       // toggle state for new-source form
-var rssSyncTimers    = {};          // { sourceId: intervalId }
-var rssExistingTitles = new Set();  // for duplicate detection
-var CORS_PROXY       = 'https://api.allorigins.win/get?url=';
-
-/* ── Init ── */
-function rssInit() {
-  rssSources = JSON.parse(localStorage.getItem('cv_rss_sources') || '[]');
-  rssRenderSources();
-  rssRefreshExisting();
-  rssRestartAutoSyncs();
-  rssRenderSyncStatus();
-}
-
-/* ── Load existing Firebase titles for duplicate skip ── */
-function rssRefreshExisting() {
-  rssExistingTitles.clear();
-  (allMovies || []).forEach(function(m) {
-    if (m.title) rssExistingTitles.add(m.title.trim().toLowerCase());
-  });
-}
-
-/* ── Toggle auto-sync for new source form ── */
-function rssToggleNewSync() {
-  rssNewAutoSync = !rssNewAutoSync;
-  var toggle = document.getElementById('rss-new-autosync-toggle');
-  var label  = document.getElementById('rss-new-autosync-label');
-  var wrap   = document.getElementById('rss-sync-interval-wrap');
-  if (rssNewAutoSync) {
-    toggle.classList.add('on'); label.textContent = 'ON'; wrap.style.display = '';
-  } else {
-    toggle.classList.remove('on'); label.textContent = 'OFF'; wrap.style.display = 'none';
-  }
-}
-
-/* ── Add new source ── */
-function rssAddSource() {
-  var url      = (document.getElementById('rss-new-url').value || '').trim();
-  var name     = (document.getElementById('rss-new-name').value || '').trim();
-  var cat      = document.getElementById('rss-new-cat').value || 'hollywood';
-  var interval = parseInt(document.getElementById('rss-new-interval').value) || 30;
-
-  if (!url) { rssStatus('rss-add-status', '⚠️ URL zaroor daalo!', 'err'); return; }
-  if (rssSources.find(function(s){return s.url===url;})) {
-    rssStatus('rss-add-status', '⚠️ This URL is already saved!', 'err'); return;
-  }
-
-  var src = {
-    id: 'rss_' + Date.now(),
-    url: url,
-    name: name || rssHostname(url),
-    cat: cat,
-    autoSync: rssNewAutoSync,
-    interval: interval,
-    lastSync: null,
-    addedAt: Date.now()
-  };
-
-  rssSources.push(src);
-  rssSaveSourcesList();
-  rssRenderSources();
-  if (src.autoSync) rssStartTimer(src);
-  rssRenderSyncStatus();
-
-  // Reset form
-  document.getElementById('rss-new-url').value = '';
-  document.getElementById('rss-new-name').value = '';
-  rssNewAutoSync = false;
-  document.getElementById('rss-new-autosync-toggle').classList.remove('on');
-  document.getElementById('rss-new-autosync-label').textContent = 'OFF';
-  document.getElementById('rss-sync-interval-wrap').style.display = 'none';
-
-  toast('✅ RSS Source saved!');
-  rssStatus('rss-add-status', '✅ Source saved! "Preview Fetch Karo" to continue.', 'ok');
-}
-
-/* ── Preview fetch (without saving) ── */
-function rssFetchPreview() {
-  var url = (document.getElementById('rss-new-url').value || '').trim();
-  var cat = document.getElementById('rss-new-cat').value || 'hollywood';
-  if (!url) { rssStatus('rss-add-status', '⚠️ Please enter a URL first!', 'err'); return; }
-  rssStatus('rss-add-status', '⏳ Fetching...', 'info');
-  rssFetchFeed(url, cat, function(posts, err) {
-    if (err) { rssStatus('rss-add-status', '❌ Error: ' + err, 'err'); return; }
-    rssStatus('rss-add-status', '✅ ' + posts.length + ' posts found! Click "Firebase Mein Import Karo" to continue.', 'ok');
-    rssFetchedPosts = posts;
-    rssFilteredPosts = posts.slice();
-    document.getElementById('rss-import-cat').value = cat;
-    rssRenderPostsGrid(rssFilteredPosts);
-    document.getElementById('rss-import-section').style.display = 'block';
-    document.getElementById('rss-preview-heading').textContent = '📥 Fetched Posts (' + posts.length + ') — ' + rssHostname(url);
-    rssUpdateSelCount();
-  });
-}
-
-/* ── Fetch from a saved source ── */
-function rssFetchSource(srcId) {
-  var src = rssSources.find(function(s){return s.id===srcId;});
-  if (!src) return;
-  rssStatus('rss-add-status', '⏳ ' + src.name + ' fetching from source...', 'info');
-  rssFetchFeed(src.url, src.cat, function(posts, err) {
-    if (err) { toast('❌ ' + src.name + ': ' + err); return; }
-    rssFetchedPosts = posts;
-    rssFilteredPosts = posts.slice();
-    document.getElementById('rss-import-cat').value = src.cat;
-    rssRenderPostsGrid(rssFilteredPosts);
-    document.getElementById('rss-import-section').style.display = 'block';
-    document.getElementById('rss-preview-heading').textContent = '📥 ' + src.name + ' (' + posts.length + ' posts)';
-    rssUpdateSelCount();
-    document.getElementById('sec-rss').scrollTop = 999999;
-    toast('✅ ' + posts.length + ' posts fetch ho gayi!');
-  });
-}
-
-/* ── Core: fetch RSS XML via proxy, parse items ── */
-function rssFetchFeed(url, defaultCat, cb) {
-  // Strip query string/fragment from target URL — not needed for scraping and can break proxy URL parsing
-  var cleanUrl = url.split('#')[0].split('?')[0];
-
-  var proxies = [
-    { getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-    { getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-    { getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-    { getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }
-  ];
-
-  function tryProxy(i) {
-    if (i >= proxies.length) { cb([], 'Network error — sab CORS proxies fail ho gaye'); return; }
-    var ctrl = new AbortController();
-    var t = setTimeout(function(){ ctrl.abort(); }, 15000);
-    fetch(proxies[i].getUrl(cleanUrl), { signal: ctrl.signal })
-      .then(function(r){ clearTimeout(t); return r.text(); })
-      .then(function(raw) {
-        var html = proxies[i].parse(raw);
-        console.log('[RSS] proxy', i, 'html length:', html ? html.length : 0);
-        if (!html || html.length < 300) { tryProxy(i+1); return; }
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, 'text/xml');
-        var items = doc.querySelectorAll('item');
-        if (!items.length) items = doc.querySelectorAll('entry');
-
-        if (!items.length) {
-          var htmlPosts = rssParseHtmlListing(html, defaultCat);
-          console.log('[RSS] htmlPosts found:', htmlPosts.length);
-          if (htmlPosts.length) { cb(htmlPosts, null); return; }
-          tryProxy(i+1); return;
-        }
-
-        var posts = [];
-        items.forEach(function(item) {
-          var title       = rssText(item, 'title') || '';
-          var link        = rssText(item, 'link') || rssAttr(item, 'link', 'href') || '';
-          var desc        = rssText(item, 'description') || rssText(item, 'content') || rssText(item, 'summary') || '';
-          var pubDate     = rssText(item, 'pubDate') || rssText(item, 'published') || rssText(item, 'updated') || '';
-          var thumbnail   = rssThumb(item, html);
-          var cleanDesc   = rssStripHtml(desc);
-          if (!title) return;
-          posts.push({
-            _id: 'rss_' + Math.random().toString(36).substr(2,9),
-            title: title.trim(),
-            link: link.trim(),
-            description: cleanDesc.substr(0, 400),
-            thumbnail: thumbnail,
-            pubDate: pubDate,
-            category: defaultCat,
-            timestamp: pubDate ? new Date(pubDate).getTime() || Date.now() : Date.now(),
-            _existing: rssExistingTitles.has(title.trim().toLowerCase()),
-            _selected: true
-          });
-        });
-        cb(posts, null);
-      })
-      .catch(function(e) { console.log('[RSS] proxy', i, 'error:', e.message); clearTimeout(t); tryProxy(i+1); });
-  }
-
-  tryProxy(0);
-}
-
-/* ── Parse WordPress-style HTML category/archive listing pages (KatMovieHD, FilmyFly etc.) ── */
-function rssParseHtmlListing(html, defaultCat) {
-  var doc = new DOMParser().parseFromString(html, 'text/html');
-  var posts = [];
-  var seen = {};
-
-  // Each post block is usually <article> or <h2 class="entry-title"> / <h3 class="entry-title">
-  var headings = doc.querySelectorAll('h2.entry-title a, h3.entry-title a, article h2 a, article h3 a, .post-title a, .entry-title a');
-
-  // Fallback: KatMovieHD/WordPress themes often render posts as plain <h2><a>...</a></h2> with no special class
-  if (!headings.length) {
-    var all = doc.querySelectorAll('h2 a[href], h3 a[href]');
-    headings = Array.prototype.filter.call(all, function(a) {
-      var href = a.getAttribute('href') || '';
-      var txt  = (a.textContent || '').trim();
-      // Skip nav/menu/category links — real post links are usually long slugs with text length > 15
-      return txt.length > 12 && /^https?:\/\//.test(href) && !/\/category\/|\/tag\/|\/page\/\d|#/.test(href);
-    });
-  }
-
-  headings.forEach(function(a) {
-    var title = (a.getAttribute('title') || a.textContent || '').trim();
-    var link  = a.getAttribute('href') || '';
-    if (!title || !link) return;
-    if (seen[link]) return;
-    seen[link] = true;
-
-    // Find a nearby image (poster) — search containing block, then fall back to previous sibling elements
-    var container = a.closest('article, li, .post, .item, div') || a.parentElement;
-    var thumbnail = '';
-    var img = container ? container.querySelector('img') : null;
-    if (!img && container) {
-      // look in previous sibling blocks (common WP pattern: image link block before title block)
-      var sib = container.previousElementSibling;
-      var tries = 0;
-      while (sib && !img && tries < 3) {
-        img = sib.querySelector ? sib.querySelector('img') : null;
-        sib = sib.previousElementSibling;
-        tries++;
-      }
-    }
-    if (img) {
-      thumbnail = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || '';
-    }
-
-    posts.push({
-      _id: 'rss_' + Math.random().toString(36).substr(2,9),
-      title: title,
-      link: link.trim(),
-      description: '',
-      thumbnail: thumbnail,
-      pubDate: '',
-      category: defaultCat,
-      timestamp: Date.now(),
-      _existing: rssExistingTitles.has(title.toLowerCase()),
-      _selected: true
-    });
-  });
-
-  return posts;
-}
-
-/* ── Extract thumbnail from RSS item ── */
-function rssThumb(item, rawXml) {
-  // media:thumbnail
-  var mt = item.querySelector('thumbnail');
-  if (mt && mt.getAttribute('url')) return mt.getAttribute('url');
-  // media:content
-  var mc = item.querySelector('content');
-  if (mc && mc.getAttribute('url') && /image|jpg|png|jpeg|webp/i.test(mc.getAttribute('url'))) return mc.getAttribute('url');
-  // enclosure
-  var enc = item.querySelector('enclosure');
-  if (enc && enc.getAttribute('url') && /image/i.test(enc.getAttribute('type')||'')) return enc.getAttribute('url');
-  // img tag inside description/content
-  var desc = rssText(item,'description') || rssText(item,'content') || rssText(item,'summary') || '';
-  var m = desc.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (m) return m[1];
-  return '';
-}
-
-/* ── Helper: get text content of first matching tag ── */
-function rssText(item, tag) {
-  var el = item.querySelector(tag);
-  return el ? (el.textContent || el.innerHTML || '').trim() : '';
-}
-function rssAttr(item, tag, attr) {
-  var el = item.querySelector(tag);
-  return el ? (el.getAttribute(attr)||'') : '';
-}
-function rssStripHtml(str) {
-  return (str||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-}
-function rssHostname(url) {
-  try { return new URL(url).hostname.replace('www.',''); } catch(e) { return url; }
-}
-
-/* ── Render posts grid ── */
-function rssRenderPostsGrid(posts) {
-  var grid = document.getElementById('rss-posts-grid');
-  grid.innerHTML = '';
-  if (!posts.length) {
-    grid.innerHTML = '<div style="color:#444;padding:20px;font-size:0.85rem;">Koi post nahi mili</div>';
-    return;
-  }
-  posts.forEach(function(p, i) {
-    var card = document.createElement('div');
-    card.id = 'rpc_' + i;
-    card.style.cssText = 'background:var(--card2);border:2px solid '+(p._selected?'var(--red)':'var(--border)')+';border-radius:10px;overflow:hidden;cursor:pointer;transition:0.2s;position:relative;';
-    card.onclick = function() { rssTogglePost(i); };
-    var existBadge = p._existing ? '<div style="position:absolute;top:5px;left:5px;background:rgba(245,158,11,0.9);color:#000;font-size:0.55rem;font-weight:700;padding:2px 6px;border-radius:3px;">EXISTS</div>' : '';
-    var selBadge   = p._selected ? '<div style="position:absolute;top:5px;right:5px;background:var(--red);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;">✓</div>' : '';
-    card.innerHTML =
-      '<div style="position:relative;">' +
-        (p.thumbnail
-          ? '<img src="'+p.thumbnail+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;background:#111;" onerror="this.src=\'\';this.style.display=\'none\'"/>'
-          : '<div style="width:100%;aspect-ratio:2/3;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:2rem;">🎬</div>') +
-        existBadge + selBadge +
-      '</div>' +
-      '<div style="padding:8px;">' +
-        '<div style="font-size:0.72rem;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + rssEscHtml(p.title) + '</div>' +
-        '<div style="font-size:0.62rem;color:var(--grey);margin-top:3px;">' + (p.pubDate ? new Date(p.pubDate).toLocaleDateString() : '') + '</div>' +
-      '</div>';
-    grid.appendChild(card);
-  });
-  rssUpdateSelCount();
-}
-
-/* ── Toggle post selection ── */
-function rssTogglePost(i) {
-  var p = rssFetchedPosts.find(function(x, idx) {
-    return rssFilteredPosts[i] === x;
-  }) || rssFilteredPosts[i];
-  if (!p) return;
-  p._selected = !p._selected;
-  var card = document.getElementById('rpc_' + i);
-  if (card) {
-    card.style.borderColor = p._selected ? 'var(--red)' : 'var(--border)';
-    card.innerHTML = card.innerHTML; // re-render via rssRenderPostsGrid
-    rssRenderPostsGrid(rssFilteredPosts);
-  }
-}
-
-function rssSelectAllPosts()   { rssFetchedPosts.forEach(function(p){p._selected=true;}); rssRenderPostsGrid(rssFilteredPosts); }
-function rssDeselectAllPosts() { rssFetchedPosts.forEach(function(p){p._selected=false;}); rssRenderPostsGrid(rssFilteredPosts); }
-function rssSelectNewOnly()    { rssFetchedPosts.forEach(function(p){p._selected=!p._existing;}); rssRenderPostsGrid(rssFilteredPosts); }
-
-function rssUpdateSelCount() {
-  var sel = rssFetchedPosts.filter(function(p){return p._selected;}).length;
-  document.getElementById('rss-sel-count').textContent   = sel;
-  document.getElementById('rss-total-count').textContent = rssFetchedPosts.length;
-}
-
-function rssFilterPosts() {
-  var q = (document.getElementById('rss-import-search').value||'').toLowerCase().trim();
-  rssFilteredPosts = q ? rssFetchedPosts.filter(function(p){return p.title.toLowerCase().includes(q);}) : rssFetchedPosts.slice();
-  rssRenderPostsGrid(rssFilteredPosts);
-}
-
-/* ── Import selected posts to Firebase ── */
-function rssImportSelected() {
-  rssRefreshExisting();
-  var cat  = document.getElementById('rss-import-cat').value || 'hollywood';
-  var list = rssFetchedPosts.filter(function(p){return p._selected;});
-  if (!list.length) { toast('⚠️ No posts selected!'); return; }
-
-  var progCard = document.getElementById('rss-prog-card');
-  progCard.style.display = 'block';
-  var ok=0, skip=0, err=0, total=list.length;
-
-  function next(n) {
-    if (n >= total) {
-      document.getElementById('rss-prog-bar').style.width = '100%';
-      document.getElementById('rss-prog-title').textContent = '✅ Import Complete!';
-      toast('✅ ' + ok + ' posts import ho gayin! (' + skip + ' skip, ' + err + ' err)');
-      rssRefreshExisting();
-      // Mark imported as existing
-      list.forEach(function(p){ p._existing = true; p._selected = false; });
-      rssRenderPostsGrid(rssFilteredPosts);
-      return;
-    }
-    var p = list[n];
-    var pct = Math.round((n / total) * 100);
-    document.getElementById('rss-prog-bar').style.width = pct + '%';
-    document.getElementById('rss-prog-title').textContent = '(' + (n+1) + '/' + total + ') ' + p.title;
-    document.getElementById('rss-p-ok').textContent   = ok;
-    document.getElementById('rss-p-skip').textContent = skip;
-    document.getElementById('rss-p-err').textContent  = err;
-
-    if (rssExistingTitles.has(p.title.trim().toLowerCase())) {
-      skip++; setTimeout(function(){next(n+1);}, 30); return;
-    }
-
-    var data = {
-      title:       p.title,
-      description: p.description || '',
-      thumbnail:   p.thumbnail || '',
-      category:    cat,
-      timestamp:   p.timestamp || Date.now(),
-      featured:    false,
-      trending:    false,
-      sourceUrl:   p.link || ''
-    };
-
-    db.ref('movies').push(data)
-      .then(function() {
-        ok++;
-        rssExistingTitles.add(p.title.trim().toLowerCase());
-        setTimeout(function(){next(n+1);}, 150);
-      })
-      .catch(function() {
-        err++;
-        setTimeout(function(){next(n+1);}, 100);
-      });
-  }
-  next(0);
-}
-
-/* ── Render saved sources list ── */
-function rssRenderSources() {
-  var wrap = document.getElementById('rss-sources-list');
-  if (!rssSources.length) {
-    wrap.innerHTML = '<div style="text-align:center;padding:30px;color:#444;font-size:0.85rem;">Abhi koi source saved nahi — upar se add karo</div>';
-    return;
-  }
-  wrap.innerHTML = '';
-  rssSources.forEach(function(src) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(13,13,13,0.9);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;';
-    var syncDot = src.autoSync
-      ? '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px;box-shadow:0 0 6px #22c55e;"></span>'
-      : '<span style="width:8px;height:8px;border-radius:50%;background:#444;display:inline-block;margin-right:4px;"></span>';
-    row.innerHTML =
-      '<div style="flex:1;min-width:0;">' +
-        '<div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + syncDot + rssEscHtml(src.name) + '</div>' +
-        '<div style="font-size:0.68rem;color:#555;margin-top:2px;word-break:break-all;">' + rssEscHtml(src.url) + '</div>' +
-        '<div style="font-size:0.68rem;color:var(--grey);margin-top:3px;">' +
-          '📂 ' + src.cat +
-          (src.autoSync ? ' &nbsp;|&nbsp; 🔄 Auto-Sync: har '+src.interval+' dk' : '') +
-          (src.lastSync ? ' &nbsp;|&nbsp; Last: '+new Date(src.lastSync).toLocaleTimeString() : '') +
-        '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:6px;flex-shrink:0;">' +
-        '<button class="ib" title="Fetch Posts" onclick="rssFetchSource(\''+src.id+'\')">📥</button>' +
-        '<button class="ib" title="Sync Now" onclick="rssSyncNow(\''+src.id+'\')">🔄</button>' +
-        '<button class="ib" title="Auto-Sync Toggle" onclick="rssToggleSourceSync(\''+src.id+'\')" style="'+(src.autoSync?'border-color:#22c55e;color:#22c55e;':'')+'">⏱</button>' +
-        '<button class="ib" title="Delete Source" onclick="rssDeleteSource(\''+src.id+'\')" style="color:var(--red);">🗑</button>' +
-      '</div>';
-    wrap.appendChild(row);
-  });
-}
-
-/* ── Delete source ── */
-function rssDeleteSource(id) {
-  if (rssSyncTimers[id]) { clearInterval(rssSyncTimers[id]); delete rssSyncTimers[id]; }
-  rssSources = rssSources.filter(function(s){return s.id!==id;});
-  rssSaveSourcesList();
-  rssRenderSources();
-  rssRenderSyncStatus();
-  toast('🗑 Source delete ho gaya');
-}
-
-/* ── Toggle auto-sync for existing source ── */
-function rssToggleSourceSync(id) {
-  var src = rssSources.find(function(s){return s.id===id;});
-  if (!src) return;
-  src.autoSync = !src.autoSync;
-  if (src.autoSync) { rssStartTimer(src); toast('✅ Auto-Sync ON — har '+src.interval+' minute'); }
-  else { if(rssSyncTimers[id]){clearInterval(rssSyncTimers[id]);delete rssSyncTimers[id];} toast('⏹ Auto-Sync OFF'); }
-  rssSaveSourcesList();
-  rssRenderSources();
-  rssRenderSyncStatus();
-}
-
-/* ── Manual sync now ── */
-function rssSyncNow(id) {
-  var src = rssSources.find(function(s){return s.id===id;});
-  if (!src) return;
-  toast('🔄 ' + src.name + ' syncing...');
-  rssSyncSource(src);
-}
-
-/* ── Auto-sync a source silently ── */
-function rssSyncSource(src) {
-  rssRefreshExisting();
-  rssFetchFeed(src.url, src.cat, function(posts, err) {
-    if (err) { toast('⚠️ ' + src.name + ' sync error: ' + err); return; }
-    var newPosts = posts.filter(function(p){ return !rssExistingTitles.has(p.title.trim().toLowerCase()); });
-    if (!newPosts.length) {
-      toast('ℹ️ ' + src.name + ': No new posts found');
-      src.lastSync = Date.now(); rssSaveSourcesList(); rssRenderSources(); return;
-    }
-    var saved = 0;
-    function saveNext(n) {
-      if (n >= newPosts.length) {
-        src.lastSync = Date.now(); rssSaveSourcesList(); rssRenderSources();
-        toast('✅ ' + src.name + ': ' + saved + ' naye posts import!');
-        return;
-      }
-      var p = newPosts[n];
-      db.ref('movies').push({
-        title: p.title, description: p.description||'', thumbnail: p.thumbnail||'',
-        category: src.cat, timestamp: p.timestamp||Date.now(),
-        featured: false, trending: false, sourceUrl: p.link||''
-      }).then(function(){
-        saved++; rssExistingTitles.add(p.title.trim().toLowerCase());
-        setTimeout(function(){saveNext(n+1);}, 150);
-      }).catch(function(){ setTimeout(function(){saveNext(n+1);}, 100); });
-    }
-    saveNext(0);
-  });
-}
-
-/* ── Start interval timer for auto-sync ── */
-function rssStartTimer(src) {
-  if (rssSyncTimers[src.id]) clearInterval(rssSyncTimers[src.id]);
-  rssSyncTimers[src.id] = setInterval(function() {
-    rssSyncSource(src);
-  }, src.interval * 60 * 1000);
-}
-
-/* ── Restart all active auto-syncs on init ── */
-function rssRestartAutoSyncs() {
-  rssSources.forEach(function(src) {
-    if (src.autoSync) rssStartTimer(src);
-  });
-}
-
-/* ── Render sync status panel ── */
-function rssRenderSyncStatus() {
-  var wrap = document.getElementById('rss-autosync-status');
-  var active = rssSources.filter(function(s){return s.autoSync;});
-  if (!active.length) {
-    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:0.82rem;">Koi active auto-sync nahi</div>';
-    return;
-  }
-  wrap.innerHTML = '';
-  active.forEach(function(src) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.2);border-radius:8px;margin-bottom:8px;';
-    row.innerHTML =
-      '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 8px #22c55e;"></span>' +
-      '<div style="flex:1;">' +
-        '<div style="font-size:0.85rem;font-weight:700;">' + rssEscHtml(src.name) + '</div>' +
-        '<div style="font-size:0.7rem;color:var(--grey);">Har ' + src.interval + ' minute | 📂 ' + src.cat + (src.lastSync ? ' | Last: '+new Date(src.lastSync).toLocaleTimeString() : '') + '</div>' +
-      '</div>' +
-      '<button class="ib" onclick="rssSyncNow(\''+src.id+'\')" title="Sync Now" style="font-size:0.8rem;">🔄</button>';
-    wrap.appendChild(row);
-  });
-}
-
-/* ── Stop / Sync all ── */
-function rssStopAllSync() {
-  Object.keys(rssSyncTimers).forEach(function(id){ clearInterval(rssSyncTimers[id]); delete rssSyncTimers[id]; });
-  rssSources.forEach(function(s){ s.autoSync = false; });
-  rssSaveSourcesList(); rssRenderSources(); rssRenderSyncStatus();
-  toast('⏹ All auto-syncs stopped');
-}
-function rssManualSyncAll() {
-  if (!rssSources.length) { toast('⚠️ Koi source nahi!'); return; }
-  rssSources.forEach(function(src){ rssSyncSource(src); });
-  toast('🔄 Sab sources sync ho rahe hain...');
-}
-
-/* ── Save sources to localStorage ── */
-function rssSaveSourcesList() {
-  localStorage.setItem('cv_rss_sources', JSON.stringify(rssSources));
-}
-
-/* ── Status helper ── */
-function rssStatus(elId, msg, type) {
-  var el = document.getElementById(elId);
-  if (!el) return;
-  el.style.display = 'block';
-  if (type === 'ok')   { el.style.background='rgba(34,197,94,0.08)';  el.style.border='1px solid rgba(34,197,94,0.25)';  el.style.color='#86efac'; }
-  if (type === 'err')  { el.style.background='rgba(229,9,20,0.08)';   el.style.border='1px solid rgba(229,9,20,0.3)';    el.style.color='#fca5a5'; }
-  if (type === 'info') { el.style.background='rgba(29,78,216,0.08)';  el.style.border='1px solid rgba(29,78,216,0.25)';  el.style.color='#93c5fd'; }
-  el.textContent = msg;
-}
-
-/* ── HTML escape ── */
-function rssEscHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-
-
 
 
 
@@ -10555,6 +9863,7 @@ function mlRender() {
       + '<button class="btn btn-b" onclick="window.open(\x27'+safeUrl+'\x27,\x27_blank\x27)" style="padding:7px 13px;font-size:0.78rem;">Open</button>'
       + (!lnk.movieKey ? '<button class="btn" style="background:#854d0e;color:#fde68a;padding:7px 13px;font-size:0.78rem;" onclick="mlFixKey(\x27'+safeId+'\x27,\x27'+safeTit+'\x27)">🔑 Fix Key</button>' : '')
       + '<button class="btn" style="background:#1d4ed8;color:#fff;padding:7px 13px;font-size:0.78rem;" onclick="mlShowSubLinks(\x27'+safeId+'\x27,\x27'+safeUrl+'\x27)">Sub Links</button>'
+      + '<button class="btn" style="background:#4c1d95;color:#c4b5fd;padding:7px 13px;font-size:0.78rem;" onclick="mlFetchCloudDirectModal(\x27'+safeId+'\x27,\x27'+safeUrl+'\x27)">🎬 Video URL</button>'
       + '<button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:7px 13px;font-size:0.78rem;" onclick="mlDelete(\x27'+safeId+'\x27)">Del</button>'
       + '</div>'
       + '</div>';
@@ -11899,6 +11208,376 @@ function mlAutoSave(link, movieKey, field, sizeInputId, btn) {
     btn.textContent = '💾 Save';
     toast('❌ ' + e.message, 1);
   });
+}
+
+// ═══════════════════════════════════════════════
+// 🎬 CLOUD DIRECT → VIDEO URL FETCHER
+// (filesdl.top/cloud/xxx page ke andar se sirf
+//  "Cloud Direct" red button wala link nikal ke
+//  movies/{key}/videoUrl mein save karta hai)
+// ═══════════════════════════════════════════════
+function mlFetchCloudDirectModal(id, url) {
+  var lnk = _mlLinks.find(function(l){ return l.id === id; });
+  var movieKey = (lnk && lnk.movieKey) ? lnk.movieKey : '';
+  // Agar yeh link kisi episode se linked hai (Web Series wala "My Links" entry)
+  var epInfo = (lnk && lnk.epFrom) ? {
+    season: lnk.epSeason || '1',
+    from: parseInt(lnk.epFrom),
+    to: parseInt(lnk.epTo || lnk.epFrom)
+  } : null;
+
+  var old = document.getElementById('ml-clouddirect-ovl');
+  if (old) old.remove();
+  var ovl = document.createElement('div');
+  ovl.id = 'ml-clouddirect-ovl';
+  ovl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ovl.innerHTML =
+    '<div style="background:#111;border:1px solid #333;border-radius:12px;padding:18px;max-width:520px;width:100%;max-height:75vh;overflow-y:auto;display:flex;flex-direction:column;">' +
+      '<div style="font-weight:700;margin-bottom:10px;color:#fff;">🎬 Video URL Fetch (Cloud Direct)' + (epInfo ? ' — S' + epInfo.season + ' Ep.' + epInfo.from + (epInfo.to !== epInfo.from ? '-' + epInfo.to : '') : '') + '</div>' +
+      '<div style="font-size:0.72rem;color:#888;word-break:break-all;margin-bottom:10px;">' + url + '</div>' +
+      (movieKey ? '' : '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:8px;">⚠️ Is link ki Movie Key nahi set — pehle list mein "Fix Key" karo, warna Save button nahi dikhega.</div>') +
+      '<div id="ml-cd-result" style="font-size:0.78rem;color:#f59e0b;">⏳ Fetch ho raha hai...</div>' +
+      '<button id="ml-cd-close" class="btn" style="margin-top:14px;background:#222;color:#aaa;align-self:flex-start;">Band Karo</button>' +
+    '</div>';
+  document.body.appendChild(ovl);
+  document.getElementById('ml-cd-close').onclick = function(){ ovl.remove(); };
+
+  var resultBox = document.getElementById('ml-cd-result');
+
+  // "Cloud Direct" label wala link dhundo (markdown ya HTML anchor dono se)
+  function parseForCloudDirect(html) {
+    var mdRe = /\[\s*Cloud\s*Direct[^\]]*\]\((https?:\/\/[^\s")\]]+)\)/i;
+    var m = mdRe.exec(html);
+    if (m) return m[1];
+    var aRe = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>[\s\S]{0,80}?Cloud\s*Direct[\s\S]{0,80}?<\/a>/i;
+    var am = aRe.exec(html);
+    if (am) return am[1];
+    return null;
+  }
+
+  // linkmake.in/view/xxx page ke andar 480p/720p/1080p/4K quality buttons ke href nikalo
+  // (in buttons ke href hi filesdl.top/cloud/xxx pages hote hain — agla step)
+  function parseLinkmakeQualityButtons(html) {
+    var results = [];
+    var btnRe = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>\s*([\s\S]{0,80}?\{[^}]+\}[\s\S]{0,20}?)<\/a>/gi, bm;
+    while ((bm = btnRe.exec(html)) !== null) {
+      var bUrl = bm[1].trim();
+      var text = bm[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+      var qm = text.match(/\{([^}]+)\}/);
+      results.push({ label: text, url: bUrl, quality: qm ? qm[1] : '' });
+    }
+    return results;
+  }
+
+  var cdProxies = [
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+    { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CodeTabs', getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+  ];
+
+  // Generic fetch-with-proxies helper — kisi bhi URL ke liye reuse hota hai (step 1 aur step 2 dono)
+  function cdFetchHtml(targetUrl, onDone, onFail, statusPrefix) {
+    var tried = 0;
+    function next() {
+      if (tried >= cdProxies.length) { onFail(); return; }
+      var p = cdProxies[tried++];
+      resultBox.style.color = '#f59e0b';
+      resultBox.innerHTML = (statusPrefix||'') + '⏳ ' + p.name + ' se try... (' + tried + '/' + cdProxies.length + ')';
+      var ctrl = new AbortController();
+      var t = setTimeout(function(){ ctrl.abort(); }, 8000);
+      fetch(p.getUrl(targetUrl), { signal: ctrl.signal })
+        .then(function(r){ clearTimeout(t); return r.text(); })
+        .then(function(raw){
+          var html = p.parse(raw);
+          if (!html || html.length < 100) { next(); return; }
+          onDone(html);
+        })
+        .catch(function(){ clearTimeout(t); next(); });
+    }
+    next();
+  }
+
+  // ── STEP 1: pehle diya gaya URL fetch karo ──
+  cdFetchHtml(url, function(html) {
+    // Agar yeh linkmake.in/view/ page hai — pehle quality buttons dikhao (Step 2 trigger karne ke liye)
+    if (/linkmake\.in\/view\//i.test(url)) {
+      var qBtns = parseLinkmakeQualityButtons(html);
+      if (!qBtns.length) {
+        resultBox.style.color = '#f87171';
+        resultBox.innerHTML = '❌ Is linkmake page pe koi quality button nahi mila.';
+        return;
+      }
+      cdShowQualityChoices(qBtns);
+      return;
+    }
+    // Warna seedha filesdl cloud page samjho — Cloud Direct dhundo
+    var cd = parseForCloudDirect(html);
+    if (!cd) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Cloud Direct link nahi mila is page pe.'; return; }
+    cdShowResult(cd, url);
+  }, function() {
+    resultBox.style.color = '#f87171';
+    resultBox.innerHTML = '❌ Sab proxies fail. <button onclick="window.open(\'' + url.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+  });
+
+  // ── Quality buttons dikhao (linkmake page se) — har ek pe click = Step 2 fetch ──
+  function cdShowQualityChoices(qBtns) {
+    resultBox.style.color = '#93c5fd';
+    var rows = qBtns.map(function(b, idx) {
+      var qId = 'ml-cd-q' + idx;
+      return '<button id="'+qId+'" style="display:block;width:100%;text-align:left;padding:8px 12px;margin-bottom:6px;background:rgba(76,29,149,0.15);border:1px solid rgba(196,181,253,0.35);color:#c4b5fd;border-radius:7px;font-size:0.75rem;font-weight:600;cursor:pointer;">' + b.label.replace(/</g,'&lt;') + '</button>';
+    }).join('');
+    resultBox.innerHTML = '<div style="margin-bottom:8px;">👇 Quality chuno — uska Cloud Direct link fetch hoga:</div>' + rows;
+    qBtns.forEach(function(b, idx) {
+      document.getElementById('ml-cd-q' + idx).onclick = function() {
+        var stepUrl = b.url;
+        resultBox.innerHTML = '⏳ "' + b.label.replace(/</g,'&lt;') + '" page fetch ho raha hai...';
+        cdFetchHtml(stepUrl, function(html2) {
+          var cd = parseForCloudDirect(html2);
+          if (!cd) {
+            resultBox.style.color = '#f87171';
+            resultBox.innerHTML = '❌ Cloud Direct nahi mila is quality page pe. <button onclick="window.open(\'' + stepUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+            return;
+          }
+          cdShowResult(cd, stepUrl);
+        }, function() {
+          resultBox.style.color = '#f87171';
+          resultBox.innerHTML = '❌ Sab proxies fail (quality page). <button onclick="window.open(\'' + stepUrl.replace(/'/g,"\\'") + '\',\'_blank\')" style="padding:3px 8px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.7rem;cursor:pointer;">Page Kholo</button>';
+        }, '"' + b.label.replace(/</g,'&lt;').replace(/"/g,'') + '" — ');
+      };
+    });
+  }
+
+  // link = abhi ka resolved Cloud Direct (sirf preview/test ke liye)
+  // sourceUrl = filesdl.top/cloud/xxx wala page jisse yeh nikla —
+  // YEHI save hoga (videoSourceUrl), taake worker har play pe fresh
+  // resolve kar sake aur expiry ka masla kabhi na aaye.
+  function cdShowResult(link, sourceUrl) {
+    var safeLink = link.replace(/'/g, "\\'");
+    var safeSrc = encodeURIComponent(sourceUrl);
+    var saveBtn = '';
+    if (movieKey && epInfo) {
+      saveBtn = '<button data-s="'+safeSrc+'" data-mk="'+movieKey+'" data-se="'+epInfo.season+'" data-ef="'+epInfo.from+'" data-et="'+epInfo.to+'" onclick="var d=this.dataset;mlSaveVideoSourceToEpisode(decodeURIComponent(d.s),d.mk,parseInt(d.ef),parseInt(d.et),d.se,this)" style="padding:6px 14px;background:#4c1d95;color:#c4b5fd;border:none;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;margin-left:6px;">💾 Ep Video Source Save</button>';
+    } else if (movieKey) {
+      saveBtn = '<button data-s="'+safeSrc+'" data-mk="'+movieKey+'" onclick="var d=this.dataset;mlSaveVideoUrl(decodeURIComponent(d.s),d.mk,this)" style="padding:6px 14px;background:#4c1d95;color:#c4b5fd;border:none;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;margin-left:6px;">💾 Video Source Save</button>';
+    } else {
+      saveBtn = '<span style="color:#f87171;font-size:0.7rem;margin-left:6px;">⚠️ Movie Key nahi</span>';
+    }
+    resultBox.style.color = '#4ade80';
+    resultBox.innerHTML = '✅ Cloud Direct mil gaya (abhi ke liye — test/copy karne ke liye):'
+      + '<div style="word-break:break-all;color:#93c5fd;font-size:0.68rem;margin:8px 0;">' + link + '</div>'
+      + '<div style="font-size:0.66rem;color:#888;margin-bottom:8px;">💾 Save karne pe yeh link nahi — iska <b>source page</b> (' + sourceUrl + ') save hoga, taake worker har baar fresh link nikal sake aur kabhi expire na ho.</div>'
+      + '<div style="display:flex;align-items:center;flex-wrap:wrap;">'
+      + '<button onclick="navigator.clipboard.writeText(\''+safeLink+'\');toast(\'Copied!\')" style="padding:6px 14px;background:#7f1d1d;color:#fca5a5;border:none;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;">Copy Link</button>'
+      + saveBtn
+      + '</div>';
+  }
+}
+
+// Cloud Direct link nahi — uska SOURCE page (filesdl.top/cloud/xxx) save
+// karo movie ke videoSourceUrl field mein. Worker (/video route) isi ko
+// har play request par fresh fetch karke live Cloud Direct link resolve
+// karega — isliye yeh field kabhi expire nahi hoti.
+function mlSaveVideoUrl(sourceUrl, movieKey, btn) {
+  if (!movieKey) { toast('❌ Movie Key nahi!', 1); return; }
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  db.ref('movies/' + movieKey + '/videoSourceUrl').set(sourceUrl, function(err) {
+    if (err) {
+      btn.disabled = false; btn.textContent = '💾 Video Source Save';
+      toast('❌ ' + err.message, 1);
+    } else {
+      btn.textContent = '✅ Saved!';
+      btn.style.background = '#166534';
+      toast('✅ Video Source save ho gaya! (worker fresh link resolve karega)');
+    }
+  });
+}
+
+// Episode(s) ke liye video source save karo (Web Series) — season/episode
+// match karke episodes array ke us item mein videoSourceUrl set karta hai.
+// Range (epFrom..epTo) diya ho to sab episodes ko yehi source de deta hai
+// (aksar ek hi link kai episodes cover karta hai).
+function mlSaveVideoSourceToEpisode(sourceUrl, movieKey, epFrom, epTo, epSeason, btn) {
+  if (!movieKey) { toast('❌ Movie Key nahi!', 1); return; }
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  db.ref('movies/' + movieKey + '/episodes').once('value', function(snap) {
+    var episodes = [];
+    if (snap.exists()) snap.forEach(function(c) { episodes.push(c.val()); });
+
+    var updated = 0, added = 0;
+    for (var epNum = epFrom; epNum <= epTo; epNum++) {
+      var found = false;
+      for (var i = 0; i < episodes.length; i++) {
+        if (String(episodes[i].season||'1') === String(epSeason) && String(episodes[i].episode) === String(epNum)) {
+          episodes[i].videoSourceUrl = sourceUrl;
+          found = true; updated++; break;
+        }
+      }
+      if (!found) {
+        episodes.push({ season: String(epSeason), episode: String(epNum), title: 'Episode ' + epNum, videoSourceUrl: sourceUrl });
+        added++;
+      }
+    }
+
+    db.ref('movies/' + movieKey + '/episodes').set(episodes, function(err) {
+      if (err) {
+        btn.disabled = false; btn.textContent = '💾 Ep Video Source Save';
+        toast('❌ ' + err.message, 1);
+      } else {
+        btn.textContent = '✅ Saved!';
+        btn.style.background = '#166534';
+        var msg = '✅ S' + epSeason + ' Ep.' + epFrom + (epTo !== epFrom ? '-' + epTo : '') + ' video source save!';
+        if (added)   msg += ' (+' + added + ' new)';
+        if (updated) msg += ' (' + updated + ' upd)';
+        toast(msg);
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔗 EDIT MODAL — QUICK LINK FETCH
+// My Links jaisa hi fetch flow, lekin Firebase mein seedha likhne ke
+// bajaye sirf Edit form ke input fields (ed4/ed7/ed10/ed4k) mein value
+// daal deta hai — asli save Edit modal ke "Save Changes" button se hi
+// hota hai, isliye yeh 100% safe/non-destructive hai.
+// ═══════════════════════════════════════════════════════════════════
+var edFetchProxies = [
+  { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
+  { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CodeTabs',       getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+];
+
+function edFetchHtml(url, onDone, onFail, statusEl, prefix) {
+  var tried = 0;
+  function next() {
+    if (tried >= edFetchProxies.length) { onFail(); return; }
+    var p = edFetchProxies[tried++];
+    if (statusEl) statusEl.innerHTML = (prefix||'') + '⏳ ' + p.name + ' se try... (' + tried + '/' + edFetchProxies.length + ')';
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 8000);
+    fetch(p.getUrl(url), { signal: ctrl.signal })
+      .then(function(r){ clearTimeout(t); return r.text(); })
+      .then(function(raw){
+        var html = p.parse(raw);
+        if (!html || html.length < 100) { next(); return; }
+        onDone(html);
+      })
+      .catch(function(){ clearTimeout(t); next(); });
+  }
+  next();
+}
+
+// linkmake.in/view/xxx page ke 480p/720p/1080p/4K quality buttons ke href nikalo
+function edParseLinkmakeQualityButtons(html) {
+  var results = [];
+  var btnRe = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>\s*([\s\S]{0,80}?\{[^}]+\}[\s\S]{0,20}?)<\/a>/gi, bm;
+  while ((bm = btnRe.exec(html)) !== null) {
+    var bUrl = bm[1].trim();
+    var text = bm[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    var qm = text.match(/\{([^}]+)\}/);
+    results.push({ label: text, url: bUrl, quality: qm ? qm[1] : '' });
+  }
+  return results;
+}
+
+function edExtractChooserLinks(html) {
+  var results = [];
+  var aRe = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi, m;
+  while ((m = aRe.exec(html)) !== null) {
+    var hrefM = m[1].match(/href=["']([^"']+)["']/i);
+    if (!hrefM) continue;
+    var href = hrefM[1].trim().replace(/&amp;/g, '&');
+    if (!href.startsWith('http')) continue;
+    var label = m[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    results.push({ href: href, label: label });
+  }
+  return results;
+}
+
+// Download ke liye priority — "Fast Direct" sabse pehle (waisa hi jaisa worker mein hai)
+var ED_LABEL_PRIORITY = ['fast direct', 'cloud direct', 'hubcloud', 'hub cloud', 'pixeldrain', 'gofile', 'telegram'];
+function edParseBestLink(html) {
+  var links = edExtractChooserLinks(html);
+  for (var i = 0; i < ED_LABEL_PRIORITY.length; i++) {
+    var kw = ED_LABEL_PRIORITY[i];
+    var found = links.find(function(l){ return l.label.toLowerCase().indexOf(kw) !== -1; });
+    if (found) return found.href;
+  }
+  var r2 = /(https?:\/\/pub-[a-f0-9]+\.r2\.dev\/[^\s"')<\]]+)/i.exec(html);
+  if (r2) return r2[1];
+  return null;
+}
+
+function edFetchLinks() {
+  var url = (document.getElementById('ed-fetch-url').value || '').trim();
+  if (!url) { toast('❌ URL daalo pehle!', 1); return; }
+  var resultBox = document.getElementById('ed-fetch-result');
+  resultBox.style.color = '#f59e0b';
+  resultBox.innerHTML = '⏳ Fetch ho raha hai...';
+
+  edFetchHtml(url, function(html) {
+    if (/linkmake\.in\/view\//i.test(url)) {
+      var qBtns = edParseLinkmakeQualityButtons(html);
+      if (!qBtns.length) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Koi quality button nahi mila is page pe.'; return; }
+      edShowQualityChoices(qBtns, resultBox);
+      return;
+    }
+    var link = edParseBestLink(html);
+    if (!link) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Koi link nahi mila is page pe.'; return; }
+    edShowSaveOptions(link, resultBox);
+  }, function() {
+    resultBox.style.color = '#f87171';
+    resultBox.innerHTML = '❌ Sab proxies fail — page fetch nahi ho saka.';
+  }, resultBox);
+}
+
+function edShowQualityChoices(qBtns, resultBox) {
+  resultBox.style.color = '#93c5fd';
+  var rows = qBtns.map(function(b, idx) {
+    return '<button id="ed-fq' + idx + '" style="display:block;width:100%;text-align:left;padding:8px 12px;margin-bottom:6px;background:rgba(29,78,216,0.12);border:1px solid rgba(147,197,253,0.3);color:#93c5fd;border-radius:7px;font-size:0.75rem;font-weight:600;cursor:pointer;">' + b.label.replace(/</g,'&lt;') + '</button>';
+  }).join('');
+  resultBox.innerHTML = '<div style="margin-bottom:8px;">👇 Quality chuno:</div>' + rows;
+  qBtns.forEach(function(b, idx) {
+    document.getElementById('ed-fq' + idx).onclick = function() {
+      resultBox.innerHTML = '⏳ "' + b.label.replace(/</g,'&lt;') + '" fetch ho raha hai...';
+      edFetchHtml(b.url, function(html2) {
+        var link = edParseBestLink(html2);
+        if (!link) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Link nahi mila.'; return; }
+        edShowSaveOptions(link, resultBox, b.quality);
+      }, function() {
+        resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Fetch fail.';
+      }, resultBox);
+    };
+  });
+}
+
+function edShowSaveOptions(link, resultBox, guessedQuality) {
+  var safeLink = link.replace(/'/g, "\\'");
+  function saveBtn(label, fieldId) {
+    return '<button onclick="document.getElementById(\'' + fieldId + '\').value=\'' + safeLink + '\';toast(\'✅ ' + label + ' field mein daal diya\')" style="padding:6px 12px;margin:3px 4px 0 0;background:#1d4ed8;color:#fff;border:none;border-radius:6px;font-size:0.72rem;font-weight:700;cursor:pointer;">→ ' + label + '</button>';
+  }
+  var autoMsg = '';
+  if (guessedQuality) {
+    var qLower = guessedQuality.toLowerCase();
+    var autoField = qLower.indexOf('480') > -1 ? 'ed4' : qLower.indexOf('720') > -1 ? 'ed7' : qLower.indexOf('1080') > -1 ? 'ed10' : (qLower.indexOf('4k') > -1 || qLower.indexOf('2160') > -1) ? 'ed4k' : '';
+    if (autoField) {
+      document.getElementById(autoField).value = link;
+      autoMsg = '<div style="color:#4ade80;font-size:0.72rem;margin-bottom:6px;">✅ "' + guessedQuality + '" ke hisaab se automatically field mein daal diya!</div>';
+    }
+  }
+  resultBox.style.color = '#4ade80';
+  resultBox.innerHTML = '✅ Link mil gaya:'
+    + '<div style="word-break:break-all;color:#93c5fd;font-size:0.68rem;margin:6px 0;">' + link + '</div>'
+    + autoMsg
+    + '<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Ya manually kisi field mein daal do:</div>'
+    + '<div>' + saveBtn('480p', 'ed4') + saveBtn('720p', 'ed7') + saveBtn('1080p', 'ed10') + saveBtn('4K', 'ed4k') + saveBtn('Video Source', 'e-videoSourceUrl') + '</div>'
+    + '<div style="font-size:0.66rem;color:#888;margin-top:6px;">💡 Yeh sirf form field fill karta hai — asli save karne ke liye neeche "Save Changes" dabana zaroori hai.</div>';
 }
 
 // ── Direct link save with size (non-filesdl) ──
@@ -13264,6 +12943,7 @@ function ffiStartImport() {
         if (data.language) obj.language = data.language;
         if (data.quality) obj.quality = data.quality;
         if (data.cast) obj.cast = data.cast;
+        if (data.screenshots && data.screenshots.length) obj.screenshots = data.screenshots.join(',');
         if (data.download_link) {
           obj.download480p = data.download_link;
           obj.download720p = data.download_link;
@@ -13271,10 +12951,21 @@ function ffiStartImport() {
           // ⭐ Source link bhi save karo — taake "🎬 Linked:" panel mein ye
           // movie khud-ba-khud link ho jaye aur quality rows fetch/save kaam karein
           obj.dlSourceUrl = data.download_link;
+          // 🎬 Video ke liye bhi wahi source use karo — worker ka /video
+          // route ab linkmake page se bhi khud quality+Cloud Direct nikal
+          // leta hai (2-hop), isliye alag se manually "Video URL" karne ki
+          // zaroorat nahi — 500 movies bulk import mein bhi Watch Now
+          // automatically kaam karega.
+          obj.videoSourceUrl = data.download_link;
         }
-        // SEO slug
+        // SEO fields — auto-generate (baaki import sources jaisa hi pattern)
         var slug = (data.title + (data.year?'-'+data.year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
         if (slug) obj.seoSlug = slug;
+        obj.seoTitle = data.title + (data.year ? ' (' + data.year + ')' : '') + ' Free Download — CineNova';
+        obj.seoDesc = data.description
+          ? data.description.substring(0,155) + (data.description.length > 155 ? '...' : '')
+          : 'Watch ' + data.title + (data.year ? ' (' + data.year + ')' : '') + ' free on CineNova.';
+        obj.seoKeywords = [data.title, data.year, data.language, data.category, 'free download', 'cinenova'].filter(Boolean).join(', ');
 
         db.ref('movies').push(obj).then(function() {
           ok++;
@@ -13306,13 +12997,23 @@ function ffiParsePage(html, srcUrl) {
     var idx = html.toLowerCase().indexOf(lbl.toLowerCase());
     if (idx === -1) return '';
     var snippet = html.substring(idx + lbl.length, idx + lbl.length + 300);
-    return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|\n]/)[0].trim();
+    // Agle <br> tag ya agle known label (Starcast/Genre/Quality/etc.) se
+    // pehle hi cut karo — warna dono fields ek dusre mein mix ho jate hain
+    // (kyunki HTML tags strip hone ke baad separator gayab ho jata hai)
+    var cutAt = snippet.length;
+    var brM = snippet.match(/<br\s*\/?>/i);
+    if (brM) cutAt = Math.min(cutAt, brM.index);
+    var lblM = snippet.match(/\b(Starcast|Cast|Genre|Quality|Size|IMDB|Director|Release|Format|Screenshots?|Story|Plot|Synopsis)\s*:/i);
+    if (lblM) cutAt = Math.min(cutAt, lblM.index);
+    snippet = snippet.substring(0, cutAt);
+    return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|]/)[0].trim();
   }
+
 
   // Title
   var ogTitle = meta('og:title') || meta('twitter:title') || (html.match(/<title[^>]*>([^<]+)/) || [])[1] || '';
   ogTitle = ogTitle.replace(/\s*[\|–\-»]\s*(FilmyFly|Filmy4wap|KatMovieHD|Download|HD|Movies?|Watch Online)[^]*/i,'').trim();
-  data.title = ogTitle.replace(/\s*(Hindi|English|Dual Audio|HEVC|WEBRip|BluRay|720p|1080p|480p|4K|Season|\bS\d+\b|\b\d{4}\b).*/i,'').trim();
+  data.title = ogTitle.replace(/\s*\(?\b(Hindi|English|Dual Audio|HEVC|WEBRip|BluRay|720p|1080p|480p|4K|Season|S\d+|(19|20)\d{2})\b.*/i,'').replace(/[\s\(\[\-–]+$/,'').trim();
 
   // Year
   var yearM = ogTitle.match(/\b(20\d{2})\b/) || html.match(/Release[^>]*>.*?(20\d{2})/i);
@@ -13341,6 +13042,23 @@ function ffiParsePage(html, srcUrl) {
 
   // Cast
   data.cast = getTextAfterLabel('Starcast:').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').substring(0,200).trim();
+
+  // Screenshots — post body ke andar images dhundo (thumbnail/logo/ads/
+  // avatar/site-name/resized-variant exclude), sirf best 1 image lo
+  var screenshots = [];
+  var imgRe = /<img[^>]+src=["']([^"']+)["']/gi, im;
+  while ((im = imgRe.exec(html)) !== null) {
+    var src = im[1].trim();
+    if (!/^https?:\/\//i.test(src)) continue;
+    if (src === data.thumbnail) continue;
+    if (/logo|icon|avatar|banner|placeholder|advertisement|\bads?\b|gravatar|sprite|button|filmyfly|filmy4wap|filmyzilla|katmoviehd|4wap/i.test(src)) continue;
+    // wsrv/webp resize-proxy variants (jaise webp.iwebp.store/webp/400-60-1x-...)
+    // asal screenshot nahi hote — same poster ke resized crops hote hain
+    if (/\/webp\/\d+-\d+-\d+x-/i.test(src)) continue;
+    if (screenshots.indexOf(src) === -1) screenshots.push(src);
+    if (screenshots.length >= 1) break;
+  }
+  data.screenshots = screenshots;
 
   // Category
   var cat = 'hollywood';
@@ -13372,8 +13090,14 @@ function ffiTmdbEnrich(title, year, cb) {
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(res){
-      var results = (res.results || []);
-      if (year) results = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(year); }) || results;
+      var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
+      if (year) {
+        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(year); });
+        // Sirf tab filter apply karo jab kam-se-kam 1 match mile — warna
+        // (jaise FilmyFly ka year TMDB se thoda mismatch ho) unfiltered
+        // results hi rehne do, taake enrichment poori tarah fail na ho.
+        if (filtered.length) results = filtered;
+      }
       var m = results[0];
       if (!m) { cb(null); return; }
       var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
