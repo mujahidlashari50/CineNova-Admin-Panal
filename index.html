@@ -597,6 +597,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-linkcheck" onclick="show('linkcheck')">🔗 Link Checker <span id="lc-nav-badge" class="lc-nav-badge" style="display:none;">0</span></div>
     <div class="nav-item" id="nav-linkmanager" onclick="show('linkmanager')">📎 Link Manager <span class="nav-count" id="lm-no-link-count" style="background:#f59e0b;">0</span></div>
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
+    <div class="nav-item" id="nav-adwatch" onclick="show('adwatch')">🎬 Watch Now Ads</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
     <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
@@ -935,7 +936,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
       <div class="card" style="padding:0">
         <div class="tw">
           <table>
-            <thead><tr><th><input type="checkbox" id="chk-all" onchange="chkAllChange(this)" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></th><th>Thumb</th><th>Title</th><th>Year</th><th>Category</th><th>Genre</th><th>Rating</th><th>Links</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th><input type="checkbox" id="chk-all" onchange="chkAllChange(this)" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></th><th>Thumb</th><th>Title</th><th>Year</th><th>Category</th><th>Genre</th><th>Rating</th><th>Links</th><th>⬇ Downloads</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="mtbl"></tbody>
           </table>
           <div id="tempty" style="text-align:center;padding:40px;color:#444;display:none;">Koi content nahi mila</div>
@@ -953,7 +954,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
       <div class="card" style="padding:0">
         <div class="tw">
           <table>
-            <thead><tr><th>Thumb</th><th>Title</th><th>Year</th><th>Genre</th><th>Rating</th><th>Links</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Thumb</th><th>Title</th><th>Year</th><th>Genre</th><th>Rating</th><th>Links</th><th>⬇ Downloads</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="cattbl"></tbody>
           </table>
           <div id="catempty" style="text-align:center;padding:40px;color:#444;display:none;">Is category mein koi content nahi</div>
@@ -2303,9 +2304,9 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
           <div class="fgg"><label>⏳ Timer (Seconds)</label><input class="fi" id="atp-timer-sec" type="number" min="3" max="60" value="10"/></div>
-          <div class="fgg"><label>🔤 Page Title</label><input class="fi" id="atp-page-title" placeholder="Aapka Download Tayar Ho Raha Hai..."/></div>
+          <div class="fgg"><label>🔤 Page Title</label><input class="fi" id="atp-page-title" value="Aapka Download Tayar Ho Raha Hai..." placeholder="Aapka Download Tayar Ho Raha Hai..."/></div>
         </div>
-        <div class="fgg" style="margin-bottom:14px;"><label>💬 Message (User ko)</label><input class="fi" id="atp-page-msg" placeholder="Please wait, your download will start automatically..."/></div>
+        <div class="fgg" style="margin-bottom:14px;"><label>💬 Message (User ko)</label><input class="fi" id="atp-page-msg" value="Please wait, your download will start automatically..." placeholder="Please wait, your download will start automatically..."/></div>
         <button class="btn btn-p" onclick="atpSaveSettings()">💾 Save Settings</button>
       </div>
 
@@ -2350,6 +2351,19 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <textarea class="fi" id="atp-bot-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Bottom Ad Code paste karo -->"></textarea>
         </div>
 
+        <!-- Video Ad -->
+        <div style="background:var(--card2);border:1px solid rgba(168,85,247,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">🎥 Video Ad <span style="font-size:0.72rem;color:var(--grey);">(Poster ke neeche, timer se pehle — floating/sticky video ad networks ke liye)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="atp-video-ad-status">OFF</span>
+              <div class="toggle-wrap" id="atp-video-ad-wrap" onclick="atpToggleAd('video')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="atp-video-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Video Ad script/embed paste karo (Adsterra Video Ad, PropellerAds, floating video, VAST JS player, etc.) -->"></textarea>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Kisi bhi ad network ka video-ad script/embed yahan paste karo — script/iframe/HTML sab chalega, page load hote hi execute hoga.</div>
+        </div>
+
         <!-- Direct Link Ad -->
         <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -2386,6 +2400,159 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
       <div style="padding:12px 14px;background:rgba(229,9,20,0.04);border:1px solid rgba(229,9,20,0.12);border-radius:9px;font-size:0.75rem;color:#555;">
         💾 Firebase path: <code style="color:#666;background:#111;padding:2px 6px;border-radius:4px;">settings/adTimerPage</code>
+      </div>
+    </div>
+
+    <!-- WATCH NOW ADS (VIDEO PLAYER) SECTION -->
+    <div class="section" id="sec-adwatch">
+      <div class="sec-title">🎬 Watch Now <span>Ads</span></div>
+
+      <div style="background:rgba(29,78,216,0.07);border:1px solid rgba(29,78,216,0.25);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#93c5fd;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:1.4rem;">💡</span>
+        <div><strong style="color:#fff;">Kaise kaam karta hai?</strong><br/>
+        Jab user <strong style="color:#fbbf24;">"Watch Now"</strong> (online video player) par click karta hai — pehle ek <strong style="color:#fff;">Ad+Timer Page</strong> show hoga, countdown chalega, phir isi page par video player chalega.<br/>
+        Ye ads <strong style="color:#22c55e;">Download wale Ad Timer Page se bilkul alag/independent</strong> hain — yahan jo set karoge sirf "Watch Now" (video player) waale flow par hi lagega. Firebase mein save hoga — website pe foran update!</div>
+      </div>
+
+      <!-- SETTINGS CARD -->
+      <div class="card">
+        <h3>⚙️ Watch Page Settings</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card2);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:0.92rem;font-weight:700;">⏱️ Watch Timer Page Enable/Disable</div>
+            <div style="font-size:0.73rem;color:var(--grey);margin-top:3px;">ON karo toh "Watch Now" click pe ad+timer page dikhega</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:0.75rem;color:var(--grey);" id="awp-status-label">OFF</span>
+            <div class="toggle-wrap" id="awp-toggle-wrap" onclick="awpToggleMain()"><div class="toggle-btn"></div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="fgg"><label>⏳ Timer (Seconds)</label><input class="fi" id="awp-timer-sec" type="number" min="3" max="60" value="10"/></div>
+          <div class="fgg"><label>🔤 Page Title</label><input class="fi" id="awp-page-title" value="Aapki Video Tayar Ho Rahi Hai..." placeholder="Aapki Video Tayar Ho Rahi Hai..."/></div>
+        </div>
+        <div class="fgg" style="margin-bottom:14px;"><label>💬 Message (User ko)</label><input class="fi" id="awp-page-msg" value="Please wait, your video will start automatically..." placeholder="Please wait, your video will start automatically..."/></div>
+        <button class="btn btn-p" onclick="awpSaveSettings()">💾 Save Settings</button>
+      </div>
+
+      <!-- ADS CODE CARD -->
+      <div class="card">
+        <h3>📢 Ads Code</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:16px;">Google AdSense, Monetag ya koi bhi ads ka HTML/script paste karo. "Watch Now" ke Ad+Timer page pe show honge — download wale ads se bilkul alag.</div>
+
+        <!-- Top Ad -->
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">📌 Top Ad <span style="font-size:0.72rem;color:var(--grey);">(Watch timer page ke upar)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-top-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-top-ad-wrap" onclick="awpToggleAd('top')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-top-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Top Ad Code paste karo -->"></textarea>
+        </div>
+
+        <!-- Middle Ad -->
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">📌 Middle Ad <span style="font-size:0.72rem;color:var(--grey);">(Countdown ke saath)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-mid-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-mid-ad-wrap" onclick="awpToggleAd('middle')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-mid-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Middle Ad Code paste karo -->"></textarea>
+        </div>
+
+        <!-- Bottom Ad -->
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">📌 Bottom Ad <span style="font-size:0.72rem;color:var(--grey);">(Watch timer page ke neeche)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-bot-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-bot-ad-wrap" onclick="awpToggleAd('bottom')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-bot-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Bottom Ad Code paste karo -->"></textarea>
+        </div>
+
+        <!-- Video Ad -->
+        <div style="background:var(--card2);border:1px solid rgba(168,85,247,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">🎥 Video Ad <span style="font-size:0.72rem;color:var(--grey);">(Poster ke neeche, timer se pehle — floating/sticky video ad networks ke liye)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-video-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-video-ad-wrap" onclick="awpToggleAd('video')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-video-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Video Ad script/embed paste karo (Adsterra Video Ad, PropellerAds, floating video, VAST JS player, etc.) -->"></textarea>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Kisi bhi ad network ka video-ad script/embed yahan paste karo — script/iframe/HTML sab chalega, page load hote hi execute hoga. Player start hote hi ye zone hide ho jati hai.</div>
+        </div>
+
+        <!-- Pre-Roll Ad -->
+        <div style="background:var(--card2);border:1px solid rgba(34,197,94,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">▶️ Pre-Roll Ad <span style="font-size:0.72rem;color:var(--grey);">(Movie play hote hi, actual video se pehle)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-preroll-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-preroll-ad-wrap" onclick="awpToggleAd('preroll')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-preroll-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Pre-Roll Ad script/embed paste karo -->"></textarea>
+          <div class="fgg" style="margin-top:10px;max-width:180px;"><label>⏳ Duration (Seconds)</label><input class="fi" id="awp-preroll-sec" type="number" min="3" max="60" value="5"/></div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">User "Watch Now" dabayega → yeh ad itne seconds dikhega → phir asli movie shuru hogi.</div>
+        </div>
+
+        <!-- Post-Roll Ad -->
+        <div style="background:var(--card2);border:1px solid rgba(239,68,68,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">🏁 Post-Roll Ad <span style="font-size:0.72rem;color:var(--grey);">(Movie/episode khatam hote hi)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-postroll-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-postroll-ad-wrap" onclick="awpToggleAd('postroll')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <textarea class="fi" id="awp-postroll-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Post-Roll Ad script/embed paste karo -->"></textarea>
+          <div class="fgg" style="margin-top:10px;max-width:180px;"><label>⏳ Duration (Seconds)</label><input class="fi" id="awp-postroll-sec" type="number" min="3" max="60" value="5"/></div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Video khatam hote hi yeh ad itne seconds dikhega — uske baad agar web-series hai to "Next Episode" card show hoga.</div>
+        </div>
+
+        <!-- Direct Link Ad -->
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:0.85rem;font-weight:700;">🔗 Direct Link Ad <span style="font-size:0.72rem;color:var(--grey);">("Watch Now" click pe naya tab khulta hai)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="awp-direct-ad-status">OFF</span>
+              <div class="toggle-wrap" id="awp-direct-ad-wrap" onclick="awpToggleAd('direct')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+          <input class="fi" id="awp-direct-ad-link" type="text" style="font-size:0.83rem;" placeholder="https://www.effectivecpmnetwork.com/xxxxx?key=xxxxx"/>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">CPM network ka direct/monetized link daalo. OFF rakhne pe koi link open nahi hoga.</div>
+        </div>
+
+        <button class="btn btn-p" onclick="awpSaveAds()">💾 Save All Ads</button>
+      </div>
+
+      <!-- PREVIEW CARD -->
+      <div class="card">
+        <h3>👁️ Watch Timer Page Preview</h3>
+        <div style="background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.3rem;color:#e50914;letter-spacing:2px;" id="awp-prev-title">Aapki Video Tayar Ho Rahi Hai...</div>
+          <div style="position:relative;width:90px;height:90px;">
+            <svg viewBox="0 0 90 90" style="width:90px;height:90px;transform:rotate(-90deg);">
+              <circle cx="45" cy="45" r="38" fill="none" stroke="#2a2a2a" stroke-width="6"/>
+              <circle cx="45" cy="45" r="38" fill="none" stroke="#e50914" stroke-width="6" stroke-dasharray="239" stroke-dashoffset="60" style="filter:drop-shadow(0 0 6px rgba(229,9,20,0.5))"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:2rem;color:#fff;" id="awp-prev-num">10</div>
+          </div>
+          <div style="color:#b3b3b3;font-size:0.85rem;" id="awp-prev-msg">Please wait, your video will start automatically...</div>
+          <div style="font-size:0.7rem;color:#333;">[ Ads yahan show honge ]</div>
+        </div>
+        <button class="btn btn-s" style="margin-top:12px;padding:9px 20px;font-size:0.82rem;" onclick="awpUpdatePreview()">🔄 Preview Update Karo</button>
+      </div>
+
+      <div style="padding:12px 14px;background:rgba(229,9,20,0.04);border:1px solid rgba(229,9,20,0.12);border-radius:9px;font-size:0.75rem;color:#555;">
+        💾 Firebase path: <code style="color:#666;background:#111;padding:2px 6px;border-radius:4px;">settings/adWatchPage</code> <span style="color:#333;">(Download wale <code style="color:#555;">settings/adTimerPage</code> se alag hai)</span>
       </div>
     </div>
 
@@ -3941,6 +4108,7 @@ function show(name){
   if(name==='servermovies'){smLoadExisting();}
   if(name==='contacts'){loadContacts();}
   if(name==='adtimer'){atpLoadSettings();}
+  if(name==='adwatch'){awpLoadSettings();}
   if(name==='push'){puLoadAll();}
   if(name==='mylinks'){mlLoadAll();}
   if(name==='withdrawals'){wdLoadAll();}
@@ -4069,6 +4237,7 @@ function buildRow(m,hideCategory){
     +'<td style="color:var(--grey);font-size:0.8rem;">'+(m.genre||'—')+'</td>'
     +'<td style="color:#f59e0b;white-space:nowrap;">⭐ '+(m.rating||'—')+'</td>'
     +'<td>'+lbadge+trBadge+'</td>'
+    +'<td style="color:var(--grey);white-space:nowrap;">'+(m.downloadCount?'⬇ '+m.downloadCount:'—')+'</td>'
     +'<td>'+pubToggle+'</td>'
     +'<td><div class="ta"><button class="ib" onclick="openEdit(\''+m.key+'\')" title="Edit">✏️</button>'
       +'<button class="ib" onclick="confDel(\''+m.key+'\',\''+titleSafe+'\')" title="Delete">🗑</button>'
@@ -9672,6 +9841,7 @@ var _atpEnabled = false;
 var _atpTopAdOn = false;
 var _atpBotAdOn = false;
 var _atpMidAdOn = false;
+var _atpVideoAdOn = false;
 var _atpDirectAdOn = false;
 var _atpLoaded  = false;
 
@@ -9685,6 +9855,7 @@ function atpLoadSettings() {
     _atpTopAdOn = !!d.topAdEnabled;
     _atpBotAdOn = !!d.botAdEnabled;
     _atpMidAdOn = !!d.midAdEnabled;
+    _atpVideoAdOn = !!d.videoAdEnabled;
     _atpDirectAdOn = !!d.directAdEnabled;
 
     // Apply toggles
@@ -9692,6 +9863,7 @@ function atpLoadSettings() {
     _atpSetToggle('atp-top-ad-wrap', _atpTopAdOn);
     _atpSetToggle('atp-bot-ad-wrap', _atpBotAdOn);
     _atpSetToggle('atp-mid-ad-wrap', _atpMidAdOn);
+    _atpSetToggle('atp-video-ad-wrap', _atpVideoAdOn);
     _atpSetToggle('atp-direct-ad-wrap', _atpDirectAdOn);
 
     // Labels
@@ -9699,6 +9871,7 @@ function atpLoadSettings() {
     document.getElementById('atp-top-ad-status').textContent = _atpTopAdOn ? 'ON' : 'OFF';
     document.getElementById('atp-bot-ad-status').textContent = _atpBotAdOn ? 'ON' : 'OFF';
     document.getElementById('atp-mid-ad-status').textContent = _atpMidAdOn ? 'ON' : 'OFF';
+    document.getElementById('atp-video-ad-status').textContent = _atpVideoAdOn ? 'ON' : 'OFF';
     document.getElementById('atp-direct-ad-status').textContent = _atpDirectAdOn ? 'ON' : 'OFF';
 
     // Fields
@@ -9708,6 +9881,7 @@ function atpLoadSettings() {
     if(d.topAdCode) document.getElementById('atp-top-ad-code').value = d.topAdCode;
     if(d.botAdCode) document.getElementById('atp-bot-ad-code').value = d.botAdCode;
     if(d.midAdCode) document.getElementById('atp-mid-ad-code').value = d.midAdCode;
+    if(d.videoAdCode) document.getElementById('atp-video-ad-code').value = d.videoAdCode;
     if(d.directAdLink) document.getElementById('atp-direct-ad-link').value = d.directAdLink;
 
     atpUpdatePreview();
@@ -9739,6 +9913,10 @@ function atpToggleAd(type) {
     _atpBotAdOn = !_atpBotAdOn;
     _atpSetToggle('atp-bot-ad-wrap', _atpBotAdOn);
     document.getElementById('atp-bot-ad-status').textContent = _atpBotAdOn ? 'ON' : 'OFF';
+  } else if(type === 'video') {
+    _atpVideoAdOn = !_atpVideoAdOn;
+    _atpSetToggle('atp-video-ad-wrap', _atpVideoAdOn);
+    document.getElementById('atp-video-ad-status').textContent = _atpVideoAdOn ? 'ON' : 'OFF';
   } else if(type === 'direct') {
     _atpDirectAdOn = !_atpDirectAdOn;
     _atpSetToggle('atp-direct-ad-wrap', _atpDirectAdOn);
@@ -9766,9 +9944,11 @@ function atpSaveAds() {
     topAdEnabled: _atpTopAdOn,
     botAdEnabled: _atpBotAdOn,
     midAdEnabled: _atpMidAdOn,
+    videoAdEnabled: _atpVideoAdOn,
     topAdCode: document.getElementById('atp-top-ad-code').value,
     botAdCode: document.getElementById('atp-bot-ad-code').value,
     midAdCode: document.getElementById('atp-mid-ad-code').value,
+    videoAdCode: document.getElementById('atp-video-ad-code').value,
     directAdEnabled: _atpDirectAdOn,
     directAdLink: document.getElementById('atp-direct-ad-link').value.trim()
   }, function(err) {
@@ -9784,6 +9964,170 @@ function atpUpdatePreview() {
   var el1 = document.getElementById('atp-prev-title');
   var el2 = document.getElementById('atp-prev-msg');
   var el3 = document.getElementById('atp-prev-num');
+  if(el1) el1.textContent = title;
+  if(el2) el2.textContent = msg;
+  if(el3) el3.textContent = sec;
+}
+
+// ═══════════════════════════════════════════════
+// WATCH NOW ADS (VIDEO PLAYER) — PANEL JAVASCRIPT
+// Bilkul Ad Timer Page jaisa logic, lekin alag Firebase
+// path (settings/adWatchPage) — taake download ke ads se
+// mix na ho aur dono independently control ho sakein.
+// ═══════════════════════════════════════════════
+var _awpEnabled = false;
+var _awpTopAdOn = false;
+var _awpBotAdOn = false;
+var _awpMidAdOn = false;
+var _awpVideoAdOn = false;
+var _awpPreRollOn = false;
+var _awpPostRollOn = false;
+var _awpDirectAdOn = false;
+var _awpLoaded  = false;
+
+function awpLoadSettings() {
+  if(_awpLoaded) return; // har baar load mat karo, sirf pehli baar
+  _awpLoaded = true;
+  db.ref('settings/adWatchPage').once('value', function(snap) {
+    var d = snap.val() || {};
+
+    _awpEnabled = !!d.enabled;
+    _awpTopAdOn = !!d.topAdEnabled;
+    _awpBotAdOn = !!d.botAdEnabled;
+    _awpMidAdOn = !!d.midAdEnabled;
+    _awpVideoAdOn = !!d.videoAdEnabled;
+    _awpPreRollOn = !!d.preRollAdEnabled;
+    _awpPostRollOn = !!d.postRollAdEnabled;
+    _awpDirectAdOn = !!d.directAdEnabled;
+
+    // Apply toggles
+    _awpSetToggle('awp-toggle-wrap', _awpEnabled);
+    _awpSetToggle('awp-top-ad-wrap', _awpTopAdOn);
+    _awpSetToggle('awp-bot-ad-wrap', _awpBotAdOn);
+    _awpSetToggle('awp-mid-ad-wrap', _awpMidAdOn);
+    _awpSetToggle('awp-video-ad-wrap', _awpVideoAdOn);
+    _awpSetToggle('awp-preroll-ad-wrap', _awpPreRollOn);
+    _awpSetToggle('awp-postroll-ad-wrap', _awpPostRollOn);
+    _awpSetToggle('awp-direct-ad-wrap', _awpDirectAdOn);
+
+    // Labels
+    document.getElementById('awp-status-label').textContent = _awpEnabled ? 'ON' : 'OFF';
+    document.getElementById('awp-top-ad-status').textContent = _awpTopAdOn ? 'ON' : 'OFF';
+    document.getElementById('awp-bot-ad-status').textContent = _awpBotAdOn ? 'ON' : 'OFF';
+    document.getElementById('awp-mid-ad-status').textContent = _awpMidAdOn ? 'ON' : 'OFF';
+    document.getElementById('awp-video-ad-status').textContent = _awpVideoAdOn ? 'ON' : 'OFF';
+    document.getElementById('awp-preroll-ad-status').textContent = _awpPreRollOn ? 'ON' : 'OFF';
+    document.getElementById('awp-postroll-ad-status').textContent = _awpPostRollOn ? 'ON' : 'OFF';
+    document.getElementById('awp-direct-ad-status').textContent = _awpDirectAdOn ? 'ON' : 'OFF';
+
+    // Fields
+    if(d.timerSec) document.getElementById('awp-timer-sec').value = d.timerSec;
+    if(d.pageTitle) document.getElementById('awp-page-title').value = d.pageTitle;
+    if(d.pageMsg)   document.getElementById('awp-page-msg').value   = d.pageMsg;
+    if(d.topAdCode) document.getElementById('awp-top-ad-code').value = d.topAdCode;
+    if(d.botAdCode) document.getElementById('awp-bot-ad-code').value = d.botAdCode;
+    if(d.midAdCode) document.getElementById('awp-mid-ad-code').value = d.midAdCode;
+    if(d.videoAdCode) document.getElementById('awp-video-ad-code').value = d.videoAdCode;
+    if(d.preRollAdCode) document.getElementById('awp-preroll-ad-code').value = d.preRollAdCode;
+    if(d.preRollAdSeconds) document.getElementById('awp-preroll-sec').value = d.preRollAdSeconds;
+    if(d.postRollAdCode) document.getElementById('awp-postroll-ad-code').value = d.postRollAdCode;
+    if(d.postRollAdSeconds) document.getElementById('awp-postroll-sec').value = d.postRollAdSeconds;
+    if(d.directAdLink) document.getElementById('awp-direct-ad-link').value = d.directAdLink;
+
+    awpUpdatePreview();
+  });
+}
+
+function _awpSetToggle(id, state) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(state) el.classList.add('on'); else el.classList.remove('on');
+}
+
+function awpToggleMain() {
+  _awpEnabled = !_awpEnabled;
+  _awpSetToggle('awp-toggle-wrap', _awpEnabled);
+  document.getElementById('awp-status-label').textContent = _awpEnabled ? 'ON' : 'OFF';
+}
+
+function awpToggleAd(type) {
+  if(type === 'top') {
+    _awpTopAdOn = !_awpTopAdOn;
+    _awpSetToggle('awp-top-ad-wrap', _awpTopAdOn);
+    document.getElementById('awp-top-ad-status').textContent = _awpTopAdOn ? 'ON' : 'OFF';
+  } else if(type === 'middle') {
+    _awpMidAdOn = !_awpMidAdOn;
+    _awpSetToggle('awp-mid-ad-wrap', _awpMidAdOn);
+    document.getElementById('awp-mid-ad-status').textContent = _awpMidAdOn ? 'ON' : 'OFF';
+  } else if(type === 'bottom') {
+    _awpBotAdOn = !_awpBotAdOn;
+    _awpSetToggle('awp-bot-ad-wrap', _awpBotAdOn);
+    document.getElementById('awp-bot-ad-status').textContent = _awpBotAdOn ? 'ON' : 'OFF';
+  } else if(type === 'video') {
+    _awpVideoAdOn = !_awpVideoAdOn;
+    _awpSetToggle('awp-video-ad-wrap', _awpVideoAdOn);
+    document.getElementById('awp-video-ad-status').textContent = _awpVideoAdOn ? 'ON' : 'OFF';
+  } else if(type === 'preroll') {
+    _awpPreRollOn = !_awpPreRollOn;
+    _awpSetToggle('awp-preroll-ad-wrap', _awpPreRollOn);
+    document.getElementById('awp-preroll-ad-status').textContent = _awpPreRollOn ? 'ON' : 'OFF';
+  } else if(type === 'postroll') {
+    _awpPostRollOn = !_awpPostRollOn;
+    _awpSetToggle('awp-postroll-ad-wrap', _awpPostRollOn);
+    document.getElementById('awp-postroll-ad-status').textContent = _awpPostRollOn ? 'ON' : 'OFF';
+  } else if(type === 'direct') {
+    _awpDirectAdOn = !_awpDirectAdOn;
+    _awpSetToggle('awp-direct-ad-wrap', _awpDirectAdOn);
+    document.getElementById('awp-direct-ad-status').textContent = _awpDirectAdOn ? 'ON' : 'OFF';
+  }
+}
+
+function awpSaveSettings() {
+  var sec   = parseInt(document.getElementById('awp-timer-sec').value) || 10;
+  var title = document.getElementById('awp-page-title').value.trim();
+  var msg   = document.getElementById('awp-page-msg').value.trim();
+  db.ref('settings/adWatchPage').update({
+    enabled:  _awpEnabled,
+    timerSec: sec,
+    pageTitle: title || 'Aapki Video Tayar Ho Rahi Hai...',
+    pageMsg:  msg   || 'Please wait, your video will start automatically...'
+  }, function(err) {
+    if(err) toast('❌ Save nahi hua', 1);
+    else { toast('✅ Watch Timer Settings Save!'); awpUpdatePreview(); }
+  });
+}
+
+function awpSaveAds() {
+  db.ref('settings/adWatchPage').update({
+    topAdEnabled: _awpTopAdOn,
+    botAdEnabled: _awpBotAdOn,
+    midAdEnabled: _awpMidAdOn,
+    videoAdEnabled: _awpVideoAdOn,
+    topAdCode: document.getElementById('awp-top-ad-code').value,
+    botAdCode: document.getElementById('awp-bot-ad-code').value,
+    midAdCode: document.getElementById('awp-mid-ad-code').value,
+    videoAdCode: document.getElementById('awp-video-ad-code').value,
+    preRollAdEnabled: _awpPreRollOn,
+    preRollAdCode: document.getElementById('awp-preroll-ad-code').value,
+    preRollAdSeconds: parseInt(document.getElementById('awp-preroll-sec').value) || 5,
+    postRollAdEnabled: _awpPostRollOn,
+    postRollAdCode: document.getElementById('awp-postroll-ad-code').value,
+    postRollAdSeconds: parseInt(document.getElementById('awp-postroll-sec').value) || 5,
+    directAdEnabled: _awpDirectAdOn,
+    directAdLink: document.getElementById('awp-direct-ad-link').value.trim()
+  }, function(err) {
+    if(err) toast('❌ Ads save nahi hue', 1);
+    else toast('✅ Watch Now Ads Save! Website pe foran update hoga.');
+  });
+}
+
+function awpUpdatePreview() {
+  var title = document.getElementById('awp-page-title').value.trim() || 'Aapki Video Tayar Ho Rahi Hai...';
+  var msg   = document.getElementById('awp-page-msg').value.trim()   || 'Please wait, your video will start automatically...';
+  var sec   = parseInt(document.getElementById('awp-timer-sec').value) || 10;
+  var el1 = document.getElementById('awp-prev-title');
+  var el2 = document.getElementById('awp-prev-msg');
+  var el3 = document.getElementById('awp-prev-num');
   if(el1) el1.textContent = title;
   if(el2) el2.textContent = msg;
   if(el3) el3.textContent = sec;
