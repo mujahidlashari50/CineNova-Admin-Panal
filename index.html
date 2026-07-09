@@ -2498,9 +2498,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <div class="toggle-wrap" id="awp-preroll-ad-wrap" onclick="awpToggleAd('preroll')"><div class="toggle-btn"></div></div>
             </div>
           </div>
-          <textarea class="fi" id="awp-preroll-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Pre-Roll Ad script/embed paste karo -->"></textarea>
+          <div class="fgg" style="margin-bottom:10px;">
+            <label>🎬 VAST Tag URL <span style="color:#22c55e;">(ExoClick, real video ad — priority)</span></label>
+            <input class="fi" id="awp-preroll-vast" type="text" style="font-size:0.83rem;" placeholder="https://s.magsrv.com/v1/vast.php?idz=xxxxxxx"/>
+          </div>
+          <div style="font-size:0.7rem;color:#555;margin-bottom:10px;">VAST Tag URL diya hai toh yehi priority se chalega (real ad-network video, skip button ke saath). Neeche wala code sirf tab chalega jab VAST URL khaali ho.</div>
+          <textarea class="fi" id="awp-preroll-ad-code" rows="4" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Fallback: ad script/embed, ya sirf ek CPM direct-link URL paste karo -->"></textarea>
           <div class="fgg" style="margin-top:10px;max-width:180px;"><label>⏳ Duration (Seconds)</label><input class="fi" id="awp-preroll-sec" type="number" min="3" max="60" value="5"/></div>
-          <div style="font-size:0.7rem;color:#555;margin-top:6px;">User "Watch Now" dabayega → yeh ad itne seconds dikhega → phir asli movie shuru hogi.</div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">User "Watch Now" dabayega → yeh ad shuru hoga → phir asli movie shuru hogi.</div>
         </div>
 
         <!-- Post-Roll Ad -->
@@ -2512,9 +2517,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <div class="toggle-wrap" id="awp-postroll-ad-wrap" onclick="awpToggleAd('postroll')"><div class="toggle-btn"></div></div>
             </div>
           </div>
-          <textarea class="fi" id="awp-postroll-ad-code" rows="5" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Post-Roll Ad script/embed paste karo -->"></textarea>
+          <div class="fgg" style="margin-bottom:10px;">
+            <label>🎬 VAST Tag URL <span style="color:#22c55e;">(ExoClick, real video ad — priority)</span></label>
+            <input class="fi" id="awp-postroll-vast" type="text" style="font-size:0.83rem;" placeholder="https://s.magsrv.com/v1/vast.php?idz=xxxxxxx"/>
+          </div>
+          <div style="font-size:0.7rem;color:#555;margin-bottom:10px;">VAST Tag URL diya hai toh yehi priority se chalega (real ad-network video, skip button ke saath). Neeche wala code sirf tab chalega jab VAST URL khaali ho.</div>
+          <textarea class="fi" id="awp-postroll-ad-code" rows="4" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Fallback: ad script/embed, ya sirf ek CPM direct-link URL paste karo -->"></textarea>
           <div class="fgg" style="margin-top:10px;max-width:180px;"><label>⏳ Duration (Seconds)</label><input class="fi" id="awp-postroll-sec" type="number" min="3" max="60" value="5"/></div>
-          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Video khatam hote hi yeh ad itne seconds dikhega — uske baad agar web-series hai to "Next Episode" card show hoga.</div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Video khatam hote hi yeh ad show hoga — uske baad agar web-series hai to "Next Episode" card show hoga.</div>
         </div>
 
         <!-- Direct Link Ad -->
@@ -10030,8 +10040,10 @@ function awpLoadSettings() {
     if(d.videoAdCode) document.getElementById('awp-video-ad-code').value = d.videoAdCode;
     if(d.preRollAdCode) document.getElementById('awp-preroll-ad-code').value = d.preRollAdCode;
     if(d.preRollAdSeconds) document.getElementById('awp-preroll-sec').value = d.preRollAdSeconds;
+    if(d.preRollVastUrl) document.getElementById('awp-preroll-vast').value = d.preRollVastUrl;
     if(d.postRollAdCode) document.getElementById('awp-postroll-ad-code').value = d.postRollAdCode;
     if(d.postRollAdSeconds) document.getElementById('awp-postroll-sec').value = d.postRollAdSeconds;
+    if(d.postRollVastUrl) document.getElementById('awp-postroll-vast').value = d.postRollVastUrl;
     if(d.directAdLink) document.getElementById('awp-direct-ad-link').value = d.directAdLink;
 
     awpUpdatePreview();
@@ -10110,9 +10122,11 @@ function awpSaveAds() {
     preRollAdEnabled: _awpPreRollOn,
     preRollAdCode: document.getElementById('awp-preroll-ad-code').value,
     preRollAdSeconds: parseInt(document.getElementById('awp-preroll-sec').value) || 5,
+    preRollVastUrl: document.getElementById('awp-preroll-vast').value.trim(),
     postRollAdEnabled: _awpPostRollOn,
     postRollAdCode: document.getElementById('awp-postroll-ad-code').value,
     postRollAdSeconds: parseInt(document.getElementById('awp-postroll-sec').value) || 5,
+    postRollVastUrl: document.getElementById('awp-postroll-vast').value.trim(),
     directAdEnabled: _awpDirectAdOn,
     directAdLink: document.getElementById('awp-direct-ad-link').value.trim()
   }, function(err) {
