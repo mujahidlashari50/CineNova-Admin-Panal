@@ -2364,6 +2364,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div style="font-size:0.7rem;color:#555;margin-top:6px;">Kisi bhi ad network ka video-ad script/embed yahan paste karo — script/iframe/HTML sab chalega, page load hote hi execute hoga.</div>
         </div>
 
+        <!-- Adcash Autotag (Automatic Ads) -->
+        <div style="background:var(--card2);border:1px solid rgba(34,197,94,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">🏷️ Adcash Autotag <span style="font-size:0.72rem;color:var(--grey);">(Automatic ads — poore page pe khud lagte hain)</span></div>
+          <input class="fi" id="atp-autotag-zone" type="text" style="font-size:0.83rem;font-family:monospace;" placeholder="Zone ID daalo (e.g. 8bqq1rmw1m)"/>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Adcash dashboard → Zones → Autotag zone banao, wahan se Zone ID copy karke yahan paste karo. Khaali chodne pe Autotag load hi nahi hoga.</div>
+        </div>
+
         <!-- Direct Link Ad -->
         <div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -2525,6 +2532,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <textarea class="fi" id="awp-postroll-ad-code" rows="4" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<!-- Fallback: ad script/embed, ya sirf ek CPM direct-link URL paste karo -->"></textarea>
           <div class="fgg" style="margin-top:10px;max-width:180px;"><label>⏳ Duration (Seconds)</label><input class="fi" id="awp-postroll-sec" type="number" min="3" max="60" value="5"/></div>
           <div style="font-size:0.7rem;color:#555;margin-top:6px;">Video khatam hote hi yeh ad show hoga — uske baad agar web-series hai to "Next Episode" card show hoga.</div>
+        </div>
+
+        <!-- Adcash Autotag (Automatic Ads) -->
+        <div style="background:var(--card2);border:1px solid rgba(34,197,94,0.35);border-radius:9px;padding:14px;margin-bottom:12px;">
+          <div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">🏷️ Adcash Autotag <span style="font-size:0.72rem;color:var(--grey);">(Automatic ads — poore page pe khud lagte hain)</span></div>
+          <input class="fi" id="awp-autotag-zone" type="text" style="font-size:0.83rem;font-family:monospace;" placeholder="Zone ID daalo (e.g. 8bqq1rmw1m)"/>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">Adcash dashboard → Zones → Autotag zone banao, wahan se Zone ID copy karke yahan paste karo. Khaali chodne pe Autotag load hi nahi hoga. Download wale Ad Timer Page se alag/independent hai.</div>
         </div>
 
         <!-- Direct Link Ad -->
@@ -9892,6 +9906,7 @@ function atpLoadSettings() {
     if(d.botAdCode) document.getElementById('atp-bot-ad-code').value = d.botAdCode;
     if(d.midAdCode) document.getElementById('atp-mid-ad-code').value = d.midAdCode;
     if(d.videoAdCode) document.getElementById('atp-video-ad-code').value = d.videoAdCode;
+    if(d.autotagZoneId) document.getElementById('atp-autotag-zone').value = d.autotagZoneId;
     if(d.directAdLink) document.getElementById('atp-direct-ad-link').value = d.directAdLink;
 
     atpUpdatePreview();
@@ -9959,6 +9974,7 @@ function atpSaveAds() {
     botAdCode: document.getElementById('atp-bot-ad-code').value,
     midAdCode: document.getElementById('atp-mid-ad-code').value,
     videoAdCode: document.getElementById('atp-video-ad-code').value,
+    autotagZoneId: document.getElementById('atp-autotag-zone').value.trim(),
     directAdEnabled: _atpDirectAdOn,
     directAdLink: document.getElementById('atp-direct-ad-link').value.trim()
   }, function(err) {
@@ -10044,6 +10060,7 @@ function awpLoadSettings() {
     if(d.postRollAdCode) document.getElementById('awp-postroll-ad-code').value = d.postRollAdCode;
     if(d.postRollAdSeconds) document.getElementById('awp-postroll-sec').value = d.postRollAdSeconds;
     if(d.postRollVastUrl) document.getElementById('awp-postroll-vast').value = d.postRollVastUrl;
+    if(d.autotagZoneId) document.getElementById('awp-autotag-zone').value = d.autotagZoneId;
     if(d.directAdLink) document.getElementById('awp-direct-ad-link').value = d.directAdLink;
 
     awpUpdatePreview();
@@ -10127,6 +10144,7 @@ function awpSaveAds() {
     postRollAdCode: document.getElementById('awp-postroll-ad-code').value,
     postRollAdSeconds: parseInt(document.getElementById('awp-postroll-sec').value) || 5,
     postRollVastUrl: document.getElementById('awp-postroll-vast').value.trim(),
+    autotagZoneId: document.getElementById('awp-autotag-zone').value.trim(),
     directAdEnabled: _awpDirectAdOn,
     directAdLink: document.getElementById('awp-direct-ad-link').value.trim()
   }, function(err) {
