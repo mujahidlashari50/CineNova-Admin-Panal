@@ -8626,8 +8626,22 @@ function loadRatings(){
 // ═══════════════════════════════════════════
 function loadComments(){
   var filter=(document.getElementById('com-filter')||{}).value||'all';
-  db.ref('comments').orderByChild('createdAt').once('value',function(snap){
-    var comments=[]; if(snap.exists())snap.forEach(function(c){var r=c.val();r.key=c.key;comments.unshift(r);});
+  // Theme comments/{movieKey}/{pushId} = {name, text, ts} format me save karta hai —
+  // isliye har movie-level child ke andar loop kar ke asli comments nikalne padenge.
+  db.ref('comments').once('value',function(snap){
+    var comments=[];
+    if(snap.exists()){
+      snap.forEach(function(movieSnap){
+        var movieKey=movieSnap.key;
+        movieSnap.forEach(function(c){
+          var r=c.val()||{};
+          r.key=c.key;
+          r.movieKey=movieKey;
+          comments.push(r);
+        });
+      });
+    }
+    comments.sort(function(a,b){return (b.ts||0)-(a.ts||0);});
     if(filter!=='all')comments=comments.filter(function(c){return(c.status||'pending')===filter;});
     var badge=document.getElementById('com-count');
     var pending=comments.filter(function(c){return(c.status||'pending')==='pending';}).length;
@@ -8635,29 +8649,29 @@ function loadComments(){
     var el=document.getElementById('com-list');if(!el)return;
     if(!comments.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#444;">Koi comment nahi</div>';return;}
     el.innerHTML=comments.map(function(c){
-      var d=new Date(c.createdAt||Date.now()).toLocaleDateString('en-GB');
+      var d=new Date(c.ts||Date.now()).toLocaleDateString('en-GB');
       var movie=allMovies.find(function(m){return m.key===c.movieKey;})||{};
       var isPending=(c.status||'pending')==='pending';
       return '<div class="card" style="padding:14px;margin-bottom:8px;border-color:'+(isPending?'rgba(245,158,11,0.3)':'rgba(42,42,42,0.8)')+'">'
         +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
           +'<div style="flex:1;">'
-            +'<div style="font-size:0.72rem;color:#555;margin-bottom:5px;">📽 <strong style="color:#aaa;">'+(movie.title||'Unknown Movie')+'</strong> · 👤 '+(c.userName||'Anonymous')+' · '+d+'</div>'
+            +'<div style="font-size:0.72rem;color:#555;margin-bottom:5px;">📽 <strong style="color:#aaa;">'+(movie.title||'Unknown Movie')+'</strong> · 👤 '+(c.name||'Anonymous')+' · '+d+'</div>'
             +'<div style="font-size:0.88rem;color:#ddd;line-height:1.5;">'+(c.text||'')+'</div>'
           +'</div>'
           +'<div style="display:flex;gap:6px;flex-shrink:0;">'
-            +(isPending?'<button class="ib" onclick="approveComment(\''+c.key+'\')" style="color:var(--green);border-color:var(--green);" title="Approve">✅</button>':'')
-            +'<button class="ib" onclick="deleteComment(\''+c.key+'\')" title="Delete">🗑</button>'
+            +(isPending?'<button class="ib" onclick="approveComment(\''+c.movieKey+'\',\''+c.key+'\')" style="color:var(--green);border-color:var(--green);" title="Approve">✅</button>':'')
+            +'<button class="ib" onclick="deleteComment(\''+c.movieKey+'\',\''+c.key+'\')" title="Delete">🗑</button>'
           +'</div>'
         +'</div>'
       +'</div>';
     }).join('');
   });
 }
-function approveComment(key){
-  db.ref('comments/'+key+'/status').set('approved').then(function(){toast('✅ Comment approved!');loadComments();}).catch(function(e){toast('❌ '+e.message,1);});
+function approveComment(movieKey,key){
+  db.ref('comments/'+movieKey+'/'+key+'/status').set('approved').then(function(){toast('✅ Comment approved!');loadComments();}).catch(function(e){toast('❌ '+e.message,1);});
 }
-function deleteComment(key){
-  db.ref('comments/'+key).remove().then(function(){toast('🗑 Comment delete ho gaya!');loadComments();}).catch(function(e){toast('❌ '+e.message,1);});
+function deleteComment(movieKey,key){
+  db.ref('comments/'+movieKey+'/'+key).remove().then(function(){toast('🗑 Comment delete ho gaya!');loadComments();}).catch(function(e){toast('❌ '+e.message,1);});
 }
 function clearAllComments(){
   if(!confirm('Delete all comments?'))return;
