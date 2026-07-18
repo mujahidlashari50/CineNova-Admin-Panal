@@ -586,6 +586,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-pipeimport" onclick="show('pipeimport')">📥 Pipe Importer</div>
     <div class="nav-section-title">Features</div>
     <div class="nav-item" id="nav-trending" onclick="show('trending')">🔥 Trending Manager</div>
+    <div class="nav-item" id="nav-motd" onclick="show('motd')" style="color:#facc15;">🎬 Movie of the Day</div>
     <div class="nav-item" id="nav-views" onclick="show('views')">👁 Views Analytics</div>
     <div class="nav-item" id="nav-requests" onclick="show('requests')">📬 Movie Requests <span class="nav-count" id="req-count">0</span></div>
     <div class="nav-item" id="nav-ratings" onclick="show('ratings')">⭐ Ratings</div>
@@ -1293,6 +1294,17 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
       <input class="si" id="trend-srch" placeholder="🔍 Movie search karo..." oninput="trendFilter()" style="width:100%;margin-bottom:14px;"/>
       <div id="trend-list"></div>
+    </div>
+
+    <!-- MOVIE OF THE DAY -->
+    <div class="section" id="sec-motd">
+      <div class="sec-title">🎬 Movie of the <span>Day</span></div>
+      <div style="background:rgba(250,204,21,0.07);border:1px solid rgba(250,204,21,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fde68a;">
+        💡 Har roz sabse zyada downloads wali movie khud-ba-khud "Movie of the Day" ban jati hai (Automatic). Agar aap koi specific movie highlight karna chahte ho to neeche search kar ke "Set" kar do (Manual Override) — wo sirf aaj ke din ke liye lagu hogi.
+      </div>
+      <div id="motd-current" class="card" style="padding:14px;margin-bottom:18px;"></div>
+      <input class="si" id="motd-srch" placeholder="🔍 Manual override ke liye movie search karo..." oninput="motdFilter()" style="width:100%;margin-bottom:14px;"/>
+      <div id="motd-list"></div>
     </div>
 
     <!-- VIEWS ANALYTICS -->
@@ -4139,6 +4151,7 @@ function show(name){
   if(name==='earners'){earnersLoad();}
   if(name==='fraud'){fraudLoad();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
+  if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
   if(name==='views'){if(typeof uaLoadAll==='function')uaLoadAll();}
   if(name==='requests'){if(typeof loadRequests==='function')loadRequests();}
   if(name==='ratings'){if(typeof loadRatings==='function')loadRatings();}
@@ -7839,6 +7852,92 @@ function toggleFlag(key,field){
     var tog=document.getElementById((field==='trending'?'tr':'feat')+'-tog-'+key);
     if(tog){tog.classList.toggle('on',nw);tog.querySelector('.toggle-btn').style.left=nw?'23px':'3px';}
     toast(nw?'✅ '+field+' ON!':'🚫 '+field+' OFF!');
+  }).catch(function(e){toast('❌ '+e.message,1);});
+}
+
+// ═══════════════════════════════════════════
+// 🎬 MOVIE OF THE DAY
+// Firebase path: motd/manualKey, motd/manualDate (yyyy-mm-dd), motd/setAt
+// Agar manualDate === aaj ki date to manual override active, warna automatic
+// (sabse zyada downloadCount wali non-adult movie) apne aap dikhti hai.
+// ═══════════════════════════════════════════
+function motdAutoPick(){
+  var pool=allMovies.filter(function(m){return m.category!=='adult' && (m.downloadCount||0)>0;});
+  if(!pool.length) return null;
+  pool.sort(function(a,b){return (b.downloadCount||0)-(a.downloadCount||0);});
+  return pool[0];
+}
+function motdRenderCurrent(){
+  var el=document.getElementById('motd-current');if(!el)return;
+  db.ref('motd').once('value').then(function(snap){
+    var d=snap.val()||{};
+    var isManual = d.manualDate===uaToday() && d.manualKey;
+    var active=null, modeLabel='';
+    if(isManual){
+      active=allMovies.find(function(x){return x.key===d.manualKey;});
+      modeLabel='<span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">MANUAL</span>';
+    }
+    if(!active){
+      active=motdAutoPick();
+      modeLabel='<span style="background:#22c55e;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">AUTOMATIC</span>';
+    }
+    if(!active){
+      el.innerHTML='<div style="text-align:center;color:#444;padding:10px;">Abhi koi movie qualify nahi karti (downloads chahiye)</div>';
+      return;
+    }
+    var tu=active.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(active.thumbnail)+'&w=60&h=84&fit=cover&output=jpg':'';
+    el.innerHTML='<div style="display:flex;align-items:center;gap:14px;">'
+      +(tu?'<img src="'+tu+'" style="width:46px;height:64px;object-fit:cover;border-radius:5px;flex-shrink:0;">':'<div style="width:46px;height:64px;background:#222;border-radius:5px;flex-shrink:0;"></div>')
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Aaj ki Movie of the Day '+modeLabel+'</div>'
+        +'<div style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(active.title||'Untitled')+'</div>'
+        +'<div style="color:var(--grey);font-size:0.75rem;">⬇ '+(active.downloadCount||0)+' downloads</div>'
+      +'</div>'
+      +(isManual?'<button class="btn" onclick="motdClear()" style="background:#333;flex-shrink:0;">🚫 Clear Override</button>':'')
+    +'</div>';
+  }).catch(function(e){el.innerHTML='<div style="color:#f87171;">❌ '+e.message+'</div>';});
+}
+function motdFilter(){
+  var q=(document.getElementById('motd-srch')||{}).value||'';
+  q=q.toLowerCase().trim();
+  var list=q?allMovies.filter(function(m){return(m.title||'').toLowerCase().includes(q);}):[];
+  motdRenderList(list);
+}
+function motdRenderList(list){
+  var el=document.getElementById('motd-list');if(!el)return;
+  if(!list||!list.length){el.innerHTML='';return;}
+  el.innerHTML=list.slice(0,25).map(function(m){
+    var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=50&h=70&fit=cover&output=jpg':'';
+    return '<div class="card" style="padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'
+      +(tu?'<img src="'+tu+'" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex-shrink:0;">':'<div style="width:38px;height:53px;background:#222;border-radius:4px;flex-shrink:0;"></div>')
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(m.title||'Untitled')+'</div>'
+        +'<div style="color:var(--grey);font-size:0.75rem;">'+(m.year||'')+(m.category?' · '+m.category:'')+'</div>'
+      +'</div>'
+      +'<button class="btn" onclick="motdSet(\''+m.key+'\')" style="flex-shrink:0;">✅ Set</button>'
+    +'</div>';
+  }).join('');
+}
+function motdSet(key){
+  var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
+  var updates={};
+  updates['motd/manualKey']=key;
+  updates['motd/manualDate']=uaToday();
+  updates['motd/setAt']=Date.now();
+  db.ref().update(updates).then(function(){
+    toast('✅ "'+(m.title||'')+'" aaj ke liye Movie of the Day set ho gayi!');
+    document.getElementById('motd-srch').value='';
+    motdRenderList([]);
+    motdRenderCurrent();
+  }).catch(function(e){toast('❌ '+e.message,1);});
+}
+function motdClear(){
+  var updates={};
+  updates['motd/manualKey']=null;
+  updates['motd/manualDate']=null;
+  db.ref().update(updates).then(function(){
+    toast('🚫 Manual override hat gaya, ab automatic pick chalegi');
+    motdRenderCurrent();
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 
