@@ -581,6 +581,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly Importer</div>
+    <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
     <div class="nav-item" id="nav-bulk" onclick="show('bulk')">📋 Bulk Import (Names)</div>
     <div class="nav-item" id="nav-pipeimport" onclick="show('pipeimport')">📥 Pipe Importer</div>
@@ -2062,6 +2063,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             </select>
           </div>
         </div>
+        <input class="si" id="ffi-posts-search" placeholder="🔍 Movie ka naam likho search karne ke liye..." oninput="ffiRenderPosts()" style="width:100%;margin-bottom:10px;"/>
         <div id="ffi-posts-list" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
         <div style="margin-top:14px;">
           <button onclick="ffiStartImport()" id="ffi-import-btn" class="btn btn-p">⚡ Import Karo (Selected Posts)</button>
@@ -2100,6 +2102,17 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
     <!-- ═══ END FILMYFLY IMPORTER ═══ -->
+
+    <!-- ═══ SOURCE PAGES ═══ -->
+    <div class="section" id="sec-sourcepages">
+      <div class="sec-title">🔗 Source <span>Pages</span></div>
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#93c5fd;">
+        💡 FilmyFly Importer se jo bhi movie import hoti hai, uska original page link (jahan se scrape hui) yahan save rehta hai — baad mein wapis check karna ho to yahan se mil jayega.
+      </div>
+      <input class="si" id="sp-search" placeholder="🔍 Title se search karo..." oninput="loadSourcePages()" style="width:100%;margin-bottom:14px;"/>
+      <div id="sp-list"></div>
+    </div>
+    <!-- ═══ END SOURCE PAGES ═══ -->
 
     <!-- ═══ SERVER MOVIES ═══ -->
     <div class="section" id="sec-servermovies">
@@ -2760,6 +2773,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
                   <button onclick="mlFfAddSelected()" style="padding:4px 12px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border:none;color:#fff;border-radius:5px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:'Outfit',sans-serif;">➕ Selected Rows Mein Add</button>
                 </div>
               </div>
+              <input id="ml-ff-posts-search" type="text" placeholder="🔍 Movie ka naam likho search karne ke liye..." oninput="mlFfRenderPostsList()" style="width:100%;padding:8px 12px;margin-bottom:8px;background:#0a0a0a;border:1px solid #1e1e1e;border-radius:6px;color:#eee;font-size:0.8rem;font-family:'Outfit',sans-serif;box-sizing:border-box;"/>
               <div id="ml-ff-posts-list" style="max-height:240px;overflow-y:auto;background:#0a0a0a;border:1px solid #1e1e1e;border-radius:7px;padding:6px;display:flex;flex-direction:column;gap:4px;"></div>
             </div>
           </div>
@@ -4213,6 +4227,7 @@ function show(name){
   if(name==='comments'){if(typeof loadComments==='function')loadComments();}
   if(name==='errorlogs'){if(typeof loadErrorLogs==='function')loadErrorLogs();}
   if(name==='reports'){if(typeof loadReports==='function')loadReports();}
+  if(name==='sourcepages'){if(typeof loadSourcePages==='function')loadSourcePages();}
   if(name==='bulkedit'){if(typeof bulkEditLoad==='function')bulkEditLoad();}
   if(name==='duplicates'){if(typeof dupLoad==='function')dupLoad();}
   if(name==='posterfill'){if(typeof posterFillLoad==='function')posterFillLoad();}
@@ -9147,6 +9162,7 @@ show = function(name){
   if(name==='comments' && typeof loadComments==='function'){loadComments();}
   if(name==='errorlogs' && typeof loadErrorLogs==='function'){loadErrorLogs();}
   if(name==='reports' && typeof loadReports==='function'){loadReports();}
+  if(name==='sourcepages' && typeof loadSourcePages==='function'){loadSourcePages();}
   if(name==='bulkedit' && typeof beFilter==='function'){beFilter();}
   if(name==='duplicates'){var dr=document.getElementById('dup-results');if(dr)dr.innerHTML='';}
   if(name==='posterfill'){var pr=document.getElementById('pf-results');if(pr)pr.innerHTML='';}
@@ -11327,6 +11343,8 @@ function mlFetchSitePosts() {
       return;
     }
     status.innerHTML = '<span style="color:#4ade80;">✅ ' + _mlFfFoundPosts.length + ' posts mile!</span>';
+    var searchEl = document.getElementById('ml-ff-posts-search');
+    if (searchEl) searchEl.value = '';
     mlFfRenderPostsList();
   }
 
@@ -11337,10 +11355,17 @@ function mlFfRenderPostsList() {
   var wrap  = document.getElementById('ml-ff-posts-wrap');
   var list  = document.getElementById('ml-ff-posts-list');
   var count = document.getElementById('ml-ff-posts-count');
+  var searchEl = document.getElementById('ml-ff-posts-search');
+  var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
   wrap.style.display = 'block';
-  count.textContent  = _mlFfFoundPosts.length + ' posts mile:';
+
+  var shownCount = 0;
   list.innerHTML = '';
   _mlFfFoundPosts.forEach(function(post, i) {
+    // Search se filter karo — lekin index (i) original array ka hi rakho,
+    // taake checkbox toggle karte waqt sahi post select/deselect ho
+    if (q && post.title.toLowerCase().indexOf(q) === -1) return;
+    shownCount++;
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;background:#111;border:1px solid #1e1e1e;';
     row.innerHTML =
@@ -11351,6 +11376,14 @@ function mlFfRenderPostsList() {
       '</div>';
     list.appendChild(row);
   });
+
+  count.textContent = q
+    ? (shownCount + ' / ' + _mlFfFoundPosts.length + ' posts (search: "' + q + '")')
+    : (_mlFfFoundPosts.length + ' posts mile:');
+
+  if (q && shownCount === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:0.8rem;">Koi post nahi mila "' + q + '" ke liye</div>';
+  }
 }
 
 function mlFfSelectAll(val) {
@@ -13528,6 +13561,8 @@ function ffiFetchPosts() {
         } else {
           status.style.background = 'rgba(34,197,94,0.1)'; status.style.color = '#4ade80';
           status.textContent = '✅ ' + _ffiPosts.length + ' posts mile! Ab select karo aur import karo.';
+          var searchEl = document.getElementById('ffi-posts-search');
+          if (searchEl) searchEl.value = '';
           ffiRenderPosts();
         }
       }
@@ -13550,8 +13585,16 @@ function ffiRenderPosts() {
   document.getElementById('ffi-posts-card').style.display = 'block';
   document.getElementById('ffi-total-count').textContent = _ffiPosts.length;
 
+  var searchEl = document.getElementById('ffi-posts-search');
+  var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
   list.innerHTML = '';
+  var shownCount = 0;
   _ffiPosts.forEach(function(p, i) {
+    // Search se filter — original index (i) hamesha same rakho taake
+    // checkbox toggle karte waqt sahi post select/deselect ho
+    if (q && p.title.toLowerCase().indexOf(q) === -1) return;
+    shownCount++;
     var div = document.createElement('div');
     div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;cursor:pointer;transition:0.2s;';
     div.innerHTML = '<input type="checkbox" id="ffi-chk-'+i+'" ' + (p.checked?'checked':'') + ' style="accent-color:#e50914;width:16px;height:16px;cursor:pointer;flex-shrink:0;">'
@@ -13573,6 +13616,11 @@ function ffiRenderPosts() {
     });
     list.appendChild(div);
   });
+
+  if (q && shownCount === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#444;font-size:0.8rem;">Koi post nahi mila "' + escHtml(q) + '" ke liye</div>';
+  }
+
   ffiUpdateSelCount();
 }
 
@@ -13693,6 +13741,10 @@ function ffiStartImport() {
           title: data.title,
           addedAt: Date.now()
         };
+        // ✅ Original FilmyFly (ya jo bhi site ho) post page ka link — jahan
+        // se ye movie import hui thi. Admin panel ke "Source Pages" section
+        // mein dikhega, taake baad mein wapis dekha/re-check kiya ja sake.
+        obj.sourcePageUrl = p.url;
         if (data.year) obj.year = data.year;
         if (data.rating) obj.rating = data.rating;
         if (data.category) obj.category = data.category;
@@ -13771,6 +13823,7 @@ function ffiRenderReviewQueue() {
         + '<div style="font-weight:700;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(o.title || 'Untitled') + '</div>'
         + '<div style="font-size:0.75rem;color:var(--grey);margin-top:3px;">' + [o.year, o.category, o.quality, (r.size ? '📦 ' + r.size : '')].filter(Boolean).join(' · ') + '</div>'
         + '<div style="font-size:0.7rem;color:#666;margin-top:4px;word-break:break-all;">🔗 ' + escHtml(linkShort) + '</div>'
+        + (o.sourcePageUrl ? '<div style="font-size:0.68rem;color:#555;margin-top:2px;word-break:break-all;">📄 Source: ' + escHtml(o.sourcePageUrl.length>55?o.sourcePageUrl.substring(0,55)+'...':o.sourcePageUrl) + '</div>' : '')
       + '</div>'
       + '<button class="ib" onclick="ffiRemoveReviewItem(' + i + ')" title="Remove">🗑</button>'
     + '</div>';
@@ -13831,7 +13884,26 @@ function ffiSaveReviewed() {
       return;
     }
     if (statusEl) statusEl.textContent = 'Saving ' + (idx + 1) + '/' + total + '...';
-    db.ref('movies').push(selected[idx].obj).then(function() {
+    var item = selected[idx];
+    var movieRef = db.ref('movies').push();
+    var movieKey = movieRef.key;
+
+    var updates = {};
+    updates['movies/' + movieKey] = item.obj;
+    // ✅ Link My Links section mein bhi khud-ba-khud add karo (jaisa manual
+    // "Bulk Add Links" se hota hai) — taake wahan se seedha Sub Links/Size
+    // add kar sako, dobara link paste na karna pade
+    if (item.link) {
+      var mlKey = db.ref('mylinks').push().key;
+      updates['mylinks/' + mlKey] = {
+        title: item.obj.title || 'Untitled',
+        url: item.link,
+        movieKey: movieKey,
+        ts: Date.now() + idx
+      };
+    }
+
+    db.ref().update(updates).then(function() {
       savedCount++;
       saveNext(idx + 1);
     }).catch(function() {
@@ -13975,6 +14047,42 @@ function ffiTmdbEnrich(title, year, cb) {
     .catch(function(){ cb(null); });
 }
 // ═══ END FILMYFLY IMPORTER ═══
+
+// ═══════════════════════════════════════════
+// 🔗 SOURCE PAGES — FilmyFly import ke original page links
+// ═══════════════════════════════════════════
+function loadSourcePages(){
+  var q=((document.getElementById('sp-search')||{}).value||'').toLowerCase().trim();
+  var list = allMovies.filter(function(m){ return !!m.sourcePageUrl; });
+  if(q) list = list.filter(function(m){ return (m.title||'').toLowerCase().indexOf(q)>-1; });
+  list.sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+
+  var el=document.getElementById('sp-list');if(!el)return;
+  if(!list.length){ el.innerHTML='<div style="text-align:center;padding:40px;color:#444;">Koi source page link nahi mila — FilmyFly Importer se import ki hui movies yahan dikhengi</div>'; return; }
+
+  el.innerHTML = '<div style="font-size:0.78rem;color:var(--grey);margin-bottom:10px;">' + list.length + ' movies</div>' + list.map(function(m){
+    var tu = m.thumbnail ? 'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=50&h=70&fit=cover&output=jpg' : '';
+    var src = m.sourcePageUrl || '';
+    return '<div class="card" style="padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'
+      +(tu?'<img src="'+tu+'" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex-shrink:0;">':'<div style="width:38px;height:53px;background:#222;border-radius:4px;flex-shrink:0;"></div>')
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(m.title||'Untitled')+'</div>'
+        +'<div style="font-size:0.72rem;color:#3b82f6;word-break:break-all;margin-top:3px;">'+src+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+        +'<button class="ib" onclick="window.open(\''+src.replace(/'/g,"\\'")+'\',\'_blank\')" title="Open">🔗</button>'
+        +'<button class="ib" onclick="spCopyLink(this,\''+src.replace(/'/g,"\\'")+'\')" title="Copy">📋</button>'
+        +'<button class="ib" onclick="openEdit(\''+m.key+'\')" title="Movie Edit karo">✏️</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+function spCopyLink(btn, url){
+  navigator.clipboard.writeText(url).then(function(){
+    var orig=btn.textContent; btn.textContent='✅'; setTimeout(function(){btn.textContent=orig||'📋';},1200);
+    toast('✅ Link copy ho gaya!');
+  }).catch(function(){ toast('❌ Copy nahi hua', 1); });
+}
 
 function wdLoadPendingCount() {
   wdWaitDb(function() {
