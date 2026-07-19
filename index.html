@@ -592,6 +592,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-ratings" onclick="show('ratings')">⭐ Ratings</div>
     <div class="nav-item" id="nav-comments" onclick="show('comments')">💬 Comments <span class="nav-count" id="com-count">0</span></div>
     <div class="nav-item" id="nav-errorlogs" onclick="show('errorlogs')">🐞 Error Logs <span class="nav-count" id="err-count">0</span></div>
+    <div class="nav-item" id="nav-reports" onclick="show('reports')">⚠️ Reported Issues <span class="nav-count" id="rpt-count">0</span></div>
     <div class="nav-item" id="nav-contacts" onclick="show('contacts')">📩 Contact Messages <span class="nav-count" id="contact-count">0</span></div>
     <div class="nav-item" id="nav-bulkedit" onclick="show('bulkedit')">✏️ Bulk Edit</div>
     <div class="nav-item" id="nav-duplicates" onclick="show('duplicates')">🔁 Duplicate Detector</div>
@@ -750,11 +751,11 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 
       <div class="card"><h3>Basic Info</h3>
         <div class="fg">
-          <div class="fgg full"><label>Title *</label><input class="fi" id="ft" placeholder="Movie or Series title"/></div>
-          <div class="fgg"><label>Year</label><input class="fi" id="fy" placeholder="2025"/></div>
+          <div class="fgg full"><label>Title *</label><input class="fi" id="ft" placeholder="Movie or Series title" oninput="amAutoGenSeo()"/></div>
+          <div class="fgg"><label>Year</label><input class="fi" id="fy" placeholder="2025" oninput="amAutoGenSeo()"/></div>
           <div class="fgg"><label>IMDb Rating</label><input class="fi" id="fr" placeholder="8.1"/></div>
           <div class="fgg"><label>Category *</label>
-            <select class="fi" id="fc" onchange="onCatChange()">
+            <select class="fi" id="fc" onchange="onCatChange();amAutoGenSeo();">
               <option value="">— Select Category —</option>
               <option value="hollywood">🌟 Hollywood</option>
               <option value="bollywood">🎭 Bollywood</option>
@@ -794,13 +795,13 @@ tr:hover td{background:rgba(229,9,20,0.04);}
               <option value="western">🤠 Western</option>
             </select>
           </div>
-          <div class="fgg"><label>Language</label><input class="fi" id="fl" placeholder="Hindi Dubbed / Urdu / English"/></div>
-          <div class="fgg"><label>Quality</label><input class="fi" id="fq" placeholder="WEB-DL 1080p"/></div>
+          <div class="fgg"><label>Language</label><input class="fi" id="fl" placeholder="Hindi Dubbed / Urdu / English" oninput="amAutoGenSeo()"/></div>
+          <div class="fgg"><label>Quality</label><input class="fi" id="fq" placeholder="WEB-DL 1080p" oninput="amAutoGenSeo()"/></div>
           <div class="fgg"><label>File Size</label><input class="fi" id="fsz" placeholder="1.2 GB"/></div>
           <div class="fgg" id="field-network" style="display:none"><label>Network / Platform</label><input class="fi" id="fnetwork" placeholder="Netflix / Prime / ARY..."/></div>
           <div class="fgg" id="field-status" style="display:none"><label>Status</label><select class="fi" id="fstatus"><option value="ongoing">📡 Ongoing</option><option value="completed">✅ Completed</option></select></div>
           <div class="fgg" id="field-seasons" style="display:none"><label>Total Seasons</label><input class="fi" id="fseasons" type="number" min="1" placeholder="1"/></div>
-          <div class="fgg full"><label>Description</label><textarea class="fi" id="fd" rows="3" placeholder="Movie / Series ki kahani..."></textarea></div>
+          <div class="fgg full"><label>Description</label><textarea class="fi" id="fd" rows="3" placeholder="Movie / Series ki kahani..." oninput="amAutoGenSeo()"></textarea></div>
         </div>
       </div>
       <div class="card"><h3>Thumbnail & Screenshots</h3>
@@ -887,7 +888,10 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         </div>
       </div>
       <div class="card" style="border-color:rgba(34,197,94,0.3);background:linear-gradient(135deg,rgba(34,197,94,0.04),rgba(0,0,0,0));"><h3 style="color:#22c55e;">🔍 SEO Settings (Optional)</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">Yeh fields Google ranking ke liye hain. Khali chodne par automatically title se generate hoga.</div>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span>✨ Title/Year/Language/Quality/Category se khud-ba-khud ban jate hain — kuch type karne ki zaroorat nahi. Chaho to neeche edit bhi kar sakte ho.</span>
+          <button type="button" class="btn btn-s" style="font-size:0.75rem;padding:6px 12px;flex-shrink:0;" onclick="amAutoGenSeo(true)">🔄 Regenerate</button>
+        </div>
         <div class="fg">
           <div class="fgg full"><label>SEO Title <span style="color:#555;font-weight:400;">(Google mein jo title dikhay — 60 chars max)</span></label>
             <input class="fi" id="fseoTitle" placeholder="Spider-Man No Way Home (2021) Full Movie HD — CineNova" maxlength="80"/>
@@ -1146,9 +1150,12 @@ Halimuyak 2025 WEBRip Tagalog 1080p 10bit x265 HEVC AAC 2.0 ESub.mkv|https://sho
     <!-- LINK CHECKER SECTION -->
     <div class="section" id="sec-linkcheck">
       <div class="sec-title">🔗 Link <span>Checker</span></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
         <button class="lc-scan-btn" id="lc-scan-btn" onclick="runLinkCheck()">🔍 Check Now</button>
         <span style="font-size:0.78rem;color:var(--grey);" id="lc-last-check">Abhi tak check nahi hua</span>
+      </div>
+      <div style="font-size:0.75rem;color:#555;margin-bottom:18px;">
+        💡 Panel khulne par har 12 ghante mein khud-ba-khud check hota hai — result Firebase mein save rehta hai, dobara scan nahi karna padta.
       </div>
       <div class="lc-progress" id="lc-progress-wrap" style="display:none;">
         <div class="lc-progress-text" id="lc-progress-text">Checking...</div>
@@ -1551,6 +1558,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <button class="btn" style="background:#7f1d1d;color:#fca5a5;font-size:0.82rem;" onclick="clearAllErrorLogs()">🗑 Sab Delete</button>
       </div>
       <div id="err-list"></div>
+    </div>
+
+    <!-- REPORTED ISSUES (broken links waghera) -->
+    <div class="section" id="sec-reports">
+      <div class="sec-title">⚠️ Reported <span>Issues</span></div>
+      <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fca5a5;">
+        💡 Jab koi user movie page pe "Report Broken Link" dabata hai, wo report yahan aati hai.
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-s" style="font-size:0.82rem;" onclick="loadReports()">🔄 Refresh</button>
+        <select id="rpt-filter" class="si" style="width:auto;padding:8px 12px;font-size:0.82rem;" onchange="loadReports()">
+          <option value="open">Open</option>
+          <option value="resolved">Resolved</option>
+          <option value="all">All</option>
+        </select>
+        <button class="btn" style="background:#7f1d1d;color:#fca5a5;font-size:0.82rem;" onclick="clearAllReports()">🗑 Sab Delete</button>
+      </div>
+      <div id="rpt-list"></div>
     </div>
 
     <!-- CONTACT MESSAGES -->
@@ -2055,8 +2080,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
       </div>
 
-      <!-- Results Queue -->
+      <!-- Results Queue (fetch progress log) -->
       <div id="ffi-queue" style="display:flex;flex-direction:column;gap:8px;margin-top:12px;"></div>
+
+      <!-- Step 3: Review & Save -->
+      <div class="card" id="ffi-review-card" style="display:none;margin-top:16px;border-color:rgba(34,197,94,0.3);">
+        <h3>Step 3 — Review Karo, Phir Save Karo</h3>
+        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">Ye movies abhi Firebase mein save NAHI hui — pehle check kar lo, jo nahi chahiye unko uncheck/remove kar do, phir neeche "Save" button dabao.</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+          <button onclick="ffiReviewSelectAll()" class="btn btn-s" style="padding:7px 14px;font-size:0.8rem;">✅ Sab Select</button>
+          <button onclick="ffiReviewDeselectAll()" class="btn btn-s" style="padding:7px 14px;font-size:0.8rem;">❌ Deselect</button>
+          <span style="font-size:0.78rem;color:var(--grey);">Selected: <span id="ffi-rev-sel-count" style="color:#fff;font-weight:700;">0</span> / <span id="ffi-rev-total-count">0</span></span>
+        </div>
+        <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center;">
+          <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
+          <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
+        </div>
+      </div>
     </div>
     <!-- ═══ END FILMYFLY IMPORTER ═══ -->
 
@@ -4171,6 +4212,7 @@ function show(name){
   if(name==='ratings'){if(typeof loadRatings==='function')loadRatings();}
   if(name==='comments'){if(typeof loadComments==='function')loadComments();}
   if(name==='errorlogs'){if(typeof loadErrorLogs==='function')loadErrorLogs();}
+  if(name==='reports'){if(typeof loadReports==='function')loadReports();}
   if(name==='bulkedit'){if(typeof bulkEditLoad==='function')bulkEditLoad();}
   if(name==='duplicates'){if(typeof dupLoad==='function')dupLoad();}
   if(name==='posterfill'){if(typeof posterFillLoad==='function')posterFillLoad();}
@@ -4213,10 +4255,19 @@ function loadAllContent(){
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
-    // AUTO LINK CHECK — sirf pehli baar
+    // AUTO LINK CHECK — pehle Firebase se pichla result turant dikhao,
+    // phir sirf tab dobara scan karo jab last check 12+ ghante purana ho
+    // (ya kabhi hua hi na ho). Isse panel har baar khulne par poora
+    // catalog dobara scan nahi karta — genuinely "automatic/scheduled" feel deta hai.
     if(!lcAutoRan && allMovies.length > 0){
       lcAutoRan = true;
-      setTimeout(function(){ runLinkCheck(true); }, 2000);
+      lcLoadCachedResults(function(cached) {
+        var staleMs = LC_AUTO_RECHECK_HOURS * 60 * 60 * 1000;
+        var isStale = !cached || !cached.lastCheck || (Date.now() - cached.lastCheck) > staleMs;
+        if (isStale) {
+          setTimeout(function(){ runLinkCheck(true); }, 2000);
+        }
+      });
     }
   });
 }
@@ -5605,6 +5656,59 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// ══════════════════════════════════
+// AUTO SEO TITLE/DESC/KEYWORDS/SLUG — manual Add Movie form ke liye
+// Title/Year/Language/Quality/Category se khud ban jate hain, taake
+// har baar "Download-CineNova" type na karna pade.
+// ══════════════════════════════════
+var _amLastAutoSeo = {title:'', desc:'', keywords:'', slug:''};
+var AM_CAT_LABELS = {hollywood:'Hollywood Movie', bollywood:'Bollywood Movie', tollywood:'South Movie', animation:'Animated Movie', webseries:'Web Series', kdrama:'K-Drama', adult:'Movie'};
+
+function amBuildSeoTitle(){
+  var title=gv('ft'); if(!title) return '';
+  var year=gv('fy'), lang=gv('fl'), qual=gv('fq'), cat=gv('fc');
+  var catLabel = AM_CAT_LABELS[cat] || 'Movie';
+  var parts=[title];
+  if(year) parts.push('('+year+')');
+  if(lang) parts.push('('+lang+')');
+  if(qual) parts.push(qual);
+  parts.push(catLabel);
+  parts.push('HD Download-CineNova');
+  var out = parts.join(' ');
+  return out.length > 95 ? out.substring(0,92)+'...' : out;
+}
+function amBuildSeoDesc(){
+  var title=gv('ft'); if(!title) return '';
+  var year=gv('fy'), desc=gv('fd');
+  if(desc) return desc.substring(0,155)+(desc.length>155?'...':'');
+  return 'Watch '+title+(year?' ('+year+')':'')+' free in HD on CineNova. Fast download links, no login required.';
+}
+function amBuildSeoKeywords(){
+  var title=gv('ft'); if(!title) return '';
+  var year=gv('fy'), lang=gv('fl'), genre=gv('fg'), cat=gv('fc');
+  return [title, year, lang, genre, cat, 'free download', 'hd movie', 'cinenova'].filter(Boolean).join(', ');
+}
+function amBuildSeoSlug(){
+  var title=gv('ft'); if(!title) return '';
+  var year=gv('fy');
+  return (title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+// force=true → Regenerate button (manual edit ho bhi to override kar do)
+function amAutoGenSeo(force){
+  if(!gv('ft')) return;
+  var tEl=document.getElementById('fseoTitle'), dEl=document.getElementById('fseoDesc'),
+      kEl=document.getElementById('fseoKeywords'), sEl=document.getElementById('fseoSlug');
+  var newTitle=amBuildSeoTitle(), newDesc=amBuildSeoDesc(), newKeywords=amBuildSeoKeywords(), newSlug=amBuildSeoSlug();
+
+  if(tEl && (force || !tEl.value || tEl.value===_amLastAutoSeo.title)){ tEl.value=newTitle; _amLastAutoSeo.title=newTitle; }
+  if(dEl && (force || !dEl.value || dEl.value===_amLastAutoSeo.desc)){ dEl.value=newDesc; _amLastAutoSeo.desc=newDesc; }
+  if(kEl && (force || !kEl.value || kEl.value===_amLastAutoSeo.keywords)){ kEl.value=newKeywords; _amLastAutoSeo.keywords=newKeywords; }
+  if(sEl && (force || !sEl.value || sEl.value===_amLastAutoSeo.slug)){
+    sEl.value=newSlug; _amLastAutoSeo.slug=newSlug;
+    var sp=document.getElementById('fseoSlug-preview'); if(sp) sp.textContent=newSlug||'your-slug';
+  }
+}
+
 function onCatChange(){
   var cat=document.getElementById('fc').value;var ws=cat==='webseries';
   document.getElementById('ep-movie-card').style.display=ws?'block':'none';
@@ -5616,6 +5720,12 @@ function onCatChange(){
 function addMovie(){
   var title=gv('ft');if(!title){toast('❌ Title is required!',1);return;}
   var cat=gv('fc');if(!cat){toast('❌ Please select a category!',1);return;}
+  // ✅ Safety net — agar kisi wajah se SEO fields khali reh gaye hon
+  // (JS event miss ho gaya ho waghera), save se pehle aakhri baar generate kar lo
+  if(!gv('fseoTitle')) document.getElementById('fseoTitle').value = amBuildSeoTitle();
+  if(!gv('fseoDesc')) document.getElementById('fseoDesc').value = amBuildSeoDesc();
+  if(!gv('fseoKeywords')) document.getElementById('fseoKeywords').value = amBuildSeoKeywords();
+  if(!gv('fseoSlug')) document.getElementById('fseoSlug').value = amBuildSeoSlug();
   var ws=cat==='webseries';
   var eps=ws?collectEpisodes('movie'):null;
   var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
@@ -5635,6 +5745,8 @@ function addMovie(){
 }
 function clrForm(){
   ['ft','fy','fr','fc','fg','fl','fq','fsz','fd','fth','fv','fvlc','fvlc2','ftrailer','fd4','fs4','fd7','fs7','fd10','fs10','fd4k','fs4k','fnetwork','fstatus','fseasons','fseoTitle','fseoDesc','fseoKeywords','fseoSlug'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  _amLastAutoSeo = {title:'', desc:'', keywords:'', slug:''};
+  var sp=document.getElementById('fseoSlug-preview'); if(sp) sp.textContent='your-slug';
   document.getElementById('tp').style.display='none';
   document.getElementById('ep-movie-card').style.display='none';
   document.getElementById('field-network').style.display='none';
@@ -6383,6 +6495,56 @@ function tfaDisable(){
 var lcBrokenMovies = [];
 var lcChecking = false;
 var lcLastCheckTime = null;
+// ✅ AUTO CHECKER — kitne ghante baad dobara khud check ho (agar panel khula rahe)
+var LC_AUTO_RECHECK_HOURS = 12;
+
+function lcFormatTime(d) {
+  if (!d) return '';
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var h = d.getHours(), m = d.getMinutes();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if (h === 0) h = 12;
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+}
+
+// Results Firebase 'linkCheckStatus' node me save karo taake panel band/reload
+// hone par bhi data na khoye, aur dusre device se bhi latest status dikhe
+function lcSaveResults(brokenMovies, totalChecked) {
+  try {
+    var lightweight = {};
+    brokenMovies.forEach(function(b) {
+      lightweight[b.movie.key] = {
+        title: b.movie.title || 'Untitled',
+        deadCount: (b.links || []).length,
+        unknownCount: (b.unknownLinks || []).length
+      };
+    });
+    db.ref('linkCheckStatus').set({
+      lastCheck: Date.now(),
+      totalChecked: totalChecked,
+      brokenCount: brokenMovies.length,
+      broken: lightweight
+    });
+  } catch (e) {}
+}
+
+// Panel khulte hi (fresh scan se pehle) Firebase se pichla result turant dikhao
+function lcLoadCachedResults(cb) {
+  db.ref('linkCheckStatus').once('value').then(function(snap) {
+    var data = snap.val();
+    if (!data) { if (cb) cb(null); return; }
+    lcLastCheckTime = data.lastCheck ? new Date(data.lastCheck) : null;
+    var lastEl = document.getElementById('lc-last-check');
+    if (lastEl && lcLastCheckTime) lastEl.innerText = 'Last check: ' + lcFormatTime(lcLastCheckTime);
+    updateLcBanner(data.brokenCount || 0, data.totalChecked || allMovies.length, false);
+    var navBadge = document.getElementById('lc-nav-badge');
+    if (navBadge) {
+      if (data.brokenCount > 0) { navBadge.innerText = data.brokenCount; navBadge.style.display = 'inline-block'; }
+      else { navBadge.style.display = 'none'; }
+    }
+    if (cb) cb(data);
+  }).catch(function() { if (cb) cb(null); });
+}
 
 // Link fields to check per movie
 function getLinkFields(m) {
@@ -6627,7 +6789,7 @@ function runLinkCheck(silent) {
     if (progWrap) progWrap.style.display = 'none';
     lcLastCheckTime = new Date();
     var lastEl = document.getElementById('lc-last-check');
-    if (lastEl) lastEl.innerText = 'Last check: ' + lcLastCheckTime.toLocaleTimeString('ur-PK');
+    if (lastEl) lastEl.innerText = 'Last check: ' + lcFormatTime(lcLastCheckTime);
 
     lcBrokenMovies = Object.values(broken);
     var brokenCount = lcBrokenMovies.length;
@@ -6635,6 +6797,7 @@ function runLinkCheck(silent) {
     var deadOnlyCount = lcBrokenMovies.filter(function(b){ return b.links && b.links.length > 0; }).length;
     updateLcBanner(brokenCount, total, false);
     renderLcResults(lcBrokenMovies);
+    lcSaveResults(lcBrokenMovies, total); // ✅ Firebase me persist karo
     
     // Show red badge on nav if broken links
     var navBadge = document.getElementById('lc-nav-badge');
@@ -8023,7 +8186,7 @@ function uaRtForceRefresh(){
 
 function uaRtSetTime(){
   var el = document.getElementById('rt-last-update');
-  if(el) el.textContent = 'Last updated: '+new Date().toLocaleTimeString();
+  if(el) el.textContent = 'Last updated: '+lcFormatTime(new Date());
 }
 
 function uaLoadRealtime(){
@@ -8733,6 +8896,54 @@ function clearAllErrorLogs(){
 }
 
 // ═══════════════════════════════════════════
+// ⚠️ REPORTED ISSUES (broken links waghera)
+// Theme se aane wale user reports yahan dikhte hain
+// ═══════════════════════════════════════════
+function loadReports(){
+  var filter=(document.getElementById('rpt-filter')||{}).value||'open';
+  db.ref('linkReports').limitToLast(300).once('value',function(snap){
+    var reports=[];
+    if(snap.exists())snap.forEach(function(c){var r=c.val()||{};r.key=c.key;reports.unshift(r);});
+    var openCount=reports.filter(function(r){return(r.status||'open')==='open';}).length;
+    var badge=document.getElementById('rpt-count');
+    if(badge)badge.textContent=openCount||'';
+    if(filter!=='all')reports=reports.filter(function(r){return(r.status||'open')===filter;});
+    var el=document.getElementById('rpt-list');if(!el)return;
+    if(!reports.length){el.innerHTML='<div style="text-align:center;padding:40px;color:#444;">Koi report nahi</div>';return;}
+    el.innerHTML=reports.map(function(r){
+      var d=new Date(r.ts||Date.now());
+      var dStr=d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      var isOpen=(r.status||'open')==='open';
+      var movie=allMovies.find(function(m){return m.key===r.movieKey;});
+      return '<div class="card" style="padding:14px;margin-bottom:8px;border-color:'+(isOpen?'rgba(239,68,68,0.3)':'rgba(42,42,42,0.8)')+'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
+          +'<div style="flex:1;min-width:0;">'
+            +'<div style="font-size:0.88rem;font-weight:700;color:#e5e5e5;margin-bottom:6px;">🎬 '+(r.title||(movie&&movie.title)||'Unknown Movie')+'</div>'
+            +'<div style="font-size:0.82rem;color:#fca5a5;margin-bottom:6px;">⚠️ '+(r.reason||'')+'</div>'
+            +'<div style="font-size:0.72rem;color:#666;">🕒 '+dStr+'</div>'
+          +'</div>'
+          +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+            +(movie?'<button class="ib" onclick="openEdit(\''+movie.key+'\')" title="Movie Edit karo">✏️</button>':'')
+            +(isOpen?'<button class="ib" onclick="resolveReport(\''+r.key+'\')" style="color:var(--green);border-color:var(--green);" title="Resolved mark karo">✅</button>':'')
+            +'<button class="ib" onclick="deleteReport(\''+r.key+'\')" title="Delete">🗑</button>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }).catch(function(e){var el=document.getElementById('rpt-list');if(el)el.innerHTML='<div style="color:#f87171;">❌ '+e.message+'</div>';});
+}
+function resolveReport(key){
+  db.ref('linkReports/'+key+'/status').set('resolved').then(function(){toast('✅ Marked resolved!');loadReports();}).catch(function(e){toast('❌ '+e.message,1);});
+}
+function deleteReport(key){
+  db.ref('linkReports/'+key).remove().then(function(){loadReports();}).catch(function(e){toast('❌ '+e.message,1);});
+}
+function clearAllReports(){
+  if(!confirm('Delete all reports?'))return;
+  db.ref('linkReports').remove().then(function(){toast('🗑 All reports deleted!');loadReports();}).catch(function(e){toast('❌ '+e.message,1);});
+}
+
+// ═══════════════════════════════════════════
 // 📩 CONTACT MESSAGES
 // ═══════════════════════════════════════════
 function loadContacts(){
@@ -8935,6 +9146,7 @@ show = function(name){
   if(name==='ratings' && typeof loadRatings==='function'){loadRatings();}
   if(name==='comments' && typeof loadComments==='function'){loadComments();}
   if(name==='errorlogs' && typeof loadErrorLogs==='function'){loadErrorLogs();}
+  if(name==='reports' && typeof loadReports==='function'){loadReports();}
   if(name==='bulkedit' && typeof beFilter==='function'){beFilter();}
   if(name==='duplicates'){var dr=document.getElementById('dup-results');if(dr)dr.innerHTML='';}
   if(name==='posterfill'){var pr=document.getElementById('pf-results');if(pr)pr.innerHTML='';}
@@ -13215,6 +13427,7 @@ function earnersLoad() {
 // ═══════════════════════════════════════════
 var _ffiPosts = [];       // { url, title, checked }
 var _ffiImporting = false;
+var _ffiReviewQueue = []; // { obj, link, size, checked } — Step 3 review ke liye, Firebase mein abhi save nahi hui
 var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
 
 var _ffiProxies = [
@@ -13378,6 +13591,7 @@ function ffiStartImport() {
   if (!selected.length) { toast('❌ Koi post select nahi!', 1); return; }
 
   _ffiImporting = true;
+  _ffiReviewQueue = [];
   var defaultCat = document.getElementById('ffi-default-cat').value || 'hollywood';
   var ok=0, skip=0, err=0;
   var queue = document.getElementById('ffi-queue');
@@ -13408,10 +13622,11 @@ function ffiStartImport() {
       _ffiImporting = false;
       document.getElementById('ffi-import-btn').disabled = false;
       document.getElementById('ffi-import-btn').textContent = '⚡ Import Karo (Selected Posts)';
-      document.getElementById('ffi-prog-title').textContent = '✅ Import Mukammal!';
-      document.getElementById('ffi-prog-sub').textContent = ok + ' save, ' + skip + ' skip, ' + err + ' error';
+      document.getElementById('ffi-prog-title').textContent = '✅ Fetch Mukammal!';
+      document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip, ' + err + ' error';
       document.getElementById('ffi-pbar').style.width = '100%';
-      toast('✅ ' + ok + ' movies import ho gayi!');
+      toast('✅ ' + ok + ' movies fetch ho gayi — neeche review kar ke save karo!');
+      ffiRenderReviewQueue();
       return;
     }
 
@@ -13492,6 +13707,14 @@ function ffiStartImport() {
           obj.download480p = data.download_link;
           obj.download720p = data.download_link;
           obj.download1080p = data.download_link;
+          // Size sirf jo quality detect hui usi field mein daalo (galat quality
+          // pe size na lag jaye)
+          if (data.size) {
+            if (/480/.test(data.quality)) obj.size480 = data.size;
+            else if (/720/.test(data.quality)) obj.size720 = data.size;
+            else if (/1080/.test(data.quality)) obj.size1080 = data.size;
+            else if (/4K/.test(data.quality)) obj.size4k = data.size;
+          }
           // ⭐ Source link bhi save karo — taake "🎬 Linked:" panel mein ye
           // movie khud-ba-khud link ho jaye aur quality rows fetch/save kaam karein
           obj.dlSourceUrl = data.download_link;
@@ -13511,16 +13734,14 @@ function ffiStartImport() {
           : 'Watch ' + data.title + (data.year ? ' (' + data.year + ')' : '') + ' free on CineNova.';
         obj.seoKeywords = [data.title, data.year, data.language, data.category, 'free download', 'cinenova'].filter(Boolean).join(', ');
 
-        db.ref('movies').push(obj).then(function() {
-          ok++;
-          existingTitles[data.title.toLowerCase()] = true;
-          if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Saved'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
-          setTimeout(function(){ processOne(n+1); }, 400);
-        }).catch(function() {
-          err++;
-          if (item) { item.className='bi-item bi-err'; document.getElementById('ffi-st-'+n).textContent='❌ Save fail'; document.getElementById('ffi-st-'+n).className='bi-status err'; }
-          setTimeout(function(){ processOne(n+1); }, 400);
-        });
+        // ✅ Ab yahan seedha Firebase save NAHI karte — pehle review queue
+        // mein daal dete hain. Admin Step 3 mein dekh ke, jo chahiye wo
+        // select karke "Save" dabayega, tab jaake Firebase mein jayega.
+        _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || '', checked: true });
+        ok++;
+        existingTitles[data.title.toLowerCase()] = true;
+        if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Ready'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
+        setTimeout(function(){ processOne(n+1); }, 400);
       });
     });
   }
@@ -13529,6 +13750,98 @@ function ffiStartImport() {
 }
 
 // ── Parse page HTML ──
+// ══════════════════════════════════
+// STEP 3 — REVIEW QUEUE (Firebase mein save karne se pehle yahan dikhta hai)
+// ══════════════════════════════════
+function ffiRenderReviewQueue() {
+  var card = document.getElementById('ffi-review-card');
+  var list = document.getElementById('ffi-review-list');
+  if (!card || !list) return;
+
+  if (!_ffiReviewQueue.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  list.innerHTML = _ffiReviewQueue.map(function(r, i) {
+    var o = r.obj;
+    var linkShort = r.link ? (r.link.length > 55 ? r.link.substring(0, 55) + '...' : r.link) : '(koi link nahi mila)';
+    return '<div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:flex-start;' + (r.checked ? '' : 'opacity:0.5;') + '">'
+      + '<input type="checkbox" ' + (r.checked ? 'checked' : '') + ' onchange="ffiToggleReviewItem(' + i + ')" style="margin-top:4px;width:18px;height:18px;flex-shrink:0;cursor:pointer;">'
+      + (o.thumbnail ? '<img src="' + escHtml(o.thumbnail) + '" style="width:44px;height:62px;object-fit:cover;border-radius:5px;flex-shrink:0;background:#222;">' : '<div style="width:44px;height:62px;background:#222;border-radius:5px;flex-shrink:0;"></div>')
+      + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-weight:700;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(o.title || 'Untitled') + '</div>'
+        + '<div style="font-size:0.75rem;color:var(--grey);margin-top:3px;">' + [o.year, o.category, o.quality, (r.size ? '📦 ' + r.size : '')].filter(Boolean).join(' · ') + '</div>'
+        + '<div style="font-size:0.7rem;color:#666;margin-top:4px;word-break:break-all;">🔗 ' + escHtml(linkShort) + '</div>'
+      + '</div>'
+      + '<button class="ib" onclick="ffiRemoveReviewItem(' + i + ')" title="Remove">🗑</button>'
+    + '</div>';
+  }).join('');
+
+  ffiUpdateReviewCount();
+}
+
+function ffiUpdateReviewCount() {
+  var selCountEl = document.getElementById('ffi-rev-sel-count');
+  var totalCountEl = document.getElementById('ffi-rev-total-count');
+  var sel = _ffiReviewQueue.filter(function(r) { return r.checked; }).length;
+  if (selCountEl) selCountEl.textContent = sel;
+  if (totalCountEl) totalCountEl.textContent = _ffiReviewQueue.length;
+}
+
+function ffiToggleReviewItem(i) {
+  if (!_ffiReviewQueue[i]) return;
+  _ffiReviewQueue[i].checked = !_ffiReviewQueue[i].checked;
+  ffiRenderReviewQueue();
+}
+
+function ffiRemoveReviewItem(i) {
+  _ffiReviewQueue.splice(i, 1);
+  ffiRenderReviewQueue();
+}
+
+function ffiReviewSelectAll() {
+  _ffiReviewQueue.forEach(function(r) { r.checked = true; });
+  ffiRenderReviewQueue();
+}
+
+function ffiReviewDeselectAll() {
+  _ffiReviewQueue.forEach(function(r) { r.checked = false; });
+  ffiRenderReviewQueue();
+}
+
+// Ab yahan se asal Firebase save hota hai — sirf jo checked hain
+function ffiSaveReviewed() {
+  var selected = _ffiReviewQueue.filter(function(r) { return r.checked; });
+  if (!selected.length) { toast('❌ Koi movie select nahi!', 1); return; }
+
+  var btn = document.getElementById('ffi-save-btn');
+  var statusEl = document.getElementById('ffi-save-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
+
+  var savedCount = 0, errCount = 0, total = selected.length;
+
+  function saveNext(idx) {
+    if (idx >= total) {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Save Selected to Firebase'; }
+      if (statusEl) statusEl.textContent = savedCount + ' saved, ' + errCount + ' error';
+      toast('✅ ' + savedCount + ' movies Firebase mein save ho gayi!');
+      // Save hone ke baad queue se hata do — sirf jo save hui wo remove hon,
+      // baaki (unchecked) review mein rehne dein taake baad mein dekh sako
+      _ffiReviewQueue = _ffiReviewQueue.filter(function(r) { return !r.checked; });
+      ffiRenderReviewQueue();
+      return;
+    }
+    if (statusEl) statusEl.textContent = 'Saving ' + (idx + 1) + '/' + total + '...';
+    db.ref('movies').push(selected[idx].obj).then(function() {
+      savedCount++;
+      saveNext(idx + 1);
+    }).catch(function() {
+      errCount++;
+      saveNext(idx + 1);
+    });
+  }
+  saveNext(0);
+}
+
 function ffiParsePage(html, srcUrl) {
   var data = {};
 
@@ -13579,6 +13892,11 @@ function ffiParsePage(html, srcUrl) {
   else if (/720p/i.test(ogTitle)) qual = '720p WEB-DL';
   else if (/480p/i.test(ogTitle)) qual = '480p WEB-DL';
   data.quality = qual;
+
+  // Size — "Size:" label ke baad ka text (jaise "850MB", "1.4GB")
+  var sizeTxt = getTextAfterLabel('Size:').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  var sizeM = sizeTxt.match(/[\d.]+\s*(GB|MB)/i);
+  data.size = sizeM ? sizeM[0].toUpperCase().replace(/\s+/g,'') : '';
 
   // Rating
   var ratingM = html.match(/imdb[^>]*>[\s\S]{0,80}?([\d]\.[0-9])/i) || html.match(/(\d\.\d)[\s]*\/[\s]*10/);
