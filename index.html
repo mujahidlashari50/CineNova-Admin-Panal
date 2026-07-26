@@ -585,6 +585,9 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
     <div class="nav-item" id="nav-bulk" onclick="show('bulk')">📋 Bulk Import (Names)</div>
     <div class="nav-item" id="nav-pipeimport" onclick="show('pipeimport')">📥 Pipe Importer</div>
+    <div class="nav-section-title">🤖 SEO AI Tools</div>
+    <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
+    <div class="nav-item" id="nav-metascan" onclick="show('metascan')" style="color:#a855f7;">🔍 Meta Tag Scanner <span class="nav-count" id="ms-issue-count" style="background:#a855f7;">0</span></div>
     <div class="nav-section-title">Features</div>
     <div class="nav-item" id="nav-trending" onclick="show('trending')">🔥 Trending Manager</div>
     <div class="nav-item" id="nav-motd" onclick="show('motd')" style="color:#facc15;">🎬 Movie of the Day</div>
@@ -3230,6 +3233,156 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- ✨ AI TITLE / META GENERATOR — Free Template Engine  -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-titlegen">
+      <div class="sec-title">✨ AI Title/Meta <span>Generator</span></div>
+
+      <div class="card" style="border-color:rgba(168,85,247,0.35);background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(0,0,0,0));">
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:#d8b4fe;">
+          <span style="font-size:1.1rem;">🎯</span>
+          <span>100% Free, koi API key nahi chahiye — smart template engine Title/Year/Quality/Language/Genre se instantly kai SEO Title &amp; Meta Description variations banata hai. Jo pasand aaye wahi "Use This" se movie mein save kar do.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <button class="cf-btn active" id="tg-mode-single" onclick="tgSwitchMode('single')" style="padding:9px 20px;">🎬 Single Movie</button>
+        <button class="cf-btn" id="tg-mode-bulk" onclick="tgSwitchMode('bulk')" style="padding:9px 20px;">⚡ Bulk — All Movies</button>
+      </div>
+
+      <!-- ═══ SINGLE MODE ═══ -->
+      <div id="tg-single-panel">
+        <div class="card">
+          <h3>Movie Select Karo</h3>
+          <div class="fg">
+            <div class="fgg full">
+              <label>Search Existing Movie</label>
+              <input class="fi" id="tg-movie-search" placeholder="Movie title type karo..." oninput="tgFilterMovieList()" onfocus="tgFilterMovieList()"/>
+              <div id="tg-movie-list" style="display:none;max-height:220px;overflow-y:auto;margin-top:6px;background:#111;border:1px solid var(--border);border-radius:8px;"></div>
+            </div>
+          </div>
+          <div id="tg-selected-movie" style="display:none;margin-top:4px;padding:10px 14px;background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.25);border-radius:8px;font-size:0.85rem;color:#d8b4fe;"></div>
+          <div style="text-align:center;margin:14px 0;color:#444;font-size:0.75rem;">— ya movie select kiye baghair manual details dalo —</div>
+          <div class="fg">
+            <div class="fgg"><label>Title</label><input class="fi" id="tg-m-title" placeholder="Movie/Series title"/></div>
+            <div class="fgg"><label>Year</label><input class="fi" id="tg-m-year" placeholder="2025"/></div>
+            <div class="fgg"><label>Category</label>
+              <select class="fi" id="tg-m-cat">
+                <option value="hollywood">🌟 Hollywood</option>
+                <option value="bollywood">🎭 Bollywood</option>
+                <option value="tollywood">🎬 Tollywood</option>
+                <option value="animation">🧸 Animation</option>
+                <option value="webseries">📺 Web Series</option>
+                <option value="kdrama">🇰🇷 K-Drama</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Genre</label>
+              <select class="fi" id="tg-m-genre">
+                <option value="">— None —</option>
+                <option value="action">Action</option><option value="adventure">Adventure</option>
+                <option value="animation">Animation</option><option value="comedy">Comedy</option>
+                <option value="crime">Crime</option><option value="drama">Drama</option>
+                <option value="fantasy">Fantasy</option><option value="horror">Horror</option>
+                <option value="mystery">Mystery</option><option value="romance">Romance</option>
+                <option value="scifi">Sci-Fi</option><option value="thriller">Thriller</option>
+                <option value="war">War</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Language</label><input class="fi" id="tg-m-lang" placeholder="Hindi Dubbed / English"/></div>
+            <div class="fgg"><label>Quality</label><input class="fi" id="tg-m-qual" placeholder="1080p WEB-DL"/></div>
+            <div class="fgg"><label># Variations</label>
+              <select class="fi" id="tg-num-var"><option value="4">4 Variations</option><option value="2">2 Variations</option><option value="6">6 Variations</option></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-p" style="background:#a855f7;" onclick="tgGenerateSingle()">✨ Generate</button>
+            <button class="btn btn-s" onclick="tgClearSingle()">🗑 Clear</button>
+          </div>
+        </div>
+
+        <div id="tg-single-results"></div>
+      </div>
+
+      <!-- ═══ BULK MODE ═══ -->
+      <div id="tg-bulk-panel" style="display:none;">
+        <div class="card">
+          <h3>Filters</h3>
+          <div class="fg">
+            <div class="fgg"><label>Category</label>
+              <select class="fi" id="tg-bulk-cat">
+                <option value="all">🌐 All Categories</option>
+                <option value="hollywood">🌟 Hollywood</option>
+                <option value="bollywood">🎭 Bollywood</option>
+                <option value="tollywood">🎬 Tollywood</option>
+                <option value="animation">🧸 Animation</option>
+                <option value="webseries">📺 Web Series</option>
+                <option value="kdrama">🇰🇷 K-Drama</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Filter</label>
+              <select class="fi" id="tg-bulk-filter">
+                <option value="missing">⭕ Sirf jinke SEO Title missing hai</option>
+                <option value="all">📋 Sab Movies (overwrite bhi hoga)</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Limit</label><input class="fi" id="tg-bulk-limit" type="number" value="50" min="1"/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-s" id="tg-bulk-load-btn" onclick="tgBulkLoad()">🔍 Movies Load Karo</button>
+            <button class="btn btn-p" style="background:#a855f7;display:none;" id="tg-bulk-start-btn" onclick="tgBulkStartAll()" disabled>⚡ Generate &amp; Apply All</button>
+            <button class="btn btn-s" style="background:#7f1d1d;display:none;" id="tg-bulk-stop-btn" onclick="tgBulkStop()">⏹ Stop</button>
+          </div>
+        </div>
+
+        <div id="tg-bulk-prog-wrap" style="display:none;margin-bottom:14px;">
+          <div style="background:#111;border-radius:20px;height:8px;overflow:hidden;"><div id="tg-bulk-prog-bar" style="height:100%;width:0%;background:#a855f7;transition:0.3s;"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.78rem;color:var(--grey);">
+            <span id="tg-bulk-prog-text">0 / 0</span>
+            <span id="tg-bulk-prog-stats"></span>
+          </div>
+        </div>
+
+        <div id="tg-bulk-empty" style="display:none;text-align:center;padding:40px;color:#444;">Koi movie nahi mili. Filter change kar ke try karo.</div>
+        <div id="tg-bulk-queue" style="display:none;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 🔍 META TAG SCANNER — SEO health check for all movies -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-metascan">
+      <div class="sec-title">🔍 Meta Tag <span>Scanner</span></div>
+
+      <div class="card" style="border-color:rgba(168,85,247,0.35);background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(0,0,0,0));">
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:#d8b4fe;">
+          <span style="font-size:1.1rem;">🎯</span>
+          <span>Saari movies check karta hai — missing SEO Title/Description, bohat lambi/chhoti lengths, aur duplicate slugs. Google Search Console errors se pehle hi pakad lo.</span>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="ms-stats-grid"></div>
+
+      <div class="cat-filter" id="ms-filter-row">
+        <button class="cf-btn active" data-f="issues" onclick="msSetFilter('issues')">⚠️ Sirf Issues Wali</button>
+        <button class="cf-btn" data-f="notitle" onclick="msSetFilter('notitle')">Missing Title</button>
+        <button class="cf-btn" data-f="nodesc" onclick="msSetFilter('nodesc')">Missing Desc</button>
+        <button class="cf-btn" data-f="toolong" onclick="msSetFilter('toolong')">Too Long</button>
+        <button class="cf-btn" data-f="dupslug" onclick="msSetFilter('dupslug')">Duplicate Slug</button>
+        <button class="cf-btn" data-f="all" onclick="msSetFilter('all')">📋 Sab Movies</button>
+        <button class="btn btn-s" style="margin-left:auto;padding:6px 14px;font-size:0.78rem;" onclick="msScan()">🔄 Re-scan</button>
+      </div>
+
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th></th><th>Title</th><th>Category</th><th>SEO Title</th><th>Issues</th><th>Action</th>
+          </tr></thead>
+          <tbody id="ms-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Scan karne ke liye "Meta Tag Scanner" section open karo...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
 </div>
 </div>
 <div id="edit-modal">
@@ -4219,6 +4372,7 @@ function show(name){
   if(name==='withdrawals'){wdLoadAll();}
   if(name==='earners'){earnersLoad();}
   if(name==='fraud'){fraudLoad();}
+  if(name==='metascan'){if(typeof msScan==='function')msScan();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
   if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
   if(name==='views'){if(typeof uaLoadAll==='function')uaLoadAll();}
@@ -14312,6 +14466,341 @@ function bdfStop() {
   document.getElementById('bdf-stop-btn').textContent = '⏹ Stopping...';
 }
 // ══ END BATCH DL FETCH ══
+
+// ══════════════════════════════════════════════════
+// ✨ AI TITLE / META GENERATOR — Free Template Engine
+// (No API key / no external AI call — pure JS patterns
+//  built from movie fields: title, year, quality, language, genre, category)
+// ══════════════════════════════════════════════════
+var TG_CAT_LABELS   = {hollywood:'Movie', bollywood:'Movie', tollywood:'Movie', animation:'Movie', webseries:'Web Series', kdrama:'K-Drama'};
+var TG_GENRE_LABELS = {action:'Action',adventure:'Adventure',animation:'Animated',comedy:'Comedy',crime:'Crime',drama:'Drama',fantasy:'Fantasy',horror:'Horror',mystery:'Mystery',romance:'Romance',scifi:'Sci-Fi',thriller:'Thriller',war:'War'};
+
+function tgTrim(str, max) {
+  str = (str || '').replace(/\s+/g, ' ').trim();
+  return str.length > max ? str.substring(0, max - 1).trim() + '…' : str;
+}
+
+function tgBuildData(m) {
+  return {
+    title: m.title || '',
+    year: m.year || '',
+    quality: m.quality || 'HD',
+    language: m.language || '',
+    catLabel: TG_CAT_LABELS[m.category] || 'Movie',
+    genreLabel: TG_GENRE_LABELS[m.genre] || ''
+  };
+}
+
+var TG_TEMPLATES = [
+  { name: 'Classic Download',
+    title: function(d){ var p=[d.title]; if(d.year)p.push('('+d.year+')'); if(d.quality)p.push(d.quality); p.push('Full '+d.catLabel+' Download'); p.push('— CineNova'); return p.join(' '); },
+    desc:  function(d){ return 'Watch ' + d.title + (d.year?' ('+d.year+')':'') + ' full ' + d.catLabel.toLowerCase() + ' online in ' + d.quality + '. Fast download links, no login required — only on CineNova.'; } },
+  { name: 'Watch Online',
+    title: function(d){ return 'Watch ' + d.title + (d.year?' '+d.year:'') + ' Online Free in ' + d.quality + ' — CineNova'; },
+    desc:  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' — ' + (d.genreLabel?d.genreLabel+' ':'') + d.catLabel + '. Stream or download instantly on CineNova, ad-free & fast.'; } },
+  { name: 'Language Focus',
+    title: function(d){ var p=[d.title]; if(d.year)p.push('('+d.year+')'); if(d.language)p.push(d.language); p.push(d.quality); p.push('Download'); return p.join(' '); },
+    desc:  function(d){ return 'Download ' + d.title + (d.year?' '+d.year:'') + ' full ' + d.catLabel.toLowerCase() + ' in ' + d.quality + (d.language?' ('+d.language+')':'') + '. Updated links on CineNova.'; } },
+  { name: 'Short & Punchy',
+    title: function(d){ return d.title + (d.year?' '+d.year:'') + ' — ' + d.quality + ' | CineNova'; },
+    desc:  function(d){ return 'Get ' + d.title + (d.year?' ('+d.year+')':'') + ' in ' + d.quality + '. ' + (d.genreLabel?d.genreLabel+' '+d.catLabel.toLowerCase():d.catLabel.toLowerCase()) + ', free & fast on CineNova.'; } },
+  { name: 'Genre Highlight',
+    title: function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' — ' + (d.genreLabel?d.genreLabel+' ':'') + d.catLabel + ' ' + d.quality; },
+    desc:  function(d){ return (d.genreLabel?d.genreLabel+' fans, ':'') + 'watch ' + d.title + (d.year?' ('+d.year+')':'') + ' in ' + d.quality + ' — download or stream free on CineNova today.'; } },
+  { name: 'Direct & Simple',
+    title: function(d){ return d.title + (d.year?' '+d.year+' ':' ') + 'Full ' + d.catLabel + ' — ' + d.quality + ' Free Download'; },
+    desc:  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' full ' + d.catLabel.toLowerCase() + ' available in ' + d.quality + ' on CineNova. Click to watch or download now.'; } }
+];
+
+function tgGenerateVariations(m, n) {
+  var d = tgBuildData(m);
+  var out = [];
+  for (var i = 0; i < Math.min(n, TG_TEMPLATES.length); i++) {
+    var t = TG_TEMPLATES[i];
+    out.push({ name: t.name, title: tgTrim(t.title(d), 80), desc: tgTrim(t.desc(d), 165) });
+  }
+  return out;
+}
+
+function tgSwitchMode(mode) {
+  document.getElementById('tg-mode-single').classList.toggle('active', mode === 'single');
+  document.getElementById('tg-mode-bulk').classList.toggle('active', mode === 'bulk');
+  document.getElementById('tg-single-panel').style.display = mode === 'single' ? 'block' : 'none';
+  document.getElementById('tg-bulk-panel').style.display = mode === 'bulk' ? 'block' : 'none';
+}
+
+var _tgSelectedMovieKey = null;
+
+function tgFilterMovieList() {
+  var q = document.getElementById('tg-movie-search').value.trim().toLowerCase();
+  var list = document.getElementById('tg-movie-list');
+  if (!q) { list.style.display = 'none'; list.innerHTML = ''; return; }
+  var matches = allMovies.filter(function(m){ return (m.title||'').toLowerCase().indexOf(q) !== -1; }).slice(0, 15);
+  if (matches.length === 0) { list.style.display = 'none'; list.innerHTML = ''; return; }
+  list.innerHTML = matches.map(function(m){
+    return '<div onclick="tgSelectMovie(\'' + m.key + '\')" style="padding:9px 14px;cursor:pointer;font-size:0.85rem;border-bottom:1px solid #1a1a1a;" onmouseover="this.style.background=\'rgba(168,85,247,0.08)\'" onmouseout="this.style.background=\'transparent\'">' +
+      escHtml(m.title||'Untitled') + ' <span style="color:#555;">' + (m.year||'') + '</span></div>';
+  }).join('');
+  list.style.display = 'block';
+}
+
+function tgSelectMovie(key) {
+  var m = allMovies.find(function(x){ return x.key === key; });
+  if (!m) return;
+  _tgSelectedMovieKey = key;
+  document.getElementById('tg-movie-search').value = m.title || '';
+  document.getElementById('tg-movie-list').style.display = 'none';
+  var box = document.getElementById('tg-selected-movie');
+  box.style.display = 'block';
+  box.innerHTML = '🎬 Selected: <strong>' + escHtml(m.title||'') + '</strong> (' + (m.year||'—') + ') — current SEO Title: <em>' + escHtml(m.seoTitle || 'khali') + '</em> &nbsp;<span style="cursor:pointer;color:#f87171;" onclick="tgSelectMovie(null);_tgSelectedMovieKey=null;document.getElementById(\'tg-selected-movie\').style.display=\'none\';document.getElementById(\'tg-movie-search\').value=\'\';">✕ Remove</span>';
+  // prefill manual fields for reference
+  sv2('tg-m-title', m.title); sv2('tg-m-year', m.year); sv2('tg-m-lang', m.language); sv2('tg-m-qual', m.quality);
+  if (m.category) document.getElementById('tg-m-cat').value = m.category;
+  if (m.genre) document.getElementById('tg-m-genre').value = m.genre;
+}
+function sv2(id, v) { var el = document.getElementById(id); if (el && v) el.value = v; }
+
+function tgGenerateSingle() {
+  var title = document.getElementById('tg-m-title').value.trim();
+  if (!title) { toast('❌ Title dalo ya movie select karo!', 1); return; }
+  var m = {
+    title: title,
+    year: document.getElementById('tg-m-year').value.trim(),
+    category: document.getElementById('tg-m-cat').value,
+    genre: document.getElementById('tg-m-genre').value,
+    language: document.getElementById('tg-m-lang').value.trim(),
+    quality: document.getElementById('tg-m-qual').value.trim()
+  };
+  var n = parseInt(document.getElementById('tg-num-var').value) || 4;
+  var variations = tgGenerateVariations(m, n);
+  tgRenderSingleResults(variations);
+}
+
+function tgRenderSingleResults(variations) {
+  var wrap = document.getElementById('tg-single-results');
+  var canSave = !!_tgSelectedMovieKey;
+  wrap.innerHTML = '<div class="card"><h3>' + variations.length + ' Results' + (canSave ? '' : ' <span style="color:#555;font-weight:400;text-transform:none;">(movie select karo Firebase mein save karne ke liye — abhi sirf copy hoga)</span>') + '</h3>' +
+    variations.map(function(v, i){
+      var titleColor = v.title.length > 70 ? '#f59e0b' : '#22c55e';
+      var descColor = v.desc.length > 160 ? '#f59e0b' : '#22c55e';
+      return '<div style="background:#111;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">' +
+        '<div style="font-size:0.68rem;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">' + escHtml(v.name) + '</div>' +
+        '<div style="font-size:0.92rem;font-weight:700;margin-bottom:4px;">' + escHtml(v.title) + ' <span style="font-size:0.68rem;font-weight:400;color:' + titleColor + ';">(' + v.title.length + ' chars)</span></div>' +
+        '<div style="font-size:0.82rem;color:var(--grey);margin-bottom:10px;">' + escHtml(v.desc) + ' <span style="font-size:0.68rem;color:' + descColor + ';">(' + v.desc.length + ' chars)</span></div>' +
+        '<div style="display:flex;gap:8px;">' +
+          (canSave ?
+            '<button class="btn btn-p" style="background:#a855f7;padding:7px 16px;font-size:0.8rem;" onclick="tgApplyToMovie(' + i + ')">✅ Use This — Save to Movie</button>' :
+            '<button class="btn btn-s" style="padding:7px 16px;font-size:0.8rem;" onclick="navigator.clipboard.writeText(' + "'" + v.title.replace(/'/g,"\\'") + "'" + ');toast(\'✅ Title copied!\')">📋 Copy Title</button>' +
+            '<button class="btn btn-s" style="padding:7px 16px;font-size:0.8rem;" onclick="navigator.clipboard.writeText(' + "'" + v.desc.replace(/'/g,"\\'") + "'" + ');toast(\'✅ Description copied!\')">📋 Copy Desc</button>'
+          ) +
+        '</div></div>';
+    }).join('') + '</div>';
+  window._tgLastVariations = variations;
+}
+
+function tgApplyToMovie(i) {
+  if (!_tgSelectedMovieKey) return;
+  var v = window._tgLastVariations[i];
+  db.ref('movies/' + _tgSelectedMovieKey).update({ seoTitle: v.title, seoDesc: v.desc }, function(err) {
+    if (err) { toast('❌ Save fail: ' + err, 1); return; }
+    toast('✅ SEO Title/Desc saved for this movie!');
+  });
+}
+
+function tgClearSingle() {
+  ['tg-m-title','tg-m-year','tg-m-lang','tg-m-qual','tg-movie-search'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('tg-selected-movie').style.display = 'none';
+  document.getElementById('tg-single-results').innerHTML = '';
+  _tgSelectedMovieKey = null;
+}
+
+// ── BULK MODE ──
+var _tgBulkMovies  = [];
+var _tgBulkRunning = false;
+var _tgBulkStopped = false;
+
+function tgBulkLoad() {
+  var cat = document.getElementById('tg-bulk-cat').value;
+  var filter = document.getElementById('tg-bulk-filter').value;
+  var limit = parseInt(document.getElementById('tg-bulk-limit').value) || 50;
+  var queue = document.getElementById('tg-bulk-queue');
+  var empty = document.getElementById('tg-bulk-empty');
+  queue.style.display = 'none'; empty.style.display = 'none';
+  document.getElementById('tg-bulk-prog-wrap').style.display = 'none';
+
+  var all = allMovies.filter(function(m){
+    if (cat !== 'all' && m.category !== cat) return false;
+    if (filter === 'missing' && m.seoTitle) return false;
+    return true;
+  });
+  all.sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+  _tgBulkMovies = all.slice(0, limit);
+
+  if (_tgBulkMovies.length === 0) {
+    empty.style.display = 'block';
+    document.getElementById('tg-bulk-start-btn').style.display = 'none';
+    return;
+  }
+  tgBulkRenderQueue();
+  document.getElementById('tg-bulk-start-btn').style.display = '';
+  document.getElementById('tg-bulk-start-btn').disabled = false;
+}
+
+function tgBulkRenderQueue() {
+  var queue = document.getElementById('tg-bulk-queue');
+  queue.style.display = 'flex';
+  queue.innerHTML = _tgBulkMovies.map(function(m, i){
+    return '<div id="tg-bulk-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;">' +
+      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
+      '<div id="tg-bulk-title-' + i + '" style="font-size:0.72rem;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div></div>' +
+      '<div id="tg-bulk-status-' + i + '" style="font-size:0.72rem;font-weight:700;white-space:nowrap;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
+  }).join('');
+}
+
+function tgBulkUpdateProgress(done, total, ok, fail) {
+  var wrap = document.getElementById('tg-bulk-prog-wrap');
+  wrap.style.display = 'block';
+  var pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('tg-bulk-prog-bar').style.width = pct + '%';
+  document.getElementById('tg-bulk-prog-text').textContent = done + ' / ' + total + ' (' + pct + '%)';
+  document.getElementById('tg-bulk-prog-stats').innerHTML = '<span style="color:#22c55e;">✅ ' + ok + '</span>  <span style="color:#f87171;">❌ ' + fail + '</span>';
+}
+
+function tgBulkStartAll() {
+  if (_tgBulkRunning || _tgBulkMovies.length === 0) return;
+  _tgBulkRunning = true; _tgBulkStopped = false;
+  document.getElementById('tg-bulk-start-btn').style.display = 'none';
+  document.getElementById('tg-bulk-stop-btn').style.display = '';
+  document.getElementById('tg-bulk-load-btn').disabled = true;
+
+  var total = _tgBulkMovies.length, done = 0, ok = 0, fail = 0;
+
+  function processNext(i) {
+    if (_tgBulkStopped || i >= _tgBulkMovies.length) {
+      _tgBulkRunning = false;
+      document.getElementById('tg-bulk-start-btn').style.display = '';
+      document.getElementById('tg-bulk-stop-btn').style.display = 'none';
+      document.getElementById('tg-bulk-load-btn').disabled = false;
+      toast((_tgStopped_msg(_tgBulkStopped)) + ok + ' updated, ' + fail + ' fail');
+      return;
+    }
+    var m = _tgBulkMovies[i];
+    var variations = tgGenerateVariations(m, 1);
+    var best = variations[0];
+    var titleEl = document.getElementById('tg-bulk-title-' + i);
+    if (titleEl) titleEl.textContent = best.title + ' (' + best.title.length + ' chars)';
+    document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#60a5fa;">⏳ Saving...</span>';
+
+    db.ref('movies/' + m.key).update({ seoTitle: best.title, seoDesc: best.desc }, function(err) {
+      done++;
+      if (err) { fail++; document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#f87171;">❌ Fail</span>'; }
+      else { ok++; document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#22c55e;">✅ Saved</span>'; }
+      tgBulkUpdateProgress(done, total, ok, fail);
+      setTimeout(function(){ processNext(i+1); }, 250);
+    });
+  }
+  tgBulkUpdateProgress(0, total, 0, 0);
+  processNext(0);
+}
+function _tgStopped_msg(stopped) { return stopped ? '⏹ Stopped — ' : '✅ Done — '; }
+
+function tgBulkStop() {
+  _tgBulkStopped = true;
+  document.getElementById('tg-bulk-stop-btn').disabled = true;
+  document.getElementById('tg-bulk-stop-btn').textContent = '⏹ Stopping...';
+}
+// ══ END AI TITLE/META GENERATOR ══
+
+// ══════════════════════════════════════════════════
+// 🔍 META TAG SCANNER — SEO health check
+// ══════════════════════════════════════════════════
+var _msIssues = [];
+var _msFilter = 'issues';
+var MS_CAT_LABELS = {hollywood:'🌟 Hollywood', bollywood:'🎭 Bollywood', tollywood:'🎬 Tollywood', animation:'🧸 Animation', webseries:'📺 Web Series', kdrama:'🇰🇷 K-Drama', adult:'🔞 Adult'};
+
+function msScan() {
+  var slugCount = {};
+  allMovies.forEach(function(m) { if (m.seoSlug) slugCount[m.seoSlug] = (slugCount[m.seoSlug] || 0) + 1; });
+
+  _msIssues = allMovies.map(function(m) {
+    var issues = [];
+    if (!m.seoTitle) issues.push({ code: 'notitle', label: 'Missing Title', color: '#f87171' });
+    else if (m.seoTitle.length > 80) issues.push({ code: 'toolong', label: 'Title Too Long', color: '#f59e0b' });
+    if (!m.seoDesc) issues.push({ code: 'nodesc', label: 'Missing Desc', color: '#f87171' });
+    else if (m.seoDesc.length > 165) issues.push({ code: 'toolong', label: 'Desc Too Long', color: '#f59e0b' });
+    if (!m.seoSlug) issues.push({ code: 'noslug', label: 'Missing Slug', color: '#f87171' });
+    else if (slugCount[m.seoSlug] > 1) issues.push({ code: 'dupslug', label: 'Duplicate Slug', color: '#f59e0b' });
+    if (!m.seoKeywords) issues.push({ code: 'nokw', label: 'No Keywords', color: '#888' });
+    return { movie: m, issues: issues };
+  });
+
+  var badge = document.getElementById('ms-issue-count');
+  var withIssues = _msIssues.filter(function(x){ return x.issues.length > 0; }).length;
+  if (badge) badge.textContent = withIssues;
+
+  msRenderStats();
+  msRender();
+}
+
+function msRenderStats() {
+  var total = _msIssues.length;
+  var noTitle = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='notitle';}); }).length;
+  var noDesc  = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='nodesc';}); }).length;
+  var tooLong = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='toolong';}); }).length;
+  var dupSlug = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='dupslug';}); }).length;
+  var clean   = _msIssues.filter(function(x){ return x.issues.length === 0; }).length;
+
+  var stats = [
+    { num: total, lbl: 'Total Movies', color: '#fff' },
+    { num: clean, lbl: '✅ Clean (No Issues)', color: '#22c55e' },
+    { num: noTitle, lbl: '❌ Missing Title', color: '#f87171' },
+    { num: noDesc, lbl: '❌ Missing Desc', color: '#f87171' },
+    { num: tooLong, lbl: '⚠️ Too Long', color: '#f59e0b' },
+    { num: dupSlug, lbl: '⚠️ Duplicate Slug', color: '#f59e0b' }
+  ];
+  document.getElementById('ms-stats-grid').innerHTML = stats.map(function(s){
+    return '<div class="stat-card"><div class="num" style="color:' + s.color + ';">' + s.num + '</div><div class="lbl">' + s.lbl + '</div></div>';
+  }).join('');
+}
+
+function msSetFilter(f) {
+  _msFilter = f;
+  document.querySelectorAll('#ms-filter-row .cf-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-f') === f); });
+  msRender();
+}
+
+function msRender() {
+  var rows = _msIssues.filter(function(x) {
+    if (_msFilter === 'all') return true;
+    if (_msFilter === 'issues') return x.issues.length > 0;
+    return x.issues.some(function(i){ return i.code === _msFilter; });
+  });
+
+  var tbody = document.getElementById('ms-tbody');
+  if (rows.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">🎉 Koi issue nahi mila is filter mein!</td></tr>'; return; }
+
+  tbody.innerHTML = rows.map(function(x) {
+    var m = x.movie;
+    var thumb = m.thumbnail ? '<img class="tsm" src="' + m.thumbnail + '" onerror="this.style.display=\'none\'">' : '<div class="nth">🎬</div>';
+    var issuesHtml = x.issues.length === 0 ? '<span style="color:#22c55e;font-size:0.75rem;">✅ OK</span>' :
+      x.issues.map(function(i){ return '<span class="badge" style="background:' + i.color + '22;color:' + i.color + ';margin-right:4px;">' + i.label + '</span>'; }).join('');
+    return '<tr><td>' + thumb + '</td>' +
+      '<td>' + escHtml(m.title || 'Untitled') + '<div style="font-size:0.68rem;color:#555;">' + (m.year||'') + '</div></td>' +
+      '<td>' + (MS_CAT_LABELS[m.category] || m.category || '—') + '</td>' +
+      '<td style="max-width:220px;font-size:0.78rem;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.seoTitle || '—') + '</td>' +
+      '<td>' + issuesHtml + '</td>' +
+      '<td><button class="btn btn-s" style="padding:6px 12px;font-size:0.75rem;background:#a855f7;color:#fff;" onclick="msFixMovie(\'' + m.key + '\')">✨ Fix</button></td></tr>';
+  }).join('');
+}
+
+function msFixMovie(key) {
+  show('titlegen');
+  tgSwitchMode('single');
+  tgSelectMovie(key);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+// ══ END META TAG SCANNER ══
 </script>
 </body>
 </html>
