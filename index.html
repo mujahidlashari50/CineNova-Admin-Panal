@@ -588,6 +588,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-section-title">🤖 SEO AI Tools</div>
     <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
     <div class="nav-item" id="nav-metascan" onclick="show('metascan')" style="color:#a855f7;">🔍 Meta Tag Scanner <span class="nav-count" id="ms-issue-count" style="background:#a855f7;">0</span></div>
+    <div class="nav-item" id="nav-descwriter" onclick="show('descwriter')" style="color:#06b6d4;">📝 Description Writer</div>
     <div class="nav-section-title">Features</div>
     <div class="nav-item" id="nav-trending" onclick="show('trending')">🔥 Trending Manager</div>
     <div class="nav-item" id="nav-motd" onclick="show('motd')" style="color:#facc15;">🎬 Movie of the Day</div>
@@ -3369,8 +3370,25 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <button class="cf-btn" data-f="nodesc" onclick="msSetFilter('nodesc')">Missing Desc</button>
         <button class="cf-btn" data-f="toolong" onclick="msSetFilter('toolong')">Too Long</button>
         <button class="cf-btn" data-f="dupslug" onclick="msSetFilter('dupslug')">Duplicate Slug</button>
+        <button class="cf-btn" data-f="noslug" onclick="msSetFilter('noslug')">Missing Slug</button>
+        <button class="cf-btn" data-f="nokw" onclick="msSetFilter('nokw')">No Keywords</button>
         <button class="cf-btn" data-f="all" onclick="msSetFilter('all')">📋 Sab Movies</button>
         <button class="btn btn-s" style="margin-left:auto;padding:6px 14px;font-size:0.78rem;" onclick="msScan()">🔄 Re-scan</button>
+      </div>
+
+      <div class="card" style="border-color:rgba(168,85,247,0.3);">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:220px;font-size:0.82rem;color:var(--grey);">⚡ Neeche jitni movies dikh rahi hain (current filter ke hisab se), un <strong id="ms-fixall-count" style="color:#a855f7;">0</strong> movies ka SEO Title/Desc ek sath auto-generate + save ho jayega.</div>
+          <button class="btn btn-p" style="background:#a855f7;" id="ms-fixall-btn" onclick="msFixAll()">⚡ Sab Fix Karo (Ek Sath)</button>
+          <button class="btn btn-s" style="background:#7f1d1d;display:none;" id="ms-fixall-stop-btn" onclick="msFixAllStop()">⏹ Stop</button>
+        </div>
+        <div id="ms-fixall-prog-wrap" style="display:none;margin-top:14px;">
+          <div style="background:#111;border-radius:20px;height:8px;overflow:hidden;"><div id="ms-fixall-prog-bar" style="height:100%;width:0%;background:#a855f7;transition:0.3s;"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.78rem;color:var(--grey);">
+            <span id="ms-fixall-prog-text">0 / 0</span>
+            <span id="ms-fixall-prog-stats"></span>
+          </div>
+        </div>
       </div>
 
       <div class="tw">
@@ -3380,6 +3398,122 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </tr></thead>
           <tbody id="ms-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Scan karne ke liye "Meta Tag Scanner" section open karo...</td></tr></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- 📝 DESCRIPTION WRITER — Free multi-block template engine -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="section" id="sec-descwriter">
+      <div class="sec-title">📝 Description <span>Writer</span></div>
+
+      <div class="card" style="border-color:rgba(6,182,212,0.35);background:linear-gradient(135deg,rgba(6,182,212,0.06),rgba(0,0,0,0));">
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:#67e8f9;">
+          <span style="font-size:1.1rem;">🎯</span>
+          <span>100% Free, koi API key nahi — movie ke apne data (genre/language/quality/rating) se poora unique paragraph banata hai, TMDB copy-paste se bachne ke liye. Opener + Middle + Closing sentences alag-alag combos mein mix hote hain taake har movie ka description alag lage.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <button class="cf-btn active" id="dw-mode-single" onclick="dwSwitchMode('single')" style="padding:9px 20px;">🎬 Single Movie</button>
+        <button class="cf-btn" id="dw-mode-bulk" onclick="dwSwitchMode('bulk')" style="padding:9px 20px;">⚡ Bulk — All Movies</button>
+      </div>
+
+      <!-- ═══ SINGLE MODE ═══ -->
+      <div id="dw-single-panel">
+        <div class="card">
+          <h3>Movie Select Karo</h3>
+          <div class="fg">
+            <div class="fgg full">
+              <label>Search Existing Movie</label>
+              <input class="fi" id="dw-movie-search" placeholder="Movie title type karo..." oninput="dwFilterMovieList()" onfocus="dwFilterMovieList()"/>
+              <div id="dw-movie-list" style="display:none;max-height:220px;overflow-y:auto;margin-top:6px;background:#111;border:1px solid var(--border);border-radius:8px;"></div>
+            </div>
+          </div>
+          <div id="dw-selected-movie" style="display:none;margin-top:4px;padding:10px 14px;background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.25);border-radius:8px;font-size:0.85rem;color:#67e8f9;"></div>
+          <div style="text-align:center;margin:14px 0;color:#444;font-size:0.75rem;">— ya movie select kiye baghair manual details dalo —</div>
+          <div class="fg">
+            <div class="fgg"><label>Title</label><input class="fi" id="dw-m-title" placeholder="Movie/Series title"/></div>
+            <div class="fgg"><label>Year</label><input class="fi" id="dw-m-year" placeholder="2025"/></div>
+            <div class="fgg"><label>Category</label>
+              <select class="fi" id="dw-m-cat">
+                <option value="hollywood">🌟 Hollywood</option>
+                <option value="bollywood">🎭 Bollywood</option>
+                <option value="tollywood">🎬 Tollywood</option>
+                <option value="animation">🧸 Animation</option>
+                <option value="webseries">📺 Web Series</option>
+                <option value="kdrama">🇰🇷 K-Drama</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Genre</label>
+              <select class="fi" id="dw-m-genre">
+                <option value="">— None —</option>
+                <option value="action">Action</option><option value="adventure">Adventure</option>
+                <option value="animation">Animation</option><option value="comedy">Comedy</option>
+                <option value="crime">Crime</option><option value="drama">Drama</option>
+                <option value="fantasy">Fantasy</option><option value="horror">Horror</option>
+                <option value="mystery">Mystery</option><option value="romance">Romance</option>
+                <option value="scifi">Sci-Fi</option><option value="thriller">Thriller</option>
+                <option value="war">War</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Language</label><input class="fi" id="dw-m-lang" placeholder="Hindi Dubbed / English"/></div>
+            <div class="fgg"><label>Quality</label><input class="fi" id="dw-m-qual" placeholder="1080p WEB-DL"/></div>
+            <div class="fgg"><label>Rating (out of 10)</label><input class="fi" id="dw-m-rating" placeholder="7.5"/></div>
+            <div class="fgg"><label># Variations</label>
+              <select class="fi" id="dw-num-var"><option value="4">4 Variations</option><option value="2">2 Variations</option><option value="6">6 Variations</option></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-p" style="background:#06b6d4;" onclick="dwGenerateSingle()">📝 Generate</button>
+            <button class="btn btn-s" onclick="dwClearSingle()">🗑 Clear</button>
+          </div>
+        </div>
+
+        <div id="dw-single-results"></div>
+      </div>
+
+      <!-- ═══ BULK MODE ═══ -->
+      <div id="dw-bulk-panel" style="display:none;">
+        <div class="card">
+          <h3>Filters</h3>
+          <div class="fg">
+            <div class="fgg"><label>Category</label>
+              <select class="fi" id="dw-bulk-cat">
+                <option value="all">🌐 All Categories</option>
+                <option value="hollywood">🌟 Hollywood</option>
+                <option value="bollywood">🎭 Bollywood</option>
+                <option value="tollywood">🎬 Tollywood</option>
+                <option value="animation">🧸 Animation</option>
+                <option value="webseries">📺 Web Series</option>
+                <option value="kdrama">🇰🇷 K-Drama</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Filter</label>
+              <select class="fi" id="dw-bulk-filter">
+                <option value="missing">⭕ Sirf jinke Description missing hai</option>
+                <option value="all">📋 Sab Movies (overwrite bhi hoga — TMDB copy hata dega)</option>
+              </select>
+            </div>
+            <div class="fgg"><label>Limit</label><input class="fi" id="dw-bulk-limit" type="number" value="50" min="1"/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-s" id="dw-bulk-load-btn" onclick="dwBulkLoad()">🔍 Movies Load Karo</button>
+            <button class="btn btn-p" style="background:#06b6d4;display:none;" id="dw-bulk-start-btn" onclick="dwBulkStartAll()" disabled>⚡ Generate &amp; Apply All</button>
+            <button class="btn btn-s" style="background:#7f1d1d;display:none;" id="dw-bulk-stop-btn" onclick="dwBulkStop()">⏹ Stop</button>
+          </div>
+        </div>
+
+        <div id="dw-bulk-prog-wrap" style="display:none;margin-bottom:14px;">
+          <div style="background:#111;border-radius:20px;height:8px;overflow:hidden;"><div id="dw-bulk-prog-bar" style="height:100%;width:0%;background:#06b6d4;transition:0.3s;"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:0.78rem;color:var(--grey);">
+            <span id="dw-bulk-prog-text">0 / 0</span>
+            <span id="dw-bulk-prog-stats"></span>
+          </div>
+        </div>
+
+        <div id="dw-bulk-empty" style="display:none;text-align:center;padding:40px;color:#444;">Koi movie nahi mili. Filter change kar ke try karo.</div>
+        <div id="dw-bulk-queue" style="display:none;flex-direction:column;gap:8px;"></div>
       </div>
     </div>
 
@@ -14512,6 +14646,35 @@ var TG_TEMPLATES = [
     desc:  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' full ' + d.catLabel.toLowerCase() + ' available in ' + d.quality + ' on CineNova. Click to watch or download now.'; } }
 ];
 
+// Slug/keywords ke liye — worker.js ke cvSlug() jaisa hi logic, taake dono jagah
+// generated URLs consistent rahein.
+function tgSlugify(str) {
+  return (str || '').toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+// Sirf tab call karo jab movie.seoSlug khali ho — kabhi existing slug ko
+// overwrite mat karo, warna already-indexed/shared URL toot jayega.
+function tgGenerateSlug(m, excludeKey) {
+  var base = tgSlugify(m.title || '') || 'movie';
+  if (m.year) base += '-' + m.year;
+  var existing = {};
+  allMovies.forEach(function(x) { if (x.key !== excludeKey && x.seoSlug) existing[x.seoSlug] = true; });
+  var slug = base, i = 2;
+  while (existing[slug]) { slug = base + '-' + i; i++; }
+  return slug;
+}
+
+function tgGenerateKeywords(m) {
+  var parts = [];
+  if (m.title) parts.push(m.title.toLowerCase());
+  if (m.title && m.year) parts.push(m.title.toLowerCase() + ' ' + m.year);
+  if (m.genre) parts.push((TG_GENRE_LABELS[m.genre] || m.genre).toLowerCase());
+  if (m.language) parts.push(m.language.toLowerCase());
+  if (m.quality) parts.push(m.quality.toLowerCase());
+  parts.push('download', 'watch online', 'free movie', 'cinenova');
+  return parts.join(', ');
+}
+
 function tgGenerateVariations(m, n) {
   var d = tgBuildData(m);
   var out = [];
@@ -14601,9 +14764,13 @@ function tgRenderSingleResults(variations) {
 function tgApplyToMovie(i) {
   if (!_tgSelectedMovieKey) return;
   var v = window._tgLastVariations[i];
-  db.ref('movies/' + _tgSelectedMovieKey).update({ seoTitle: v.title, seoDesc: v.desc }, function(err) {
+  var m = allMovies.find(function(x){ return x.key === _tgSelectedMovieKey; }) || {};
+  var updates = { seoTitle: v.title, seoDesc: v.desc };
+  if (!m.seoSlug) updates.seoSlug = tgGenerateSlug(m, _tgSelectedMovieKey);
+  if (!m.seoKeywords) updates.seoKeywords = tgGenerateKeywords(m);
+  db.ref('movies/' + _tgSelectedMovieKey).update(updates, function(err) {
     if (err) { toast('❌ Save fail: ' + err, 1); return; }
-    toast('✅ SEO Title/Desc saved for this movie!');
+    toast('✅ SEO Title/Desc' + (updates.seoSlug?'/Slug':'') + (updates.seoKeywords?'/Keywords':'') + ' saved!');
   });
 }
 
@@ -14692,7 +14859,11 @@ function tgBulkStartAll() {
     if (titleEl) titleEl.textContent = best.title + ' (' + best.title.length + ' chars)';
     document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#60a5fa;">⏳ Saving...</span>';
 
-    db.ref('movies/' + m.key).update({ seoTitle: best.title, seoDesc: best.desc }, function(err) {
+    var updates = { seoTitle: best.title, seoDesc: best.desc };
+    if (!m.seoSlug) updates.seoSlug = tgGenerateSlug(m, m.key);
+    if (!m.seoKeywords) updates.seoKeywords = tgGenerateKeywords(m);
+
+    db.ref('movies/' + m.key).update(updates, function(err) {
       done++;
       if (err) { fail++; document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#f87171;">❌ Fail</span>'; }
       else { ok++; document.getElementById('tg-bulk-status-' + i).innerHTML = '<span style="color:#22c55e;">✅ Saved</span>'; }
@@ -14770,12 +14941,24 @@ function msSetFilter(f) {
   msRender();
 }
 
-function msRender() {
-  var rows = _msIssues.filter(function(x) {
+function msFilteredRows() {
+  return _msIssues.filter(function(x) {
     if (_msFilter === 'all') return true;
     if (_msFilter === 'issues') return x.issues.length > 0;
     return x.issues.some(function(i){ return i.code === _msFilter; });
   });
+}
+
+// Fix All ke liye targets — jo bhi filter mein dikh rahi hain unme se sirf woh jinme
+// waqai koi issue hai (agar filter 'all' ho to bhi already-clean movies ko touch nahi karna)
+function msFixTargets() {
+  return msFilteredRows().filter(function(x){ return x.issues.length > 0; });
+}
+
+function msRender() {
+  var rows = msFilteredRows();
+  var cntEl = document.getElementById('ms-fixall-count');
+  if (cntEl) cntEl.textContent = msFixTargets().length;
 
   var tbody = document.getElementById('ms-tbody');
   if (rows.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">🎉 Koi issue nahi mila is filter mein!</td></tr>'; return; }
@@ -14800,7 +14983,314 @@ function msFixMovie(key) {
   tgSelectMovie(key);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ── FIX ALL (BULK) — currently filtered issue-movies ko ek sath fix karo ──
+var _msFixRunning = false;
+var _msFixStopped = false;
+
+function msFixAllProgress(done, total, ok, fail) {
+  var wrap = document.getElementById('ms-fixall-prog-wrap');
+  wrap.style.display = 'block';
+  var pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('ms-fixall-prog-bar').style.width = pct + '%';
+  document.getElementById('ms-fixall-prog-text').textContent = done + ' / ' + total + ' (' + pct + '%)';
+  document.getElementById('ms-fixall-prog-stats').innerHTML = '<span style="color:#22c55e;">✅ ' + ok + '</span>  <span style="color:#f87171;">❌ ' + fail + '</span>';
+}
+
+function msFixAll() {
+  if (_msFixRunning) return;
+  var targets = msFixTargets();
+  if (targets.length === 0) { toast('🎉 Is filter mein fix karne ko kuch nahi hai!'); return; }
+
+  _msFixRunning = true; _msFixStopped = false;
+  document.getElementById('ms-fixall-btn').style.display = 'none';
+  document.getElementById('ms-fixall-stop-btn').style.display = '';
+
+  var total = targets.length, done = 0, ok = 0, fail = 0;
+
+  function processNext(i) {
+    if (_msFixStopped || i >= targets.length) {
+      _msFixRunning = false;
+      document.getElementById('ms-fixall-btn').style.display = '';
+      document.getElementById('ms-fixall-stop-btn').style.display = 'none';
+      toast((_msFixStopped ? '⏹ Stopped — ' : '✅ Done — ') + ok + ' fixed, ' + fail + ' fail');
+      msScan(); // re-scan taake table/stats fresh ho jayein
+      return;
+    }
+    var m = targets[i].movie;
+    var v = tgGenerateVariations(m, 1)[0];
+    var updates = { seoTitle: v.title, seoDesc: v.desc };
+    if (!m.seoSlug) updates.seoSlug = tgGenerateSlug(m, m.key);
+    if (!m.seoKeywords) updates.seoKeywords = tgGenerateKeywords(m);
+    db.ref('movies/' + m.key).update(updates, function(err) {
+      done++;
+      if (err) fail++; else ok++;
+      msFixAllProgress(done, total, ok, fail);
+      setTimeout(function(){ processNext(i+1); }, 250);
+    });
+  }
+  msFixAllProgress(0, total, 0, 0);
+  processNext(0);
+}
+
+function msFixAllStop() {
+  _msFixStopped = true;
+  document.getElementById('ms-fixall-stop-btn').disabled = true;
+  document.getElementById('ms-fixall-stop-btn').textContent = '⏹ Stopping...';
+}
 // ══ END META TAG SCANNER ══
+
+// ══════════════════════════════════════════════════
+// 📝 DESCRIPTION WRITER — Free multi-block template engine
+// (No API key — combines Opener + Middle + Closer sentence blocks,
+//  chosen deterministically per-movie so results stay varied across
+//  the library instead of every movie reading the same paragraph)
+// ══════════════════════════════════════════════════
+function dwHash(str) {
+  var h = 0;
+  str = str || '';
+  for (var i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+
+function dwBuildData(m) {
+  return {
+    title: m.title || '',
+    year: m.year || '',
+    quality: m.quality || 'HD',
+    language: m.language || '',
+    rating: m.rating || '',
+    catLabel: TG_CAT_LABELS[m.category] || 'Movie',
+    genreLabel: TG_GENRE_LABELS[m.genre] || ''
+  };
+}
+
+var DW_OPENERS = [
+  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' is a' + (d.genreLabel?' '+d.genreLabel.toLowerCase():'') + ' ' + d.catLabel.toLowerCase() + ' that has drawn plenty of attention since its release.'; },
+  function(d){ return 'Released in ' + (d.year||'recent times') + ', ' + d.title + ' stands out as a notable' + (d.genreLabel?' '+d.genreLabel.toLowerCase():'') + ' ' + d.catLabel.toLowerCase() + '.'; },
+  function(d){ return 'If you enjoy' + (d.genreLabel?' '+d.genreLabel.toLowerCase():'') + ' ' + d.catLabel.toLowerCase() + 's, ' + d.title + (d.year?' ('+d.year+')':'') + ' is well worth adding to your watchlist.'; },
+  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' brings viewers a' + (d.genreLabel?' '+d.genreLabel.toLowerCase():'') + ' experience packed with memorable moments.'; },
+  function(d){ return 'Among the notable ' + (d.year||'recent') + ' releases, ' + d.title + ' has carved out its own place as a strong ' + d.catLabel.toLowerCase() + '.'; },
+  function(d){ return d.title + (d.year?' ('+d.year+')':'') + ' has become a popular pick for fans looking for a solid' + (d.genreLabel?' '+d.genreLabel.toLowerCase():'') + ' watch.'; }
+];
+
+var DW_MIDDLES = [
+  function(d){ return d.rating ? 'It currently holds a rating of ' + d.rating + '/10, reflecting a largely positive response from viewers.' : 'It has been well received by audiences for its story and execution.'; },
+  function(d){ return d.language ? 'The ' + d.language + ' audio track makes it easy to follow for a wide range of viewers.' : 'It offers an engaging watch for a wide range of viewers.'; },
+  function(d){ return 'Fans of' + (d.genreLabel?' '+d.genreLabel.toLowerCase():' the genre') + ' will find plenty to enjoy here, from the pacing to the performances.'; },
+  function(d){ return d.quality ? 'It is available in ' + d.quality + ' quality, making for a smooth and enjoyable viewing experience.' : 'It offers a smooth, enjoyable viewing experience from start to finish.'; },
+  function(d){ return 'The story keeps things engaging throughout, which is part of why it continues to find new viewers.'; }
+];
+
+var DW_CLOSERS = [
+  function(d){ return 'Watch or download ' + d.title + ' in ' + (d.quality||'HD') + ' on CineNova, with fast links and no login required.'; },
+  function(d){ return 'Stream ' + d.title + ' now on CineNova for a smooth, hassle-free viewing experience in ' + (d.quality||'HD') + '.'; },
+  function(d){ return d.title + ' is available to watch or download on CineNova, with links updated regularly for the best quality.'; },
+  function(d){ return 'Head over to CineNova to watch or download ' + d.title + ' today, available in ' + (d.quality||'HD') + '.'; }
+];
+
+function dwGenerateVariations(m, n) {
+  var d = dwBuildData(m);
+  var baseHash = dwHash(d.title + '|' + d.year);
+  var out = [];
+  var seen = {};
+  for (var k = 0; k < n; k++) {
+    var oi = (baseHash + k) % DW_OPENERS.length;
+    var mi = (baseHash + k * 3 + 1) % DW_MIDDLES.length;
+    var ci = (baseHash + k * 5 + 2) % DW_CLOSERS.length;
+    var combo = oi + '-' + mi + '-' + ci;
+    if (seen[combo]) { mi = (mi + 1) % DW_MIDDLES.length; combo = oi + '-' + mi + '-' + ci; }
+    seen[combo] = true;
+    var text = DW_OPENERS[oi](d) + ' ' + DW_MIDDLES[mi](d) + ' ' + DW_CLOSERS[ci](d);
+    out.push({ name: 'Variation ' + (k + 1), text: text });
+  }
+  return out;
+}
+
+function dwSwitchMode(mode) {
+  document.getElementById('dw-mode-single').classList.toggle('active', mode === 'single');
+  document.getElementById('dw-mode-bulk').classList.toggle('active', mode === 'bulk');
+  document.getElementById('dw-single-panel').style.display = mode === 'single' ? 'block' : 'none';
+  document.getElementById('dw-bulk-panel').style.display = mode === 'bulk' ? 'block' : 'none';
+}
+
+var _dwSelectedMovieKey = null;
+
+function dwFilterMovieList() {
+  var q = document.getElementById('dw-movie-search').value.trim().toLowerCase();
+  var list = document.getElementById('dw-movie-list');
+  if (!q) { list.style.display = 'none'; list.innerHTML = ''; return; }
+  var matches = allMovies.filter(function(m){ return (m.title||'').toLowerCase().indexOf(q) !== -1; }).slice(0, 15);
+  if (matches.length === 0) { list.style.display = 'none'; list.innerHTML = ''; return; }
+  list.innerHTML = matches.map(function(m){
+    return '<div onclick="dwSelectMovie(\'' + m.key + '\')" style="padding:9px 14px;cursor:pointer;font-size:0.85rem;border-bottom:1px solid #1a1a1a;" onmouseover="this.style.background=\'rgba(6,182,212,0.08)\'" onmouseout="this.style.background=\'transparent\'">' +
+      escHtml(m.title||'Untitled') + ' <span style="color:#555;">' + (m.year||'') + '</span></div>';
+  }).join('');
+  list.style.display = 'block';
+}
+
+function dwSelectMovie(key) {
+  var m = allMovies.find(function(x){ return x.key === key; });
+  if (!m) return;
+  _dwSelectedMovieKey = key;
+  document.getElementById('dw-movie-search').value = m.title || '';
+  document.getElementById('dw-movie-list').style.display = 'none';
+  var box = document.getElementById('dw-selected-movie');
+  box.style.display = 'block';
+  var curDesc = m.description ? escHtml(m.description.substring(0,90)) + '...' : 'khali';
+  box.innerHTML = '🎬 Selected: <strong>' + escHtml(m.title||'') + '</strong> (' + (m.year||'—') + ') — current Description: <em>' + curDesc + '</em> &nbsp;<span style="cursor:pointer;color:#f87171;" onclick="dwSelectMovie(null);_dwSelectedMovieKey=null;document.getElementById(\'dw-selected-movie\').style.display=\'none\';document.getElementById(\'dw-movie-search\').value=\'\';">✕ Remove</span>';
+  var sv3 = function(id, v) { var el = document.getElementById(id); if (el && v) el.value = v; };
+  sv3('dw-m-title', m.title); sv3('dw-m-year', m.year); sv3('dw-m-lang', m.language); sv3('dw-m-qual', m.quality); sv3('dw-m-rating', m.rating);
+  if (m.category) document.getElementById('dw-m-cat').value = m.category;
+  if (m.genre) document.getElementById('dw-m-genre').value = m.genre;
+}
+
+function dwGenerateSingle() {
+  var title = document.getElementById('dw-m-title').value.trim();
+  if (!title) { toast('❌ Title dalo ya movie select karo!', 1); return; }
+  var m = {
+    title: title,
+    year: document.getElementById('dw-m-year').value.trim(),
+    category: document.getElementById('dw-m-cat').value,
+    genre: document.getElementById('dw-m-genre').value,
+    language: document.getElementById('dw-m-lang').value.trim(),
+    quality: document.getElementById('dw-m-qual').value.trim(),
+    rating: document.getElementById('dw-m-rating').value.trim()
+  };
+  var n = parseInt(document.getElementById('dw-num-var').value) || 4;
+  var variations = dwGenerateVariations(m, n);
+  dwRenderSingleResults(variations);
+}
+
+function dwRenderSingleResults(variations) {
+  var wrap = document.getElementById('dw-single-results');
+  var canSave = !!_dwSelectedMovieKey;
+  wrap.innerHTML = '<div class="card"><h3>' + variations.length + ' Results' + (canSave ? '' : ' <span style="color:#555;font-weight:400;text-transform:none;">(movie select karo Firebase mein save karne ke liye — abhi sirf copy hoga)</span>') + '</h3>' +
+    variations.map(function(v, i){
+      return '<div style="background:#111;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;">' +
+        '<div style="font-size:0.68rem;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">' + escHtml(v.name) + '</div>' +
+        '<div style="font-size:0.85rem;color:var(--grey);line-height:1.6;margin-bottom:10px;">' + escHtml(v.text) + ' <span style="font-size:0.68rem;color:#555;">(' + v.text.length + ' chars)</span></div>' +
+        '<div style="display:flex;gap:8px;">' +
+          (canSave ?
+            '<button class="btn btn-p" style="background:#06b6d4;padding:7px 16px;font-size:0.8rem;" onclick="dwApplyToMovie(' + i + ')">✅ Use This — Save to Movie</button>' :
+            '<button class="btn btn-s" style="padding:7px 16px;font-size:0.8rem;" onclick="navigator.clipboard.writeText(' + "'" + v.text.replace(/'/g,"\\'") + "'" + ');toast(\'✅ Description copied!\')">📋 Copy</button>'
+          ) +
+        '</div></div>';
+    }).join('') + '</div>';
+  window._dwLastVariations = variations;
+}
+
+function dwApplyToMovie(i) {
+  if (!_dwSelectedMovieKey) return;
+  var v = window._dwLastVariations[i];
+  db.ref('movies/' + _dwSelectedMovieKey).update({ description: v.text }, function(err) {
+    if (err) { toast('❌ Save fail: ' + err, 1); return; }
+    toast('✅ Description saved for this movie!');
+  });
+}
+
+function dwClearSingle() {
+  ['dw-m-title','dw-m-year','dw-m-lang','dw-m-qual','dw-m-rating','dw-movie-search'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('dw-selected-movie').style.display = 'none';
+  document.getElementById('dw-single-results').innerHTML = '';
+  _dwSelectedMovieKey = null;
+}
+
+// ── BULK MODE ──
+var _dwBulkMovies  = [];
+var _dwBulkRunning = false;
+var _dwBulkStopped = false;
+
+function dwBulkLoad() {
+  var cat = document.getElementById('dw-bulk-cat').value;
+  var filter = document.getElementById('dw-bulk-filter').value;
+  var limit = parseInt(document.getElementById('dw-bulk-limit').value) || 50;
+  var queue = document.getElementById('dw-bulk-queue');
+  var empty = document.getElementById('dw-bulk-empty');
+  queue.style.display = 'none'; empty.style.display = 'none';
+  document.getElementById('dw-bulk-prog-wrap').style.display = 'none';
+
+  var all = allMovies.filter(function(m){
+    if (cat !== 'all' && m.category !== cat) return false;
+    if (filter === 'missing' && m.description) return false;
+    return true;
+  });
+  all.sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+  _dwBulkMovies = all.slice(0, limit);
+
+  if (_dwBulkMovies.length === 0) {
+    empty.style.display = 'block';
+    document.getElementById('dw-bulk-start-btn').style.display = 'none';
+    return;
+  }
+  dwBulkRenderQueue();
+  document.getElementById('dw-bulk-start-btn').style.display = '';
+  document.getElementById('dw-bulk-start-btn').disabled = false;
+}
+
+function dwBulkRenderQueue() {
+  var queue = document.getElementById('dw-bulk-queue');
+  queue.style.display = 'flex';
+  queue.innerHTML = _dwBulkMovies.map(function(m, i){
+    return '<div id="dw-bulk-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;">' +
+      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
+      '<div id="dw-bulk-title-' + i + '" style="font-size:0.72rem;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div></div>' +
+      '<div id="dw-bulk-status-' + i + '" style="font-size:0.72rem;font-weight:700;white-space:nowrap;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
+  }).join('');
+}
+
+function dwBulkUpdateProgress(done, total, ok, fail) {
+  var wrap = document.getElementById('dw-bulk-prog-wrap');
+  wrap.style.display = 'block';
+  var pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('dw-bulk-prog-bar').style.width = pct + '%';
+  document.getElementById('dw-bulk-prog-text').textContent = done + ' / ' + total + ' (' + pct + '%)';
+  document.getElementById('dw-bulk-prog-stats').innerHTML = '<span style="color:#22c55e;">✅ ' + ok + '</span>  <span style="color:#f87171;">❌ ' + fail + '</span>';
+}
+
+function dwBulkStartAll() {
+  if (_dwBulkRunning || _dwBulkMovies.length === 0) return;
+  _dwBulkRunning = true; _dwBulkStopped = false;
+  document.getElementById('dw-bulk-start-btn').style.display = 'none';
+  document.getElementById('dw-bulk-stop-btn').style.display = '';
+  document.getElementById('dw-bulk-load-btn').disabled = true;
+
+  var total = _dwBulkMovies.length, done = 0, ok = 0, fail = 0;
+
+  function processNext(i) {
+    if (_dwBulkStopped || i >= _dwBulkMovies.length) {
+      _dwBulkRunning = false;
+      document.getElementById('dw-bulk-start-btn').style.display = '';
+      document.getElementById('dw-bulk-stop-btn').style.display = 'none';
+      document.getElementById('dw-bulk-load-btn').disabled = false;
+      toast((_dwBulkStopped ? '⏹ Stopped — ' : '✅ Done — ') + ok + ' updated, ' + fail + ' fail');
+      return;
+    }
+    var m = _dwBulkMovies[i];
+    var v = dwGenerateVariations(m, 1)[0];
+    var titleEl = document.getElementById('dw-bulk-title-' + i);
+    if (titleEl) titleEl.textContent = v.text.substring(0, 60) + '...';
+    document.getElementById('dw-bulk-status-' + i).innerHTML = '<span style="color:#60a5fa;">⏳ Saving...</span>';
+
+    db.ref('movies/' + m.key).update({ description: v.text }, function(err) {
+      done++;
+      if (err) { fail++; document.getElementById('dw-bulk-status-' + i).innerHTML = '<span style="color:#f87171;">❌ Fail</span>'; }
+      else { ok++; document.getElementById('dw-bulk-status-' + i).innerHTML = '<span style="color:#22c55e;">✅ Saved</span>'; }
+      dwBulkUpdateProgress(done, total, ok, fail);
+      setTimeout(function(){ processNext(i+1); }, 250);
+    });
+  }
+  dwBulkUpdateProgress(0, total, 0, 0);
+  processNext(0);
+}
+
+function dwBulkStop() {
+  _dwBulkStopped = true;
+  document.getElementById('dw-bulk-stop-btn').disabled = true;
+  document.getElementById('dw-bulk-stop-btn').textContent = '⏹ Stopping...';
+}
+// ══ END DESCRIPTION WRITER ══
 </script>
 </body>
 </html>
