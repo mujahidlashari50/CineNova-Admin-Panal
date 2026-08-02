@@ -1789,6 +1789,28 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             </div>
           </div>
 
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;">🎬 Movie of the Day</div>
+              <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Home page par "Pick of the Day" wala banner</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="sl-motd-status">ON</span>
+              <div class="toggle-wrap" id="sl-motd-wrap" onclick="toggleSlider('movieOfTheDay')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;">🍿 Now Showing</div>
+              <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Home page ke top wala auto-rotating poster stack</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.72rem;color:var(--grey);" id="sl-nowshowing-status">ON</span>
+              <div class="toggle-wrap" id="sl-nowshowing-wrap" onclick="toggleSlider('nowShowing')"><div class="toggle-btn"></div></div>
+            </div>
+          </div>
+
         </div>
         <div style="margin-top:12px;padding:10px 12px;background:rgba(229,9,20,0.05);border:1px solid rgba(229,9,20,0.12);border-radius:8px;font-size:0.75rem;color:#555;">
           💡 Toggle ON — Featured Banner will show on website. Toggle OFF — it will be hidden.
@@ -4111,12 +4133,19 @@ function loadWebsiteSettings() {
     if (s.notice) document.getElementById('ws-notice').value = s.notice;
     if (s.footer) document.getElementById('ws-footer').value = s.footer;
     // Load slider states
-    var sliders = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled'};
+    var sliders = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
     Object.keys(sliders).forEach(function(key) {
       var prefix = sliders[key];
-      var isOn = key === 'walletEnabled'
-        ? s.walletEnabled === true
-        : (s.sliders && s.sliders[key] === true);
+      var isOn;
+      if (key === 'walletEnabled') {
+        isOn = s.walletEnabled === true;
+      } else if (key === 'movieOfTheDay' || key === 'nowShowing') {
+        // Default ON — jab tak admin ne explicitly OFF na kiya ho (Firebase mein value hi nahi hai to bhi ON dikhao)
+        isOn = !(s.sliders && s.sliders[key] === false);
+      } else {
+        isOn = (s.sliders && s.sliders[key] === true);
+      }
+      sliderStates[key] = isOn;
       var wrap = document.getElementById(prefix + '-wrap');
       var status = document.getElementById(prefix + '-status');
       if (wrap) { wrap.classList.toggle('on', isOn); }
@@ -4133,8 +4162,8 @@ function loadWebsiteSettings() {
 }
 
 // ─── Slider toggle function ───
-var sliderStates = {featuredBanner:false, walletEnabled:false};
-var sliderPrefixes = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled'};
+var sliderStates = {featuredBanner:false, walletEnabled:false, movieOfTheDay:true, nowShowing:true};
+var sliderPrefixes = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
 
 function toggleSlider(key) {
   sliderStates[key] = !sliderStates[key];
