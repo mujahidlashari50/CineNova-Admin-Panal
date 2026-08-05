@@ -320,7 +320,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 .lc-banner.lc-checking{border-color:rgba(251,191,36,0.35);background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(251,191,36,0.03));}
 .lc-banner.lc-checking .lc-count{background:#d97706;}
 /* nav badge */
-.nav-item .lc-nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;animation:lcpulse 1.5s infinite;}
 @keyframes lcpulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
 /* broken links section */
 #sec-linkcheck .bl-card{background:var(--card2);border:1px solid rgba(229,9,20,0.25);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;}
@@ -574,7 +573,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-cat-tollywood" onclick="showCat('tollywood')">🎬 Tollywood <span class="nav-count" id="cnt-tollywood">0</span></div>
     <div class="nav-item" id="nav-cat-animation" onclick="showCat('animation')">🧸 Animation <span class="nav-count" id="cnt-animation">0</span></div>
     <div class="nav-item" id="nav-cat-webseries" onclick="showCat('webseries')">📺 Web Series <span class="nav-count" id="cnt-webseries">0</span></div>
-    <div class="nav-item" id="nav-cat-kdrama" onclick="showCat('kdrama')">🇰🇷 K-Drama <span class="nav-count" id="cnt-kdrama">0</span></div>
     <div class="nav-item adult-nav" id="nav-cat-adult" onclick="showCat('adult')">🔞 Adult (18+) <span class="nav-count" id="cnt-adult">0</span></div>
     
     <div class="nav-section-title">System</div>
@@ -583,8 +581,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly Importer</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
-    <div class="nav-item" id="nav-bulk" onclick="show('bulk')">📋 Bulk Import (Names)</div>
-    <div class="nav-item" id="nav-pipeimport" onclick="show('pipeimport')">📥 Pipe Importer</div>
     <div class="nav-section-title">🤖 SEO AI Tools</div>
     <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
     <div class="nav-item" id="nav-metascan" onclick="show('metascan')" style="color:#a855f7;">🔍 Meta Tag Scanner <span class="nav-count" id="ms-issue-count" style="background:#a855f7;">0</span></div>
@@ -602,17 +598,12 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-bulkedit" onclick="show('bulkedit')">✏️ Bulk Edit</div>
     <div class="nav-item" id="nav-duplicates" onclick="show('duplicates')">🔁 Duplicate Detector</div>
     <div class="nav-item" id="nav-posterfill" onclick="show('posterfill')">🖼 Poster Auto-Fetch</div>
-    <div class="nav-item" id="nav-linkcheck" onclick="show('linkcheck')">🔗 Link Checker <span id="lc-nav-badge" class="lc-nav-badge" style="display:none;">0</span></div>
     <div class="nav-item" id="nav-linkmanager" onclick="show('linkmanager')">📎 Link Manager <span class="nav-count" id="lm-no-link-count" style="background:#f59e0b;">0</span></div>
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
     <div class="nav-item" id="nav-adwatch" onclick="show('adwatch')">🎬 Watch Now Ads</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
     <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
-    <div class="nav-section-title">Earnings</div>
-    <div class="nav-item" id="nav-withdrawals" onclick="show('withdrawals')" style="color:#22c55e;">💸 Withdrawals <span class="nav-count" id="wd-pending-count" style="background:#f59e0b;">0</span></div>
-    <div class="nav-item" id="nav-earners" onclick="show('earners')">💰 Top Earners</div>
-    <div class="nav-item" id="nav-fraud" onclick="show('fraud')" style="color:#f87171;">🛡️ Fraud &amp; Bans <span class="nav-count" id="fraud-count" style="background:#f87171;">0</span></div>
   </div>
 
   <div id="content">
@@ -620,15 +611,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <!-- DASHBOARD -->
     <div class="section active" id="sec-dashboard">
       <div class="sec-title">📊 <span>Dashboard</span></div>
-      <!-- LINK CHECKER BANNER -->
-      <div class="lc-banner lc-checking" id="lc-dashboard-banner" onclick="show('linkcheck')" title="Link Checker Section kholain">
-        <div class="lc-icon">🔗</div>
-        <div class="lc-text">
-          <div class="lc-title">Link Health Check</div>
-          <div class="lc-sub" id="lc-banner-sub">Automatically checking on panel open...</div>
-        </div>
-        <div class="lc-count" id="lc-banner-count">...</div>
-      </div>
       <div class="stats-grid">
         <div class="stat-card"><div class="num" id="st">0</div><div class="lbl">Total Content</div></div>
         <div class="stat-card"><div class="num" id="sh">0</div><div class="lbl">🌟 Hollywood</div></div>
@@ -970,204 +952,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           </table>
           <div id="catempty" style="text-align:center;padding:40px;color:#444;display:none;">Is category mein koi content nahi</div>
         </div>
-      </div>
-    </div>
-
-    <!-- ═══ PIPE IMPORTER ═══ -->
-    <div class="section" id="sec-pipeimport">
-      <div class="sec-title">📥 Pipe <span>Importer</span></div>
-      <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#86efac;">
-        💡 <strong>Format (3 parts separated by pipe):</strong><br>
-        <code style="background:#111;padding:4px 8px;border-radius:4px;display:inline-block;margin-top:6px;color:#4ade80;">filename.mkv | https://download-link | &lt;iframe src="..."&gt;&lt;/iframe&gt;</code>
-      </div>
-      <div class="card">
-        <h3>📋 Paste List</h3>
-        <textarea id="pi-input" class="fi" rows="10" placeholder="Movie.2025.1080p.mkv|https://short.icu/abc|&lt;iframe src=&quot;https://short.icu/abc&quot;&gt;&lt;/iframe&gt;">The.Super.Mario.Galaxy.Movie.2026.1080p.WebRip.English.5.1.ESub.x264-HDHub4u.Ms.mkv|https://short.icu/mGJKo1jt9j|&lt;iframe width="640" height="360" src="https://short.icu/mGJKo1jt9j" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Suryapet.Junction.2025.UNCUT.1080p.WEB-DL.Hindi.2.0-Telugu.5.1.ESub.x264-HDHub4u.Ms.mkv|https://short.icu/lFKX40Y7w|&lt;iframe width="640" height="360" src="https://short.icu/lFKX40Y7w" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Crime 101 (2026) AMZN.WEB-DL Hi En Ta Te Ml Kn 1080p 10bit AV1 DDP 5.1 MSub CineVood.mkv|https://short.icu/fu3Q4BItHs|&lt;iframe width="640" height="360" src="https://short.icu/fu3Q4BItHs" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Dhurandhar 2025 Hindi HDTC 1080p x264 AVC HE-AAC 2.0 M4Movies.site.mkv|https://short.icu/A0_Rhnanm|&lt;iframe width="640" height="360" src="https://short.icu/A0_Rhnanm" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Genie Make a Wish 2025 S01E11 Episode 11 Hindi 1080p x264 AVC DDP 5.1 ESub.mkv|https://short.icu/Pk0oHOnlE|&lt;iframe width="640" height="360" src="https://short.icu/Pk0oHOnlE" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G0bl!n.$01305.720p.W3BR!p.H!nd!.ORG.x264-K@tm0v!eHD.s!.mkv|https://short.icu/0l5k86Usx|&lt;iframe width="640" height="360" src="https://short.icu/0l5k86Usx" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G0bl!n.$01304.720p.W3BR!p.H!nd!.ORG.Du@l-Aud!0.x264-K@tm0v!eHD.s!.mkv|https://short.icu/-EEvlBXHC|&lt;iframe width="640" height="360" src="https://short.icu/-EEvlBXHC" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G0bl!n.$01303.720p.W3BR!p.H!nd!.ORG.Du@l-Aud!0.x264-K@tm0v!eHD.s!.mkv|https://short.icu/7tvJHI-FH|&lt;iframe width="640" height="360" src="https://short.icu/7tvJHI-FH" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G0bl!n.$01301.720p.W3BR!p.H!nd!.ORG.x264-K@tm0v!eHD.s!.mkv|https://short.icu/00sUhAFes|&lt;iframe width="640" height="360" src="https://short.icu/00sUhAFes" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G0bl!n.$01302.720p.W3BR!p.H!nd!.ORG.x264-K@tm0v!eHD.s!.mkv|https://short.icu/XoJz0DHF-|&lt;iframe width="640" height="360" src="https://short.icu/XoJz0DHF-" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Woodwalkers 2024 BluRay Hindi + Ta Te De 1080p x264 AVC AAC 2.0 CineVood.mkv|https://short.icu/PkmmkGm64|&lt;iframe width="640" height="360" src="https://short.icu/PkmmkGm64" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Coolie 2025 Hindi HDTC 1080p x264 AAC CineVood.mkv|https://short.icu/l4PoHdI6L|&lt;iframe width="640" height="360" src="https://short.icu/l4PoHdI6L" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Jurassic World Rebirth 2025 WEBRip Hin + Eng + Tam + Tel 720p x264 AVC DD 5.1 ESub CineVood.mkv|https://short.icu/l77mMqDre|&lt;iframe width="640" height="360" src="https://short.icu/l77mMqDre" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Superman 2025 IMAX HDTC Hindi + En Ta Te 720p x264 No.Ads 2.0 CineVood.mkv|https://short.icu/hF-MFX7xf|&lt;iframe width="640" height="360" src="https://short.icu/hF-MFX7xf" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Robinhood 2025 WEBRip Hindi + Telugu 720p x264 AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/CmpOcgF1G|&lt;iframe width="640" height="360" src="https://short.icu/CmpOcgF1G" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Govindudu Andarivaadele 2014 WEBRip Hindi + Telugu 720p x264 AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/jvV4CvhPo|&lt;iframe width="640" height="360" src="https://short.icu/jvV4CvhPo" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Lilo &amp; Stitch 2025 HDTS 1080p Hindi + English x264 HC-KSub CineVood.mkv|https://short.icu/WjSPYvjEiY|&lt;iframe width="640" height="360" src="https://short.icu/WjSPYvjEiY" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-MI The Final Reckoning 2025 HDTC Hindi + En Ta Te 1080p x264 AVC No Ads HC-ESub CineVood.mkv|https://short.icu/rmoF2sw0b|&lt;iframe width="640" height="360" src="https://short.icu/rmoF2sw0b" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-A Working Man 2025 HQ WEBRip Hindi + Ta Te Ml Kn En 1080p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/xs0EwfRnq|&lt;iframe width="640" height="360" src="https://short.icu/xs0EwfRnq" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Ground.Zero.2025.1080p.Hindi.WEB-DL.5.1.x264-HDHub4u.Ms.mkv|https://short.icu/uaytnjgsP|&lt;iframe width="640" height="360" src="https://short.icu/uaytnjgsP" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Final Destination Bloodlines (2025) TS English 480p x264 AVC HE-AAC 2.0 HC-KR CineVood.mkv|https://short.icu/cFNYRJqH3|&lt;iframe width="640" height="360" src="https://short.icu/cFNYRJqH3" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Odela 2 2025 AMZN WEB-DL Hindi + Telugu 720p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/m3q7woGhr|&lt;iframe width="640" height="360" src="https://short.icu/m3q7woGhr" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Deadpool &amp; Wolverine 2024 WEB-DL Hindi + En Ta Te 720p HEVC DDP with Dolby Atmos 5.1 MSub.mkv|https://short.icu/F0ueOuHqR|&lt;iframe width="640" height="360" src="https://short.icu/F0ueOuHqR" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Last Bullet (2025) NF WEB-DL Hindi + English 1080p x264 AVC DDP 5.1 MSub CineVood.mkv|https://short.icu/b8KPnXT8B|&lt;iframe width="640" height="360" src="https://short.icu/b8KPnXT8B" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The New Avengers 2025 Hindi 1080p HDTC x264 AAC CineVood.mkv|https://short.icu/Rdt2bLAJo|&lt;iframe width="640" height="360" src="https://short.icu/Rdt2bLAJo" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Raid 2 2025 Hindi PRE-HD 1080p x264 AVC DD 2.0 CineVood.mkv|https://short.icu/3Wvlcv3QU|&lt;iframe width="640" height="360" src="https://short.icu/3Wvlcv3QU" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Inside Man Most Wanted 2019 BluRay Hindi + English 1080p x265 HEVC DDP 5.1 ESub CineVood.mkv|https://short.icu/p82IWDoNZ|&lt;iframe width="640" height="360" src="https://short.icu/p82IWDoNZ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Warlord 2025 BluRay English 1080p x264 AVC AAC 5.1.mp4|https://short.icu/fuSxCLKPW|&lt;iframe width="640" height="360" src="https://short.icu/fuSxCLKPW" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Bayou 2025 WEBRip Hindi + En Ta Te 1080p x264 AVC AAC 2.0 ESub CineVood.mkv|https://short.icu/obYSgEU9p|&lt;iframe width="640" height="360" src="https://short.icu/obYSgEU9p" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Retro 2025 Hindi CAM 1080p x264 AAC HC-ESub CineVood.mkv|https://short.icu/3qpzL6RAP|&lt;iframe width="640" height="360" src="https://short.icu/3qpzL6RAP" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Raid 2 2025 Hindi HDTC 1080p x264 AAC CineVood.mkv|https://short.icu/JSrFFNt6M|&lt;iframe width="640" height="360" src="https://short.icu/JSrFFNt6M" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Costao 2025 WEB-DL Hindi 1080p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/u179Wc8KS|&lt;iframe width="640" height="360" src="https://short.icu/u179Wc8KS" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Thunderbolts 2025 Hindi HDCAM 1080p x264 AAC HC-Sub CineVood.mkv|https://short.icu/5zHTyT3TB|&lt;iframe width="640" height="360" src="https://short.icu/5zHTyT3TB" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Bhootnii 2025 Hindi HDTS 1080p x264 AAC CineVood.mkv|https://short.icu/ZQMx9yM9Q|&lt;iframe width="640" height="360" src="https://short.icu/ZQMx9yM9Q" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Kooman The Night Watchman 2025 UPlay WEB-DL Hindi 1080p x264 AVC AAC 2.0 CineVood.mkv|https://short.icu/MZeVZopj-|&lt;iframe width="640" height="360" src="https://short.icu/MZeVZopj-" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Monkey 2025 WEBRip Hindi + English 1080p 10bit x265 HEVC AAC 5.1 ESub CineVood.mkv|https://short.icu/uOexnihCg|&lt;iframe width="640" height="360" src="https://short.icu/uOexnihCg" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Good Bad Ugly 2025 Hindi WEBRip 1080p x264 AVC 2.0 HC-ESub CineVood.mkv|https://short.icu/Ho-6rPXtz|&lt;iframe width="640" height="360" src="https://short.icu/Ho-6rPXtz" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Aghathiyaa 2025 AMZN WEB-DL Hindi 1080p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/vnAMUhM3X|&lt;iframe width="640" height="360" src="https://short.icu/vnAMUhM3X" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Drop 2025 MA WEB-DL Hindi + English 720p x264 AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/u3WdvSIL1N|&lt;iframe width="640" height="360" src="https://short.icu/u3WdvSIL1N" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Ne Zha 2 2025 CAMRip Hindi + zh 1080p x264 AVC 2.0 CineVood.mkv|https://short.icu/CekSkgl-L|&lt;iframe width="640" height="360" src="https://short.icu/CekSkgl-L" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Ground Zero 2025 HDTS 1080p Hindi ORG 2.0 AVC CineVood.mkv|https://short.icu/2emvQBHW9m|&lt;iframe width="640" height="360" src="https://short.icu/2emvQBHW9m" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Until Dawn 2025 Hindi PreDVD 1080p x264 AAC CineVood.mkv|https://short.icu/sJipN4taoC|&lt;iframe width="640" height="360" src="https://short.icu/sJipN4taoC" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Accountant 2 2025 WebRip English 1080p AVC DD 2.0 ESub CineVood.mkv|https://short.icu/qceQxhOYR|&lt;iframe width="640" height="360" src="https://short.icu/qceQxhOYR" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Havoc 2025 NF WEB-DL Hindi + English 1080p x264 AVC DDP with Dolby Atmos 5.1 ESub CineVood.mkv|https://short.icu/pHuReNYSu|&lt;iframe width="640" height="360" src="https://short.icu/pHuReNYSu" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Jewel Thief The Heist Begins 2025 NF WEB-DL Hindi + En Ta Te 1080p x264 AVC DDP with Dolby Atmos 5.1 MSub CineVood.mkv|https://short.icu/ERV2LM6ugj|&lt;iframe width="640" height="360" src="https://short.icu/ERV2LM6ugj" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Robinhood 2025 PRE-HD Hindi LQ Dub 1080p x264 AVC 2.0 CineVood.mkv|https://short.icu/v5GQy4RJF|&lt;iframe width="640" height="360" src="https://short.icu/v5GQy4RJF" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sikandar 2025 Hindi WEB-DL 1080p x264 AAC HC-ESub CineVood.mkv|https://short.icu/DLdu7HLFg|&lt;iframe width="640" height="360" src="https://short.icu/DLdu7HLFg" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Gardener 2025 WEBRip S01 Hindi + English 1080p x265 HEVC HE-AAC 5.1 MSub CineVood.mkv|https://short.icu/om2Hfkr6h|&lt;iframe width="640" height="360" src="https://short.icu/om2Hfkr6h" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Villain 2018 WEB-DL Hindi 1080p x264 AVC AAC 2.0 CineVood.mkv|https://short.icu/pCMs91D4J|&lt;iframe width="640" height="360" src="https://short.icu/pCMs91D4J" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Fight or Flight 2025 4K WEB-DL Hindi + English HDR 2160p 10bit x265 HEVC DDP 5.1 ESub CineVood.mkv|https://short.icu/MAm41-LF-|&lt;iframe width="640" height="360" src="https://short.icu/MAm41-LF-" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Empuraan 2025 WEBRip Hindi + Kn Ml Ta Te 1080p x264 AVC DD 2.0 CineVood.mkv|https://short.icu/oFgBsK2UL|&lt;iframe width="640" height="360" src="https://short.icu/oFgBsK2UL" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Mere Husband Ki Biwi 2025 WEB-DL Hindi 1080p x264 AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/xt11f8yhm|&lt;iframe width="640" height="360" src="https://short.icu/xt11f8yhm" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-White Bird 2023 BluRay Hin + Eng + Tam + Tel 1080p x264 AVC DDP 5.1 ESub.mkv|https://short.icu/O4Zq-hFp7|&lt;iframe width="640" height="360" src="https://short.icu/O4Zq-hFp7" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sweetheart 2025 WEB-DL Hindi + Ta Te Kn Ml 2160p HEVC DDP 5.1 ESub CineVood.mkv|https://short.icu/PnD1SF85n|&lt;iframe width="640" height="360" src="https://short.icu/PnD1SF85n" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Guntur Kaaram 2024 NF WEB-DL Hindi 1080p x264 DDP 5.1 ESub CineVood.mkv|https://short.icu/4oPzqleGO|&lt;iframe width="640" height="360" src="https://short.icu/4oPzqleGO" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Captain America Brave New World 2025 AMZN WEB-DL Hindi + English 2160p HEVC DD 5.1 ESub CineVood.mkv|https://short.icu/0-hx9CCJ0|&lt;iframe width="640" height="360" src="https://short.icu/0-hx9CCJ0" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Court State Vs A Nobody 2025 NF WEB-DL Hindi + Te Ta Ml Kn 1080p 10bit HEVC DDP 5.1 MSub CineVood.mkv|https://short.icu/4cO9AP5Lq|&lt;iframe width="640" height="360" src="https://short.icu/4cO9AP5Lq" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-WhiteBird 2023 BRRip Dual.mkv|https://short.icu/fBHJzjbBVb|&lt;iframe width="640" height="360" src="https://short.icu/fBHJzjbBVb" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Crazxy 2025 AMZN WEB-DL Hindi 1080p HEVC DDP 5.1 ESub CineVood.mkv|https://short.icu/ZV_l78CAWU|&lt;iframe width="640" height="360" src="https://short.icu/ZV_l78CAWU" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Novocaine 2025 AMZN WEB-DL Hindi + English 1080p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/kjoHejTSC|&lt;iframe width="640" height="360" src="https://short.icu/kjoHejTSC" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Akaal 2025 Hindi HDTC 1080p x264 AAC HC-ESub CineVood.mkv|https://short.icu/h3OMoIR50|&lt;iframe width="640" height="360" src="https://short.icu/h3OMoIR50" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Chhorii 2 2025 AMZN WEB-DL Hindi 1080p AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/hjW0FFlLO|&lt;iframe width="640" height="360" src="https://short.icu/hjW0FFlLO" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-G20 2025 AMZN WEB-DL Hindi + En Ta Te Kn Ml 1080p AVC DDP 5.1 MSub CineVood.mkv|https://short.icu/YQSw5GdM7|&lt;iframe width="640" height="360" src="https://short.icu/YQSw5GdM7" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Jaat 2025 Hindi HQ HDTC 1080p x264 AAC HC-ESub CineVood.mkv|https://short.icu/V55pEynjp|&lt;iframe width="640" height="360" src="https://short.icu/V55pEynjp" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Bondsman 2025 WEBRip S01 Hindi + English 1080p HEVC AAC 6ch CineVood.mkv|https://short.icu/PGyCqlK6x|&lt;iframe width="640" height="360" src="https://short.icu/PGyCqlK6x" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Daayan S01 2025 WEBRip Hindi 1080p x265 HEVC AAC 2ch CineVood.mkv|https://short.icu/-cSnsiDaR|&lt;iframe width="640" height="360" src="https://short.icu/-cSnsiDaR" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Devara Part 1 2024 WEBRip Hindi + Telugu 1080p x264 AVC HE-AAC 5.1 ESub.mkv|https://short.icu/-ENXsDLLv|&lt;iframe width="640" height="360" src="https://short.icu/-ENXsDLLv" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-A Minecraft Movie 2025 WORKPRINT Hindi + English 1080p AVC 2.0 CineVood.mkv|https://short.icu/hK7UIVAC_|&lt;iframe width="640" height="360" src="https://short.icu/hK7UIVAC_" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Death of a Unicorn 2025 TELECINE English + RUS 1080p AVC AAC 2.0 CineVood.mkv|https://short.icu/tnn0YtsL8|&lt;iframe width="640" height="360" src="https://short.icu/tnn0YtsL8" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sikandar 2025 Hindi PRE-HD 1080p NoAds x264 CineVood.mkv|https://short.icu/fe245sqEK|&lt;iframe width="640" height="360" src="https://short.icu/fe245sqEK" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Diplomat 2025 Hindi HDRip 1080p x264 AVC HE-AAC 2.0 HC-ESub CineVood.mkv|https://short.icu/wBSHHVdC1|&lt;iframe width="640" height="360" src="https://short.icu/wBSHHVdC1" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Diplomat 2025 Hindi HDRip 720p x264 AVC HE-AAC 2.0 HC-ESub CineVood.mkv|https://short.icu/yw4lWV0HZ|&lt;iframe width="640" height="360" src="https://short.icu/yw4lWV0HZ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sikandar 2025 Hindi PRE-HD 1080p x264 AAC HC-ESub CineVood.mkv|https://short.icu/fB0Xsg0lJ|&lt;iframe width="640" height="360" src="https://short.icu/fB0Xsg0lJ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Carjackers 2025 AMZN WEB-DL Hindi + En Fr 1080p HEVC DDP 5.1 MSub CineVood.mkv|https://short.icu/rel9qmadl|&lt;iframe width="640" height="360" src="https://short.icu/rel9qmadl" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Cleaner 2025 WEBRip English 1080p x264 AVC HE-AAC 5.1 ESub CineVood.mkv|https://short.icu/Tk3iGPiuE|&lt;iframe width="640" height="360" src="https://short.icu/Tk3iGPiuE" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Selina's Gold 2022 Tagalog BluRay 1080p AVC AAC 2.0.mkv|https://short.icu/uSG4kF-jC|&lt;iframe width="640" height="360" src="https://short.icu/uSG4kF-jC" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Newtopia 2025 WEBRip S01 Hindi + English 576p HEVC AAC 2ch CineVood.mkv|https://short.icu/AyZ4WJFaI|&lt;iframe width="640" height="360" src="https://short.icu/AyZ4WJFaI" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Little Siberia 2025 NF WEB-DL Hindi + Fi 1080p X264 AVC DDP 5.1 ESub CineVood.mkv|https://short.icu/d-fmPZc4Q|&lt;iframe width="640" height="360" src="https://short.icu/d-fmPZc4Q" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Snow White 2025 English CAM 1080p x264 AAC CineVood.mkv|https://short.icu/DpXw6Boki|&lt;iframe width="640" height="360" src="https://short.icu/DpXw6Boki" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Siddharth Roy 2024 WEBRip Hindi Studio-DUB 1080p x264 AVC 2.0.mkv|https://short.icu/1LXKLsTFt|&lt;iframe width="640" height="360" src="https://short.icu/1LXKLsTFt" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Paddington in Peru 2024 BluRay Hindi + English 1080p 10bit HEVC DDP 7.1 ESub CineVood.mkv|https://short.icu/HzTjEU_k_|&lt;iframe width="640" height="360" src="https://short.icu/HzTjEU_k_" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Hathya 2025 WEBRip Hindi + Telugu 1080p AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/gZRwenMGG|&lt;iframe width="640" height="360" src="https://short.icu/gZRwenMGG" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sabdham 2025 WEBRip Hindi + Ta Te 1080p x264 AVC HE-AAC 2.0 CineVood.mkv|https://short.icu/nG1x12Mkk|&lt;iframe width="640" height="360" src="https://short.icu/nG1x12Mkk" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Ponman 2025 WEB-DL Hindi + Te Ta Ml Kn 1080p x264 AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/W-zTHj2AI|&lt;iframe width="640" height="360" src="https://short.icu/W-zTHj2AI" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-The Electric State 2025 NF WEB-DL Hindi + English 1080p x264 AVC DDP with Dolby Atmos 5.1 MSub CineVood.mkv|https://short.icu/NdOfLxkHh3|&lt;iframe width="640" height="360" src="https://short.icu/NdOfLxkHh3" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Emergency 2025 NF WEB-DL Hindi 1080p x264 AVC DDP 5.1 MSub CineVood.mkv|https://short.icu/uNBxuE6tfG|&lt;iframe width="640" height="360" src="https://short.icu/uNBxuE6tfG" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Be Happy 2025 AMZN WEB-DL Hindi + Ta Te Kn Ml 1080p x264 AVC HE-AAC 2.0 MSub CineVood.mkv|https://short.icu/6-PbTUBbE|&lt;iframe width="640" height="360" src="https://short.icu/6-PbTUBbE" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Malagkit 2025 WEBRip Tagalog 1080p x264 AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/vqJSy7X8j|&lt;iframe width="640" height="360" src="https://short.icu/vqJSy7X8j" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Hellboy The Crooked Man 2024 WEB-DL Hindi + Te Ta En 1080p AVC HE-AAC 2.0 ESub.mkv|https://short.icu/1sf3bSrXq|&lt;iframe width="640" height="360" src="https://short.icu/1sf3bSrXq" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Demon City 2025 WEBRip Hindi + Tam + Eng 1080p x264 AVC DDP 5.1 ESub.mkv|https://short.icu/L1EhuZufX|&lt;iframe width="640" height="360" src="https://short.icu/L1EhuZufX" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Lost 2022 BRRip.mkv|https://short.icu/rZTLle-7j|&lt;iframe width="640" height="360" src="https://short.icu/rZTLle-7j" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Chhaava 2025 HDRip Hindi Telugu 1080p x264 AVC HE-AAC 2.0 M4movies.mkv|https://short.icu/G17i-i6T2|&lt;iframe width="640" height="360" src="https://short.icu/G17i-i6T2" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Gangubai Kathiawadi 2022 Hindi 1080p WEB-DL ESub CineVood.mkv|https://short.icu/mzA_t5C_X|&lt;iframe width="640" height="360" src="https://short.icu/mzA_t5C_X" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Footage 2025 Hindi WEBRip 1080p x264 AVC HE-AAC 2.0 CineVood.mkv|https://short.icu/SWanvGyXrJ|&lt;iframe width="640" height="360" src="https://short.icu/SWanvGyXrJ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Dominique 2024 AMZN WEB-DL Hindi + En Ta Te 1080p x264 AVC HE-AAC 2.0 ESub CineVood.mkv|https://short.icu/4igOZtxvD|&lt;iframe width="640" height="360" src="https://short.icu/4igOZtxvD" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Nadaaniyan 2025 NF WEB-DL Hindi Dolby Vision 1080p 10bit HEVC DDP with Dolby Atmos 5.1 MSub.mkv|https://short.icu/MnHTJlsFa|&lt;iframe width="640" height="360" src="https://short.icu/MnHTJlsFa" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Knights of the Zodiac 2023 BluRay Hindi + Tam + Eng 1080p x264 AVC AAC 5.1 ESub.mkv|https://short.icu/CGZn-hsJh|&lt;iframe width="640" height="360" src="https://short.icu/CGZn-hsJh" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Aghathiyaa 2025 WEBRip Hindi + Ta Te 1080p x264 AVC HE-AAC 2.0 CineVood.mkv|https://short.icu/CKxJeWB8N|&lt;iframe width="640" height="360" src="https://short.icu/CKxJeWB8N" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Jo Tera Hai Woh Mera Hai 2024 WEB-DL Hindi 1080p x264 AVC HE-AAC 2.0 ESub.mkv|https://short.icu/wi02kcAqo|&lt;iframe width="640" height="360" src="https://short.icu/wi02kcAqo" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Kahan Shuru Kahan Khatam 2024 Hindi HDTS 1080p x264 AAC CineVood.mkv|https://short.icu/rz8fgtbdP|&lt;iframe width="640" height="360" src="https://short.icu/rz8fgtbdP" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Binny and Family 2024 HDRip Hindi 1080p x264 AVC HE-AAC 2.0.mkv|https://short.icu/NRr1YEF4T|&lt;iframe width="640" height="360" src="https://short.icu/NRr1YEF4T" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Fateh 2025 HS WEBRip Hindi 1080p x264 AVC HE-AAC 5.1 ESub.mkv|https://short.icu/UO1yhOd_I|&lt;iframe width="640" height="360" src="https://short.icu/UO1yhOd_I" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Warchief 2024 BluRay Hin + Eng + Tam + Tel 1080p x264 AVC AAC 5.1 ESub.mkv|https://short.icu/ABPpqRIKn-|&lt;iframe width="640" height="360" src="https://short.icu/ABPpqRIKn-" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Mutant 2024 WEBRip Hindi + Tamil + Telugu + Chinese 1080p 8bit AVC DDP 2.0 ESub.mkv|https://short.icu/aq-T-6EfO|&lt;iframe width="640" height="360" src="https://short.icu/aq-T-6EfO" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Snake Skin Beauty 2024 WEBRip Hindi + Tamil + Telugu 720p x264 AVC AAC 2.0.mkv|https://short.icu/TVpG9k2xJ|&lt;iframe width="640" height="360" src="https://short.icu/TVpG9k2xJ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Daredevil Born Again S01E01 Hin + Eng + Tam + Tel - Heavens Half Hour WEB-DL 1080p x264 AVC AAC 2ch.mkv|https://short.icu/NKw_YtvSi|&lt;iframe width="640" height="360" src="https://short.icu/NKw_YtvSi" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Ayalaan 2024 WEBRip 480p Hindi Studio-DUB OST Tamil x264 AAC CineVood.mkv|https://short.icu/AIM53YXN7|&lt;iframe width="640" height="360" src="https://short.icu/AIM53YXN7" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Squad 36 2025 WEBRip Hin + Eng + Tam + Tel 1080p x264 AVC DDP 5.1 ESub.mkv|https://short.icu/IARFyQnCy|&lt;iframe width="640" height="360" src="https://short.icu/IARFyQnCy" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Sankranthiki Vasthunam 2025 WEBRip Hindi + Telugu 1080p x264 AVC HE-AAC 5.1 ESub.mkv|https://short.icu/5z7TIoX-YZ|&lt;iframe width="640" height="360" src="https://short.icu/5z7TIoX-YZ" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Mr Bachchan 2024 WEBRip UnCut Hindi + Telugu 720p x264 AVC HE-AAC 2.0 ESub.mkv|https://short.icu/huzrkZdCh|&lt;iframe width="640" height="360" src="https://short.icu/huzrkZdCh" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Exhuma 2024 BluRay Hindi + Tam + Tel + Kor 1080p 8bit AVC AAC 5.1 ESub.mkv|https://short.icu/pjk9Dtgv-|&lt;iframe width="640" height="360" src="https://short.icu/pjk9Dtgv-" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Naa Saami Ranga 2024 Hindi WEB DL 1080p AVC EAC3 6ch.mkv|https://short.icu/WGb7ogcCPX|&lt;iframe width="640" height="360" src="https://short.icu/WGb7ogcCPX" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Into the Deep 2025 WEBRip English 1080p AVC AAC 5.1.mkv|https://short.icu/T_SRCApva|&lt;iframe width="640" height="360" src="https://short.icu/T_SRCApva" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Tokyo Nights 2025 WEBRip Tagalog 1080p x264 AVC HE-AAC 2.0 ESub.mkv|https://short.icu/WYNkCuCiA|&lt;iframe width="640" height="360" src="https://short.icu/WYNkCuCiA" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Loveyapa 2025 WEBRip Hindi 1080p x264 AVC HE-AAC 2.0.mkv|https://short.icu/SDcrV4TrD|&lt;iframe width="640" height="360" src="https://short.icu/SDcrV4TrD" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Badass Ravi Kumar 2025 WEBRip Hindi 1080p x264 AVC HE-AAC 2.0 HC-ESub.mkv|https://short.icu/E6jWcC-BT|&lt;iframe width="640" height="360" src="https://short.icu/E6jWcC-BT" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Walker 2025 WEBRip Tagalog 720p x264 AVC HE-AAC 2.0 ESub.mkv|https://short.icu/nDARJ5h1V|&lt;iframe width="640" height="360" src="https://short.icu/nDARJ5h1V" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Aranmanai 4 2024 WEB-DL Hindi + Tamil 1080p HEVC DDP 5.1 ESub.mkv|https://short.icu/j5q6gnw2N|&lt;iframe width="640" height="360" src="https://short.icu/j5q6gnw2N" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Mere Husband Ki Biwi 2025 Hindi HDTS 1080p x264 AAC CineVood.mkv|https://short.icu/CkvKqPLBk|&lt;iframe width="640" height="360" src="https://short.icu/CkvKqPLBk" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Autumn and the Black Jaguar 2024 BluRay Hindi + English 1080p x264 AVC HE-AAC 2.0 ESub.mkv|https://short.icu/rdqRDwx1X|&lt;iframe width="640" height="360" src="https://short.icu/rdqRDwx1X" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Vidaamuyarchi 2025 WEBRip Hindi + Tamil 1080p x264 AVC HE-AAC 2.0.mkv|https://short.icu/gwEXkbPPE|&lt;iframe width="640" height="360" src="https://short.icu/gwEXkbPPE" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;
-Halimuyak 2025 WEBRip Tagalog 1080p 10bit x265 HEVC AAC 2.0 ESub.mkv|https://short.icu/HprY_2wAg|&lt;iframe width="640" height="360" src="https://short.icu/HprY_2wAg" frameborder="0" scrolling="0" allowfullscreen&gt;&lt;/iframe&gt;</textarea>
-        <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap;">
-          <button class="btn btn-p" onclick="piParse()">🔍 Parse</button>
-          <span id="pi-parse-info" style="color:var(--grey);font-size:0.8rem;"></span>
-        </div>
-      </div>
-
-      <div id="pi-actions" style="display:none;">
-        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-          <button class="btn btn-p" onclick="piStartImport()" style="background:linear-gradient(135deg,#16a34a,#22c55e);">🚀 TMDB Fetch + Import</button>
-          <button class="btn btn-s" onclick="piSkipTmdb()" style="background:#1d4ed8;color:#fff;">⚡ TMDB Skip — Sirf Save Karo</button>
-          <button class="btn btn-s" onclick="piSelectAll()">☑ Select All</button>
-          <button class="btn btn-s" onclick="piSelectNone()">☐ Deselect</button>
-        </div>
-
-        <div id="pi-prog-wrap" style="display:none;margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--grey);margin-bottom:5px;">
-            <span id="pi-prog-text">Importing...</span>
-            <span id="pi-prog-pct">0%</span>
-          </div>
-          <div style="height:6px;background:#2a2a2a;border-radius:3px;overflow:hidden;margin-bottom:6px;">
-            <div id="pi-prog-bar" style="height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:3px;width:0%;transition:width 0.3s;"></div>
-          </div>
-          <div id="pi-prog-stats" style="font-size:0.72rem;color:#555;"></div>
-        </div>
-
-        <div class="card" style="padding:0;">
-          <div style="padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-            <h3 style="margin:0;">Parsed Entries</h3>
-            <span style="font-size:0.72rem;color:#555;">✏️ Title / Year / Category edit kar sakte ho</span>
-          </div>
-          <div class="tw">
-            <table>
-              <thead><tr>
-                <th style="width:32px;">✓</th>
-                <th>Title</th>
-                <th style="width:62px;">Year</th>
-                <th style="width:120px;">Category</th>
-                <th style="width:70px;">Quality</th>
-                <th>Video (iframe)</th>
-                <th style="width:75px;">Status</th>
-              </tr></thead>
-              <tbody id="pi-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LINK CHECKER SECTION -->
-    <div class="section" id="sec-linkcheck">
-      <div class="sec-title">🔗 Link <span>Checker</span></div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
-        <button class="lc-scan-btn" id="lc-scan-btn" onclick="runLinkCheck()">🔍 Check Now</button>
-        <span style="font-size:0.78rem;color:var(--grey);" id="lc-last-check">Abhi tak check nahi hua</span>
-      </div>
-      <div style="font-size:0.75rem;color:#555;margin-bottom:18px;">
-        💡 Panel khulne par har 12 ghante mein khud-ba-khud check hota hai — result Firebase mein save rehta hai, dobara scan nahi karna padta.
-      </div>
-      <div class="lc-progress" id="lc-progress-wrap" style="display:none;">
-        <div class="lc-progress-text" id="lc-progress-text">Checking...</div>
-        <div class="lc-progress-bar-wrap"><div class="lc-progress-bar" id="lc-progress-bar" style="width:0%"></div></div>
-      </div>
-      <div id="lc-results">
-        <div class="lc-empty"><div class="lc-empty-icon">🔍</div><div style="color:#555;font-size:0.85rem;">Pehle "Ab Check Karo" button dabao<br>ya panel khulne par auto check hoga</div></div>
       </div>
     </div>
 
@@ -1676,29 +1460,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-settings">
       <div class="sec-title">⚙️ <span>Settings</span></div>
 
-      <!-- WEB3FORMS SETUP -->
-      <div class="card" style="border-color:rgba(59,130,246,0.3);background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(0,0,0,0));">
-        <h3 style="color:#60a5fa;">📧 Email Setup (Withdrawal Notifications)</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">
-          Web3Forms se user ko email jaati hai jab withdrawal approve/reject ho. Free hai — koi signup nahi chahiye bas Access Key daalo.
-        </div>
-        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:9px;padding:14px;margin-bottom:14px;font-size:0.8rem;color:#93c5fd;">
-          <strong>Setup steps:</strong><br/>
-          1. <a href="https://web3forms.com" target="_blank" style="color:#60a5fa;">web3forms.com</a> pe jao → apna email daalo → Access Key milega<br/>
-          2. Woh key neeche paste karo → Save karo
-        </div>
-        <div class="fgg">
-          <label>Web3Forms Access Key</label>
-          <div style="display:flex;gap:8px;">
-            <input class="fi" id="set-w3f-key" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="flex:1;"/>
-            <button class="btn btn-b" onclick="saveW3fKey()" style="white-space:nowrap;">💾 Save</button>
-          </div>
-          <div id="set-w3f-status" style="font-size:0.75rem;margin-top:6px;color:#555;">
-            Current key: <span id="set-w3f-current" style="color:#22c55e;"></span>
-          </div>
-        </div>
-      </div>
-
       <!-- GOFILE TOKEN CARD REMOVED -->
 
       <div class="card">
@@ -1769,17 +1530,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
           <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
             <div>
-              <div style="font-size:0.88rem;font-weight:700;">💰 Earning Wallet</div>
-              <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Website pe Wallet / Login button show hoga ya nahi</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:0.72rem;color:var(--grey);" id="sl-walletEnabled-status">OFF</span>
-              <div class="toggle-wrap" id="sl-walletEnabled-wrap" onclick="toggleSlider('walletEnabled')"><div class="toggle-btn"></div></div>
-            </div>
-          </div>
-
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:9px;">
-            <div>
               <div style="font-size:0.88rem;font-weight:700;">⭐ Featured Banner</div>
               <div style="font-size:0.72rem;color:var(--grey);margin-top:2px;">Home page par featured movie ka bada banner</div>
             </div>
@@ -1814,44 +1564,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
         <div style="margin-top:12px;padding:10px 12px;background:rgba(229,9,20,0.05);border:1px solid rgba(229,9,20,0.12);border-radius:8px;font-size:0.75rem;color:#555;">
           💡 Toggle ON — Featured Banner will show on website. Toggle OFF — it will be hidden.
-        </div>
-      </div>
-
-      <!-- BANNER SLIDER CUSTOM IMAGES -->
-      <div class="card" style="margin-top:16px;">
-        <h3>🖼️ Banner Slider Custom Images</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:16px;">Yahan se custom images upload karo jo website ke top banner slider mein show hongi. Featured Banner toggle ON hona chahiye.</div>
-
-        <!-- URL Input -->
-        <div style="font-size:0.7rem;color:var(--grey2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">NAYA BANNER IMAGE ADD KARO</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-          <input id="banner-img-url-input" type="text" placeholder="Image URL paste karo ya Upload karo..." style="flex:1;min-width:200px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:#fff;font-size:0.82rem;outline:none;">
-          <label style="background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb;border-radius:8px;padding:9px 14px;font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
-            📁 Upload Image
-            <input type="file" accept="image/*" style="display:none;" onchange="bannerUploadImage(this)">
-          </label>
-          <button class="btn" style="padding:9px 18px;font-size:0.82rem;white-space:nowrap;" onclick="bannerAddUrl()">➕ Add</button>
-        </div>
-
-        <!-- Preview of input -->
-        <div id="banner-img-preview" style="display:none;margin-bottom:12px;">
-          <img id="banner-img-preview-img" src="" style="max-height:100px;border-radius:8px;border:1px solid var(--border);object-fit:cover;" alt="preview">
-        </div>
-
-        <!-- Saved Images List -->
-        <div style="font-size:0.7rem;color:var(--grey2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">SAVED BANNER IMAGES (<span id="banner-img-count">0</span>)</div>
-        <div id="banner-img-list" style="display:flex;flex-direction:column;gap:8px;min-height:40px;">
-          <div id="banner-img-empty" style="color:var(--grey);font-size:0.8rem;padding:10px 0;">Koi image nahi. Upar se add karo.</div>
-        </div>
-
-        <!-- Buttons -->
-        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-          <button class="btn" style="padding:9px 20px;font-size:0.82rem;" onclick="bannerSaveAll()">💾 Save All Images</button>
-          <button class="btn" style="background:#7f1d1d;color:#fca5a5;padding:9px 20px;font-size:0.82rem;" onclick="bannerClearAll()">🗑️ Sab Clear Karo</button>
-        </div>
-
-        <div style="margin-top:12px;padding:10px 12px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;font-size:0.75rem;color:#a5b4fc;">
-          💡 <strong>Tip:</strong> Images Firebase mein <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">settings/bannerImages</code> mein save hongi. Theme is path se images read karta hai aur featured banner mein slide karta hai.
         </div>
       </div>
 
@@ -1902,43 +1614,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div class="fgg"><div style="font-size:0.78rem;color:var(--grey);">TMDB API</div><div style="font-size:0.78rem;color:var(--green);margin-top:4px;">Connected ✓</div></div>
         </div>
       </div>
-    </div>
-
-    <!-- BULK IMPORT (Names) -->
-    <div class="section" id="sec-bulk">
-      <div class="sec-title">📋 Bulk Import <span>(Names)</span></div>
-      <div class="card">
-        <h3>Paste Movie Names — One Movie Per Line</h3>
-        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">Har line mein ek movie ka naam likho. Panel TMDB se poster, rating, year, genre sab khud fetch karke Firebase mein save karega.</div>
-        <textarea class="bi-textarea" id="bi-input" placeholder="Inception&#10;The Dark Knight&#10;Avengers Endgame&#10;KGF Chapter 2&#10;Pushpa&#10;RRR&#10;..."></textarea>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
-          <div style="font-size:0.78rem;color:var(--grey);">Default Category:</div>
-          <div class="bi-cat-sel" id="bi-cat-sel">
-            <button class="bi-cat-btn active" id="bicat-hollywood" onclick="biSetCat('hollywood')">🌟 Hollywood</button>
-            <button class="bi-cat-btn" id="bicat-bollywood" onclick="biSetCat('bollywood')">🎭 Bollywood</button>
-            <button class="bi-cat-btn" id="bicat-tollywood" onclick="biSetCat('tollywood')">🎬 Tollywood</button>
-            <button class="bi-cat-btn" id="bicat-animation" onclick="biSetCat('animation')">🧸 Animation</button>
-            <button class="bi-cat-btn" id="bicat-webseries" onclick="biSetCat('webseries')">📺 Web Series</button>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center;">
-          <button class="btn btn-p" id="bi-start-btn" onclick="biStart()">⚡ Start Import</button>
-          <button class="btn btn-s" onclick="biReset()">🗑 Reset</button>
-          <div style="font-size:0.78rem;color:#555;" id="bi-count-label"></div>
-        </div>
-      </div>
-      <div class="bi-progress-wrap" id="bi-progress-wrap" style="display:none;">
-        <div class="bi-progress-text" id="bi-prog-text">Importing...</div>
-        <div class="bi-progress-sub" id="bi-prog-sub"></div>
-        <div class="bi-pbar-bg"><div class="bi-pbar" id="bi-pbar" style="width:0%"></div></div>
-        <div class="bi-stats-row">
-          <div class="bi-stat">✅ Saved: <span class="ok" id="bi-s-ok">0</span></div>
-          <div class="bi-stat">⚠️ Already Exists: <span class="skip" id="bi-s-skip">0</span></div>
-          <div class="bi-stat">❌ Not Found: <span class="err" id="bi-s-err">0</span></div>
-          <div class="bi-stat">Total: <span id="bi-s-total">0</span></div>
-        </div>
-      </div>
-      <div class="bi-queue" id="bi-queue"></div>
     </div>
 
     <!-- AUTO IMPORT -->
@@ -3100,162 +2775,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════
-      WITHDRAWALS SECTION
-    ══════════════════════════════════════════════════ -->
-    <div class="section" id="sec-withdrawals">
-      <div class="sec-title">💸 <span>Withdrawals</span></div>
-
-      <!-- Stats -->
-      <div class="stats-grid" style="margin-bottom:20px;">
-        <div class="stat-card">
-          <div class="num" id="wd-stat-pending">0</div>
-          <div class="lbl">Pending</div>
-        </div>
-        <div class="stat-card">
-          <div class="num" id="wd-stat-paid">0</div>
-          <div class="lbl">Paid</div>
-        </div>
-        <div class="stat-card">
-          <div class="num" id="wd-stat-total-pkr">0</div>
-          <div class="lbl">Total Paid (PKR)</div>
-        </div>
-        <div class="stat-card">
-          <div class="num" id="wd-stat-users">0</div>
-          <div class="lbl">Total Users</div>
-        </div>
-      </div>
-
-      <!-- Filter tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-        <button class="btn btn-p" id="wd-tab-pending" onclick="wdFilter('pending')" style="font-size:0.82rem;padding:8px 16px;">⏳ Pending</button>
-        <button class="btn btn-s" id="wd-tab-approved" onclick="wdFilter('approved')" style="font-size:0.82rem;padding:8px 16px;">✅ Approved</button>
-        <button class="btn btn-s" id="wd-tab-rejected" onclick="wdFilter('rejected')" style="font-size:0.82rem;padding:8px 16px;">❌ Rejected</button>
-        <button class="btn btn-s" id="wd-tab-all" onclick="wdFilter('all')" style="font-size:0.82rem;padding:8px 16px;">📋 All</button>
-      </div>
-
-      <!-- Table -->
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div style="overflow-x:auto;">
-          <table id="wd-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Account / Number</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Amount</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Date</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Status</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="wd-tbody">
-              <tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════
-      TOP EARNERS SECTION
-    ══════════════════════════════════════════════════ -->
-    <div class="section" id="sec-earners">
-      <div class="sec-title">💰 <span>Top Earners</span></div>
-      <div class="card">
-        <h3>All Users — Earning Summary</h3>
-        <div style="overflow-x:auto;">
-          <table id="earners-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">#</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Balance (PKR)</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Total Earned</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;">Downloads</th>
-              </tr>
-            </thead>
-            <tbody id="earners-tbody">
-              <tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════
-    FRAUD & BANS
-    ══════════════════════════════════════════════════ -->
-    <div class="section" id="sec-fraud">
-      <div class="sec-title">🛡️ <span>Fraud &amp; Bans</span></div>
-
-      <div class="card" style="margin-bottom:18px;">
-        <h3>🚫 Manually Ban User</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:10px;">
-          <div style="flex:1;min-width:220px;">
-            <label style="font-size:0.75rem;color:var(--grey);display:block;margin-bottom:5px;">User UID</label>
-            <input class="fi" id="fraud-manual-uid" placeholder="Firebase UID paste karo" style="width:100%;"/>
-          </div>
-          <button onclick="fraudManualBan()" style="padding:10px 18px;background:#f87171;border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;">🚫 Ban User</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:18px;">
-        <h3>🔴 Banned Users <span id="fraud-banned-count" style="color:#f87171;">(0)</span></h3>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Reason</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Banned At</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Last IP / Country</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="fraud-banned-tbody">
-              <tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:18px;">
-        <h3>🟡 Flagged Users <span style="font-size:0.75rem;color:var(--grey);font-weight:400;">(daily limit baar baar hit ki ho)</span></h3>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Flag Count</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="fraud-flagged-tbody">
-              <tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>🛰️ VPN/Proxy Attempts</h3>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-            <thead>
-              <tr style="background:#1a1a1a;border-bottom:2px solid #2a2a2a;">
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">User</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">VPN Attempts</th>
-                <th style="padding:12px 16px;text-align:left;color:var(--grey);font-size:0.7rem;text-transform:uppercase;">Action</th>
-              </tr>
-            </thead>
-            <tbody id="fraud-vpn-tbody">
-              <tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
     <!-- ══════════════════════════════════════════════════ -->
     <!-- ✨ AI TITLE / META GENERATOR — Free Template Engine  -->
     <!-- ══════════════════════════════════════════════════ -->
@@ -3394,6 +2913,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <button class="cf-btn" data-f="dupslug" onclick="msSetFilter('dupslug')">Duplicate Slug</button>
         <button class="cf-btn" data-f="noslug" onclick="msSetFilter('noslug')">Missing Slug</button>
         <button class="cf-btn" data-f="nokw" onclick="msSetFilter('nokw')">No Keywords</button>
+        <button class="cf-btn" data-f="thindesc" onclick="msSetFilter('thindesc')">📄 Thin Content</button>
         <button class="cf-btn" data-f="all" onclick="msSetFilter('all')">📋 Sab Movies</button>
         <button class="btn btn-s" style="margin-left:auto;padding:6px 14px;font-size:0.78rem;" onclick="msScan()">🔄 Re-scan</button>
       </div>
@@ -3638,14 +3158,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <input class="fi" id="etrailer" placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
         <div style="font-size:0.7rem;color:#555;margin-top:4px;">💡 Khali chhodo agar trailer nahi lagana</div>
       </div>
-      <div class="fgg full" style="background:rgba(29,78,216,0.06);border:1px solid rgba(147,197,253,0.25);border-radius:8px;padding:12px;">
-        <label style="color:#93c5fd;">🔗 Quick Link Fetch (My Links jaisa — seedha 480p/720p/1080p/4K fields fill karo)</label>
-        <div style="display:flex;gap:8px;margin-top:6px;">
-          <input class="fi" id="ed-fetch-url" placeholder="https://linkmake.in/view/xxx ya filesdl.top/cloud/xxx" style="flex:1;"/>
-          <button class="btn btn-p" style="padding:0 18px;white-space:nowrap;" onclick="edFetchLinks()">🔍 Fetch</button>
-        </div>
-        <div id="ed-fetch-result" style="margin-top:10px;font-size:0.78rem;"></div>
-      </div>
       <div class="fgg"><label>480p Link</label><input class="fi" id="ed4"/></div>
       <div class="fgg"><label>480p Size</label><input class="fi" id="es4"/></div>
       <div class="fgg"><label>720p Link</label><input class="fi" id="ed7"/></div>
@@ -3819,7 +3331,6 @@ loadScript(
                   window._adminDbReady = true;
                   initLoginScreen();
                   fpCheckOnLoad();
-                  wdLoadPendingCount();
                 } catch(e) { showFbError(); }
               },
               _FB_FALLBACK + 'firebase-auth-compat.min.js'
@@ -4133,13 +3644,11 @@ function loadWebsiteSettings() {
     if (s.notice) document.getElementById('ws-notice').value = s.notice;
     if (s.footer) document.getElementById('ws-footer').value = s.footer;
     // Load slider states
-    var sliders = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
+    var sliders = {featuredBanner:'sl-featured', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
     Object.keys(sliders).forEach(function(key) {
       var prefix = sliders[key];
       var isOn;
-      if (key === 'walletEnabled') {
-        isOn = s.walletEnabled === true;
-      } else if (key === 'movieOfTheDay' || key === 'nowShowing') {
+      if (key === 'movieOfTheDay' || key === 'nowShowing') {
         // Default ON — jab tak admin ne explicitly OFF na kiya ho (Firebase mein value hi nahi hai to bhi ON dikhao)
         isOn = !(s.sliders && s.sliders[key] === false);
       } else {
@@ -4151,19 +3660,12 @@ function loadWebsiteSettings() {
       if (wrap) { wrap.classList.toggle('on', isOn); }
       if (status) { status.innerText = isOn ? 'ON' : 'OFF'; status.style.color = isOn ? 'var(--green)' : 'var(--grey)'; }
     });
-    // Load banner images
-    if (s.bannerImages && Array.isArray(s.bannerImages)) {
-      bannerImgArr = s.bannerImages;
-    } else {
-      bannerImgArr = [];
-    }
-    bannerRenderList();
   });
 }
 
 // ─── Slider toggle function ───
-var sliderStates = {featuredBanner:false, walletEnabled:false, movieOfTheDay:true, nowShowing:true};
-var sliderPrefixes = {featuredBanner:'sl-featured', walletEnabled:'sl-walletEnabled', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
+var sliderStates = {featuredBanner:false, movieOfTheDay:true, nowShowing:true};
+var sliderPrefixes = {featuredBanner:'sl-featured', movieOfTheDay:'sl-motd', nowShowing:'sl-nowshowing'};
 
 function toggleSlider(key) {
   sliderStates[key] = !sliderStates[key];
@@ -4172,126 +3674,11 @@ function toggleSlider(key) {
   var status = document.getElementById(prefix + '-status');
   if (wrap)   wrap.classList.toggle('on', sliderStates[key]);
   if (status) { status.innerText = sliderStates[key] ? 'ON' : 'OFF'; status.style.color = sliderStates[key] ? 'var(--green)' : 'var(--grey)'; }
-  // walletEnabled direct path pe save hota hai
-  var saveRef = key === 'walletEnabled'
-    ? db.ref('settings/walletEnabled').set(sliderStates[key])
-    : db.ref('settings').update((function(){ var u={}; u['sliders/'+key]=sliderStates[key]; return u; })());
+  var saveRef = db.ref('settings').update((function(){ var u={}; u['sliders/'+key]=sliderStates[key]; return u; })());
   saveRef.then(function() {
     toast((sliderStates[key] ? '✅ ' : '🔴 ') + key + ' ' + (sliderStates[key] ? 'ON' : 'OFF') + ' updated!');
   }).catch(function(e) { toast('❌ ' + e.message, 1); });
 }
-
-// ═══ BANNER SLIDER CUSTOM IMAGES ═══
-var bannerImgArr = [];
-
-function bannerRenderList() {
-  var list = document.getElementById('banner-img-list');
-  var empty = document.getElementById('banner-img-empty');
-  var countEl = document.getElementById('banner-img-count');
-  if (!list) return;
-  // Remove old items (keep empty msg)
-  var items = list.querySelectorAll('.banner-img-item');
-  items.forEach(function(el) { el.remove(); });
-  if (countEl) countEl.innerText = bannerImgArr.length;
-  if (bannerImgArr.length === 0) {
-    if (empty) empty.style.display = '';
-    return;
-  }
-  if (empty) empty.style.display = 'none';
-  bannerImgArr.forEach(function(url, i) {
-    var row = document.createElement('div');
-    row.className = 'banner-img-item';
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;';
-    row.innerHTML =
-      '<img src="' + url + '" style="width:60px;height:40px;object-fit:cover;border-radius:5px;flex-shrink:0;" onerror="this.style.background=\'#333\'">' +
-      '<div style="flex:1;font-size:0.75rem;color:var(--grey);word-break:break-all;overflow:hidden;max-height:2.5em;">' + url + '</div>' +
-      '<button onclick="bannerRemoveItem(' + i + ')" style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:0.75rem;flex-shrink:0;">🗑</button>';
-    list.appendChild(row);
-  });
-}
-
-function bannerAddUrl() {
-  var inp = document.getElementById('banner-img-url-input');
-  if (!inp) return;
-  var url = inp.value.trim();
-  if (!url) { toast('❌ URL ya image enter karo!', 1); return; }
-  if (bannerImgArr.indexOf(url) !== -1) { toast('⚠️ Yeh image already exist karti hai!', 1); return; }
-  bannerImgArr.push(url);
-  inp.value = '';
-  // Hide preview
-  var prev = document.getElementById('banner-img-preview');
-  if (prev) prev.style.display = 'none';
-  bannerRenderList();
-  toast('✅ Image list mein add ho gayi! Save karna mat bhoolna.');
-}
-
-function bannerRemoveItem(idx) {
-  bannerImgArr.splice(idx, 1);
-  bannerRenderList();
-}
-
-function bannerSaveAll() {
-  if (!window.db) { toast('❌ Firebase connected nahi!', 1); return; }
-  db.ref('settings/bannerImages').set(bannerImgArr.length > 0 ? bannerImgArr : null).then(function() {
-    toast('✅ Banner images save ho gayi! (' + bannerImgArr.length + ' images)');
-  }).catch(function(e) { toast('❌ Save failed: ' + e.message, 1); });
-}
-
-function bannerClearAll() {
-  if (!confirm('Sab banner images delete karna chahte ho?')) return;
-  bannerImgArr = [];
-  bannerRenderList();
-  if (!window.db) return;
-  db.ref('settings/bannerImages').set(null).then(function() {
-    toast('🗑️ Sab banner images clear ho gayi!');
-  }).catch(function(e) { toast('❌ ' + e.message, 1); });
-}
-
-function bannerLoadFromFirebase() {
-  if (!window.db) return;
-  db.ref('settings/bannerImages').once('value').then(function(snap) {
-    if (snap.exists() && Array.isArray(snap.val())) {
-      bannerImgArr = snap.val();
-    } else {
-      bannerImgArr = [];
-    }
-    bannerRenderList();
-  });
-}
-
-function bannerUploadImage(input) {
-  if (!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  if (!window.firebase || !firebase.storage) { toast('❌ Firebase Storage available nahi!', 1); return; }
-  toast('⏳ Uploading...');
-  var storageRef = firebase.storage().ref('bannerImages/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_'));
-  var task = storageRef.put(file);
-  task.then(function(snap) {
-    return snap.ref.getDownloadURL();
-  }).then(function(url) {
-    var inp = document.getElementById('banner-img-url-input');
-    if (inp) inp.value = url;
-    // Show preview
-    var prev = document.getElementById('banner-img-preview');
-    var prevImg = document.getElementById('banner-img-preview-img');
-    if (prev && prevImg) { prevImg.src = url; prev.style.display = ''; }
-    toast('✅ Image upload ho gayi! "Add" button dabao.');
-  }).catch(function(e) { toast('❌ Upload failed: ' + e.message, 1); });
-}
-
-// Input preview on URL change
-document.addEventListener('DOMContentLoaded', function() {
-  var inp = document.getElementById('banner-img-url-input');
-  if (inp) {
-    inp.addEventListener('input', function() {
-      var url = this.value.trim();
-      var prev = document.getElementById('banner-img-preview');
-      var prevImg = document.getElementById('banner-img-preview-img');
-      if (url && prev && prevImg) { prevImg.src = url; prev.style.display = ''; }
-      else if (prev) prev.style.display = 'none';
-    });
-  }
-});
 
 // ═══ ADS CONTROL ═══
 var adStates = {header: false, grid: false, popup: false, bottom: false, sidebar: false};
@@ -4397,29 +3784,6 @@ function resetProxyStatus(){
   if(log){log.style.display='none';log.innerHTML='';}
 }
 
-// ── Web3Forms Key Management ──
-var W3F_KEY_STORAGE = 'cv_w3f_key';
-function getW3fKey() {
-  return localStorage.getItem(W3F_KEY_STORAGE) || '4b8b2b2e-6f1a-4e2a-b3c1-2d9e8f7a0c3d';
-}
-function saveW3fKey() {
-  var val = (document.getElementById('set-w3f-key') || {}).value || '';
-  val = val.trim();
-  if (!val) { toast('❌ Key daalo pehle!', 1); return; }
-  localStorage.setItem(W3F_KEY_STORAGE, val);
-  var sp = document.getElementById('set-w3f-current');
-  if (sp) sp.textContent = val.substring(0,8) + '...';
-  toast('✅ Web3Forms key save ho gayi!');
-}
-function loadW3fKeyUI() {
-  var k = localStorage.getItem(W3F_KEY_STORAGE);
-  var inp = document.getElementById('set-w3f-key');
-  var sp = document.getElementById('set-w3f-current');
-  if (k && inp) inp.value = k;
-  if (sp) sp.textContent = k ? k.substring(0,8) + '...' : 'Default key use ho rahi hai';
-}
-document.addEventListener('DOMContentLoaded', loadW3fKeyUI);
-
 // SEO Slug live preview
 document.addEventListener('input', function(e) {
   if (e.target && e.target.id === 'fseoSlug') {
@@ -4524,7 +3888,6 @@ function show(name){
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
   if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
-  if(name==='linkcheck'){renderLcResults(lcBrokenMovies);}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
   if(name==='contacts'){loadContacts();}
@@ -4532,9 +3895,6 @@ function show(name){
   if(name==='adwatch'){awpLoadSettings();}
   if(name==='push'){puLoadAll();}
   if(name==='mylinks'){mlLoadAll();}
-  if(name==='withdrawals'){wdLoadAll();}
-  if(name==='earners'){earnersLoad();}
-  if(name==='fraud'){fraudLoad();}
   if(name==='metascan'){if(typeof msScan==='function')msScan();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
   if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
@@ -4587,20 +3947,6 @@ function loadAllContent(){
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
-    // AUTO LINK CHECK — pehle Firebase se pichla result turant dikhao,
-    // phir sirf tab dobara scan karo jab last check 12+ ghante purana ho
-    // (ya kabhi hua hi na ho). Isse panel har baar khulne par poora
-    // catalog dobara scan nahi karta — genuinely "automatic/scheduled" feel deta hai.
-    if(!lcAutoRan && allMovies.length > 0){
-      lcAutoRan = true;
-      lcLoadCachedResults(function(cached) {
-        var staleMs = LC_AUTO_RECHECK_HOURS * 60 * 60 * 1000;
-        var isStale = !cached || !cached.lastCheck || (Date.now() - cached.lastCheck) > staleMs;
-        if (isStale) {
-          setTimeout(function(){ runLinkCheck(true); }, 2000);
-        }
-      });
-    }
   });
 }
 
@@ -6823,402 +6169,6 @@ function tfaDisable(){
   tfaRenderSettings();
 }
 
-// ═══ LINK CHECKER ═══
-var lcBrokenMovies = [];
-var lcChecking = false;
-var lcLastCheckTime = null;
-// ✅ AUTO CHECKER — kitne ghante baad dobara khud check ho (agar panel khula rahe)
-var LC_AUTO_RECHECK_HOURS = 12;
-
-function lcFormatTime(d) {
-  if (!d) return '';
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var h = d.getHours(), m = d.getMinutes();
-  var ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12; if (h === 0) h = 12;
-  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
-}
-
-// Results Firebase 'linkCheckStatus' node me save karo taake panel band/reload
-// hone par bhi data na khoye, aur dusre device se bhi latest status dikhe
-function lcSaveResults(brokenMovies, totalChecked) {
-  try {
-    var lightweight = {};
-    brokenMovies.forEach(function(b) {
-      lightweight[b.movie.key] = {
-        title: b.movie.title || 'Untitled',
-        deadCount: (b.links || []).length,
-        unknownCount: (b.unknownLinks || []).length
-      };
-    });
-    db.ref('linkCheckStatus').set({
-      lastCheck: Date.now(),
-      totalChecked: totalChecked,
-      brokenCount: brokenMovies.length,
-      broken: lightweight
-    });
-  } catch (e) {}
-}
-
-// Panel khulte hi (fresh scan se pehle) Firebase se pichla result turant dikhao
-function lcLoadCachedResults(cb) {
-  db.ref('linkCheckStatus').once('value').then(function(snap) {
-    var data = snap.val();
-    if (!data) { if (cb) cb(null); return; }
-    lcLastCheckTime = data.lastCheck ? new Date(data.lastCheck) : null;
-    var lastEl = document.getElementById('lc-last-check');
-    if (lastEl && lcLastCheckTime) lastEl.innerText = 'Last check: ' + lcFormatTime(lcLastCheckTime);
-    updateLcBanner(data.brokenCount || 0, data.totalChecked || allMovies.length, false);
-    var navBadge = document.getElementById('lc-nav-badge');
-    if (navBadge) {
-      if (data.brokenCount > 0) { navBadge.innerText = data.brokenCount; navBadge.style.display = 'inline-block'; }
-      else { navBadge.style.display = 'none'; }
-    }
-    if (cb) cb(data);
-  }).catch(function() { if (cb) cb(null); });
-}
-
-// Link fields to check per movie
-function getLinkFields(m) {
-  var fields = [];
-  if (m.videoUrl)      fields.push({label:'Video',   url:m.videoUrl});
-  if (m.download480p)  fields.push({label:'480p',    url:m.download480p});
-  if (m.download720p)  fields.push({label:'720p',    url:m.download720p});
-  if (m.download1080p) fields.push({label:'1080p',   url:m.download1080p});
-  if (m.download4k)    fields.push({label:'4K',      url:m.download4k});
-  // episodes
-  if (m.episodes && m.episodes.length) {
-    m.episodes.forEach(function(ep, i) {
-      var ep_label = 'S'+ep.season+'E'+ep.episode;
-      if (ep.videoUrl)  fields.push({label:ep_label+' Video', url:ep.videoUrl});
-      if (ep.dl480)     fields.push({label:ep_label+' 480p',  url:ep.dl480});
-      if (ep.dl720)     fields.push({label:ep_label+' 720p',  url:ep.dl720});
-      if (ep.dl1080)    fields.push({label:ep_label+' 1080p', url:ep.dl1080});
-    });
-  }
-  return fields;
-}
-
-// ══════════════════════════════════════════════════════
-// SMART LINK CHECKER — Download-Verify + Multi-method
-// ══════════════════════════════════════════════════════
-
-// Download verification: Range request se 1KB fetch karke confirm karo
-// Returns: 'downloadable' | 'accessible' | 'dead' | 'unknown'
-function checkUrlDownload(url) {
-  return new Promise(function(resolve) {
-    if (!url || url.length < 5) { resolve('dead'); return; }
-
-    // Direct file links — Range request se actual download test
-    if (url.match(/\.(mp4|mkv|avi|webm|m3u8|ts|zip|rar|7z)(\?|#|$)/i)
-        || url.match(/download|dl\.|getfile|serve|stream/i)) {
-      // Pehle HEAD karke Content-Length check karo
-      fetch(url, {
-        method: 'HEAD',
-        signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
-      })
-      .then(function(r) {
-        if (!r.ok) { resolve('dead'); return; }
-        var cl = r.headers.get('content-length');
-        var ct = r.headers.get('content-type') || '';
-        // Agar size > 0 aur binary content hai — download ho rahi hai
-        if (cl && parseInt(cl) > 1000) {
-          resolve('downloadable');
-        } else if (ct.match(/video|audio|octet-stream|zip|rar/i)) {
-          // Content-Type se confirm — downloadable
-          resolve('downloadable');
-        } else {
-          // Range request se 1KB fetch karke check karo
-          fetch(url, {
-            headers: { 'Range': 'bytes=0-1023' },
-            signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
-          })
-          .then(function(r2) {
-            if (r2.ok || r2.status === 206) {
-              // 206 Partial Content = file serve ho rahi hai
-              resolve(r2.status === 206 ? 'downloadable' : 'accessible');
-            } else {
-              resolve('dead');
-            }
-          })
-          .catch(function() { resolve('unknown'); });
-        }
-      })
-      .catch(function() { resolve('unknown'); });
-      return;
-    }
-
-    // Google Drive download links
-    var gdDlMatch = url.match(/drive\.google\.com\/uc\?.*id=([\w-]+)|drive\.google\.com\/file\/d\/([\w-]+)/);
-    if (gdDlMatch) {
-      var fileId = gdDlMatch[1] || gdDlMatch[2];
-      // Google Drive API se file info check karo
-      fetch('https://drive.google.com/thumbnail?id=' + fileId, { method: 'HEAD' })
-        .then(function(r) {
-          if (r.ok || r.status === 302) {
-            // Accessible hai, ab download check
-            fetch('https://drive.google.com/uc?export=download&id=' + fileId, {
-              method: 'HEAD',
-              signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
-            })
-            .then(function(r2) {
-              resolve(r2.ok ? 'downloadable' : 'accessible');
-            })
-            .catch(function() { resolve('accessible'); });
-          } else {
-            resolve('dead');
-          }
-        })
-        .catch(function() { resolve('unknown'); });
-      return;
-    }
-
-    // PixelDrain — official API se size bhi check karo
-    var pdMatch = url.match(/pixeldrain\.(?:com|dev)\/(?:u\/|l\/|d\/)([\w-]+)/i);
-    if (pdMatch) {
-      fetch('https://pixeldrain.com/api/file/' + pdMatch[1] + '/info')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          if (d && d.id && !d.availability) {
-            // Size > 0 check karo
-            resolve(d.size && d.size > 0 ? 'downloadable' : 'accessible');
-          } else {
-            resolve('dead');
-          }
-        })
-        .catch(function() { resolve(false); });
-      return;
-    }
-
-    // YouTube — always mark live (cannot HEAD-check cross-origin)
-    if (url.match(/youtube\.com|youtu\.be/)) { resolve('accessible'); return; }
-
-    // Dailymotion — official API
-    var dmMatch = url.match(/dailymotion\.com\/video\/([\w]+)/);
-    if (dmMatch) {
-      fetch('https://api.dailymotion.com/video/' + dmMatch[1] + '?fields=id,status')
-        .then(function(r){ return r.json(); })
-        .then(function(d){ resolve(d && d.id && d.status !== 'deleted' ? 'accessible' : 'dead'); })
-        .catch(function(){ resolve('unknown'); });
-      return;
-    }
-
-    // Vimeo — oEmbed
-    if (url.match(/vimeo\.com/)) {
-      fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(url))
-        .then(function(r){ resolve(r.ok ? 'accessible' : 'dead'); })
-        .catch(function(){ resolve('unknown'); });
-      return;
-    }
-
-    // Everything else — allorigins proxy
-    fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url))
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var html = d.contents || '';
-        var status = d.status && d.status.http_code;
-        if (status && status >= 400) { resolve('dead'); return; }
-        var dead = html.match(/not\s*found|file\s*removed|link\s*expired|deleted|unavailable|error\s*404|this\s*video\s*is\s*private/i);
-        resolve(!dead && html.length > 200 ? 'accessible' : 'dead');
-      })
-      .catch(function(){ resolve('unknown'); });
-  });
-}
-
-// Backward compatible wrapper (old true/false/null API)
-function checkUrl(url) {
-  return checkUrlDownload(url).then(function(result) {
-    if (result === 'downloadable' || result === 'accessible') return true;
-    if (result === 'dead') return false;
-    return null; // unknown
-  });
-}
-
-// Check with timeout
-function checkUrlWithTimeout(url, ms) {
-  ms = ms || 9000;
-  return Promise.race([
-    checkUrl(url),
-    new Promise(function(resolve) { setTimeout(function() { resolve(null); }, ms); })
-  ]);
-}
-
-// Main check runner
-function runLinkCheck(silent) {
-  if (lcChecking) return;
-  if (!allMovies.length) {
-    if (!silent) toast('❌ No content to check', 1);
-    updateLcBanner(0, 0, true);
-    return;
-  }
-  lcChecking = true;
-  lcBrokenMovies = [];
-  var btn = document.getElementById('lc-scan-btn');
-  if (btn) { btn.disabled = true; btn.innerText = '⏳ Checking...'; }
-  
-  // Show progress
-  var progWrap = document.getElementById('lc-progress-wrap');
-  var progBar = document.getElementById('lc-progress-bar');
-  var progText = document.getElementById('lc-progress-text');
-  if (progWrap) progWrap.style.display = 'block';
-  if (progBar) progBar.style.width = '0%';
-
-  // Update dashboard banner to "checking"
-  var banner = document.getElementById('lc-dashboard-banner');
-  if (banner) { banner.className = 'lc-banner lc-checking'; }
-  var bannerCount = document.getElementById('lc-banner-count');
-  if (bannerCount) bannerCount.innerText = '...';
-  var bannerSub = document.getElementById('lc-banner-sub');
-  if (bannerSub) bannerSub.innerText = 'Checking links...';
-
-  var moviesToCheck = allMovies.slice();
-  var total = moviesToCheck.length;
-  var done = 0;
-  var broken = {};
-
-  // Sequential check to avoid rate limits
-  function checkNext(idx) {
-    if (idx >= total) {
-      finishCheck(broken);
-      return;
-    }
-    var m = moviesToCheck[idx];
-    var fields = getLinkFields(m);
-    if (!fields.length) {
-      done++;
-      if (progBar) progBar.style.width = Math.round((done/total)*100) + '%';
-      if (progText) progText.innerText = 'Checking: ' + done + '/' + total + ' movies';
-      checkNext(idx + 1);
-      return;
-    }
-    // Check all links of this movie in parallel — download verify mode
-    var checks = fields.map(function(f) {
-      return Promise.race([
-        checkUrlDownload(f.url),
-        new Promise(function(resolve) { setTimeout(function() { resolve('unknown'); }, 12000); })
-      ]).then(function(result) {
-        return {label: f.label, url: f.url, result: result};
-      });
-    });
-    Promise.all(checks).then(function(results) {
-      var deadLinks    = results.filter(function(r) { return r.result === 'dead'; });
-      var unknownLinks = results.filter(function(r) { return r.result === 'unknown'; });
-      var notDlLinks   = results.filter(function(r) { return r.result === 'accessible'; });
-      if (deadLinks.length || unknownLinks.length) {
-        broken[m.key] = {movie: m, links: deadLinks, unknownLinks: unknownLinks, notDlLinks: notDlLinks};
-      }
-      done++;
-      if (progBar) progBar.style.width = Math.round((done/total)*100) + '%';
-      if (progText) progText.innerText = 'Checking: ' + done + '/' + total + ' — "' + (m.title||'Untitled') + '"';
-      checkNext(idx + 1);
-    });
-  }
-  checkNext(0);
-
-  function finishCheck(broken) {
-    lcChecking = false;
-    if (btn) { btn.disabled = false; btn.innerText = '🔍 Check Now'; }
-    if (progWrap) progWrap.style.display = 'none';
-    lcLastCheckTime = new Date();
-    var lastEl = document.getElementById('lc-last-check');
-    if (lastEl) lastEl.innerText = 'Last check: ' + lcFormatTime(lcLastCheckTime);
-
-    lcBrokenMovies = Object.values(broken);
-    var brokenCount = lcBrokenMovies.length;
-    // Count only truly dead links for banner
-    var deadOnlyCount = lcBrokenMovies.filter(function(b){ return b.links && b.links.length > 0; }).length;
-    updateLcBanner(brokenCount, total, false);
-    renderLcResults(lcBrokenMovies);
-    lcSaveResults(lcBrokenMovies, total); // ✅ Firebase me persist karo
-    
-    // Show red badge on nav if broken links
-    var navBadge = document.getElementById('lc-nav-badge');
-    if (navBadge) {
-      if (brokenCount > 0) {
-        navBadge.innerText = brokenCount;
-        navBadge.style.display = 'inline-block';
-      } else {
-        navBadge.style.display = 'none';
-      }
-    }
-    if (!silent && brokenCount > 0) {
-      toast('⚠️ ' + brokenCount + ' movies have expired/dead links!', 1);
-    } else if (!silent) {
-      toast('✅ All links are working!');
-    }
-  }
-}
-
-function updateLcBanner(brokenCount, total, checking) {
-  var banner = document.getElementById('lc-dashboard-banner');
-  var bannerCount = document.getElementById('lc-banner-count');
-  var bannerSub = document.getElementById('lc-banner-sub');
-  if (!banner) return;
-  if (checking) {
-    banner.className = 'lc-banner lc-checking';
-    if (bannerCount) bannerCount.innerText = '...';
-    if (bannerSub) bannerSub.innerText = 'Checking links...';
-    return;
-  }
-  if (brokenCount === 0) {
-    banner.className = 'lc-banner lc-ok';
-    if (bannerCount) bannerCount.innerText = '✓';
-    if (bannerSub) bannerSub.innerText = 'All ' + total + ' movies have working links! Click here to see details.';
-  } else {
-    banner.className = 'lc-banner';
-    if (bannerCount) bannerCount.innerText = brokenCount;
-    if (bannerSub) bannerSub.innerText = brokenCount + ' movies have dead/expired links! Click here to fix them.';
-  }
-}
-
-function renderLcResults(brokenList) {
-  var el = document.getElementById('lc-results');
-  if (!el) return;
-  if (!brokenList || !brokenList.length) {
-    el.innerHTML = '<div class="lc-empty"><div class="lc-empty-icon">✅</div><div style="color:var(--green);font-size:0.95rem;font-weight:700;">Sab links bilkul theek hain!</div><div style="color:#555;font-size:0.8rem;margin-top:8px;">Koi bhi link dead ya expire nahi hua</div></div>';
-    return;
-  }
-  el.innerHTML = '<div style="color:var(--grey);font-size:0.78rem;margin-bottom:14px;">⚠️ Neeche di gayi movies mein link issues hain — <strong style="color:#f87171;">❌ Dead</strong> = link kaam nahi kar raha, <strong style="color:#facc15;">⚠️ Unknown</strong> = timeout/check nahi hua, <strong style="color:#60a5fa;">🔗 Accessible</strong> = link khulta hai lekin download confirm nahi hua.</div>'
-    + brokenList.map(function(b) {
-      var m = b.movie;
-      var tu = m.thumbnail ? 'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=80&h=112&fit=cover&output=jpg' : '';
-      var titleSafe = (m.title||'').replace(/'/g,"\\'");
-      var deadRows = (b.links||[]).map(function(lk) {
-        return '<div class="bl-link-row">'
-          + '<span class="bl-link-label">'+lk.label+'</span>'
-          + '<span class="bl-link-url" title="'+lk.url+'">'+lk.url+'</span>'
-          + '<span class="bl-status dead">❌ Dead</span>'
-        + '</div>';
-      }).join('');
-      var unknownRows = (b.unknownLinks||[]).map(function(lk) {
-        return '<div class="bl-link-row">'
-          + '<span class="bl-link-label">'+lk.label+'</span>'
-          + '<span class="bl-link-url" title="'+lk.url+'">'+lk.url+'</span>'
-          + '<span class="bl-status" style="background:#2a2a00;color:#facc15;">⚠️ Unknown</span>'
-        + '</div>';
-      }).join('');
-      var notDlRows = (b.notDlLinks||[]).map(function(lk) {
-        return '<div class="bl-link-row">'
-          + '<span class="bl-link-label">'+lk.label+'</span>'
-          + '<span class="bl-link-url" title="'+lk.url+'">'+lk.url+'</span>'
-          + '<span class="bl-status" style="background:#0f2a3f;color:#60a5fa;">🔗 Accessible</span>'
-        + '</div>';
-      }).join('');
-      return '<div class="bl-card">'
-        + (tu ? '<img class="bl-thumb" src="'+tu+'" onerror="this.style.opacity=0.3">' : '<div class="bl-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🎬</div>')
-        + '<div class="bl-info">'
-          + '<div class="bl-title">'+(m.title||'Untitled')+'</div>'
-          + '<div style="font-size:0.7rem;color:var(--grey);margin-top:2px;">'+(m.year||'')+(m.category?' &middot; '+m.category:'')+'</div>'
-          + '<div class="bl-links">' + deadRows + unknownRows + notDlRows + '</div>'
-        + '</div>'
-        + '<button class="bl-fix-btn" onclick="openEdit(\''+m.key+'\')">✏️ Fix</button>'
-      + '</div>';
-    }).join('');
-}
-
-// Auto-run when data loads
-var lcAutoRan = false;
-var origLoadAllContent = null;
 
 // ═══ MOBILE SIDEBAR ═══
 function toggleMobSidebar(){
@@ -7486,128 +6436,6 @@ function fpCheckOnLoad(){
 
 
 
-// ═══ BULK IMPORT (NAMES) ═══
-var biCat='hollywood', biRunning=false;
-var biOk=0, biSkip=0, biErr=0;
-
-function biSetCat(cat){
-  biCat=cat;
-  document.querySelectorAll('.bi-cat-btn').forEach(function(b){b.classList.remove('active');});
-  var btn=document.getElementById('bicat-'+cat); if(btn)btn.classList.add('active');
-}
-
-function biReset(){
-  if(biRunning){toast('Import is already running!',1);return;}
-  document.getElementById('bi-input').value='';
-  document.getElementById('bi-queue').innerHTML='';
-  document.getElementById('bi-progress-wrap').style.display='none';
-  document.getElementById('bi-count-label').textContent='';
-  biOk=0;biSkip=0;biErr=0;
-}
-
-function biStart(){
-  if(biRunning){toast('Already running!',1);return;}
-  var raw=document.getElementById('bi-input').value.trim();
-  if(!raw){toast('❌ Please paste movie names first!',1);return;}
-  var names=raw.split('\n').map(function(n){return n.trim();}).filter(function(n){return n.length>0;});
-  var seen={};
-  names=names.filter(function(n){var k=n.toLowerCase();if(seen[k])return false;seen[k]=true;return true;});
-  if(!names.length){toast('❌ No names found!',1);return;}
-  biRunning=true;biOk=0;biSkip=0;biErr=0;
-  document.getElementById('bi-start-btn').disabled=true;
-  document.getElementById('bi-start-btn').textContent='⏳ Running...';
-  document.getElementById('bi-progress-wrap').style.display='block';
-  document.getElementById('bi-s-total').textContent=names.length;
-  document.getElementById('bi-count-label').textContent=names.length+' movies';
-  var qEl=document.getElementById('bi-queue');
-  qEl.innerHTML=names.map(function(name,i){
-    return '<div class="bi-item" id="birow-'+i+'"><div class="bi-num">'+(i+1)+'</div>'
-      +'<img class="bi-poster" id="bipos-'+i+'" src="" style="display:none">'
-      +'<div class="bi-info"><div class="bi-title" id="bititle-'+i+'">'+name+'</div><div class="bi-meta" id="bimeta-'+i+'">Waiting...</div></div>'
-      +'<div class="bi-status wait" id="bist-'+i+'">⏳ Wait</div></div>';
-  }).join('');
-  biProcessNext(names,0);
-}
-
-function biProcessNext(names,idx){
-  if(idx>=names.length){
-    biRunning=false;
-    document.getElementById('bi-start-btn').disabled=false;
-    document.getElementById('bi-start-btn').textContent='⚡ Start Import';
-    document.getElementById('bi-prog-text').textContent='✅ Import Mukammal!';
-    document.getElementById('bi-prog-sub').textContent=biOk+' saved, '+biSkip+' skipped, '+biErr+' not found';
-    document.getElementById('bi-pbar').style.width='100%';
-    toast('✅ '+biOk+' movies add hue!');
-    return;
-  }
-  var name=names[idx];
-  var pct=Math.round((idx/names.length)*100);
-  document.getElementById('bi-prog-text').textContent='Processing '+(idx+1)+' / '+names.length+'...';
-  document.getElementById('bi-prog-sub').textContent='"'+name+'"';
-  document.getElementById('bi-pbar').style.width=pct+'%';
-  document.getElementById('bi-s-ok').textContent=biOk;
-  document.getElementById('bi-s-skip').textContent=biSkip;
-  document.getElementById('bi-s-err').textContent=biErr;
-  var row=document.getElementById('birow-'+idx);
-  if(row){row.classList.add('bi-active');row.scrollIntoView({block:'nearest',behavior:'smooth'});}
-  biSetRowSt(idx,'running','🔍 Searching...');
-  var exists=allMovies.find(function(m){return(m.title||'').toLowerCase()===name.toLowerCase();});
-  if(exists){
-    biSkip++;biSetRowSt(idx,'skip','⚠️ Already Exists');
-    var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-skip');}
-    setTimeout(function(){biProcessNext(names,idx+1);},200);return;
-  }
-  var TKEY=TMDB_API;
-  fetch('https://api.themoviedb.org/3/search/multi?api_key='+TKEY+'&query='+encodeURIComponent(name)+'&language=en-US&page=1')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var results=(data.results||[]).filter(function(m){return m.media_type!=='person';});
-      if(!results.length){
-        biErr++;biSetRowSt(idx,'err','❌ Not Found');
-        var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-err');}
-        setTimeout(function(){biProcessNext(names,idx+1);},400);return;
-      }
-      var m=results[0];
-      var title=m.title||m.name||name;
-      var year=(m.release_date||m.first_air_date||'').substring(0,4);
-      var rating=m.vote_average?m.vote_average.toFixed(1):'';
-      var poster=m.poster_path?'https://image.tmdb.org/t/p/w500'+m.poster_path:'';
-      var desc=m.overview||'';
-      var gMap={28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
-      var genre=gMap[m.genre_ids&&m.genre_ids[0]]||'';
-      var lMap={hi:'bollywood',ur:'bollywood',te:'tollywood',ta:'tollywood',kn:'tollywood',ml:'tollywood'};
-      var cat=lMap[m.original_language]||(m.media_type==='tv'?'webseries':biCat);
-      var el=document.getElementById('bititle-'+idx);if(el)el.textContent=title;
-      var mel=document.getElementById('bimeta-'+idx);if(mel)mel.textContent=year+(rating?' · ⭐'+rating:'')+'  · '+cat;
-      var pel=document.getElementById('bipos-'+idx);if(pel&&poster){pel.src='https://wsrv.nl/?url='+encodeURIComponent(poster)+'&w=80&h=112&fit=cover&output=jpg';pel.style.display='block';}
-      var obj={title:title,year:year,rating:rating,category:cat,genre:genre,description:desc,thumbnail:poster,addedAt:Date.now()};
-      // ✅ SEO slug auto-generate
-      var bSlug=(title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-      if(bSlug)obj.seoSlug=bSlug;
-      Object.keys(obj).forEach(function(k){if(!obj[k]&&k!=='addedAt')delete obj[k];});
-      db.ref('movies').push(obj).then(function(){
-        biOk++;biSetRowSt(idx,'ok','✅ Saved!');
-        var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-done');}
-        setTimeout(function(){biProcessNext(names,idx+1);},350);
-      }).catch(function(){
-        biErr++;biSetRowSt(idx,'err','❌ DB Error');
-        var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-err');}
-        setTimeout(function(){biProcessNext(names,idx+1);},350);
-      });
-    })
-    .catch(function(){
-      biErr++;biSetRowSt(idx,'err','❌ Network Error');
-      var r=document.getElementById('birow-'+idx);if(r){r.classList.remove('bi-active');r.classList.add('bi-err');}
-      setTimeout(function(){biProcessNext(names,idx+1);},800);
-    });
-}
-
-function biSetRowSt(idx,type,msg){
-  var el=document.getElementById('bist-'+idx);if(!el)return;
-  el.textContent=msg;
-  el.className='bi-status '+(type==='ok'?'ok':type==='err'?'err':type==='skip'?'skip':type==='running'?'running':'wait');
-}
-// ═══ END BULK IMPORT ═══
 
 
 var AI_KEY = TMDB_API;
@@ -9489,236 +8317,6 @@ show = function(name){
 document.getElementById('edit-modal').onclick=function(e){if(e.target===this)closeEdit();};
 document.getElementById('confirm-modal').onclick=function(e){if(e.target===this)closeConfirm();};
 
-// ═══════════════════════════════════════════
-// 📥 PIPE IMPORTER v2 — filename|url|iframe
-// ═══════════════════════════════════════════
-var piParsed=[];
-var piRunning=false;
-
-// Adult content keywords for auto-detection
-var ADULT_KW=['xxx','brazzers','xvideos','pornstar','fucking','cock','ass','anal','cum','pussy','blowjob','hardcore','lesbian sex','milf','bbc','creampie','onlyfans','naughty','erotic','nude','naked','hog','gimme your','suck his','off the clock','playing both sides','initiating the intimacy','spring break xxx','college cuties','hot indian wedding','luna star','angie lynx','lulu chu','savanah storm','rissa may','gypsy rose','melissa stratton','natasha nice','hazel moore','summer col','katalina'];
-
-function piIsAdult(fname){
-  var f=fname.toLowerCase();
-  return ADULT_KW.some(function(k){return f.indexOf(k)>-1;});
-}
-
-function piParse(){
-  var raw=document.getElementById('pi-input').value.trim();
-  if(!raw){toast('❌ Please paste the list first!',1);return;}
-  var lines=raw.split('\n').filter(function(l){return l.trim()&&l.indexOf('|')>-1;});
-  if(!lines.length){toast('No valid lines found! Format: filename|url|iframe',1);return;}
-
-  piParsed=lines.map(function(line,idx){
-    var parts=line.split('|');
-    var fname=(parts[0]||'').trim();
-    var dlUrl=(parts[1]||'').trim();
-    // iframe is remaining parts joined (iframe has | inside src)
-    var iframeRaw=parts.slice(2).join('|').trim();
-    // Extract src from iframe
-    var videoUrl=iframeRaw;
-    var srcMatch=iframeRaw.match(/src=["']([^"']+)["']/i);
-    if(srcMatch) videoUrl=srcMatch[1];
-    else if(!iframeRaw && dlUrl) videoUrl=dlUrl;
-
-    var isAdult=piIsAdult(fname);
-    var info=piExtractInfo(fname,isAdult);
-    return {
-      id:idx,fname:fname,dlUrl:dlUrl,videoUrl:videoUrl,iframeCode:iframeRaw,
-      title:info.title,year:info.year,quality:info.quality,lang:info.lang,
-      cat:isAdult?'adult':info.cat,
-      selected:true,status:'pending',poster:'',desc:'',rating:''
-    };
-  });
-
-  piRenderTable();
-  document.getElementById('pi-actions').style.display='block';
-  var adultCount=piParsed.filter(function(x){return x.cat==='adult';}).length;
-  var info=piParsed.length+' entries parsed';
-  if(adultCount) info+=' ('+adultCount+' 🔞 Adult auto-detect)';
-  document.getElementById('pi-parse-info').textContent=info;
-}
-
-function piExtractInfo(fname,isAdult){
-  var clean=fname
-    .replace(/\.(mkv|mp4|avi|mov|ts)$/i,'')
-    .replace(/%20/g,' ')
-    .replace(/[._]+/g,' ');
-
-  // Year
-  var yearMatch=clean.match(/\b(19[5-9]\d|20[0-2]\d)\b/);
-  var year=yearMatch?yearMatch[0]:'';
-
-  // Quality
-  var qualMatch=clean.match(/\b(4K|2160p|1080p|720p|576p|480p|360p)\b/i);
-  var quality=qualMatch?qualMatch[0]:'';
-
-  // Language
-  var lang='';
-  var lc=clean.toLowerCase();
-  if(/hindi/.test(lc)&&/english|eng/.test(lc)) lang='Hindi + English';
-  else if(/hindi/.test(lc)) lang='Hindi';
-  else if(/english|eng/.test(lc)) lang='English';
-  else if(/tagalog/.test(lc)) lang='Tagalog';
-  if(/(telugu|tamil|malayalam|kannada)/.test(lc)&&lang) lang+=' + Multi';
-
-  // Title cleaning — cut before year or quality marker
-  var title=clean;
-  var cutPatterns=[
-    /\b(19[5-9]\d|20[0-2]\d)\b.*/,
-    /\b(4K|2160p|1080p|720p|576p|480p|BluRay|BRRip|WEB-?DL|WEBRip|HDTC|HDTS|HDCAM|HDVD|CAMRip|CAM|PRE-?HD|PreDVD|AMZN|NF|HS|MA|UPlay|TS\b|TELECINE|UNCUT|HQ\b).*/i
-  ];
-  for(var i=0;i<cutPatterns.length;i++){
-    var m=title.match(cutPatterns[i]);
-    if(m&&m.index>3) title=title.substring(0,m.index);
-  }
-  // Remove episode patterns but keep series name
-  var epM=clean.match(/^(.*?)\s*[Ss]\d{2}[Ee]\d{2}/);
-  if(epM) title=epM[1];
-
-  // Remove brackets content like (2025) at end
-  title=title.replace(/\s*\([^)]*\)\s*$/,'').trim();
-  // Remove trailing junk chars
-  title=title.replace(/[-–—\s]+$/,'').trim();
-
-  // Category detection
-  var cat='hollywood';
-  if(/[Ss]\d{2}[Ee]\d{2}|web.?series|S01\b|S02\b/i.test(clean)) cat='webseries';
-  else if(/hindi/i.test(clean)&&!/(english|hollywood|amzn nf|animation)/i.test(clean)) cat='bollywood';
-  else if(/(telugu|tollywood)/i.test(clean)) cat='tollywood';
-  else if(/(animation|animated|cartoon)/i.test(clean)) cat='animation';
-  else if(/(tagalog|filipino)/i.test(clean)) cat='hollywood';
-
-  return {title:title||fname.substring(0,30),year:year,quality:quality,lang:lang,cat:cat};
-}
-
-function piEsc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function piToggle(id,v){var x=piParsed.find(function(i){return i.id===id;});if(x)x.selected=v;}
-function piSetVal(id,field,val){var x=piParsed.find(function(i){return i.id===id;});if(x)x[field]=val;}
-function piSelectAll(){piParsed.forEach(function(x){x.selected=true;});piRenderTable();}
-function piSelectNone(){piParsed.forEach(function(x){x.selected=false;});piRenderTable();}
-
-function piRenderTable(){
-  var tbody=document.getElementById('pi-tbody');if(!tbody)return;
-  var CAT_OPTS=['hollywood','bollywood','tollywood','animation','webseries','kdrama','adult','action','adventure','biography','comedy','crime','documentary','drama','family','fantasy','history','horror','music','mystery','romance','scifi','sport','superhero','thriller','war','western'];
-  tbody.innerHTML=piParsed.map(function(item){
-    var opts=CAT_OPTS.map(function(c){return '<option value="'+c+'"'+(item.cat===c?' selected':'')+'>'+{hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animation',webseries:'📺 Web Series',kdrama:'🇰🇷 K-Drama',adult:'🔞 Adult'}[c]+'</option>';}).join('');
-    var sb={'pending':'<span class="badge bgy" style="font-size:0.6rem;">⏳ Pending</span>',ok:'<span class="badge bg" style="font-size:0.6rem;">✅ Done</span>',err:'<span class="badge br" style="font-size:0.6rem;">❌ Error</span>',importing:'<span class="badge bb" style="font-size:0.6rem;">⏳...</span>'}[item.status]||'';
-    var rowStyle=item.cat==='adult'?'background:rgba(255,45,85,0.04);':'';
-    return '<tr id="pi-row-'+item.id+'" style="'+rowStyle+'">'
-      +'<td><input type="checkbox" '+(item.selected?'checked':'')+" onchange=\"piToggle("+item.id+",this.checked)\"/></td>"
-      +'<td><input class="fi" style="min-width:150px;padding:5px 8px;font-size:0.78rem;" value="'+piEsc(item.title)+'" onchange="piSetVal('+item.id+',\'title\',this.value)"/></td>'
-      +'<td><input class="fi" style="width:58px;padding:5px 8px;font-size:0.78rem;" value="'+piEsc(item.year)+'" onchange="piSetVal('+item.id+',\'year\',this.value)"/></td>'
-      +'<td><select class="fi" style="padding:5px 6px;font-size:0.75rem;" onchange="piSetVal('+item.id+',\'cat\',this.value)">'+opts+'</select></td>'
-      +'<td style="font-size:0.75rem;color:var(--grey);">'+(item.quality||'—')+'</td>'
-      +'<td style="font-size:0.68rem;color:#555;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+piEsc(item.videoUrl)+'">'+piEsc(item.videoUrl)+'</td>'
-      +'<td>'+sb+'</td>'
-      +'</tr>';
-  }).join('');
-}
-
-function piUpdateRow(item){
-  var row=document.getElementById('pi-row-'+item.id);if(!row)return;
-  var sb={'pending':'<span class="badge bgy" style="font-size:0.6rem;">⏳ Pending</span>',ok:'<span class="badge bg" style="font-size:0.6rem;">✅ Done</span>',err:'<span class="badge br" style="font-size:0.6rem;">❌ Error</span>',importing:'<span class="badge bb" style="font-size:0.6rem;">⏳...</span>'}[item.status]||'';
-  var td=row.querySelector('td:last-child');if(td)td.innerHTML=sb;
-}
-
-// ── TMDB + Firebase import ──
-function piStartImport(){
-  if(piRunning){toast('Import is already running!',1);return;}
-  var list=piParsed.filter(function(x){return x.selected&&x.status!=='ok';});
-  if(!list.length){toast('Koi item select nahi!',1);return;}
-  if(!confirm(list.length+' movies TMDB se poster/desc fetch karke import karun?'))return;
-  piRunning=true;
-  document.getElementById('pi-prog-wrap').style.display='block';
-  var ok=0,err=0;
-  function next(n){
-    if(n>=list.length){
-      piRunning=false;
-      document.getElementById('pi-prog-bar').style.width='100%';
-      document.getElementById('pi-prog-text').textContent='✅ Complete!';
-      document.getElementById('pi-prog-stats').textContent=ok+' imported, '+err+' failed';
-      toast('✅ '+ok+' movies import ho gayin!');
-      return;
-    }
-    var item=list[n];
-    var pct=Math.round(n/list.length*100);
-    document.getElementById('pi-prog-bar').style.width=pct+'%';
-    document.getElementById('pi-prog-pct').textContent=pct+'%';
-    document.getElementById('pi-prog-text').textContent='('+(n+1)+'/'+list.length+') '+item.title;
-    item.status='importing';piUpdateRow(item);
-
-    var q=encodeURIComponent(item.title+(item.year?' '+item.year:''));
-    fetch('https://api.themoviedb.org/3/search/multi?api_key='+TMDB_API+'&query='+q+'&language=en-US')
-      .then(function(r){return r.json();})
-      .then(function(data){
-        var res=(data.results||[]).filter(function(x){return x.media_type!=='person'&&x.poster_path;});
-        if(res.length){
-          item.poster='https://image.tmdb.org/t/p/w500'+res[0].poster_path;
-          item.desc=res[0].overview||'';
-          item.rating=res[0].vote_average?res[0].vote_average.toFixed(1):'';
-        }
-        piSave(item,function(){ok++;item.status='ok';piUpdateRow(item);setTimeout(function(){next(n+1);},450);},
-          function(){err++;item.status='err';piUpdateRow(item);setTimeout(function(){next(n+1);},300);});
-      }).catch(function(){
-        piSave(item,function(){ok++;item.status='ok';piUpdateRow(item);setTimeout(function(){next(n+1);},300);},
-          function(){err++;item.status='err';piUpdateRow(item);setTimeout(function(){next(n+1);},300);});
-      });
-  }
-  next(0);
-}
-
-// ── Skip TMDB — direct save ──
-function piSkipTmdb(){
-  if(piRunning){toast('Import is already running!',1);return;}
-  var list=piParsed.filter(function(x){return x.selected&&x.status!=='ok';});
-  if(!list.length){toast('Koi item select nahi!',1);return;}
-  if(!confirm(list.length+' movies TMDB skipped and imported directly? (Posters can be fetched later via Poster Auto-Fetch)'))return;
-  piRunning=true;
-  document.getElementById('pi-prog-wrap').style.display='block';
-  var ok=0,err=0;
-  function next(n){
-    if(n>=list.length){
-      piRunning=false;
-      document.getElementById('pi-prog-bar').style.width='100%';
-      document.getElementById('pi-prog-text').textContent='✅ Complete!';
-      document.getElementById('pi-prog-stats').textContent=ok+' saved, '+err+' failed';
-      toast('✅ '+ok+' movies save ho gayin!');
-      return;
-    }
-    var item=list[n];
-    var pct=Math.round(n/list.length*100);
-    document.getElementById('pi-prog-bar').style.width=pct+'%';
-    document.getElementById('pi-prog-pct').textContent=pct+'%';
-    document.getElementById('pi-prog-text').textContent='('+(n+1)+'/'+list.length+') Saving: '+item.title;
-    item.status='importing';piUpdateRow(item);
-    piSave(item,function(){ok++;item.status='ok';piUpdateRow(item);next(n+1);},
-      function(){err++;item.status='err';piUpdateRow(item);next(n+1);});
-  }
-  next(0);
-}
-
-function piSave(item,onOk,onErr){
-  var qualNum=item.quality.replace(/[^0-9kK]/g,'').toLowerCase();
-  var dlField='dl'+qualNum;  // e.g. dl1080, dl720, dl480, dl4k
-  var data={
-    title:item.title,year:item.year,category:item.cat,
-    quality:item.quality,language:item.lang,
-    videoUrl:item.videoUrl,
-    thumbnail:item.poster||'',
-    description:item.desc||'',rating:item.rating||'',
-    timestamp:Date.now(),featured:false,trending:false
-  };
-  // Save download link to correct quality field
-  if(item.dlUrl){
-    if(/1080/i.test(item.quality)){data.dl1080=item.dlUrl;data.sz1080=item.quality+' Download';}
-    else if(/720/i.test(item.quality)){data.dl720=item.dlUrl;data.sz720=item.quality+' Download';}
-    else if(/480/i.test(item.quality)){data.dl480=item.dlUrl;data.sz480=item.quality+' Download';}
-    else if(/4k|2160/i.test(item.quality)){data.dl4k=item.dlUrl;data.sz4k='4K Download';}
-    else{data.dl1080=item.dlUrl;}
-  }
-  db.ref('movies').push(data).then(onOk).catch(onErr);
-}
 var tt;
 function toast(msg,err){
   var t=document.getElementById('toast');if(!t)return;
@@ -12545,147 +11143,6 @@ function mlSaveVideoSourceToEpisode(sourceUrl, movieKey, epFrom, epTo, epSeason,
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// 🔗 EDIT MODAL — QUICK LINK FETCH
-// My Links jaisa hi fetch flow, lekin Firebase mein seedha likhne ke
-// bajaye sirf Edit form ke input fields (ed4/ed7/ed10/ed4k) mein value
-// daal deta hai — asli save Edit modal ke "Save Changes" button se hi
-// hota hai, isliye yeh 100% safe/non-destructive hai.
-// ═══════════════════════════════════════════════════════════════════
-var edFetchProxies = [
-  { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
-  { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'CodeTabs',       getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } }
-];
-
-function edFetchHtml(url, onDone, onFail, statusEl, prefix) {
-  var tried = 0;
-  function next() {
-    if (tried >= edFetchProxies.length) { onFail(); return; }
-    var p = edFetchProxies[tried++];
-    if (statusEl) statusEl.innerHTML = (prefix||'') + '⏳ ' + p.name + ' se try... (' + tried + '/' + edFetchProxies.length + ')';
-    var ctrl = new AbortController();
-    var t = setTimeout(function(){ ctrl.abort(); }, 8000);
-    fetch(p.getUrl(url), { signal: ctrl.signal })
-      .then(function(r){ clearTimeout(t); return r.text(); })
-      .then(function(raw){
-        var html = p.parse(raw);
-        if (!html || html.length < 100) { next(); return; }
-        onDone(html);
-      })
-      .catch(function(){ clearTimeout(t); next(); });
-  }
-  next();
-}
-
-// linkmake.in/view/xxx page ke 480p/720p/1080p/4K quality buttons ke href nikalo
-function edParseLinkmakeQualityButtons(html) {
-  var results = [];
-  var btnRe = /<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>\s*([\s\S]{0,80}?\{[^}]+\}[\s\S]{0,20}?)<\/a>/gi, bm;
-  while ((bm = btnRe.exec(html)) !== null) {
-    var bUrl = bm[1].trim();
-    var text = bm[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-    var qm = text.match(/\{([^}]+)\}/);
-    results.push({ label: text, url: bUrl, quality: qm ? qm[1] : '' });
-  }
-  return results;
-}
-
-function edExtractChooserLinks(html) {
-  var results = [];
-  var aRe = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi, m;
-  while ((m = aRe.exec(html)) !== null) {
-    var hrefM = m[1].match(/href=["']([^"']+)["']/i);
-    if (!hrefM) continue;
-    var href = hrefM[1].trim().replace(/&amp;/g, '&');
-    if (!href.startsWith('http')) continue;
-    var label = m[2].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-    results.push({ href: href, label: label });
-  }
-  return results;
-}
-
-// Download ke liye priority — "Fast Direct" sabse pehle (waisa hi jaisa worker mein hai)
-var ED_LABEL_PRIORITY = ['fast direct', 'cloud direct', 'hubcloud', 'hub cloud', 'pixeldrain', 'gofile', 'telegram'];
-function edParseBestLink(html) {
-  var links = edExtractChooserLinks(html);
-  for (var i = 0; i < ED_LABEL_PRIORITY.length; i++) {
-    var kw = ED_LABEL_PRIORITY[i];
-    var found = links.find(function(l){ return l.label.toLowerCase().indexOf(kw) !== -1; });
-    if (found) return found.href;
-  }
-  var r2 = /(https?:\/\/pub-[a-f0-9]+\.r2\.dev\/[^\s"')<\]]+)/i.exec(html);
-  if (r2) return r2[1];
-  return null;
-}
-
-function edFetchLinks() {
-  var url = (document.getElementById('ed-fetch-url').value || '').trim();
-  if (!url) { toast('❌ URL daalo pehle!', 1); return; }
-  var resultBox = document.getElementById('ed-fetch-result');
-  resultBox.style.color = '#f59e0b';
-  resultBox.innerHTML = '⏳ Fetch ho raha hai...';
-
-  edFetchHtml(url, function(html) {
-    if (/linkmake\.in\/view\//i.test(url)) {
-      var qBtns = edParseLinkmakeQualityButtons(html);
-      if (!qBtns.length) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Koi quality button nahi mila is page pe.'; return; }
-      edShowQualityChoices(qBtns, resultBox);
-      return;
-    }
-    var link = edParseBestLink(html);
-    if (!link) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Koi link nahi mila is page pe.'; return; }
-    edShowSaveOptions(link, resultBox);
-  }, function() {
-    resultBox.style.color = '#f87171';
-    resultBox.innerHTML = '❌ Sab proxies fail — page fetch nahi ho saka.';
-  }, resultBox);
-}
-
-function edShowQualityChoices(qBtns, resultBox) {
-  resultBox.style.color = '#93c5fd';
-  var rows = qBtns.map(function(b, idx) {
-    return '<button id="ed-fq' + idx + '" style="display:block;width:100%;text-align:left;padding:8px 12px;margin-bottom:6px;background:rgba(29,78,216,0.12);border:1px solid rgba(147,197,253,0.3);color:#93c5fd;border-radius:7px;font-size:0.75rem;font-weight:600;cursor:pointer;">' + b.label.replace(/</g,'&lt;') + '</button>';
-  }).join('');
-  resultBox.innerHTML = '<div style="margin-bottom:8px;">👇 Quality chuno:</div>' + rows;
-  qBtns.forEach(function(b, idx) {
-    document.getElementById('ed-fq' + idx).onclick = function() {
-      resultBox.innerHTML = '⏳ "' + b.label.replace(/</g,'&lt;') + '" fetch ho raha hai...';
-      edFetchHtml(b.url, function(html2) {
-        var link = edParseBestLink(html2);
-        if (!link) { resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Link nahi mila.'; return; }
-        edShowSaveOptions(link, resultBox, b.quality);
-      }, function() {
-        resultBox.style.color = '#f87171'; resultBox.innerHTML = '❌ Fetch fail.';
-      }, resultBox);
-    };
-  });
-}
-
-function edShowSaveOptions(link, resultBox, guessedQuality) {
-  var safeLink = link.replace(/'/g, "\\'");
-  function saveBtn(label, fieldId) {
-    return '<button onclick="document.getElementById(\'' + fieldId + '\').value=\'' + safeLink + '\';toast(\'✅ ' + label + ' field mein daal diya\')" style="padding:6px 12px;margin:3px 4px 0 0;background:#1d4ed8;color:#fff;border:none;border-radius:6px;font-size:0.72rem;font-weight:700;cursor:pointer;">→ ' + label + '</button>';
-  }
-  var autoMsg = '';
-  if (guessedQuality) {
-    var qLower = guessedQuality.toLowerCase();
-    var autoField = qLower.indexOf('480') > -1 ? 'ed4' : qLower.indexOf('720') > -1 ? 'ed7' : qLower.indexOf('1080') > -1 ? 'ed10' : (qLower.indexOf('4k') > -1 || qLower.indexOf('2160') > -1) ? 'ed4k' : '';
-    if (autoField) {
-      document.getElementById(autoField).value = link;
-      autoMsg = '<div style="color:#4ade80;font-size:0.72rem;margin-bottom:6px;">✅ "' + guessedQuality + '" ke hisaab se automatically field mein daal diya!</div>';
-    }
-  }
-  resultBox.style.color = '#4ade80';
-  resultBox.innerHTML = '✅ Link mil gaya:'
-    + '<div style="word-break:break-all;color:#93c5fd;font-size:0.68rem;margin:6px 0;">' + link + '</div>'
-    + autoMsg
-    + '<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Ya manually kisi field mein daal do:</div>'
-    + '<div>' + saveBtn('480p', 'ed4') + saveBtn('720p', 'ed7') + saveBtn('1080p', 'ed10') + saveBtn('4K', 'ed4k') + saveBtn('Video Source', 'e-videoSourceUrl') + '</div>'
-    + '<div style="font-size:0.66rem;color:#888;margin-top:6px;">💡 Yeh sirf form field fill karta hai — asli save karne ke liye neeche "Save Changes" dabana zaroori hai.</div>';
-}
-
 // ── Direct link save with size (non-filesdl) ──
 // ── Direct episode save from Sub Links (uses parsed Part info, no form needed) ──
 function mlSaveToEpisodeDirectly(link, movieKey, qTag, epFrom, epTo, epSeason, btn, sizeInputId) {
@@ -13290,489 +11747,6 @@ function wdWaitDb(cb) {
   }, 300);
 }
 
-// Called when withdrawals section opens
-function wdLoadAll() {
-  var tbody = document.getElementById('wd-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
-
-  wdWaitDb(function() {
-    db.ref('withdrawals').orderByChild('ts').once('value', function(snap) {
-      wdAllData = [];
-      snap.forEach(function(c) {
-        var d = c.val();
-        d._key = c.key;
-        wdAllData.unshift(d);
-      });
-      wdUpdateStats();
-      wdRender();
-    }, function(err) {
-      var tbody = document.getElementById('wd-tbody');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#f87171;">❌ Firebase error: ' + err.message + '</td></tr>';
-    });
-  });
-}
-
-function wdFilter(f) {
-  wdCurrentFilter = f;
-  ['pending','approved','rejected','all'].forEach(function(t) {
-    var btn = document.getElementById('wd-tab-' + t);
-    if (!btn) return;
-    btn.className = (t === f) ? 'btn btn-p' : 'btn btn-s';
-    btn.style.fontSize = '0.82rem';
-    btn.style.padding = '8px 16px';
-  });
-  wdRender();
-}
-
-function wdRender() {
-  var tbody = document.getElementById('wd-tbody');
-  if (!tbody) return;
-
-  var list = wdCurrentFilter === 'all'
-    ? wdAllData
-    : wdAllData.filter(function(d) { return d.status === wdCurrentFilter; });
-
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#444;">Koi record nahi</td></tr>';
-    return;
-  }
-
-  var html = '';
-  list.forEach(function(d) {
-    var dt = new Date(d.ts);
-    var dateStr = dt.getDate() + '/' + (dt.getMonth()+1) + '/' + dt.getFullYear();
-    var statusBadge = {
-      pending:  '<span style="background:#78350f;color:#fbbf24;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">⏳ Pending</span>',
-      approved: '<span style="background:#14532d;color:#4ade80;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">✅ Approved</span>',
-      rejected: '<span style="background:#450a0a;color:#f87171;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;">❌ Rejected</span>'
-    }[d.status] || '';
-
-    var acctNum = d.method === 'bank' ? (d.accountNumber||'') : (d.easypaisa||'');
-    var acctLabel = d.method === 'bank'
-      ? (d.bankName ? '<span style="font-size:0.68rem;color:#f59e0b;display:block;">' + escHtml(d.bankName) + '</span>' : '')
-        + (d.bankTitle ? '<span style="font-size:0.68rem;color:#888;display:block;">' + escHtml(d.bankTitle) + '</span>' : '')
-      : '';
-    var methodBadge = d.method === 'bank'
-      ? '<span style="font-size:0.65rem;background:#1e3a5f;color:#60a5fa;padding:1px 6px;border-radius:10px;margin-right:4px;">🏦 Bank</span>'
-      : d.method === 'jazzcash'
-      ? '<span style="font-size:0.65rem;background:#3b0764;color:#c084fc;padding:1px 6px;border-radius:10px;margin-right:4px;">🔴 JazzCash</span>'
-      : '<span style="font-size:0.65rem;background:#14532d;color:#4ade80;padding:1px 6px;border-radius:10px;margin-right:4px;">🟢 Easypaisa</span>';
-    var safeEp = acctNum.replace(/'/g,"\\'");
-    var safeKey = d._key;
-    var actions = '';
-    // Email button — har row mein (jahan email ho)
-    var emailBtn = d.email
-      ? '<button onclick="wdSendManualEmail(\'' + safeKey + '\')" style="padding:5px 10px;background:#1e3a5f;border:none;border-radius:6px;color:#60a5fa;font-size:0.72rem;font-weight:700;cursor:pointer;margin-top:5px;display:block;">📧 Mail Bhejo</button>'
-      : '';
-    if (d.status === 'pending') {
-      actions = '<button onclick="wdApprove(\'' + d._key + '\')" style="padding:5px 12px;background:#14532d;border:none;border-radius:6px;color:#4ade80;font-size:0.75rem;font-weight:700;cursor:pointer;margin-right:5px;">✅ Approve</button>'
-              + '<button onclick="wdReject(\'' + d._key + '\')" style="padding:5px 12px;background:#450a0a;border:none;border-radius:6px;color:#f87171;font-size:0.75rem;font-weight:700;cursor:pointer;">❌ Reject</button>'
-              + emailBtn;
-    } else {
-      actions = emailBtn;
-    }
-
-    html += '<tr style="border-bottom:1px solid #1e1e1e;">'
-      + '<td style="padding:12px 16px;"><div style="font-weight:600;font-size:0.85rem;">' + escHtml(d.name||'User') + '</div><div style="font-size:0.72rem;color:#666;">' + escHtml(d.email||'') + '</div></td>'
-      + '<td style="padding:12px 16px;">' + methodBadge + '<span style="font-family:monospace;color:#60a5fa;">' + escHtml(acctNum) + '</span>' + (acctNum ? '<button onclick="navigator.clipboard.writeText(\'' + safeEp + '\');toast(\'✅ Copied!\')" style="margin-left:6px;padding:2px 7px;background:#1d4ed8;border:none;border-radius:4px;color:#fff;font-size:0.65rem;cursor:pointer;">Copy</button>' : '') + acctLabel + '</td>'
-      + '<td style="padding:12px 16px;"><span style="font-family:\'Bebas Neue\',cursive;font-size:1.2rem;color:#22c55e;">PKR ' + (d.amount||0) + '</span></td>'
-      + '<td style="padding:12px 16px;color:#888;font-size:0.8rem;">' + dateStr + '</td>'
-      + '<td style="padding:12px 16px;">' + statusBadge + '</td>'
-      + '<td style="padding:12px 16px;">' + actions + '</td>'
-      + '</tr>';
-  });
-
-  tbody.innerHTML = html;
-}
-
-// ── Manual Email Send ──
-function wdSendManualEmail(key) {
-  db.ref('withdrawals/' + key).once('value', function(snap) {
-    var d = snap.val();
-    if (!d) { toast('❌ Data nahi mila'); return; }
-    if (!d.email) { toast('⚠️ Is user ka email save nahi hai'); return; }
-    var type = d.status === 'approved' ? 'approved' : (d.status === 'rejected' ? 'rejected' : 'pending');
-    // Custom message modal dikhao
-    wdShowEmailModal(key, d, type);
-  });
-}
-
-function wdShowEmailModal(key, d, type) {
-  // Purana modal hata do
-  var old = document.getElementById('cv-email-modal');
-  if (old) old.remove();
-
-  var method = d.method ? d.method.charAt(0).toUpperCase() + d.method.slice(1) : 'Easypaisa';
-  var defaultMsg = type === 'approved'
-    ? 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (d.accountNumber||d.easypaisa||'') + '\n\nPayment 24 hours mein bhej di jayegi. Shukriya CineNova use karne ka!\n\n— CineNova Team'
-    : type === 'rejected'
-    ? 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho ya sawal ho to reply karen.\n\n— CineNova Team'
-    : 'Assalam o Alaikum ' + (d.name||'User') + ',\n\nAapki PKR ' + d.amount + ' ki withdrawal request receive ho gayi hai. Hum process kar rahe hain.\n\n— CineNova Team';
-
-  var defaultSubject = type === 'approved'
-    ? '✅ CineNova — Aapka Withdrawal Approve Ho Gaya! PKR ' + d.amount
-    : type === 'rejected'
-    ? '❌ CineNova — Withdrawal Request Rejected PKR ' + d.amount
-    : '⏳ CineNova — Withdrawal Update PKR ' + d.amount;
-
-  var modal = document.createElement('div');
-  modal.id = 'cv-email-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
-  modal.innerHTML = '<div style="background:#111;border:1px solid #222;border-radius:16px;width:100%;max-width:520px;padding:24px;font-family:Outfit,sans-serif;">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">'
-    + '<div style="font-size:1.1rem;font-weight:700;color:#fff;">📧 Mail Bhejo</div>'
-    + '<button onclick="document.getElementById(\'cv-email-modal\').remove()" style="background:none;border:none;color:#666;font-size:1.3rem;cursor:pointer;">×</button>'
-    + '</div>'
-    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">To</div>'
-    + '<div style="background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:10px 14px;color:#60a5fa;font-size:0.85rem;margin-bottom:14px;">' + escHtml(d.email||'') + '</div>'
-    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Subject</div>'
-    + '<input id="cv-email-subject" value="' + escHtml(defaultSubject) + '" style="width:100%;padding:10px 14px;background:#0d0d0d;border:1px solid #222;border-radius:8px;color:#fff;font-size:0.85rem;font-family:Outfit,sans-serif;outline:none;margin-bottom:14px;box-sizing:border-box;"/>'
-    + '<div style="font-size:0.72rem;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Message</div>'
-    + '<textarea id="cv-email-body" rows="8" style="width:100%;padding:10px 14px;background:#0d0d0d;border:1px solid #222;border-radius:8px;color:#fff;font-size:0.82rem;font-family:Outfit,sans-serif;outline:none;resize:vertical;margin-bottom:16px;box-sizing:border-box;">' + defaultMsg + '</textarea>'
-    + '<button onclick="wdDoSendEmail(\'' + escHtml(d.email||'') + '\',\'' + escHtml(d.name||'User') + '\')" style="width:100%;padding:12px;background:linear-gradient(135deg,#1d4ed8,#1e40af);border:none;border-radius:9px;color:#fff;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;">📤 Send Mail</button>'
-    + '<div id="cv-email-send-msg" style="text-align:center;margin-top:10px;font-size:0.82rem;min-height:18px;"></div>'
-    + '</div>';
-  document.body.appendChild(modal);
-}
-
-// ── EmailJS Config ──
-var EMAILJS_SERVICE_ID  = 'service_kqf592b';
-var EMAILJS_TEMPLATE_ID = 'template_4mu2j4q';
-var EMAILJS_PUBLIC_KEY  = '9t0mjDb8UfHOPpnix';
-
-function wdDoSendEmail(toEmail, toName) {
-  var subject = (document.getElementById('cv-email-subject').value || '').trim();
-  var message = (document.getElementById('cv-email-body').value || '').trim();
-  var msgEl   = document.getElementById('cv-email-send-msg');
-  if (!subject || !message) { msgEl.style.color='#f87171'; msgEl.textContent='❌ Subject aur message dono bharo'; return; }
-
-  msgEl.style.color = '#f59e0b';
-  msgEl.textContent = '⏳ Bhej raha hun...';
-
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    to_email: toEmail,
-    subject: subject,
-    message: message
-  }, EMAILJS_PUBLIC_KEY).then(function() {
-    msgEl.style.color = '#22c55e';
-    msgEl.textContent = '✅ Mail send ho gayi!';
-    setTimeout(function(){ var m=document.getElementById('cv-email-modal'); if(m) m.remove(); }, 1500);
-  }, function(err) {
-    msgEl.style.color = '#f87171';
-    msgEl.textContent = '❌ Mail send nahi hui: ' + (err && err.text ? err.text : 'Error');
-  });
-}
-
-function wdMailtoFallback(toEmail, subject, message, msgEl) {
-  // Gmail/mail client se open karo as fallback
-  var mailtoUrl = 'mailto:' + encodeURIComponent(toEmail)
-    + '?subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(message);
-  window.open(mailtoUrl, '_blank');
-  if (msgEl) {
-    msgEl.style.color = '#f59e0b';
-    msgEl.textContent = '📧 Mail client mein khul gaya — wahan se bhejo';
-  }
-}
-
-// ── Web3Forms Email (auto on approve/reject) ──
-function cvSendWithdrawEmail(type, wdData) {
-  try {
-    var userEmail = wdData.email || '';
-    if (!userEmail) { toast('⚠️ User ka email nahi mila'); return; }
-
-    var method = wdData.method ? wdData.method.charAt(0).toUpperCase() + wdData.method.slice(1) : 'Easypaisa';
-    var isApproved = type === 'approved';
-
-    var subject = isApproved
-      ? '✅ CineNova Withdrawal Approved — PKR ' + wdData.amount
-      : '❌ CineNova Withdrawal Rejected — PKR ' + wdData.amount;
-
-    var message = isApproved
-      ? 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request APPROVE ho gayi hai!\n\nPayment Method: ' + method + '\nAccount: ' + (wdData.accountNumber || wdData.easypaisa || '') + '\n\nPayment 24 hours mein bhej di jayegi.\n\n— CineNova Team'
-      : 'Hello ' + (wdData.name || 'User') + ',\n\nAapki PKR ' + wdData.amount + ' ki withdrawal request reject ho gayi.\n\nAgar koi masla ho to reply karen: cinenovamovies@gmail.com\n\n— CineNova Team';
-
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      to_email: userEmail,
-      subject: subject,
-      message: message
-    }, EMAILJS_PUBLIC_KEY).then(function() {
-      toast('📧 Mail send ho gayi: ' + userEmail);
-    }, function() {
-      toast('⚠️ Auto mail nahi gayi — Mail Bhejo button se manually bhejo', 1);
-    });
-  } catch(e) { console.warn('Email error:', e); }
-}
-
-function wdApprove(key) {
-  if (!confirm('Approve kar dun? Easypaisa/JazzCash pe bhej dena manually.')) return;
-  // Firebase se pehle data lo phir status update karo
-  db.ref('withdrawals/' + key).once('value', function(snap) {
-    var wdData = snap.val() || {};
-    db.ref('withdrawals/' + key).update({ status: 'approved', approvedAt: Date.now() }).then(function() {
-      toast('✅ Approved! Ab payment bhejo.');
-      cvSendWithdrawEmail('approved', wdData);
-      wdLoadAll();
-    });
-  });
-}
-
-function wdReject(key) {
-  if (!confirm('Reject karna chahte ho?')) return;
-  db.ref('withdrawals/' + key).once('value', function(snap) {
-    var wdData = snap.val() || {};
-    db.ref('withdrawals/' + key).update({ status: 'rejected', rejectedAt: Date.now() }).then(function() {
-      toast('❌ Rejected.');
-      cvSendWithdrawEmail('rejected', wdData);
-      wdLoadAll();
-    });
-  });
-}
-
-function wdUpdateStats() {
-  var pending = 0, paid = 0, totalPkr = 0;
-  var uids = {};
-  wdAllData.forEach(function(d) {
-    if (d.status === 'pending') pending++;
-    if (d.status === 'approved') { paid++; totalPkr += (d.amount||0); }
-    if (d.uid) uids[d.uid] = 1;
-  });
-  var el1 = document.getElementById('wd-stat-pending');
-  var el2 = document.getElementById('wd-stat-paid');
-  var el3 = document.getElementById('wd-stat-total-pkr');
-  var el4 = document.getElementById('wd-stat-users');
-  if (el1) el1.textContent = pending;
-  if (el2) el2.textContent = paid;
-  if (el3) el3.textContent = totalPkr;
-  if (el4) el4.textContent = Object.keys(uids).length;
-  var badge = document.getElementById('wd-pending-count');
-  if (badge) badge.textContent = pending;
-}
-
-// ── Top Earners ──
-// ═══════════════════════════════════════════
-// 🛡️ FRAUD & BANS MANAGEMENT
-// ═══════════════════════════════════════════
-function fraudLoad() {
-  fraudLoadBanned();
-  fraudLoadFlagged();
-  fraudLoadVpn();
-}
-
-function fraudGetProfile(uid, cb) {
-  db.ref('earnings/'+uid+'/profile').once('value', function(s) {
-    var p = s.val() || {};
-    cb({ name: p.name || 'Unknown', email: p.email || '' });
-  });
-}
-
-function fraudLoadBanned() {
-  var tbody = document.getElementById('fraud-banned-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
-  wdWaitDb(function() {
-    db.ref('fraud/banned').once('value', function(snap) {
-      var uids = [];
-      snap.forEach(function(c) { if (c.val() === true) uids.push(c.key); });
-
-      var cntEl = document.getElementById('fraud-banned-count');
-      if (cntEl) cntEl.textContent = '(' + uids.length + ')';
-      var navCnt = document.getElementById('fraud-count');
-      if (navCnt) navCnt.textContent = uids.length;
-
-      if (!uids.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Koi banned user nahi</td></tr>';
-        return;
-      }
-
-      var rows = {};
-      var done = 0;
-      uids.forEach(function(uid) {
-        db.ref('fraud/stats/'+uid).once('value', function(s) {
-          var d = s.val() || {};
-          fraudGetProfile(uid, function(prof) {
-            rows[uid] = {
-              name: prof.name, email: prof.email,
-              reason: d.banReason || 'Manual ban',
-              bannedAt: d.bannedAt ? new Date(d.bannedAt).toLocaleString() : '—',
-              ip: d.lastIP || '—', country: d.lastCountry || '—'
-            };
-            done++;
-            if (done === uids.length) fraudRenderBanned(rows, uids);
-          });
-        });
-      });
-    }, function(err) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#f87171;">❌ ' + err.message + '</td></tr>';
-    });
-  });
-}
-
-function fraudRenderBanned(rows, uids) {
-  var tbody = document.getElementById('fraud-banned-tbody');
-  var html = '';
-  uids.forEach(function(uid) {
-    var r = rows[uid];
-    html += '<tr style="border-bottom:1px solid #1e1e1e;">'
-      + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(r.name) + '</div><div style="font-size:0.72rem;color:#555;">' + escHtml(r.email) + '</div><div style="font-size:0.68rem;color:#444;">' + uid + '</div></td>'
-      + '<td style="padding:12px 16px;color:#f87171;">' + escHtml(r.reason) + '</td>'
-      + '<td style="padding:12px 16px;color:#888;">' + r.bannedAt + '</td>'
-      + '<td style="padding:12px 16px;color:#888;">' + escHtml(r.ip) + ' / ' + escHtml(r.country) + '</td>'
-      + '<td style="padding:12px 16px;"><button onclick="fraudUnban(\'' + uid + '\')" style="padding:6px 14px;background:#22c55e;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">✅ Unban</button></td>'
-      + '</tr>';
-  });
-  tbody.innerHTML = html;
-}
-
-function fraudUnban(uid) {
-  if (!confirm('Is user ko unban karna hai?')) return;
-  var updates = {};
-  updates['fraud/banned/'+uid] = null;
-  updates['fraud/vpnAttempts/'+uid] = null;
-  updates['fraud/flagged/'+uid] = null;
-  updates['fraud/stats/'+uid+'/banReason'] = null;
-  updates['fraud/stats/'+uid+'/bannedAt'] = null;
-  db.ref().update(updates, function(err) {
-    if (err) { toast('❌ ' + err.message); return; }
-    toast('✅ User unban ho gaya');
-    fraudLoad();
-  });
-}
-
-function fraudManualBan() {
-  var uid = document.getElementById('fraud-manual-uid').value.trim();
-  if (!uid) { toast('❌ UID likho pehle'); return; }
-  if (!confirm('Is UID ko ban karna hai?\n' + uid)) return;
-  var updates = {};
-  updates['fraud/banned/'+uid] = true;
-  updates['fraud/stats/'+uid+'/banReason'] = 'Manual ban by admin';
-  updates['fraud/stats/'+uid+'/bannedAt'] = Date.now();
-  db.ref().update(updates, function(err) {
-    if (err) { toast('❌ ' + err.message); return; }
-    toast('✅ User ban ho gaya');
-    document.getElementById('fraud-manual-uid').value = '';
-    fraudLoad();
-  });
-}
-
-function fraudLoadFlagged() {
-  var tbody = document.getElementById('fraud-flagged-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
-  db.ref('fraud/flagged').once('value', function(snap) {
-    var items = [];
-    snap.forEach(function(c) { items.push({ uid: c.key, count: c.val() }); });
-    items.sort(function(a,b){ return b.count - a.count; });
-
-    if (!items.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Koi flagged user nahi</td></tr>';
-      return;
-    }
-
-    var html = '';
-    var done = 0;
-    items.forEach(function(it) {
-      fraudGetProfile(it.uid, function(prof) {
-        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
-          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(prof.name) + '</div><div style="font-size:0.68rem;color:#444;">' + it.uid + '</div></td>'
-          + '<td style="padding:12px 16px;color:#fbbf24;font-weight:700;">' + it.count + 'x</td>'
-          + '<td style="padding:12px 16px;"><button onclick="fraudManualBanUid(\'' + it.uid + '\')" style="padding:6px 14px;background:#f87171;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">🚫 Ban</button></td>'
-          + '</tr>';
-        done++;
-        if (done === items.length) tbody.innerHTML = html;
-      });
-    });
-  });
-}
-
-function fraudLoadVpn() {
-  var tbody = document.getElementById('fraud-vpn-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
-  db.ref('fraud/vpnAttempts').once('value', function(snap) {
-    var items = [];
-    snap.forEach(function(c) { items.push({ uid: c.key, count: c.val() }); });
-    items.sort(function(a,b){ return b.count - a.count; });
-
-    if (!items.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;color:#444;">Koi VPN attempt nahi</td></tr>';
-      return;
-    }
-
-    var html = '';
-    var done = 0;
-    items.forEach(function(it) {
-      fraudGetProfile(it.uid, function(prof) {
-        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
-          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(prof.name) + '</div><div style="font-size:0.68rem;color:#444;">' + it.uid + '</div></td>'
-          + '<td style="padding:12px 16px;color:#fb923c;font-weight:700;">' + it.count + 'x</td>'
-          + '<td style="padding:12px 16px;"><button onclick="fraudManualBanUid(\'' + it.uid + '\')" style="padding:6px 14px;background:#f87171;border:none;border-radius:6px;color:#fff;font-weight:700;cursor:pointer;font-size:0.78rem;">🚫 Ban</button></td>'
-          + '</tr>';
-        done++;
-        if (done === items.length) tbody.innerHTML = html;
-      });
-    });
-  });
-}
-
-function fraudManualBanUid(uid) {
-  if (!confirm('Is user ko ban karna hai?')) return;
-  var updates = {};
-  updates['fraud/banned/'+uid] = true;
-  updates['fraud/stats/'+uid+'/banReason'] = 'Manual ban by admin';
-  updates['fraud/stats/'+uid+'/bannedAt'] = Date.now();
-  db.ref().update(updates, function(err) {
-    if (err) { toast('❌ ' + err.message); return; }
-    toast('✅ User ban ho gaya');
-    fraudLoad();
-  });
-}
-
-function earnersLoad() {
-  var tbody = document.getElementById('earners-tbody');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#888;">⏳ Loading...</td></tr>';
-
-  wdWaitDb(function() {
-    db.ref('earnings').once('value', function(snap) {
-      var users = [];
-      snap.forEach(function(c) {
-        var d = c.val();
-        var dlCount = d.dlLog ? Object.keys(d.dlLog).length : 0;
-        users.push({
-          uid: c.key,
-          name: (d.profile && d.profile.name) || 'User',
-          email: (d.profile && d.profile.email) || '',
-          balance: d.balance || 0,
-          totalEarned: d.totalEarned || 0,
-          downloads: dlCount
-        });
-      });
-
-      users.sort(function(a, b) { return b.totalEarned - a.totalEarned; });
-
-      if (!users.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#444;">Abhi koi user nahi</td></tr>';
-        return;
-      }
-
-      var html = '';
-      users.forEach(function(u, i) {
-        var rank = i + 1;
-        var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
-        html += '<tr style="border-bottom:1px solid #1e1e1e;">'
-          + '<td style="padding:12px 16px;font-family:\'Bebas Neue\',cursive;font-size:1.1rem;color:#e50914;">' + medal + '</td>'
-          + '<td style="padding:12px 16px;"><div style="font-weight:600;">' + escHtml(u.name) + '</div><div style="font-size:0.72rem;color:#555;">' + escHtml(u.email) + '</div></td>'
-          + '<td style="padding:12px 16px;"><span style="color:#22c55e;font-weight:700;font-size:1rem;">PKR ' + u.balance + '</span></td>'
-          + '<td style="padding:12px 16px;color:#888;">PKR ' + u.totalEarned + '</td>'
-          + '<td style="padding:12px 16px;color:#888;">' + u.downloads + '</td>'
-          + '</tr>';
-      });
-      tbody.innerHTML = html;
-    }, function(err) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#f87171;">❌ ' + err.message + '</td></tr>';
-    });
-  });
-}
-
-// Pending count — sidebar badge, real-time
-// ═══════════════════════════════════════════
 // ⚡ FILMYFLY IMPORTER
 // ═══════════════════════════════════════════
 var _ffiPosts = [];       // { url, title, checked }
@@ -14401,30 +12375,6 @@ function spCopyLink(btn, url){
   }).catch(function(){ toast('❌ Copy nahi hua', 1); });
 }
 
-function wdLoadPendingCount() {
-  wdWaitDb(function() {
-    db.ref('withdrawals').orderByChild('status').equalTo('pending').on('value', function(snap) {
-      var cnt = 0;
-      snap.forEach(function() { cnt++; });
-      var badge = document.getElementById('wd-pending-count');
-      if (badge) badge.textContent = cnt;
-    });
-  });
-}
-
-// Sidebar badge — banned users count, real-time
-function fraudLoadBadgeCount() {
-  wdWaitDb(function() {
-    db.ref('fraud/banned').on('value', function(snap) {
-      var cnt = 0;
-      snap.forEach(function(c) { if (c.val() === true) cnt++; });
-      var badge = document.getElementById('fraud-count');
-      if (badge) badge.textContent = cnt;
-    });
-  });
-}
-fraudLoadBadgeCount();
-
 // ══════════════════════════════════════════════════
 // 🚀 BATCH DL FETCH — Firebase Movies Auto Updater
 // ══════════════════════════════════════════════════
@@ -14932,6 +12882,10 @@ function msScan() {
     if (!m.seoSlug) issues.push({ code: 'noslug', label: 'Missing Slug', color: '#f87171' });
     else if (slugCount[m.seoSlug] > 1) issues.push({ code: 'dupslug', label: 'Duplicate Slug', color: '#f59e0b' });
     if (!m.seoKeywords) issues.push({ code: 'nokw', label: 'No Keywords', color: '#888' });
+    // Thin content — agar asal description khali/bohot chota hai to seoDesc
+    // template-generated hi hota hai, jo Google ko sab movies pe ek jaisa
+    // repeat-content lagta hai ("Crawled - currently not indexed" ka risk).
+    if (!m.description || m.description.trim().length < 50) issues.push({ code: 'thindesc', label: 'Thin Content', color: '#f59e0b' });
     return { movie: m, issues: issues };
   });
 
@@ -14949,6 +12903,7 @@ function msRenderStats() {
   var noDesc  = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='nodesc';}); }).length;
   var tooLong = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='toolong';}); }).length;
   var dupSlug = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='dupslug';}); }).length;
+  var thinDesc = _msIssues.filter(function(x){ return x.issues.some(function(i){return i.code==='thindesc';}); }).length;
   var clean   = _msIssues.filter(function(x){ return x.issues.length === 0; }).length;
 
   var stats = [
@@ -14957,7 +12912,8 @@ function msRenderStats() {
     { num: noTitle, lbl: '❌ Missing Title', color: '#f87171' },
     { num: noDesc, lbl: '❌ Missing Desc', color: '#f87171' },
     { num: tooLong, lbl: '⚠️ Too Long', color: '#f59e0b' },
-    { num: dupSlug, lbl: '⚠️ Duplicate Slug', color: '#f59e0b' }
+    { num: dupSlug, lbl: '⚠️ Duplicate Slug', color: '#f59e0b' },
+    { num: thinDesc, lbl: '📄 Thin Content', color: '#f59e0b' }
   ];
   document.getElementById('ms-stats-grid').innerHTML = stats.map(function(s){
     return '<div class="stat-card"><div class="num" style="color:' + s.color + ';">' + s.num + '</div><div class="lbl">' + s.lbl + '</div></div>';
