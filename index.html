@@ -578,7 +578,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-section-title">System</div>
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
-    <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly Importer</div>
+    <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly / HDFun Import</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
     <div class="nav-section-title">🤖 SEO AI Tools</div>
@@ -754,7 +754,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
             </select>
           </div>
           <div class="fgg full adult-warn" id="adult-warn-add" style="display:none">
-            🔞 <span><strong>Adult Category:</strong> This post will only be visible to verified 18+ users. It will not appear on the home page.</span>
+            🔞 <span><strong>Adult Category:</strong> Sirf 18+ users ko dikhega (Home pe nahi). <strong>Language</strong> se Hindi / English alag rakho — mix mat karo.</span>
           </div>
           <div class="fgg"><label>Genre</label>
             <select class="fi" id="fg">
@@ -782,7 +782,14 @@ tr:hover td{background:rgba(229,9,20,0.04);}
               <option value="western">🤠 Western</option>
             </select>
           </div>
-          <div class="fgg"><label>Language</label><input class="fi" id="fl" placeholder="Hindi Dubbed / Urdu / English" oninput="amAutoGenSeo()"/></div>
+          <div class="fgg"><label>Language</label><input class="fi" id="fl" placeholder="Hindi / English / Hindi Dubbed" oninput="amAutoGenSeo()"/>
+            <div id="fl-adult-chips" style="display:none;margin-top:8px;gap:6px;flex-wrap:wrap;">
+              <span style="font-size:0.68rem;color:#888;width:100%;">🔞 Adult — Hindi / English alag select karo (mix avoid):</span>
+              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Hindi';amAutoGenSeo();">Hindi</button>
+              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='English';amAutoGenSeo();">English</button>
+              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Hindi + English';amAutoGenSeo();">Hindi + English</button>
+            </div>
+          </div>
           <div class="fgg"><label>Quality</label><input class="fi" id="fq" placeholder="WEB-DL 1080p" oninput="amAutoGenSeo()"/></div>
           <div class="fgg"><label>File Size</label><input class="fi" id="fsz" placeholder="1.2 GB"/></div>
           <div class="fgg" id="field-network" style="display:none"><label>Network / Platform</label><input class="fi" id="fnetwork" placeholder="Netflix / Prime / ARY..."/></div>
@@ -1714,16 +1721,16 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
     <!-- ═══ FILMYFLY IMPORTER ═══ -->
     <div class="section" id="sec-ffimport">
-      <div class="sec-title">⚡ FilmyFly <span>Importer</span></div>
+      <div class="sec-title">⚡ FilmyFly / HDFun <span>Importer</span></div>
 
       <!-- Step 1: Site URL -->
       <div class="card">
-        <h3>Step 1 — FilmyFly Site URL Daalo</h3>
-        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">FilmyFly ya usi jaisi site ka URL daalo — panel khud saari posts fetch karega, har movie ka data nikaalega aur Firebase mein save karega.</div>
+        <h3>Step 1 — Site / Category URL Daalo</h3>
+        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">FilmyFly <strong style="color:#fbbf24;">ya HDFun.in</strong> ka URL daalo — panel khud saari posts fetch karega, har movie ka data nikaalega aur Firebase mein save karega.</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
           <div class="fgg" style="flex:1;min-width:280px;">
             <label>Site / Category URL</label>
-            <input class="fi" id="ffi-site-url" placeholder="https://filmyfly.builders/ ya category page URL..." style="border-color:rgba(245,158,11,0.4);"/>
+            <input class="fi" id="ffi-site-url" placeholder="https://hdfun.in/  ya  https://www.mmshd.com/  ya category page..." style="border-color:rgba(245,158,11,0.4);"/>
           </div>
           <div class="fgg" style="min-width:120px;">
             <label>Pages Fetch Karo</label>
@@ -1738,6 +1745,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <button onclick="ffiFetchPosts()" id="ffi-fetch-btn" class="btn btn-p" style="height:42px;padding:0 24px;">🔍 Posts Fetch Karo</button>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <span style="font-size:0.72rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">hdfun.in ✓</span>
+          <span style="font-size:0.72rem;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f9a8d4;padding:3px 10px;border-radius:20px;">mmshd.com ✓</span>
           <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.builders ✓</span>
           <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.racing ✓</span>
           <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">Koi bhi similar site ✓</span>
@@ -2443,7 +2452,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div id="ml-ff-panel-page">
             <div style="font-size:0.72rem;color:#93c5fd;margin-bottom:8px;">Download page ka URL daalo → linkmake URLs auto rows mein aayenge</div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <input id="ml-ff-page-url" class="fi" placeholder="https://filmyfly.builders/page-download/225/..." style="flex:1;min-width:240px;font-size:0.83rem;padding:9px 12px;border-color:rgba(251,191,36,0.3);" />
+              <input id="ml-ff-page-url" class="fi" placeholder="filmyfly page  YA  https://hdfun.in/movie/...  YA  /dl/ page..." style="flex:1;min-width:240px;font-size:0.83rem;padding:9px 12px;border-color:rgba(251,191,36,0.3);" />
               <button onclick="mlFetchFilmyflyLinks()" id="ml-ff-fetch-btn" style="padding:9px 20px;background:linear-gradient(135deg,#b45309,#f59e0b);border:none;color:#000;font-weight:700;border-radius:7px;cursor:pointer;font-size:0.85rem;font-family:'Outfit',sans-serif;white-space:nowrap;">⚡ Fetch</button>
             </div>
           </div>
@@ -3087,7 +3096,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </select>
       </div>
       <div class="fgg full adult-warn" id="adult-warn-edit" style="display:none">
-        🔞 <span><strong>Adult Category:</strong> This post will only be visible to verified 18+ users. It will not appear on the home page.</span>
+        🔞 <span><strong>Adult Category:</strong> Sirf 18+ users ko dikhega (Home pe nahi). <strong>Language</strong> se Hindi / English alag rakho — mix mat karo.</span>
       </div>
       <div class="fgg"><label>Genre</label>
         <select class="fi" id="eg">
@@ -3105,7 +3114,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <option value="western">🤠 Western</option>
         </select>
       </div>
-      <div class="fgg"><label>Language</label><input class="fi" id="el"/></div>
+      <div class="fgg"><label>Language</label><input class="fi" id="el" placeholder="Hindi / English"/>
+        <div id="el-adult-chips" style="display:none;margin-top:8px;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:0.68rem;color:#888;width:100%;">🔞 Adult — Hindi / English alag:</span>
+          <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('el').value='Hindi';">Hindi</button>
+          <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('el').value='English';">English</button>
+          <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('el').value='Hindi + English';">Hindi + English</button>
+        </div>
+      </div>
       <div class="fgg"><label>Quality</label><input class="fi" id="eq"/></div>
       <div class="fgg"><label>Size</label><input class="fi" id="esz"/></div>
       <div class="fgg" id="ef-network" style="display:none"><label>Network / Platform</label><input class="fi" id="enetwork"/></div>
@@ -4633,8 +4649,8 @@ function katdramaFetch() {
     sv('fd7', data.download720);
     sv('fd10', data.download1080);
 
-    // Video URL
-    if (data.videoUrl) sv('fv', data.videoUrl);
+    // Video URL — auto fill band; sirf manual add
+    // if (data.videoUrl) sv('fv', data.videoUrl);
 
     // ── Episodes — fill episode blocks ──
     if (data.episodes && data.episodes.length) {
@@ -5246,8 +5262,11 @@ function bfuSaveOne(idx, btn) {
     size480: d.size480 || '',
     size720: d.size720 || '',
     size1080: d.size1080 || '',
+    dlSourceUrl: d.download_link || '',
+    // videoUrl / vlcUrl / videoSourceUrl — import pe auto NAHI; manual add only
     addedAt: Date.now()
   };
+  applyCategoryDefaults(m);
   Object.keys(m).forEach(function(k){ if(!m[k] && k !== 'addedAt') delete m[k]; });
 
   db.ref('movies').push(m).then(function() {
@@ -5394,6 +5413,13 @@ function onCatChange(){
   document.getElementById('field-status').style.display=ws?'block':'none';
   document.getElementById('field-seasons').style.display=ws?'block':'none';
   document.getElementById('adult-warn-add').style.display=cat==='adult'?'flex':'none';
+  var chips = document.getElementById('fl-adult-chips');
+  if (chips) chips.style.display = cat==='adult' ? 'flex' : 'none';
+  // Adult select pe language empty ho to blank chhodo — user Hindi/English chip se choose kare
+  if (cat === 'adult') {
+    var fl = document.getElementById('fl');
+    if (fl && !fl.value.trim()) fl.placeholder = 'Hindi YA English — chip se choose karo';
+  }
 }
 function addMovie(){
   var title=gv('ft');if(!title){toast('❌ Title is required!',1);return;}
@@ -5417,6 +5443,7 @@ function addMovie(){
     if(net)m.network=net;if(st)m.status=st;if(seas)m.seasons=seas;
     if(eps&&eps.length)m.episodes=eps;}
   Object.keys(m).forEach(function(k){if(!m[k]&&k!=='addedAt'&&k!=='episodes')delete m[k];});
+  applyCategoryDefaults(m);
   db.ref('movies').push(m).then(function(){
     toast('✅ Saved! Category: '+cat);clrForm();show('movies');
   }).catch(function(e){toast('❌ '+e.message,1);});
@@ -5647,6 +5674,8 @@ function onEditCatChange(){
   document.getElementById('ef-status').style.display=ws?'block':'none';
   document.getElementById('ef-episodes').style.display=ws?'block':'none';
   document.getElementById('adult-warn-edit').style.display=cat==='adult'?'flex':'none';
+  var chipsE = document.getElementById('el-adult-chips');
+  if (chipsE) chipsE.style.display = cat==='adult' ? 'flex' : 'none';
 }
 function openEdit(key){
   var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
@@ -5657,7 +5686,7 @@ function openEdit(key){
   if (keyEl) keyEl.textContent = key;
   if (keyBox) keyBox.style.display = 'flex';
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
-  sv('eg',m.genre||'');sv('el',m.language);sv('eq',m.quality);sv('esz',m.size);
+  applyCategoryDefaults(m);sv('eg',m.genre||'');sv('el',m.language||'');sv('eq',m.quality||'');sv('esz',m.size||'');
   sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('e-videoSourceUrl',m.videoSourceUrl||'');sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('evlc2',m.vlcUrl2||'');sv('etrailer',m.trailerUrl||'');
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
@@ -10107,13 +10136,18 @@ function _mlProxyFetch(url, cb) {
   function next() {
     if (idx >= _mlFfProxies.length) { cb(null); return; }
     var p = _mlFfProxies[idx++];
-    fetch(p.getUrl(url))
+    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function(){ try { if (ctrl) ctrl.abort(); } catch(e){} }, 20000);
+    var opts = ctrl ? { signal: ctrl.signal } : {};
+    fetch(p.getUrl(url), opts)
       .then(function(r){ return r.text(); })
       .then(function(raw){
-        var html = p.parse(raw);
-        if (html && html.length > 100) { cb(html); } else { next(); }
+        clearTimeout(timer);
+        var html = '';
+        try { html = p.parse(raw) || ''; } catch (e) { html = ''; }
+        if (html && html.length > 80) { cb(html); } else { next(); }
       })
-      .catch(function(){ next(); });
+      .catch(function(){ clearTimeout(timer); next(); });
   }
   next();
 }
@@ -10196,11 +10230,60 @@ function mlFetchSitePosts() {
       var baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
       var foundThisPage = 0;
 
-      // Pattern 1: absolute URL with /page-download/
+      // Pattern 1: FilmyFly /page-download/
       var re1 = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]*\.html[^"']*)/gi;
       var m;
       while ((m = re1.exec(html)) !== null) {
         var rawUrl = m[1].replace(/&amp;/g, '&').trim();
+        var postUrl = rawUrl.startsWith('http') ? rawUrl : baseHost + rawUrl;
+        var key = postUrl.split('?')[0];
+        if (!allFound[key]) {
+          allFound[key] = true;
+          var title = mlExtractTitleFromUrl(postUrl) || 'Untitled';
+          _mlFfFoundPosts.push({ title: title, url: postUrl, checked: true });
+          foundThisPage++;
+        }
+      }
+
+      // Pattern HDFun: /movie/123/slug.html
+      var reHd = /href=["']((https?:\/\/[^"']*)?\/movie\/\d+\/[^"'#?]+\.html[^"']*)/gi;
+      while ((m = reHd.exec(html)) !== null) {
+        var rawUrl = m[1].replace(/&amp;/g, '&').trim();
+        var postUrl = rawUrl.startsWith('http') ? rawUrl : baseHost + rawUrl;
+        var key = postUrl.split('?')[0];
+        if (!allFound[key]) {
+          allFound[key] = true;
+          var title = mlExtractTitleFromUrl(postUrl) || 'Untitled';
+          _mlFfFoundPosts.push({ title: title, url: postUrl, checked: true });
+          foundThisPage++;
+        }
+      }
+
+
+      // Pattern KatDrama: slug:"..." in embedded JSON
+      if (/katdrama\.my/i.test(siteUrl) || /katdrama\.my/i.test(baseHost || '')) {
+        var reKat2 = /slug:"([a-z0-9][a-z0-9\-]{2,})"/gi;
+        var k2;
+        while ((k2 = reKat2.exec(html)) !== null) {
+          var slug2 = k2[1];
+          if (/^(category|page|api|login|tag)$/i.test(slug2)) continue;
+          var postUrl2 = (baseHost || '').replace(/\/$/, '') + '/' + slug2;
+          var key2 = postUrl2.split('?')[0];
+          if (!allFound[key2]) {
+            allFound[key2] = true;
+            var title2 = mlExtractTitleFromUrl(postUrl2) || 'Untitled';
+            _mlFfFoundPosts.push({ title: title2, url: postUrl2, checked: true });
+            foundThisPage++;
+          }
+        }
+      }
+
+      // Pattern MMSHD / HDFun /dl/slug posts
+      var reDl = /href=["']((https?:\/\/[^"']*)?\/dl\/[^"'#?\/][^"'#?]*)/gi;
+      while ((m = reDl.exec(html)) !== null) {
+        var rawUrl = m[1].replace(/&amp;/g, '&').trim();
+        // Skip download/dl intermediate
+        if (/\/download\/dl\//i.test(rawUrl)) continue;
         var postUrl = rawUrl.startsWith('http') ? rawUrl : baseHost + rawUrl;
         var key = postUrl.split('?')[0];
         if (!allFound[key]) {
@@ -10344,69 +10427,134 @@ function mlFetchFilmyflyLinks() {
   var btn     = document.getElementById('ml-ff-fetch-btn');
 
   if (!pageUrl || !pageUrl.startsWith('http')) {
-    status.innerHTML = '<span style="color:#f87171;">⚠️ Valid URL daalo</span>'; return;
+    status.innerHTML = '<span style="color:#f87171;">⚠️ Valid URL daalo</span>';
+    return;
   }
 
   btn.disabled = true;
   btn.textContent = '⏳ Fetching...';
   status.innerHTML = '<span style="color:#f59e0b;">🔄 Page fetch ho raha hai...</span>';
 
-  // Title URL se nikalo for all rows
   var pageTitle = mlExtractTitleFromUrl(pageUrl);
+  var pageHost = (pageUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
 
-  function tryProxy(idx) {
-    if (idx >= _mlFfProxies.length) {
-      btn.disabled = false; btn.textContent = '⚡ Fetch Links';
-      status.innerHTML = '<span style="color:#f87171;">❌ Sab proxies fail — page accessible nahi ya links nahi mile</span>';
-      return;
-    }
-    var proxy = _mlFfProxies[idx];
-    status.innerHTML = '<span style="color:#f59e0b;">🔄 Trying ' + proxy.name + '...</span>';
-
-    fetch(proxy.getUrl(pageUrl))
-      .then(function(r){ return r.text(); })
-      .then(function(raw) {
-        var html = proxy.parse(raw);
-        if (!html) { tryProxy(idx + 1); return; }
-
-        // Linkmake.in URLs dhundo — href ya text mein
-        var found = [];
-        var re = /https?:\/\/linkmake\.in\/[^\s"'<>]+/gi;
-        var m;
-        while ((m = re.exec(html)) !== null) {
-          var u = m[0].replace(/[&]amp;/g, '&').replace(/["'>].*$/, '').trim();
-          if (found.indexOf(u) === -1) found.push(u);
-        }
-
-        if (found.length === 0) { tryProxy(idx + 1); return; }
-
-        // Success — rows mein fill karo
-        btn.disabled = false; btn.textContent = '⚡ Fetch Links';
-        status.innerHTML = '<span style="color:#4ade80;">✅ ' + found.length + ' linkmake URL mile — rows mein add ho gaye!</span>';
-
-        // Clear existing empty rows, add new ones
-        var container = document.getElementById('ml-bulk-rows');
-        // Purani empty rows hata do (sirf blank URL waali)
-        var existingRows = container.querySelectorAll('div[id^="mlbr_"]');
-        existingRows.forEach(function(row) {
-          var inp = row.querySelector('input');
-          if (inp && !inp.value.trim()) row.remove();
-        });
-
-        // Har found URL ke liye row banana
-        found.forEach(function(lmUrl) {
-          mlBulkAddRow(lmUrl, '', pageTitle);
-        });
-
-        mlBulkUpdatePreview();
-
-        // URL field clear
-        document.getElementById('ml-ff-page-url').value = '';
-      })
-      .catch(function() { tryProxy(idx + 1); });
+  function addUnique(arr, u) {
+    if (!u) return;
+    u = String(u).replace(/&amp;/g, '&').replace(/["'<>].*$/, '').trim();
+    // strip trailing punctuation
+    u = u.replace(/[.,;)\]]+$/, '');
+    if (!u || u.length < 8) return;
+    if (arr.indexOf(u) === -1) arr.push(u);
   }
 
-  tryProxy(0);
+  function extractLinksFromHtml(html, host) {
+    var found = [];
+    var m, re;
+    host = host || pageHost;
+
+    // linkmake
+    re = /https?:\/\/(?:www\.)?linkmake\.in\/[^\s"'<>]+/gi;
+    while ((m = re.exec(html)) !== null) addUnique(found, m[0]);
+    re = /https?:\/\/(?:www\.)?linkm\.in\/[^\s"'<>]+/gi;
+    while ((m = re.exec(html)) !== null) addUnique(found, m[0]);
+
+    // absolute hdfun/mmshd /dl/
+    re = /https?:\/\/(?:www\.)?(?:hdfun\.in|mmshd\.com)\/dl\/[^\s"'<>]+/gi;
+    while ((m = re.exec(html)) !== null) addUnique(found, m[0]);
+
+    // relative /dl/slug
+    re = /href=["'](\/dl\/[^"'#?\s]+)/gi;
+    while ((m = re.exec(html)) !== null) {
+      if (host) addUnique(found, host + m[1]);
+    }
+
+    // final HDFun download buttons
+    re = /href=["'](\/download\/dl\/[^"']+)/gi;
+    while ((m = re.exec(html)) !== null) {
+      if (host) addUnique(found, host + m[1]);
+    }
+    re = /https?:\/\/[^\s"'<>]*\/download\/dl\/[^\s"'<>]+/gi;
+    while ((m = re.exec(html)) !== null) addUnique(found, m[0]);
+
+    // common file hosts
+    re = /https?:\/\/(?:[a-z0-9.-]+\.)?(?:filesdl\.(?:in|top)|hubcloud\.[a-z]+|gdtot\.[a-z]+|pixeldrain\.com|gdflix\.[a-z]+|howblogs\.[a-z]+|techyboy\.[a-z]+)[^\s"'<>]*/gi;
+    while ((m = re.exec(html)) !== null) addUnique(found, m[0]);
+
+    // href any download-looking external
+    re = /href=["'](https?:\/\/[^"']+(?:download|file|cloud|drive)[^"']*)["']/gi;
+    while ((m = re.exec(html)) !== null) {
+      var u = m[1];
+      if (/facebook|twitter|telegram|whatsapp|youtube|instagram|google\.|javascript:/i.test(u)) continue;
+      if (/hdfun\.in\/(?:category|search)|mmshd\.com\/(?:category|search)/i.test(u)) continue;
+      addUnique(found, u);
+    }
+
+    return found;
+  }
+
+  function finishWithLinks(found) {
+    btn.disabled = false;
+    btn.textContent = '⚡ Fetch';
+    if (!found.length) {
+      status.innerHTML = '<span style="color:#f87171;">❌ Page mila lekin download link nahi — URL check karo</span>';
+      return;
+    }
+    status.innerHTML = '<span style="color:#4ade80;">✅ ' + found.length + ' link mile — rows mein add ho gaye!</span>';
+    var container = document.getElementById('ml-bulk-rows');
+    if (container) {
+      container.querySelectorAll('div[id^="mlbr_"]').forEach(function(row) {
+        var inp = row.querySelector('input');
+        if (inp && !inp.value.trim()) row.remove();
+      });
+    }
+    found.forEach(function(u) { mlBulkAddRow(u, '', pageTitle); });
+    mlBulkUpdatePreview();
+    document.getElementById('ml-ff-page-url').value = '';
+  }
+
+  // 1) Fetch main page
+  _mlProxyFetch(pageUrl, function(html) {
+    if (!html) {
+      btn.disabled = false; btn.textContent = '⚡ Fetch';
+      status.innerHTML = '<span style="color:#f87171;">❌ Page fetch fail — proxy / internet check karo</span>';
+      return;
+    }
+
+    var found = extractLinksFromHtml(html, pageHost);
+
+    // HDFun movie page → only intermediate /dl/ links: deep-fetch each /dl/ page
+    var dlPages = found.filter(function(u) {
+      return /(?:hdfun\.in|mmshd\.com)\/dl\//i.test(u) && !/\/download\/dl\//i.test(u);
+    });
+    var hasFinal = found.some(function(u) {
+      return /\/download\/dl\//i.test(u) || /linkmake\.in/i.test(u) || /filesdl\./i.test(u);
+    });
+
+    if (dlPages.length && !hasFinal) {
+      status.innerHTML = '<span style="color:#f59e0b;">🔄 ' + dlPages.length + ' /dl/ page milay — final links nikaal raha hoon...</span>';
+      var pending = dlPages.length;
+      var merged = found.slice();
+      dlPages.forEach(function(dlUrl) {
+        _mlProxyFetch(dlUrl, function(dlHtml) {
+          if (dlHtml) {
+            var more = extractLinksFromHtml(dlHtml, pageHost);
+            more.forEach(function(u) { addUnique(merged, u); });
+          }
+          pending--;
+          if (pending <= 0) {
+            // Prefer final download/dl + linkmake + hosts over intermediate /dl/
+            var finals = merged.filter(function(u) {
+              return /\/download\/dl\//i.test(u) || /linkmake\.in/i.test(u) || /filesdl\.|hubcloud|gdtot|pixeldrain/i.test(u);
+            });
+            finishWithLinks(finals.length ? finals : merged);
+          }
+        });
+      });
+      return;
+    }
+
+    finishWithLinks(found);
+  });
 }
 
 function mlShowSubLinks(id, url) {
@@ -10839,6 +10987,7 @@ function mlShowSubLinks(id, url) {
     subEmpty.style.display = 'block';
     var safeU = url.replace(/'/g,"\\'");
     subEmpty.innerHTML = '❌ Auto-extract nahi ho saka.'
+      + '<div style="margin-top:10px;font-size:0.78rem;color:#fbbf24;line-height:1.45;max-width:420px;margin-left:auto;margin-right:auto;">Link expire/block ho sakti hai ya JS-only page hai. Linkmake kabhi homepage return karta hai.</div>'
       + '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">'
       + '<button class="btn btn-b" onclick="window.open(\'' + safeU + '\',\'_blank\')" style="padding:8px 18px;font-size:0.82rem;">🔗 Page Kholo</button>'
       + '<button class="btn btn-s" onclick="mlRetryFetch(\'' + safeU + '\')" style="padding:8px 18px;font-size:0.82rem;">🔄 Retry</button>'
@@ -11810,12 +11959,22 @@ function ffiFetchPosts() {
   var baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
 
   function fetchPage(pageNum) {
-    var url = pageNum === 1 ? siteUrl : (siteUrl + (siteUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum);
+    // FilmyFly: ?page=N  |  HDFun category: /category/ID/slug/N.html
+    var url = siteUrl;
+    if (pageNum > 1) {
+      if (/\/category\/\d+\/[^\/]+\/\d+\.html/i.test(siteUrl)) {
+        url = siteUrl.replace(/\/\d+\.html(\?.*)?$/i, '/' + pageNum + '.html');
+      } else if (/(hdfun\.in|mmshd\.com)/i.test(siteUrl) && /\/category\//i.test(siteUrl)) {
+        url = siteUrl.replace(/\/?(\?.*)?$/, '') + '/' + pageNum + '.html';
+      } else {
+        url = siteUrl + (siteUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum;
+      }
+    }
     status.textContent = '⏳ Page ' + pageNum + ' / ' + maxPages + ' fetch ho raha hai...';
 
     _ffiFetch(url, function(html) {
       if (html) {
-        // Pattern 1: /page-download/123/title.html
+        // Pattern 1: FilmyFly /page-download/123/title.html
         var re1 = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]*\.html)/gi;
         var m;
         while ((m = re1.exec(html)) !== null) {
@@ -11823,6 +11982,45 @@ function ffiFetchPosts() {
           u = u.replace(/&amp;/g,'&');
           if (!allFound[u]) { allFound[u] = 1; _ffiPosts.push({ url: u, title: ffiTitleFromUrl(u), checked: true }); }
         }
+        // Pattern 1b: HDFun /movie/123/title.html
+        var re1b = /href=["']((https?:\/\/[^"']*)?\/movie\/\d+\/[^"'#?]*\.html)/gi;
+        while ((m = re1b.exec(html)) !== null) {
+          var uh = m[1].startsWith('http') ? m[1] : baseHost + m[1];
+          uh = uh.replace(/&amp;/g,'&');
+          if (!allFound[uh]) { allFound[uh] = 1; _ffiPosts.push({ url: uh, title: ffiTitleFromUrl(uh), checked: true }); }
+        }
+        // Pattern 1c: MMSHD /dl/slug  (post pages live under /dl/)
+        var re1c = /href=["']((https?:\/\/[^"']*)?\/dl\/[a-z0-9][a-z0-9\-]{2,})(?=["'#?\s])/gi;
+        while ((m = re1c.exec(html)) !== null) {
+          var ud = m[1].startsWith('http') ? m[1] : baseHost + m[1];
+          ud = ud.replace(/&amp;/g,'&').replace(/\/$/, '');
+          // skip bare /dl/ or too-short junk
+          if (/\/dl\/?$/i.test(ud)) continue;
+          if (!allFound[ud]) { allFound[ud] = 1; _ffiPosts.push({ url: ud, title: ffiTitleFromUrl(ud), checked: true }); }
+        }
+        // Pattern 1d: KatDrama (new.katdrama.my) — Svelte JSON embeds slug:"..."
+        if (/katdrama\.my/i.test(siteUrl) || /katdrama\.my/i.test(baseHost)) {
+          var reKat = /slug:"([a-z0-9][a-z0-9\-]{2,})"/gi;
+          var km, katTitles = {};
+          // pair title+slug when possible
+          var reKatFull = /post_title:"((?:[^"\\]|\\.)*)",slug:"([a-z0-9][a-z0-9\-]{2,})"/gi;
+          while ((km = reKatFull.exec(html)) !== null) {
+            var ks = km[2];
+            var kt = km[1].replace(/&amp;/g,'&').replace(/\\"/g,'"').replace(/\\u003C[^>]*>/g,'').trim();
+            katTitles[ks] = kt;
+          }
+          while ((km = reKat.exec(html)) !== null) {
+            var slug = km[1];
+            // skip system paths
+            if (/^(category|page|api|login|tag|author)$/i.test(slug)) continue;
+            var ku = baseHost.replace(/\/$/, '') + '/' + slug;
+            if (!allFound[ku]) {
+              allFound[ku] = 1;
+              _ffiPosts.push({ url: ku, title: katTitles[slug] || ffiTitleFromUrl(ku), checked: true });
+            }
+          }
+        }
+
         // Pattern 2: WordPress post links
         var re2 = /href=["'](https?:\/\/[^"'#?]+\/(?:\d{4}\/\d{2}\/\d{2}\/|[^"'#?]*(?:download|movie|film|hindi)[^"'#?]*\/))[^"'#?]*["']/gi;
         while ((m = re2.exec(html)) !== null) {
@@ -11866,7 +12064,16 @@ function ffiFetchPosts() {
 function ffiTitleFromUrl(url) {
   try {
     var path = new URL(url).pathname;
-    var slug = path.replace(/\/page-download\/\d+\//,'').replace(/\.html$/,'').replace(/\//g,'').replace(/-/g,' ').trim();
+    // FilmyFly: /page-download/123/title.html  |  HDFun: /movie/123/title.html  |  MMSHD: /dl/slug
+    var slug = path
+      .replace(/\/page-download\/\d+\//i, '')
+      .replace(/\/movie\/\d+\//i, '')
+      .replace(/\/dl\//i, '')
+      .replace(/\.html$/i, '')
+      .replace(/^\//, '')
+      .replace(/\//g, ' ')
+      .replace(/-/g, ' ')
+      .trim();
     return slug.split(' ').map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
   } catch(e) { return url; }
 }
@@ -12012,7 +12219,10 @@ function ffiStartImport() {
           if (!data.description && tmdb.description) data.description = tmdb.description;
           if (!data.genre && tmdb.genre) data.genre = tmdb.genre;
           if (!data.year && tmdb.year) data.year = tmdb.year;
-          if (tmdb.category) data.category = tmdb.category;
+          // Page/breadcrumb category ko TMDB se overwrite mat karo —
+          // warna Hollywood movie TV match pe galat webseries ban jati hai.
+          // Sirf tab use karo jab page se category na mili ho.
+          if (!data.category && tmdb.category) data.category = tmdb.category;
         }
         if (!data.category) data.category = defaultCat;
 
@@ -12058,15 +12268,9 @@ function ffiStartImport() {
             else if (/1080/.test(data.quality)) obj.size1080 = data.size;
             else if (/4K/.test(data.quality)) obj.size4k = data.size;
           }
-          // ⭐ Source link bhi save karo — taake "🎬 Linked:" panel mein ye
-          // movie khud-ba-khud link ho jaye aur quality rows fetch/save kaam karein
+          // Download source sirf downloads + My Links ke liye
+          // videoUrl / vlcUrl / videoSourceUrl auto NAHI — manual add only
           obj.dlSourceUrl = data.download_link;
-          // 🎬 Video ke liye bhi wahi source use karo — worker ka /video
-          // route ab linkmake page se bhi khud quality+Cloud Direct nikal
-          // leta hai (2-hop), isliye alag se manually "Video URL" karne ki
-          // zaroorat nahi — 500 movies bulk import mein bhi Watch Now
-          // automatically kaam karega.
-          obj.videoSourceUrl = data.download_link;
         }
         // SEO fields — auto-generate (baaki import sources jaisa hi pattern)
         var slug = (data.title + (data.year?'-'+data.year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
@@ -12080,7 +12284,9 @@ function ffiStartImport() {
         // ✅ Ab yahan seedha Firebase save NAHI karte — pehle review queue
         // mein daal dete hain. Admin Step 3 mein dekh ke, jo chahiye wo
         // select karke "Save" dabayega, tab jaake Firebase mein jayega.
-        _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || '', checked: true });
+        applyCategoryDefaults(obj);
+        if (data.size && !obj.size) obj.size = data.size;
+        _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || obj.size || '', checked: true });
         ok++;
         existingTitles[data.title.toLowerCase()] = true;
         if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Ready'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
@@ -12176,6 +12382,7 @@ function ffiSaveReviewed() {
     }
     if (statusEl) statusEl.textContent = 'Saving ' + (idx + 1) + '/' + total + '...';
     var item = selected[idx];
+    applyCategoryDefaults(selected[idx].obj);
     var movieRef = db.ref('movies').push();
     var movieKey = movieRef.key;
 
@@ -12205,6 +12412,118 @@ function ffiSaveReviewed() {
   saveNext(0);
 }
 
+
+// Category ke hisaab se default language / quality / size — taake har movie
+// edit karke manually bharna na pade
+function applyCategoryDefaults(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  var cat = (obj.category || '').toLowerCase();
+  var title = (obj.title || '') + ' ' + (obj.quality || '') + ' ' + (obj.language || '');
+
+  // Category fallback
+  if (!obj.category) obj.category = 'hollywood';
+
+  // Language
+  if (!obj.language) {
+    if (cat === 'adult') {
+      if (/\benglish\b/i.test(title) && !/hindi/i.test(title)) obj.language = 'English';
+      else if (/hindi\s*dub|hindi\s*audio|\bhindi\b/i.test(title)) obj.language = 'Hindi';
+      else if (/tagalog|vivamax|pinoy/i.test(title)) obj.language = 'English';
+      else if (/korean|japanese|chinese|thai/i.test(title) && !/hindi/i.test(title)) obj.language = 'English';
+      else obj.language = 'Hindi';
+    } else if (/hindi\s*\+\s*english|dual\s*audio.*english|english.*dual/i.test(title)) obj.language = 'Hindi + English';
+    else if (/hindi\s*\+\s*tamil|tamil.*hindi/i.test(title)) obj.language = 'Hindi + Tamil';
+    else if (/hindi\s*\+\s*telugu|telugu.*hindi/i.test(title)) obj.language = 'Hindi + Telugu';
+    else if (/hindi\s*\+\s*malayalam/i.test(title)) obj.language = 'Hindi + Malayalam';
+    else if (/hindi\s*\+\s*kannada/i.test(title)) obj.language = 'Hindi + Kannada';
+    else if (/korean|k[\s\-]?drama/i.test(title)) obj.language = 'Hindi + Korean';
+    else if (cat === 'bollywood') obj.language = 'Hindi';
+    else if (cat === 'tollywood') obj.language = 'Hindi + Tamil';
+    else if (cat === 'hollywood' || cat === 'animation') obj.language = 'Hindi + English';
+    else if (cat === 'webseries') obj.language = 'Hindi';
+    else obj.language = 'Hindi';
+  }
+
+  // Quality
+  if (!obj.quality) {
+    var q = '';
+    if (/blu[\s\-]?ray|bluray/i.test(title)) q = 'BluRay';
+    else if (/web[\s\-]?dl/i.test(title)) q = 'WEB-DL';
+    else if (/web[\s\-]?rip/i.test(title)) q = 'WEBRip';
+    else if (/hdrip/i.test(title)) q = 'HDRip';
+    else if (/hdts|hdcam/i.test(title)) q = 'HDTS';
+    else q = 'WEB-DL';
+    if (/hindi\s*dub|dual\s*audio/i.test(title) && cat !== 'bollywood' && cat !== 'adult') {
+      q = q + ' - Hindi Dubbed';
+    }
+    obj.quality = q;
+  }
+
+  // Year from title
+  if (!obj.year) {
+    var yM = (obj.title || '').match(/\b((?:19|20)\d{2})\b/);
+    if (yM) obj.year = yM[1];
+  }
+
+  // Size
+  if (!obj.size) {
+    obj.size = obj.size1080 || obj.size720 || obj.size480 || obj.size4k || '';
+  }
+
+  // Genre
+  if (!obj.genre) {
+    if (cat === 'animation') obj.genre = 'animation';
+    else if (cat === 'adult') obj.genre = 'drama';
+    else if (cat === 'webseries') obj.genre = 'drama';
+    else if (cat === 'kdrama') obj.genre = 'drama';
+    else obj.genre = 'drama';
+  }
+
+  // Description fallback
+  if (!obj.description) {
+    var t = obj.title || 'Movie';
+    var y = obj.year ? ' (' + obj.year + ')' : '';
+    var lang = obj.language || '';
+    obj.description = 'Watch ' + t + y + (lang ? ' in ' + lang : '') + ' online free in HD on CineNova. Fast download links, no login required.';
+  }
+
+  // SEO auto
+  if (!obj.seoSlug && obj.title) {
+    obj.seoSlug = (obj.title + (obj.year ? '-' + obj.year : '')).toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 80);
+  }
+  if (!obj.seoTitle && obj.title) {
+    obj.seoTitle = obj.title + (obj.year ? ' (' + obj.year + ')' : '') +
+      (obj.language ? ' (' + obj.language + ')' : '') +
+      (obj.quality ? ' ' + obj.quality : '') + ' HD Download — CineNova';
+    if (obj.seoTitle.length > 95) obj.seoTitle = obj.seoTitle.substring(0, 92) + '...';
+  }
+  if (!obj.seoDesc) {
+    obj.seoDesc = (obj.description || '').substring(0, 155);
+    if ((obj.description || '').length > 155) obj.seoDesc += '...';
+    if (!obj.seoDesc) obj.seoDesc = 'Watch ' + (obj.title || '') + ' free on CineNova.';
+  }
+  if (!obj.seoKeywords && obj.title) {
+    obj.seoKeywords = [obj.title, obj.year, obj.language, obj.category, obj.quality, 'free download', 'HD', 'CineNova']
+      .filter(Boolean).join(', ');
+  }
+
+  // Download fields fill ho sakte hain — lekin video/VLC fields kabhi auto NAHI
+  var dl = obj.download1080p || obj.download720p || obj.download480p || obj.download4k ||
+           obj.dlSourceUrl || '';
+  if (dl) {
+    if (!obj.dlSourceUrl) obj.dlSourceUrl = dl;
+    if (!obj.download480p) obj.download480p = dl;
+    if (!obj.download720p) obj.download720p = dl;
+    if (!obj.download1080p) obj.download1080p = dl;
+    // videoUrl / vlcUrl / vlcUrl2 / videoSourceUrl — sirf manual
+  }
+
+  if (!obj.addedAt) obj.addedAt = Date.now();
+  return obj;
+}
+
+
 function ffiParsePage(html, srcUrl) {
   var data = {};
 
@@ -12232,15 +12551,18 @@ function ffiParsePage(html, srcUrl) {
 
   // Title
   var ogTitle = meta('og:title') || meta('twitter:title') || (html.match(/<title[^>]*>([^<]+)/) || [])[1] || '';
-  ogTitle = ogTitle.replace(/\s*[\|–\-»]\s*(FilmyFly|Filmy4wap|KatMovieHD|Download|HD|Movies?|Watch Online)[^]*/i,'').trim();
-  data.title = ogTitle.replace(/\s*\(?\b(Hindi|English|Dual Audio|HEVC|WEBRip|BluRay|720p|1080p|480p|4K|Season|S\d+|(19|20)\d{2})\b.*/i,'').replace(/[\s\(\[\-–]+$/,'').trim();
+  ogTitle = ogTitle.replace(/\s*[\|–\-»]\s*(FilmyFly|Filmy4wap|KatMovieHD|HDFun|MkvCinemas|Download|HD|Movies?|Watch Online)[^]*/i,'').trim();
+  data.title = ogTitle.replace(/\s*\(?\b(Hindi|English|Dual Audio|HEVC|WEBRip|BluRay|HDRip|720p|1080p|480p|4K|Season|S\d+|(19|20)\d{2})\b.*/i,'').replace(/[\s\(\[\-–]+$/,'').trim();
 
   // Year
   var yearM = ogTitle.match(/\b(20\d{2})\b/) || html.match(/Release[^>]*>.*?(20\d{2})/i);
   data.year = yearM ? yearM[1] : '';
 
-  // Thumbnail
+  // Thumbnail (relative paths → absolute — hdfun uses /uploads/...)
   data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+  if (data.thumbnail && !/^https?:\/\//i.test(data.thumbnail) && srcUrl) {
+    try { data.thumbnail = new URL(data.thumbnail, srcUrl).toString(); } catch (e) {}
+  }
 
   // Description
   data.description = meta('og:description') || meta('description') || '';
@@ -12268,38 +12590,183 @@ function ffiParsePage(html, srcUrl) {
   // Cast
   data.cast = getTextAfterLabel('Starcast:').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').substring(0,200).trim();
 
-  // Screenshots — post body ke andar images dhundo (thumbnail/logo/ads/
-  // avatar/site-name/resized-variant exclude), sirf best 1 image lo
+  // Screenshots — real post screenshots (HDFun: /uploads/ss/..., alt=Screenshot)
+  // Relative paths ko absolute banao; poster/logo/ads skip; max 6 images
   var screenshots = [];
-  var imgRe = /<img[^>]+src=["']([^"']+)["']/gi, im;
-  while ((im = imgRe.exec(html)) !== null) {
-    var src = im[1].trim();
-    if (!/^https?:\/\//i.test(src)) continue;
-    if (src === data.thumbnail) continue;
-    if (/logo|icon|avatar|banner|placeholder|advertisement|\bads?\b|gravatar|sprite|button|filmyfly|filmy4wap|filmyzilla|katmoviehd|4wap/i.test(src)) continue;
-    // wsrv/webp resize-proxy variants (jaise webp.iwebp.store/webp/400-60-1x-...)
-    // asal screenshot nahi hote — same poster ke resized crops hote hain
-    if (/\/webp\/\d+-\d+-\d+x-/i.test(src)) continue;
-    if (screenshots.indexOf(src) === -1) screenshots.push(src);
-    if (screenshots.length >= 1) break;
+  function absUrl(u) {
+    if (!u) return '';
+    u = u.trim().replace(/&amp;/g, '&');
+    if (/^https?:\/\//i.test(u)) return u;
+    if (srcUrl) {
+      try { return new URL(u, srcUrl).toString(); } catch (e) {}
+    }
+    return u;
+  }
+  // 1) HDFun/MMSHD dedicated screenshot paths pehle
+  // Related-grid thumbs aksar *_13.jpg hote hain — unko skip, asal ss pehle
+  var ssPathRe = /(?:src=["']([^"']*\/uploads\/ss\/[^"']+)["']|["']([^"']*\/uploads\/ss\/[^"']+)["'])/gi;
+  var sp;
+  var ssRelated = [];
+  while ((sp = ssPathRe.exec(html)) !== null) {
+    var ssrc = absUrl(sp[1] || sp[2]);
+    if (!ssrc) continue;
+    if (/_\d{1,2}\.(jpg|jpeg|png|webp)$/i.test(ssrc)) { ssRelated.push(ssrc); continue; }
+    if (screenshots.indexOf(ssrc) === -1) screenshots.push(ssrc);
+    if (screenshots.length >= 6) break;
+  }
+  // Agar koi primary ss na mila to related se bhar do
+  if (!screenshots.length) {
+    ssRelated.forEach(function(s) {
+      if (screenshots.indexOf(s) === -1) screenshots.push(s);
+    });
+    if (screenshots.length > 6) screenshots = screenshots.slice(0, 6);
+  }
+  // 2) alt="Screenshot" images
+  if (screenshots.length < 6) {
+    var altSsRe = /<img[^>]+(?:alt=["'][^"']*screenshot[^"']*["'][^>]+src=["']([^"']+)["']|src=["']([^"']+)["'][^>]+alt=["'][^"']*screenshot[^"']*["'])/gi;
+    var am;
+    while ((am = altSsRe.exec(html)) !== null) {
+      var asrc = absUrl(am[1] || am[2]);
+      if (!asrc) continue;
+      if (screenshots.indexOf(asrc) === -1) screenshots.push(asrc);
+      if (screenshots.length >= 6) break;
+    }
+  }
+  // 3) Fallback: post body images (poster/logo/ads/emoji exclude)
+  if (screenshots.length < 1) {
+    var imgRe = /<img[^>]+src=["']([^"']+)["']/gi, im;
+    while ((im = imgRe.exec(html)) !== null) {
+      var src = absUrl(im[1]);
+      if (!src) continue;
+      if (data.thumbnail && src === data.thumbnail) continue;
+      if (/\/uploads\/category\//i.test(src)) continue; // poster, not screenshot
+      if (/logo|icon|avatar|banner|placeholder|advertisement|\bads?\b|gravatar|sprite|button|emoji|filmyfly|filmy4wap|filmyzilla|katmoviehd|4wap|w\.org\/images/i.test(src)) continue;
+      if (/\/webp\/\d+-\d+-\d+x-/i.test(src)) continue;
+      if (screenshots.indexOf(src) === -1) screenshots.push(src);
+      if (screenshots.length >= 6) break;
+    }
   }
   data.screenshots = screenshots;
 
-  // Category
-  var cat = 'hollywood';
-  if (/\bS\d{2}\b|Web Series|Season/i.test(ogTitle + ' ' + html.substring(0,3000))) cat = 'webseries';
-  else if (/Bollywood|Hindi Movie/i.test(html.substring(0,3000))) cat = 'bollywood';
-  else if (/South|Telugu|Tamil|Tollywood/i.test(html.substring(0,3000))) cat = 'tollywood';
+  // Category — HDFun/MMSHD breadcrumb / URL pehle (sab se accurate).
+  // Pure HTML mein "Web Series" mat dhoondo — description/footer mein
+  // generic text hota hai jo Hollywood movies ko galat webseries bana deta hai.
+  var cat = '';
+  var titleUrl = (ogTitle || '') + ' ' + (srcUrl || '') + ' ' + (data.title || '');
+  var isMmshd = /mmshd\.com/i.test(srcUrl || '');
+  var isKat = /katdrama\.my/i.test(srcUrl || '');
+  var breadTxt = '';
+  var breadM = html.match(/breadcrumb[\s\S]{0,1200}?<\/ol>/i);
+  if (breadM) breadTxt = breadM[0];
+  // Breadcrumb category link text + href
+  // HDFun: /category/ID/slug...   MMSHD: /show/ID/slug.html
+  var breadCat = '';
+  var bcLink = breadTxt.match(/href=["'][^"']*\/(?:category|show)\/[^"']*["'][^>]*>([^<]+)/i)
+            || breadTxt.match(/\/(?:category|show)\/\d+\/([a-z0-9\-]+)/i);
+  if (bcLink) breadCat = (bcLink[1] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  var catBlob = (breadCat + ' ' + breadTxt + ' ' + titleUrl).toLowerCase();
+
+  // Adult pehle — mmshd almost pure adult site; HDFun adult/hot categories bhi
+  if (/adult|hot[\s\-]?movie|hot[\s\-]?web|hot[\s\-]?short|short[\s\-]?film|vivamax|erotic|18\+|xxx|\bdesi\b|\bmms\b|webcam|uncut/i.test(catBlob)) cat = 'adult';
+  else if (/k[\s\-]?drama|korean[\s\-]?drama/i.test(catBlob)) cat = 'kdrama';
+  else if (/web[\s\-]?series|tv[\s\-]?series|\btv series\b|\bseries\b|season\s*\d|\bs\d{1,2}\b|netflix series/i.test(catBlob)) cat = 'webseries';
+  else if (/bollywood|hindi[\s\-]?movie(?!.*dub)/i.test(catBlob) && !/dubbed|hollywood|south/i.test(catBlob)) cat = 'bollywood';
+  else if (/south|tollywood|telugu|tamil|malayalam|kannada/i.test(catBlob)) cat = 'tollywood';
+  else if (/animation|anime|cartoon/i.test(catBlob)) cat = 'animation';
+  else if (/hollywood|english[\s\-]?movie|hindi[\s\-]?dubbed/i.test(catBlob)) cat = 'hollywood';
+
+  // Title/URL-only fallback
+  if (!cat) {
+    if (/Adult|18\+|Unrated|VivaMax|Hot[\s\-]?Short|\bMMS\b|\bDesi\b/i.test(titleUrl)) cat = 'adult';
+    else if (/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series|Complete Series/i.test(titleUrl)) cat = 'webseries';
+    else if (/K[\s\-]?Drama|Korean/i.test(titleUrl)) cat = 'kdrama';
+    else if (/Bollywood/i.test(titleUrl)) cat = 'bollywood';
+    else if (/Tollywood|Telugu|Tamil|South Indian/i.test(titleUrl)) cat = 'tollywood';
+    else if (/Anime|Animation/i.test(titleUrl)) cat = 'animation';
+    else if (isMmshd) cat = 'adult'; // mmshd.com default = adult
+    else cat = 'hollywood';
+  }
+  // mmshd.com pe non-adult rare hai — agar webseries detect hua ho lekin
+  // site adult hai to adult category prefer karo
+  if (isMmshd && cat === 'webseries') cat = 'adult';
+  // KatDrama = K-Drama / C-Drama series
+  if (isKat) {
+    if (/chinese|c[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
+    else if (/korean|k[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
+    else if (!cat || cat === 'hollywood') cat = 'kdrama';
+  }
   data.category = cat;
 
-  // Download links — linkmake, filesdl, etc.
+  // Title se year / quality / language (page labels missing hon to)
+  if (!data.year) {
+    var yM = (data.title || '').match(/(19|20)\d{2}/);
+    if (yM) data.year = yM[0];
+  }
+  if (!data.quality) {
+    var t = data.title || '';
+    if (/blu[\s\-]?ray/i.test(t)) data.quality = 'BluRay';
+    else if (/web[\s\-]?dl/i.test(t)) data.quality = 'WEB-DL';
+    else if (/web[\s\-]?rip/i.test(t)) data.quality = 'WEBRip';
+    else if (/hdrip/i.test(t)) data.quality = 'HDRip';
+    else if (/1080p|720p|480p/i.test(t)) data.quality = (t.match(/1080p|720p|480p/i)||['WEB-DL'])[0];
+  }
+  if (!data.language) {
+    var t2 = data.title || '';
+    if (/hindi\s*\+\s*english|dual\s*audio/i.test(t2)) data.language = 'Hindi + English';
+    else if (/hindi\s*\+\s*tamil/i.test(t2)) data.language = 'Hindi + Tamil';
+    else if (/hindi\s*\+\s*telugu/i.test(t2)) data.language = 'Hindi + Telugu';
+    else if (/hindi\s*dub/i.test(t2)) data.language = 'Hindi Dubbed';
+  }
+  // /dl/ URL se quality (e.g. ...-1080p-hdrip)
+  if (data.download_link && !data.quality) {
+    var dq = data.download_link.match(/(2160p|1080p|720p|480p|4k)/i);
+    if (dq) data.quality = dq[1].toUpperCase().replace('P','p');
+  }
+
+  // Download links — linkmake, filesdl, hdfun /dl/, mmshd, katdrama (kmhd/hubcloud)
   var dlLink = '';
-  var dlReg = /<a[^>]+href=["'](https?:\/\/(?:linkmake\.in|linkm\.in|short\.|shrink\.|linkshort\.)[^\s"']+)["']/gi;
+  var dlReg = /<a[^>]+href=["'](https?:\/\/(?:linkmake\.in|linkm\.in|short\.|shrink\.|linkshort\.|links\.kmhd\.eu|get\.kmhd\.eu|hubcloud\.[a-z]+)[^\s"']+)["']/gi;
   var dm = dlReg.exec(html);
   if (dm) dlLink = dm[1];
   if (!dlLink) {
     var fallback = html.match(/href=["'](https?:\/\/(?:filesdl|terabox|mega|drive\.google|pixeldrain)[^\s"']+)["']/i);
     if (fallback) dlLink = fallback[1];
+  }
+  // HDFun: relative /dl/slug-1080p-hdrip  (worker / downloadxdesi token chain)
+  // Prefer highest quality if multiple /dl/ links exist
+  if (!dlLink) {
+    var dlCandidates = [];
+    var dlRe = /href=["']((?:https?:\/\/[^"']*)?\/dl\/[^"'#?\s]+)["']/gi;
+    var dlm;
+    while ((dlm = dlRe.exec(html)) !== null) {
+      var href = dlm[1].replace(/&amp;/g, '&');
+      if (!/^https?:\/\//i.test(href) && srcUrl) {
+        try { href = new URL(href, srcUrl).toString(); } catch (e) { continue; }
+      }
+      if (href && dlCandidates.indexOf(href) === -1) dlCandidates.push(href);
+    }
+    if (dlCandidates.length) {
+      var prefer = ['2160', '4k', '1080', '720', '480'];
+      for (var pi = 0; pi < prefer.length; pi++) {
+        var found = dlCandidates.find(function(h){ return h.toLowerCase().indexOf(prefer[pi]) !== -1; });
+        if (found) { dlLink = found; break; }
+      }
+      if (!dlLink) dlLink = dlCandidates[0];
+    }
+  }
+  // HDFun / mmshd movie page itself as source (worker resolves /dl/ → /download/dl/)
+  if (!dlLink && srcUrl && /hdfun\.in|mmshd\.com/i.test(srcUrl)) {
+    dlLink = srcUrl;
+  }
+  // KatDrama: kmhd / hubcloud anywhere in HTML (including escaped JSON)
+  if (!dlLink && isKat) {
+    var km = html.match(/https?:\/\/links\.kmhd\.eu\/(?:file|play|pack)\/[a-zA-Z0-9_\-]+/);
+    if (km) dlLink = km[0];
+    if (!dlLink) {
+      var hc = html.match(/https?:\/\/hubcloud\.[a-z]+\/drive\/[a-zA-Z0-9]+/);
+      if (hc) dlLink = hc[0];
+    }
+    if (!dlLink) dlLink = srcUrl; // at least source page
   }
   data.download_link = dlLink;
 
@@ -12551,6 +13018,8 @@ function bdfStartAll() {
       if (!m.download480p)  updates['download480p']  = dlLink;
       if (!m.download720p)  updates['download720p']  = dlLink;
       if (!m.download1080p) updates['download1080p'] = dlLink;
+      if (!m.dlSourceUrl)    updates['dlSourceUrl']    = dlLink;
+      // videoUrl / vlcUrl / videoSourceUrl auto NAHI — manual only
 
       db.ref('movies/' + m._key).update(updates, function(err) {
         if (err) {
