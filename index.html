@@ -4185,7 +4185,7 @@ function filmyflyFetch() {
     data.year = yearM ? yearM[1] : '';
 
     // ── Thumbnail ──
-    data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+    if (!data.thumbnail) data.thumbnail = meta('og:image') || meta('twitter:image') || '';
 
     // ── Description ──
     var desc = meta('og:description') || meta('meta-description') || '';
@@ -4492,7 +4492,7 @@ function katdramaFetch() {
     if (yearM) data.year = yearM[1];
 
     // ── Thumbnail ── (og:image or TMDB image found in post)
-    data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+    if (!data.thumbnail) data.thumbnail = meta('og:image') || meta('twitter:image') || '';
     // Try TMDB image in content
     var tmdbImg = html.match(/https:\/\/image\.tmdb\.org\/t\/p\/[^\s"'<>]+\.jpg/i);
     if (tmdbImg) data.thumbnail = tmdbImg[0];
@@ -5123,7 +5123,7 @@ function bfuParsePage(html, srcUrl) {
 
   var yearM = ogTitle.match(/\b(20\d{2})\b/);
   data.year = yearM ? yearM[1] : '';
-  data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+  if (!data.thumbnail) data.thumbnail = meta('og:image') || meta('twitter:image') || '';
 
   var desc = meta('og:description') || meta('description') || '';
   var descSimple = html.match(/Description:\s*<\/[^>]*>\s*([^<]{30,})/i);
@@ -12783,34 +12783,50 @@ function ffiParsePage(html, srcUrl) {
     var mq = labelVal(['Movie Quality', 'Quality']);
     if (mq) data.quality = mq.split(/\s+(?:Screenshots?|Download)\b/i)[0].trim().substring(0, 60);
 
-    // Thumbnail
+    // Thumbnail (poster) — og:image = real 9xflix poster on storage.indiworlds
     var ogImg = meta('og:image') || meta('twitter:image') || '';
-    if (ogImg) data.thumbnail = ogImg;
+    if (!ogImg) {
+      var ogM = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)["']/i)
+             || html.match(/content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+      if (ogM) ogImg = ogM[1];
+    }
+    if (!ogImg) {
+      var stImg = html.match(/src=["'](https?:\/\/storage\.indiworlds\.com\/images\/[A-Za-z0-9]+\.webp)["']/i);
+      if (stImg) ogImg = stImg[1];
+    }
+    if (ogImg) data.thumbnail = ogImg.trim();
 
-    // Screenshots — only 1 real indiworlds image
+    // Screenshots — "See Screenshots Here" → img.indiworlds.com/ID → storage webp
     var ssList = [];
     function pushSs(u) {
       if (!u) return;
-      u = u.trim().replace(/&amp;/g, '&');
+      u = String(u).trim().replace(/&amp;/g, '&');
       var idm = u.match(/img\.indiworlds\.com\/([A-Za-z0-9]+)/i);
       if (idm) u = 'https://storage.indiworlds.com/images/' + idm[1] + '.webp';
       if (!/^https?:\/\//i.test(u)) return;
-      if (/logo|icon|avatar|telegram|whatsapp|favicon|emoji|blogger|bp\.blogspot|i\.ibb\.co/i.test(u)) return;
+      if (/logo|icon|avatar|telegram|whatsapp|favicon|emoji|blogger|bp\.blogspot|i\.ibb\.co|9xflix-main/i.test(u)) return;
       if (ssList.indexOf(u) === -1) ssList.push(u);
     }
-    var sm, ssHrefRe = /href=["'](https?:\/\/(?:img\.indiworlds\.com|storage\.indiworlds\.com)[^"']+)["']/gi;
+    // 1) See Screenshots Here → MUST be img.indiworlds (not download links)
+    var ssBtn = html.match(/href=["'](https?:\/\/img\.indiworlds\.com\/[A-Za-z0-9]+)["'][^>]*>[\s\S]{0,60}?See\s*Screenshots/i)
+             || html.match(/See\s*Screenshots\s*Here[\s\S]{0,120}?href=["'](https?:\/\/img\.indiworlds\.com\/[A-Za-z0-9]+)["']/i)
+             || html.match(/href=["'](https?:\/\/img\.indiworlds\.com\/[A-Za-z0-9]+)["']/i);
+    if (ssBtn) pushSs(ssBtn[1]);
+    // 2) any img.indiworlds links
+    var sm, ssHrefRe = /href=["'](https?:\/\/img\.indiworlds\.com\/[A-Za-z0-9]+)["']/gi;
     while ((sm = ssHrefRe.exec(html)) !== null) pushSs(sm[1]);
-    var ssNear = html.match(/[Ss]creenshots?[\s\S]{0,120}?href=["']([^"']+)["']/);
-    if (ssNear) pushSs(ssNear[1]);
-    var imgRe9 = /<img[^>]+src=["'](https?:\/\/storage\.indiworlds\.com\/images\/[^"']+)["']/gi;
+    // 3) storage images that are NOT the poster (possible extra ss)
+    var imgRe9 = /src=["'](https?:\/\/storage\.indiworlds\.com\/images\/[A-Za-z0-9]+\.webp)["']/gi;
     while ((sm = imgRe9.exec(html)) !== null) pushSs(sm[1]);
-    if (ssList.length) {
-      var thumb = data.thumbnail || '';
-      var onlySs = ssList.filter(function(u){ return u && u !== thumb; });
-      var one = onlySs[0] || ssList[0] || '';
-      data.screenshots = one ? [one] : [];
-      if (!data.thumbnail && one) data.thumbnail = one;
-    }
+
+    var thumb = data.thumbnail || '';
+    // Screenshot = first non-poster indiworlds image; if only poster exists, still save 1 mapped ss from button
+    var onlySs = ssList.filter(function(u){ return u && u !== thumb; });
+    var oneSs = onlySs[0] || (ssList[0] && ssList[0] !== thumb ? ssList[0] : '') || '';
+    // If button gave same as poster id rarely - still ok to store one ss
+    if (!oneSs && ssList.length) oneSs = ssList[0];
+    if (oneSs) data.screenshots = [oneSs];
+    if (!data.thumbnail && oneSs) data.thumbnail = oneSs;
 
     // Plot
     var plot = labelVal(['Movie Plot', 'Plot', 'Story', 'Synopsis']);
@@ -12822,7 +12838,7 @@ function ffiParsePage(html, srcUrl) {
 
 
   // Thumbnail
-  data.thumbnail = meta('og:image') || meta('twitter:image') || '';
+  if (!data.thumbnail) data.thumbnail = meta('og:image') || meta('twitter:image') || '';
   // itemprop / link rel image
   if (!data.thumbnail) {
     var ip = html.match(/itemprop=["']image["'][^>]+content=["']([^"']+)["']/i)
