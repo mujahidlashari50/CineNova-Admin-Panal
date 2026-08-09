@@ -12316,6 +12316,8 @@ function ffiStartImport() {
         if (data.rating) obj.rating = data.rating;
         if (data.category) obj.category = data.category;
         if (data.genre) obj.genre = data.genre;
+        if (data.genres && data.genres.length) obj.genres = data.genres;
+        if (data.director) obj.director = data.director;
         if (data.description) obj.description = data.description.substring(0, 600);
         if (data.thumbnail) obj.thumbnail = data.thumbnail;
         if (data.language) obj.language = data.language;
@@ -12658,7 +12660,116 @@ function ffiParsePage(html, srcUrl) {
   var yearM = ogTitle.match(/\b(20\d{2})\b/) || html.match(/Release[^>]*>.*?(20\d{2})/i);
   data.year = yearM ? yearM[1] : '';
 
-  // Thumbnail — og/twitter + mmshd/hdfun page images
+  // ═══════════════════════════════════════════════════
+  // 9xflix.sarl — title / genre / screenshots fix
+  // og:title aksar "9xflix" hota hai; real data h1 + labels mein hai
+  // ═══════════════════════════════════════════════════
+  if (/9xflix/i.test(srcUrl || '') || /9xflix/i.test(html.slice(0, 2500))) {
+    // --- TITLE from h1.entry-title or "Title: ..." label ---
+    var h1m = html.match(/<h1[^>]*class=["'][^"']*entry-title[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i)
+           || html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+    var rawH1 = h1m ? h1m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+    var titleLab = '';
+    var tl = html.match(/Title\s*:\s*([^<\n]{2,120}?)(?:\s*(?:IMDB|Released|Genres?|Languages?|Director|Stars|Movie Quality|Quality)\s*:|<)/i);
+    if (tl) titleLab = tl[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    var pickTitle = titleLab || rawH1 || data.title || '';
+    // Clean quality / language junk from end but keep main name
+    if (pickTitle && !/^9xflix$/i.test(pickTitle)) {
+      var cleanT = pickTitle
+        .replace(/\s*\[.*?\]\s*/g, ' ')
+        .replace(/\s*\((?:19|20)\d{2}\)\s*/g, ' ')
+        .replace(/\s+\b(?:Hindi|English|Tamil|Telugu|Malayalam|Kannada|Tagalog|Dual Audio|HQ Dub|Cleaned|UNCUT|HOT)\b.*$/i, '')
+        .replace(/\s+\b(?:1080p|720p|480p|2160p|4K|HDTC|WEB-?DL|WEBRip|BluRay|HDRip|BRRip|HEVC)\b.*$/i, '')
+        .replace(/[\s\-–_|]+$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      // If over-cleaned, use shorter label title
+      if (cleanT.length >= 2) data.title = cleanT;
+      else if (titleLab) data.title = titleLab;
+      else if (rawH1) data.title = rawH1.split(/\s{2,}|\s[-–|]\s/)[0].trim();
+    }
+    // Year from h1 / labels
+    if (!data.year) {
+      var y2 = (rawH1 + ' ' + titleLab + ' ' + (data.title||'')).match(/\b(19|20)\d{2}\b/);
+      if (y2) data.year = y2[0];
+    }
+    var rel = html.match(/Released\s*(?:Date)?\s*:\s*([^<\n]{2,40})/i);
+    if (rel && !data.year) {
+      var ry = rel[1].match(/\b(19|20)\d{2}\b/);
+      if (ry) data.year = ry[0];
+    }
+    // --- GENRES ---
+    var gLab = html.match(/Genres?\s*:\s*([^<\"\n]{2,160}?)(?:\s*(?:Languages?|Language|Director|Stars|Movie Quality|Quality|Screenshots?|Download|IMDB|Released)\s*:|[<\"])/i);
+    if (gLab) {
+      data.genre = gLab[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/[|].*$/, '').trim();
+      // also array form used by panel sometimes
+      data.genres = data.genre.split(/[,|\/]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    }
+    // --- LANGUAGE ---
+    var langL = html.match(/Languages?\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Director|Stars|Writers?|Movie Quality|Quality|Genres?|Screenshots?)\s*:|<)/i);
+    if (langL) data.language = langL[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 80);
+    // --- RATING ---
+    var im = html.match(/IMDB\s*Ratings?\s*:\s*([\d.]+)\s*\/?\s*10?/i) || html.match(/IMDB[^0-9]{0,20}([\d]\.[\d])/i);
+    if (im) data.rating = im[1];
+    // --- CAST / DIRECTOR ---
+    var st = html.match(/Stars?\s*:\s*([^<\n]{2,200}?)(?:\s*(?:Movie Quality|Quality|Screenshots?|Download|Genres?)\s*:|<)/i);
+    if (st) data.cast = st[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 200);
+    var dr = html.match(/Director\s*:\s*([^<\n]{2,120}?)(?:\s*(?:Writers?|Stars?|Movie Quality|Quality)\s*:|<)/i);
+    if (dr) data.director = dr[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 120);
+    // --- QUALITY line ---
+    var mq = html.match(/Movie Quality\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Screenshots?|Download)\s*:|<)/i)
+          || html.match(/\bQuality\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Screenshots?|Download)\s*:|<)/i);
+    if (mq) data.quality = mq[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 60);
+    // --- THUMBNAIL prefer storage.indiworlds poster ---
+    var ogImg = meta('og:image') || meta('twitter:image') || '';
+    if (ogImg) data.thumbnail = ogImg;
+    // --- SCREENSHOTS ---
+    // "See Screenshots Here" → img.indiworlds.com/ID → storage.indiworlds.com/images/ID.webp
+    var ssList = [];
+    function pushSs(u) {
+      if (!u) return;
+      u = u.trim().replace(/&amp;/g, '&');
+      // map img.indiworlds.com/CODE → direct webp
+      var idm = u.match(/img\.indiworlds\.com\/([A-Za-z0-9]+)/i);
+      if (idm) u = 'https://storage.indiworlds.com/images/' + idm[1] + '.webp';
+      if (!/^https?:\/\//i.test(u)) return;
+      if (/logo|icon|avatar|telegram|whatsapp|favicon|emoji|1x1|pixel|banner-ad/i.test(u)) return;
+      if (ssList.indexOf(u) === -1) ssList.push(u);
+    }
+    var ssHrefRe = /href=["'](https?:\/\/(?:img\.indiworlds\.com|storage\.indiworlds\.com)[^"']+)["']/gi;
+    var sm;
+    while ((sm = ssHrefRe.exec(html)) !== null) pushSs(sm[1]);
+    // Also "See Screenshots Here" nearby href
+    var ssNear = html.match(/[Ss]creenshots?[\s\S]{0,120}?href=["']([^"']+)["']/);
+    if (ssNear) pushSs(ssNear[1]);
+    // Body images from storage.indiworlds (not the main poster only)
+    var imgRe9 = /<img[^>]+src=["'](https?:\/\/storage\.indiworlds\.com\/images\/[^"']+)["']/gi;
+    while ((sm = imgRe9.exec(html)) !== null) {
+      // skip if same as thumbnail only when we already have ss
+      pushSs(sm[1]);
+    }
+    // Keep poster as thumbnail; screenshots = others (or including)
+    if (ssList.length) {
+      // Prefer non-poster first for screenshots if multiple
+      var thumb = data.thumbnail || '';
+      var onlySs = ssList.filter(function(u){ return u !== thumb; });
+      data.screenshots = (onlySs.length ? onlySs : ssList).slice(0, 8);
+      if (!data.thumbnail && ssList[0]) data.thumbnail = ssList[0];
+    }
+    // Description: Movie Plot if present
+    var plot = html.match(/Movie Plot\s*:\s*([\s\S]{20,600}?)(?:\s*(?:Please use|Download Links|You May Also|###)|$)/i);
+    if (plot) {
+      data.description = plot[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 500);
+    } else if (data.description && /Watch Online Download Title:/i.test(data.description)) {
+      // strip noisy meta description
+      data.description = data.description
+        .replace(/^.*?Download\s*/i, '')
+        .replace(/Title\s*:.*?(?=Genres?|$)/i, '')
+        .trim();
+    }
+  }
+
+  // Thumbnail
   data.thumbnail = meta('og:image') || meta('twitter:image') || '';
   // itemprop / link rel image
   if (!data.thumbnail) {
@@ -12777,7 +12888,16 @@ function ffiParsePage(html, srcUrl) {
       if (screenshots.length >= 6) break;
     }
   }
-  data.screenshots = screenshots;
+  // 9xflix block already set real screenshots — mat overwrite karo
+  if (data.screenshots && data.screenshots.length) {
+    // merge extra unique if any
+    (screenshots || []).forEach(function(u){
+      if (u && data.screenshots.indexOf(u) === -1) data.screenshots.push(u);
+    });
+    data.screenshots = data.screenshots.slice(0, 8);
+  } else {
+    data.screenshots = screenshots;
+  }
 
   // Category — HDFun/MMSHD/9xflix breadcrumb / URL / genres pehle.
   // 9xflix pe og:title aksar sirf "9xflix" hota hai — isliye meta description,
