@@ -12285,11 +12285,11 @@ function ffiStartImport() {
           if (!data.description && tmdb.description) data.description = tmdb.description;
           if (!data.genre && tmdb.genre) data.genre = tmdb.genre;
           if (!data.year && tmdb.year) data.year = tmdb.year;
-          // Page/breadcrumb category ko TMDB se overwrite mat karo —
-          // warna Hollywood movie TV match pe galat webseries ban jati hai.
-          // Sirf tab use karo jab page se category na mili ho.
-          if (!data.category && tmdb.category) data.category = tmdb.category;
+          // Page/list category TMDB se overwrite MAT karo
+          if (!data.category && !_ffiListCategory && tmdb.category) data.category = tmdb.category;
         }
+        // Listing URL category always wins (adult-movies → adult, etc.)
+        if (_ffiListCategory) data.category = _ffiListCategory;
         if (!data.category) data.category = defaultCat;
 
         // Update title display
@@ -12315,6 +12315,7 @@ function ffiStartImport() {
         if (data.year) obj.year = data.year;
         if (data.rating) obj.rating = data.rating;
         if (data.category) obj.category = data.category;
+        if (_ffiListCategory) obj.category = _ffiListCategory;
         if (data.genre) obj.genre = data.genre;
         if (data.genres && data.genres.length) obj.genres = data.genres;
         if (data.director) obj.director = data.director;
@@ -12323,7 +12324,7 @@ function ffiStartImport() {
         if (data.language) obj.language = data.language;
         if (data.quality) obj.quality = data.quality;
         if (data.cast) obj.cast = data.cast;
-        if (data.screenshots && data.screenshots.length) obj.screenshots = data.screenshots.join(',');
+        if (data.screenshots && data.screenshots.length) obj.screenshots = (Array.isArray(data.screenshots) ? data.screenshots.slice(0,1) : [data.screenshots]).join(',');
         if (data.download_link) {
           obj.download480p = data.download_link;
           obj.download720p = data.download_link;
@@ -12750,11 +12751,17 @@ function ffiParsePage(html, srcUrl) {
     }
     // Keep poster as thumbnail; screenshots = others (or including)
     if (ssList.length) {
-      // Prefer non-poster first for screenshots if multiple
       var thumb = data.thumbnail || '';
-      var onlySs = ssList.filter(function(u){ return u !== thumb; });
-      data.screenshots = (onlySs.length ? onlySs : ssList).slice(0, 8);
-      if (!data.thumbnail && ssList[0]) data.thumbnail = ssList[0];
+      // Sirf 1 real screenshot — poster se alag, related-grid thumbs skip
+      var onlySs = ssList.filter(function(u){
+        if (!u) return false;
+        if (thumb && u === thumb) return false;
+        if (/blogger|bp\.blogspot|i\.ibb\.co|telegram|whatsapp/i.test(u)) return false;
+        return true;
+      });
+      var one = (onlySs[0] || ssList[0] || '');
+      data.screenshots = one ? [one] : [];
+      if (!data.thumbnail && one) data.thumbnail = one;
     }
     // Description: Movie Plot if present
     var plot = html.match(/Movie Plot\s*:\s*([\s\S]{20,600}?)(?:\s*(?:Please use|Download Links|You May Also|###)|$)/i);
