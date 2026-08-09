@@ -12330,6 +12330,18 @@ function ffiStartImport() {
         if (data.rating) obj.rating = data.rating;
         if (data.category) obj.category = data.category;
         if (_ffiListCategory) obj.category = _ffiListCategory;
+        // FINAL SAFETY: title mein S01/S02/Web Series ho to adult MAT
+        // (9xflix nav mein adult-movies link har page pe hota hai — false positive)
+        var tCheck = (obj.title || '') + ' ' + (p.title || '') + ' ' + (p.url || '');
+        if (_ffiListCategory !== 'adult' && /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck)) {
+          obj.category = 'webseries';
+        }
+        if (_ffiListCategory !== 'adult' && obj.category === 'adult' && !/erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie/i.test(tCheck + ' ' + (data.genre||''))) {
+          // weak adult without listing → hollywood/webseries already handled; force non-adult
+          if (/\bS\d{1,2}\b|Season/i.test(tCheck)) obj.category = 'webseries';
+          else obj.category = _ffiListCategory || data.category || 'hollywood';
+          if (obj.category === 'adult') obj.category = 'hollywood';
+        }
         if (data.genre) obj.genre = data.genre;
         if (data.genres && data.genres.length) obj.genres = data.genres;
         if (data.director) obj.director = data.director;
@@ -12972,16 +12984,8 @@ function ffiParsePage(html, srcUrl) {
   var genreLbl = '';
   var gM = html.match(/Genres?\s*:\s*([^<\n]{2,120})/i);
   if (gM) genreLbl = gM[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-  // WP category links on 9xflix: /m/adult-movies/ etc.
+  // WP nav links intentionally IGNORED — 9xflix puts adult-movies in every page nav
   var wpCats = '';
-  var wpRe = /href=["'][^"']*\/m\/(adult-movies|hindi-movies|dual-audio|hindi-dubbed|web-series|epic-collections)\/?["'][^>]*>([^<]*)/gi;
-  var wm;
-  while ((wm = wpRe.exec(html)) !== null) {
-    wpCats += ' ' + wm[1] + ' ' + (wm[2] || '');
-  }
-  // rel="category tag"
-  var relCat = html.match(/rel=["']category tag["'][^>]*>([^<]+)/gi) || [];
-  relCat.forEach(function(x){ var t=x.replace(/<[^>]+>/g,' '); wpCats += ' ' + t; });
 
   var breadTxt = '';
   var breadM = html.match(/breadcrumb[\s\S]{0,1200}?<\/ol>/i);
@@ -12999,42 +13003,75 @@ function ffiParsePage(html, srcUrl) {
 
   var catBlob = (listCat + ' ' + breadCat + ' ' + breadTxt + ' ' + titleUrl + ' ' + metaDesc + ' ' + genreLbl + ' ' + wpCats).toLowerCase();
 
-  // Category — HDFun-style: listing URL sabse pehle, phir strong signals only
-  // Weak words (hot, uncut, short film) se Hollywood ko adult MAT banao
+  // Category — HDFun-style (CLEAN)
+  // BUG FIX: 9xflix har page ke NAV mein /adult-movies/ link hota hai.
+  // Isliye site-wide nav links se category MAT detect karo.
+  // Priority: 1) listing URL  2) post title (S01/Web Series)  3) post body labels  4) default
+
+  var cat = '';
+  var listCat = '';
+  try {
+    if (typeof _ffiListCategory === 'string' && _ffiListCategory) listCat = _ffiListCategory;
+  } catch (e) {}
+
+  // Post title + URL only (no full-page nav noise)
+  var titleOnly = ((data.title || '') + ' ' + (ogTitle || '') + ' ' + (srcUrl || '')).toLowerCase();
+  var bodyLabels = '';
+  try {
+    // Genre / title labels near top of content only — first 15k of stripped text
+    var plainShort = html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<header[\s\S]*?<\/header>/gi, ' ')
+      .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
+      .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
+      .replace(/<[^>]+>/g, '\n')
+      .slice(0, 12000)
+      .toLowerCase();
+    bodyLabels = plainShort;
+  } catch (e) {}
+
+  // Strong ADULT only from post content genre/title — NOT from nav
+  var adultStrong = /(?:^|[^a-z])(?:adult\s*movie|erotic|vivamax|atrangii|moodx|\bxxx\b|18\+|ullu\b|kooku\b|prime\s*shots|crf\s*studio|hot\s*web\s*series|hot\s*short)(?:[^a-z]|$)/i;
+  var isAdultPost = adultStrong.test(titleOnly) || (
+    /genres?\s*:\s*[^\n]{0,80}(?:erotic|adult)/i.test(bodyLabels)
+  );
+  // Explicit adult path in THIS post url only
+  if (/\/adult-movies\//i.test(srcUrl || '')) isAdultPost = true;
+
+  var isSeries = /\bs\d{1,2}\b|season\s*\d|web\s*series|tv\s*series|\be\d{1,3}\b/i.test(titleOnly);
+  var isKdrama = /k\s*drama|korean\s*drama/i.test(titleOnly);
+  var isBolly = /bollywood/i.test(titleOnly) || (/\/hindi-movies\//i.test(srcUrl||'') && !/dub/i.test(titleOnly));
+  var isSouth = /tollywood|telugu|tamil|malayalam|kannada|south\s*indian/i.test(titleOnly) && !/hindi\s*dub/i.test(titleOnly);
+  var isAnim = /animation|anime|cartoon/i.test(titleOnly);
+  var isHolly = /hollywood|dual\s*audio|hindi\s*dubbed|english\s*movie/i.test(titleOnly) || /\/dual-audio\/|\/hindi-dubbed\//i.test(srcUrl||'');
+
+  // 1) Listing URL (user ne category page se fetch kiya)
   if (listCat) {
     cat = listCat;
-  } else if (/\/adult-movies\//i.test(srcUrl || '') || /\/category\/\d+\/[^\"'\s]*adult/i.test(srcUrl || '') || /\/category\/11\//i.test(srcUrl || '')) {
-    cat = 'adult';
-  } else if (
-    /adult[\s\-]?movies?|\/adult\/|vivamax|erotic|\b18\+\b|\bxxx\b|atrangii|moodx|\bmms\b|hot[\s\-]?web[\s\-]?series|hot[\s\-]?short|ullu\b|kooku\b|prime[\s\-]?shots|crf[\s\-]?studio/i.test(catBlob)
-  ) {
-    cat = 'adult';
-  } else if (/k[\s\-]?drama|korean[\s\-]?drama/i.test(catBlob)) cat = 'kdrama';
-  else if (/\/web-series\/|web[\s\-]?series|tv[\s\-]?series|season\s*\d|\bs\d{1,2}e\d/i.test(catBlob)) cat = 'webseries';
-  else if (/\/hindi-movies\/|bollywood/i.test(catBlob) && !/dubbed|dual[\s\-]?audio|hollywood/i.test(catBlob)) cat = 'bollywood';
-  else if (/south|tollywood|telugu|tamil|malayalam|kannada/i.test(catBlob) && !/hindi[\s\-]?dub/i.test(catBlob)) cat = 'tollywood';
-  else if (/animation|anime|cartoon/i.test(catBlob)) cat = 'animation';
-  else if (/\/dual-audio\/|\/hindi-dubbed\/|hollywood|english[\s\-]?movie|hindi[\s\-]?dubbed|dual[\s\-]?audio/i.test(catBlob)) cat = 'hollywood';
+  }
+  // 2) Title signals — series pehle (Vadhandhi S02 → webseries, kabhi adult nahi)
+  else if (isSeries) cat = 'webseries';
+  else if (isKdrama) cat = 'kdrama';
+  else if (isAdultPost) cat = 'adult';
+  else if (isBolly) cat = 'bollywood';
+  else if (isSouth) cat = 'tollywood';
+  else if (isAnim) cat = 'animation';
+  else if (isHolly) cat = 'hollywood';
+  else if (isMmshd) cat = 'adult';
+  else cat = 'hollywood';
 
-  // Title/URL fallback — adult sirf strong words
-  if (!cat) {
-    if (/\bAdult\b|18\+|VivaMax|Erotic|Atrangii|MoodX|\bXXX\b|Adult\s*Movie/i.test(titleUrl + ' ' + genreLbl)) cat = 'adult';
-    else if (/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(titleUrl)) cat = 'webseries';
-    else if (/K[\s\-]?Drama|Korean\s*Drama/i.test(titleUrl)) cat = 'kdrama';
-    else if (/Bollywood/i.test(titleUrl)) cat = 'bollywood';
-    else if (/Tollywood|Telugu|Tamil|South Indian/i.test(titleUrl)) cat = 'tollywood';
-    else if (/Anime|Animation/i.test(titleUrl)) cat = 'animation';
-    else if (isMmshd) cat = 'adult'; // mmshd almost pure adult site
-    else cat = 'hollywood';
-  }
-  // HDFun/MMSHD listing URL override (same as HDFun importer behaviour)
+  // Safety: series title never adult unless listing was explicitly adult
+  if (isSeries && listCat !== 'adult') cat = 'webseries';
+  // Listing always wins when set
   if (listCat) cat = listCat;
-  if (isMmshd && !listCat && cat === 'webseries') cat = 'adult';
+
   if (isKat) {
-    if (/chinese|c[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
-    else if (/korean|k[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
-    else if (!cat || cat === 'hollywood') cat = 'kdrama';
+    if (/chinese|c[\s\-]?drama/i.test(titleOnly)) cat = 'kdrama';
+    else if (/korean|k[\s\-]?drama/i.test(titleOnly)) cat = 'kdrama';
+    else if (!listCat) cat = 'kdrama';
   }
+
   data.category = cat;
 
   // Title se year / quality / language (page labels missing hon to)
