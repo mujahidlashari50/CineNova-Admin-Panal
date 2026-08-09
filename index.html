@@ -11957,15 +11957,18 @@ function ffiFetchPosts() {
     return;
   }
 
-  // Listing URL se category inherit (9xflix adult-movies → adult, etc.)
+  // Listing URL se category inherit — HDFun style (URL path = category)
+  // Home page pe listCat khali rahe → har post page se detect hogi
   _ffiListCategory = '';
   var su = siteUrl.toLowerCase();
-  if (/adult-movies|\/adult\/|category\/11\/adult|hot-movies|xxx/i.test(su)) _ffiListCategory = 'adult';
-  else if (/web-series|webseries|\/tv-shows?/i.test(su)) _ffiListCategory = 'webseries';
-  else if (/hindi-movies|bollywood/i.test(su)) _ffiListCategory = 'bollywood';
-  else if (/dual-audio|hindi-dubbed|hollywood/i.test(su)) _ffiListCategory = 'hollywood';
-  else if (/tollywood|south|tamil|telugu/i.test(su)) _ffiListCategory = 'tollywood';
-  else if (/k-?drama|korean/i.test(su)) _ffiListCategory = 'kdrama';
+  if (/adult-movies|\/adult\/|category\/\d+\/[^\/]*adult|category\/11\/|hot-web-series|hot-movies|\bxxx\b/i.test(su)) _ffiListCategory = 'adult';
+  else if (/web-series|webseries|\/tv-shows?|category\/\d+\/[^\/]*web/i.test(su)) _ffiListCategory = 'webseries';
+  else if (/hindi-movies|bollywood|category\/\d+\/[^\/]*bollywood|category\/\d+\/[^\/]*hindi-movie/i.test(su)) _ffiListCategory = 'bollywood';
+  else if (/dual-audio|hindi-dubbed|hollywood|category\/\d+\/[^\/]*hollywood|category\/\d+\/[^\/]*english/i.test(su)) _ffiListCategory = 'hollywood';
+  else if (/tollywood|south-indian|category\/\d+\/[^\/]*south|category\/\d+\/[^\/]*tamil|category\/\d+\/[^\/]*telugu/i.test(su)) _ffiListCategory = 'tollywood';
+  else if (/k-?drama|korean|category\/\d+\/[^\/]*korean/i.test(su)) _ffiListCategory = 'kdrama';
+  else if (/animation|anime|category\/\d+\/[^\/]*anim/i.test(su)) _ffiListCategory = 'animation';
+  // pure home URLs (9xflix.sarl/m/ or hdfun.in/) → listCat empty, per-post detect
 
   _ffiPosts = [];
   btn.disabled = true; btn.textContent = '⏳ Fetching...';
@@ -12295,9 +12298,13 @@ function ffiStartImport() {
           // Page/list category TMDB se overwrite MAT karo
           if (!data.category && !_ffiListCategory && tmdb.category) data.category = tmdb.category;
         }
-        // Listing URL category always wins (adult-movies → adult, etc.)
+        // Listing URL category wins only when user fetched a category page (HDFun style)
         if (_ffiListCategory) data.category = _ffiListCategory;
         if (!data.category) data.category = defaultCat;
+        // Safety: defaultCat adult tabhi jab listing bhi adult ho
+        if (data.category === 'adult' && _ffiListCategory && _ffiListCategory !== 'adult') {
+          data.category = _ffiListCategory;
+        }
 
         // Update title display
         if (item) {
@@ -12375,12 +12382,15 @@ function ffiStartImport() {
             obj.download720p = p.url;
             obj.download480p = p.url;
           }
-          // 9xflix category safety — listing / signals se adult force
-          if (_ffiListCategory === 'adult' || /adult-movies|\bhot\b|erotic|uncut|atrangii|moodx/i.test((p.url||'')+' '+(data.title||'')+' '+(data.genre||'')+' '+(obj.category||''))) {
-            obj.category = 'adult';
-          } else if (_ffiListCategory && (!obj.category || obj.category === 'hollywood')) {
+          // Category: HDFun-style — listing URL wins; weak words (hot/uncut) se adult MAT banao
+          if (_ffiListCategory) {
             obj.category = _ffiListCategory;
+          } else if (/\/adult-movies\//i.test(p.url||'') || /\/category\/\d+\/adult/i.test(p.url||'')) {
+            obj.category = 'adult';
+          } else if (/erotic|vivamax|atrangii|moodx|\b18\+\b|\bxxx\b|adult\s*movie/i.test((data.genre||'')+' '+(data.title||''))) {
+            obj.category = 'adult';
           }
+          // hollywood dual-audio / hindi-dubbed already set via listCat or page detect
         }
         // SEO fields — auto-generate (baaki import sources jaisa hi pattern)
         var slug = (data.title + (data.year?'-'+data.year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
@@ -12989,34 +12999,37 @@ function ffiParsePage(html, srcUrl) {
 
   var catBlob = (listCat + ' ' + breadCat + ' ' + breadTxt + ' ' + titleUrl + ' ' + metaDesc + ' ' + genreLbl + ' ' + wpCats).toLowerCase();
 
-  // Adult FIRST — strong signals for 9xflix / HDFun / MMSHD
-  if (
-    listCat === 'adult' ||
-    /\/adult-movies\//i.test(srcUrl || '') ||
-    /adult[\s\-]?movies?|hot[\s\-]?movie|hot[\s\-]?web|hot[\s\-]?short|\bhot\b|short[\s\-]?film|short[\s\-]?movie|vivamax|erotic|18\+|xxx|\bdesi\b|\bmms\b|webcam|uncut|atrangii|moodx|ullu|altbalaji[\s\-]?adult|kooku|prime[\s\-]?shots|crf[\s\-]?studio/i.test(catBlob)
-  ) cat = 'adult';
-  else if (/k[\s\-]?drama|korean[\s\-]?drama/i.test(catBlob)) cat = 'kdrama';
-  else if (/web[\s\-]?series|tv[\s\-]?series|\btv series\b|season\s*\d|\bs\d{1,2}e\d|\bs\d{1,2}\b|netflix series|\/web-series\//i.test(catBlob)) cat = 'webseries';
-  else if ((/bollywood|\/hindi-movies\//i.test(catBlob) || (/hindi/.test(catBlob) && !/dubbed|english|dual/.test(catBlob))) && !/hollywood|south|telugu|tamil/.test(catBlob)) cat = 'bollywood';
-  else if (/south|tollywood|telugu|tamil|malayalam|kannada/i.test(catBlob)) cat = 'tollywood';
+  // Category — HDFun-style: listing URL sabse pehle, phir strong signals only
+  // Weak words (hot, uncut, short film) se Hollywood ko adult MAT banao
+  if (listCat) {
+    cat = listCat;
+  } else if (/\/adult-movies\//i.test(srcUrl || '') || /\/category\/\d+\/[^\"'\s]*adult/i.test(srcUrl || '') || /\/category\/11\//i.test(srcUrl || '')) {
+    cat = 'adult';
+  } else if (
+    /adult[\s\-]?movies?|\/adult\/|vivamax|erotic|\b18\+\b|\bxxx\b|atrangii|moodx|\bmms\b|hot[\s\-]?web[\s\-]?series|hot[\s\-]?short|ullu\b|kooku\b|prime[\s\-]?shots|crf[\s\-]?studio/i.test(catBlob)
+  ) {
+    cat = 'adult';
+  } else if (/k[\s\-]?drama|korean[\s\-]?drama/i.test(catBlob)) cat = 'kdrama';
+  else if (/\/web-series\/|web[\s\-]?series|tv[\s\-]?series|season\s*\d|\bs\d{1,2}e\d/i.test(catBlob)) cat = 'webseries';
+  else if (/\/hindi-movies\/|bollywood/i.test(catBlob) && !/dubbed|dual[\s\-]?audio|hollywood/i.test(catBlob)) cat = 'bollywood';
+  else if (/south|tollywood|telugu|tamil|malayalam|kannada/i.test(catBlob) && !/hindi[\s\-]?dub/i.test(catBlob)) cat = 'tollywood';
   else if (/animation|anime|cartoon/i.test(catBlob)) cat = 'animation';
-  else if (/hollywood|english[\s\-]?movie|hindi[\s\-]?dubbed|\/dual-audio\//i.test(catBlob)) cat = 'hollywood';
+  else if (/\/dual-audio\/|\/hindi-dubbed\/|hollywood|english[\s\-]?movie|hindi[\s\-]?dubbed|dual[\s\-]?audio/i.test(catBlob)) cat = 'hollywood';
 
-  // Title/URL-only fallback
+  // Title/URL fallback — adult sirf strong words
   if (!cat) {
-    if (/Adult|18\+|Unrated|VivaMax|Hot[\s\-]?Short|\bHOT\b|\bMMS\b|\bDesi\b|Erotic|Uncut|Atrangii|MoodX/i.test(titleUrl + ' ' + metaDesc + ' ' + genreLbl)) cat = 'adult';
-    else if (/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series|Complete Series/i.test(titleUrl)) cat = 'webseries';
-    else if (/K[\s\-]?Drama|Korean/i.test(titleUrl)) cat = 'kdrama';
+    if (/\bAdult\b|18\+|VivaMax|Erotic|Atrangii|MoodX|\bXXX\b|Adult\s*Movie/i.test(titleUrl + ' ' + genreLbl)) cat = 'adult';
+    else if (/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(titleUrl)) cat = 'webseries';
+    else if (/K[\s\-]?Drama|Korean\s*Drama/i.test(titleUrl)) cat = 'kdrama';
     else if (/Bollywood/i.test(titleUrl)) cat = 'bollywood';
     else if (/Tollywood|Telugu|Tamil|South Indian/i.test(titleUrl)) cat = 'tollywood';
     else if (/Anime|Animation/i.test(titleUrl)) cat = 'animation';
-    else if (isMmshd) cat = 'adult';
-    else if (listCat) cat = listCat;
+    else if (isMmshd) cat = 'adult'; // mmshd almost pure adult site
     else cat = 'hollywood';
   }
-  // Force overrides
-  if (isMmshd && cat === 'webseries') cat = 'adult';
-  if (listCat === 'adult') cat = 'adult';
+  // HDFun/MMSHD listing URL override (same as HDFun importer behaviour)
+  if (listCat) cat = listCat;
+  if (isMmshd && !listCat && cat === 'webseries') cat = 'adult';
   if (isKat) {
     if (/chinese|c[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
     else if (/korean|k[\s\-]?drama/i.test(catBlob + ' ' + titleUrl)) cat = 'kdrama';
