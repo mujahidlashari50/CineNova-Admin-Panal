@@ -12266,6 +12266,13 @@ function ffiStartImport() {
       // Parse data from page
       var data = ffiParsePage(html, p.url);
       if (!data.title) data.title = p.title;
+      // 9xflix URL slug cleanup if title still bad
+      if (data.title && (/^9xflix$/i.test(data.title) || data.title.length < 2) && p.url) {
+        try {
+          var slug = new URL(p.url).pathname.replace(/^\/m\//,'').replace(/\/$/,'').replace(/-/g,' ');
+          if (slug.length > 3) data.title = slug.replace(/\b(1080p|720p|480p|hindi|english|web dl|hdrip|hdtc)\b/ig,'').replace(/\s+/g,' ').trim();
+        } catch(e){}
+      }
 
       // Check duplicate
       if (existingTitles[data.title.toLowerCase()]) {
@@ -12662,119 +12669,135 @@ function ffiParsePage(html, srcUrl) {
   data.year = yearM ? yearM[1] : '';
 
   // ═══════════════════════════════════════════════════
-  // 9xflix.sarl — title / genre / screenshots fix
-  // og:title aksar "9xflix" hota hai; real data h1 + labels mein hai
+  // 9xflix.sarl — title / genre / language / screenshots
   // ═══════════════════════════════════════════════════
   if (/9xflix/i.test(srcUrl || '') || /9xflix/i.test(html.slice(0, 2500))) {
-    // --- TITLE from h1.entry-title or "Title: ..." label ---
+    // Plain text lines (tags stripped) — labels reliably parse hote hain
+    var plain = html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, '\n')
+      .replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
+      .replace(/[ \t]+/g, ' ');
+    function labelVal(names) {
+      for (var i = 0; i < names.length; i++) {
+        var re = new RegExp('(?:^|\\n)\\s*' + names[i] + '\\s*:\\s*([^\\n]{1,200})', 'i');
+        var m = plain.match(re);
+        if (m) return m[1].replace(/\s+/g, ' ').trim();
+      }
+      return '';
+    }
+    var labTitle = labelVal(['Title']);
+    // Cut junk glued on same line: "DC 2026 IMDB Ratings: ..."
+    if (labTitle) {
+      labTitle = labTitle
+        .split(/\s+(?:IMDB|Released|Genres?|Languages?|Director|Stars|Movie Quality|Quality)\b/i)[0]
+        .replace(/[\s\-–_|]+$/g, '')
+        .trim();
+    }
     var h1m = html.match(/<h1[^>]*class=["'][^"']*entry-title[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i)
            || html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
     var rawH1 = h1m ? h1m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-    var titleLab = '';
-    var tl = html.match(/Title\s*:\s*([^<\n]{2,120}?)(?:\s*(?:IMDB|Released|Genres?|Languages?|Director|Stars|Movie Quality|Quality)\s*:|<)/i);
-    if (tl) titleLab = tl[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    var pickTitle = titleLab || rawH1 || data.title || '';
-    // Clean quality / language junk from end but keep main name
-    if (pickTitle && !/^9xflix$/i.test(pickTitle)) {
-      var cleanT = pickTitle
+    // Clean H1: drop quality/audio tokens from the right
+    var cleanH1 = rawH1;
+    if (cleanH1) {
+      cleanH1 = cleanH1
         .replace(/\s*\[.*?\]\s*/g, ' ')
-        .replace(/\s*\((?:19|20)\d{2}\)\s*/g, ' ')
-        .replace(/\s+\b(?:Hindi|English|Tamil|Telugu|Malayalam|Kannada|Tagalog|Dual Audio|HQ Dub|Cleaned|UNCUT|HOT)\b.*$/i, '')
-        .replace(/\s+\b(?:1080p|720p|480p|2160p|4K|HDTC|WEB-?DL|WEBRip|BluRay|HDRip|BRRip|HEVC)\b.*$/i, '')
+        .replace(/\s+\b(?:1080p|720p|480p|2160p|4K|HDTC|WEB-?DL|WEBRip|BluRay|BRRip|HDRip|HEVC|HDTS|CAMRip)\b.*$/i, '')
+        .replace(/\s+\b(?:Hindi|English|Tamil|Telugu|Malayalam|Kannada|Tagalog|Dual\s*Audio|HQ\s*Dub|Cleaned|UNCUT|HOT)\b.*$/i, '')
         .replace(/[\s\-–_|]+$/g, '')
         .replace(/\s+/g, ' ')
         .trim();
-      // If over-cleaned, use shorter label title
-      if (cleanT.length >= 2) data.title = cleanT;
-      else if (titleLab) data.title = titleLab;
-      else if (rawH1) data.title = rawH1.split(/\s{2,}|\s[-–|]\s/)[0].trim();
     }
-    // Year from h1 / labels
+    // Prefer short clean Title: label, else cleaned H1
+    var finalTitle = '';
+    if (labTitle && labTitle.length >= 2 && !/^9xflix$/i.test(labTitle)) finalTitle = labTitle;
+    else if (cleanH1 && cleanH1.length >= 2 && !/^9xflix$/i.test(cleanH1)) finalTitle = cleanH1;
+    else if (rawH1 && !/^9xflix$/i.test(rawH1)) finalTitle = rawH1;
+    if (finalTitle) data.title = finalTitle;
+
+    // Year
     if (!data.year) {
-      var y2 = (rawH1 + ' ' + titleLab + ' ' + (data.title||'')).match(/\b(19|20)\d{2}\b/);
-      if (y2) data.year = y2[0];
+      var ySrc = labTitle + ' ' + rawH1 + ' ' + labelVal(['Released Date', 'Released']);
+      var y2 = ySrc.match(/\b((?:19|20)\d{2})\b/);
+      if (y2) data.year = y2[1];
     }
-    var rel = html.match(/Released\s*(?:Date)?\s*:\s*([^<\n]{2,40})/i);
-    if (rel && !data.year) {
-      var ry = rel[1].match(/\b(19|20)\d{2}\b/);
-      if (ry) data.year = ry[0];
+
+    // Genres
+    var g = labelVal(['Genres', 'Genre']);
+    if (g) {
+      g = g.split(/\s+(?:Languages?|Director|Stars|Movie Quality|Quality|Screenshots?)\b/i)[0].trim();
+      data.genre = g;
+      data.genres = g.split(/[,|\/]/).map(function(s){ return s.trim(); }).filter(Boolean);
     }
-    // --- GENRES ---
-    var gLab = html.match(/Genres?\s*:\s*([^<\"\n]{2,160}?)(?:\s*(?:Languages?|Language|Director|Stars|Movie Quality|Quality|Screenshots?|Download|IMDB|Released)\s*:|[<\"])/i);
-    if (gLab) {
-      data.genre = gLab[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/[|].*$/, '').trim();
-      // also array form used by panel sometimes
-      data.genres = data.genre.split(/[,|\/]/).map(function(s){ return s.trim(); }).filter(Boolean);
+
+    // Language — exact from page
+    var lang = labelVal(['Languages', 'Language']);
+    if (lang) {
+      lang = lang.split(/\s+(?:Director|Stars|Writers?|Movie Quality|Quality|Genres?|Screenshots?)\b/i)[0].trim();
+      // normalize common forms
+      if (/hindi/i.test(lang) && /english/i.test(lang)) data.language = 'Hindi + English';
+      else if (/hindi/i.test(lang) && /tamil/i.test(lang)) data.language = 'Hindi + Tamil';
+      else if (/hindi/i.test(lang) && /telugu/i.test(lang)) data.language = 'Hindi + Telugu';
+      else if (/dual/i.test(lang)) data.language = lang;
+      else data.language = lang.substring(0, 80);
+    } else if (rawH1) {
+      if (/hindi/i.test(rawH1) && /english/i.test(rawH1)) data.language = 'Hindi + English';
+      else if (/\bhindi\b/i.test(rawH1) && !/dub/i.test(rawH1)) data.language = 'Hindi';
+      else if (/tagalog/i.test(rawH1)) data.language = 'Tagalog';
     }
-    // --- LANGUAGE ---
-    var langL = html.match(/Languages?\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Director|Stars|Writers?|Movie Quality|Quality|Genres?|Screenshots?)\s*:|<)/i);
-    if (langL) data.language = langL[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 80);
-    // --- RATING ---
-    var im = html.match(/IMDB\s*Ratings?\s*:\s*([\d.]+)\s*\/?\s*10?/i) || html.match(/IMDB[^0-9]{0,20}([\d]\.[\d])/i);
+
+    // Rating
+    var im = plain.match(/IMDB\s*Ratings?\s*:\s*([\d.]+)/i) || html.match(/IMDB\s*Ratings?\s*:\s*([\d.]+)/i);
     if (im) data.rating = im[1];
-    // --- CAST / DIRECTOR ---
-    var st = html.match(/Stars?\s*:\s*([^<\n]{2,200}?)(?:\s*(?:Movie Quality|Quality|Screenshots?|Download|Genres?)\s*:|<)/i);
-    if (st) data.cast = st[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 200);
-    var dr = html.match(/Director\s*:\s*([^<\n]{2,120}?)(?:\s*(?:Writers?|Stars?|Movie Quality|Quality)\s*:|<)/i);
-    if (dr) data.director = dr[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 120);
-    // --- QUALITY line ---
-    var mq = html.match(/Movie Quality\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Screenshots?|Download)\s*:|<)/i)
-          || html.match(/\bQuality\s*:\s*([^<\n]{2,80}?)(?:\s*(?:Screenshots?|Download)\s*:|<)/i);
-    if (mq) data.quality = mq[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 60);
-    // --- THUMBNAIL prefer storage.indiworlds poster ---
+
+    // Cast / Director
+    var st = labelVal(['Stars', 'Starcast', 'Cast']);
+    if (st) data.cast = st.split(/\s+(?:Movie Quality|Quality|Screenshots?|Download)\b/i)[0].trim().substring(0, 200);
+    var dr = labelVal(['Director']);
+    if (dr) data.director = dr.split(/\s+(?:Writers?|Stars?|Movie Quality|Quality)\b/i)[0].trim().substring(0, 120);
+
+    // Quality line
+    var mq = labelVal(['Movie Quality', 'Quality']);
+    if (mq) data.quality = mq.split(/\s+(?:Screenshots?|Download)\b/i)[0].trim().substring(0, 60);
+
+    // Thumbnail
     var ogImg = meta('og:image') || meta('twitter:image') || '';
     if (ogImg) data.thumbnail = ogImg;
-    // --- SCREENSHOTS ---
-    // "See Screenshots Here" → img.indiworlds.com/ID → storage.indiworlds.com/images/ID.webp
+
+    // Screenshots — only 1 real indiworlds image
     var ssList = [];
     function pushSs(u) {
       if (!u) return;
       u = u.trim().replace(/&amp;/g, '&');
-      // map img.indiworlds.com/CODE → direct webp
       var idm = u.match(/img\.indiworlds\.com\/([A-Za-z0-9]+)/i);
       if (idm) u = 'https://storage.indiworlds.com/images/' + idm[1] + '.webp';
       if (!/^https?:\/\//i.test(u)) return;
-      if (/logo|icon|avatar|telegram|whatsapp|favicon|emoji|1x1|pixel|banner-ad/i.test(u)) return;
+      if (/logo|icon|avatar|telegram|whatsapp|favicon|emoji|blogger|bp\.blogspot|i\.ibb\.co/i.test(u)) return;
       if (ssList.indexOf(u) === -1) ssList.push(u);
     }
-    var ssHrefRe = /href=["'](https?:\/\/(?:img\.indiworlds\.com|storage\.indiworlds\.com)[^"']+)["']/gi;
-    var sm;
+    var sm, ssHrefRe = /href=["'](https?:\/\/(?:img\.indiworlds\.com|storage\.indiworlds\.com)[^"']+)["']/gi;
     while ((sm = ssHrefRe.exec(html)) !== null) pushSs(sm[1]);
-    // Also "See Screenshots Here" nearby href
     var ssNear = html.match(/[Ss]creenshots?[\s\S]{0,120}?href=["']([^"']+)["']/);
     if (ssNear) pushSs(ssNear[1]);
-    // Body images from storage.indiworlds (not the main poster only)
     var imgRe9 = /<img[^>]+src=["'](https?:\/\/storage\.indiworlds\.com\/images\/[^"']+)["']/gi;
-    while ((sm = imgRe9.exec(html)) !== null) {
-      // skip if same as thumbnail only when we already have ss
-      pushSs(sm[1]);
-    }
-    // Keep poster as thumbnail; screenshots = others (or including)
+    while ((sm = imgRe9.exec(html)) !== null) pushSs(sm[1]);
     if (ssList.length) {
       var thumb = data.thumbnail || '';
-      // Sirf 1 real screenshot — poster se alag, related-grid thumbs skip
-      var onlySs = ssList.filter(function(u){
-        if (!u) return false;
-        if (thumb && u === thumb) return false;
-        if (/blogger|bp\.blogspot|i\.ibb\.co|telegram|whatsapp/i.test(u)) return false;
-        return true;
-      });
-      var one = (onlySs[0] || ssList[0] || '');
+      var onlySs = ssList.filter(function(u){ return u && u !== thumb; });
+      var one = onlySs[0] || ssList[0] || '';
       data.screenshots = one ? [one] : [];
       if (!data.thumbnail && one) data.thumbnail = one;
     }
-    // Description: Movie Plot if present
-    var plot = html.match(/Movie Plot\s*:\s*([\s\S]{20,600}?)(?:\s*(?:Please use|Download Links|You May Also|###)|$)/i);
-    if (plot) {
-      data.description = plot[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 500);
-    } else if (data.description && /Watch Online Download Title:/i.test(data.description)) {
-      // strip noisy meta description
-      data.description = data.description
-        .replace(/^.*?Download\s*/i, '')
-        .replace(/Title\s*:.*?(?=Genres?|$)/i, '')
-        .trim();
+
+    // Plot
+    var plot = labelVal(['Movie Plot', 'Plot', 'Story', 'Synopsis']);
+    if (plot && plot.length > 20) data.description = plot.substring(0, 500);
+    else if (data.description && /Watch Online Download Title:/i.test(data.description)) {
+      data.description = data.description.replace(/^.*?Download\s*/i, '').replace(/Title\s*:.*$/i, '').trim();
     }
   }
+
 
   // Thumbnail
   data.thumbnail = meta('og:image') || meta('twitter:image') || '';
