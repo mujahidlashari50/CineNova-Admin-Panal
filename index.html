@@ -923,8 +923,19 @@ tr:hover td{background:rgba(229,9,20,0.04);}
       </div>
       <div id="sel-bar" style="display:none;background:rgba(229,9,20,0.08);border:1px solid rgba(229,9,20,0.25);border-radius:8px;padding:10px 16px;margin-bottom:10px;display:none;align-items:center;gap:12px;flex-wrap:wrap;">
         <span style="color:#fca5a5;font-size:0.85rem;">✅ <strong id="sel-bar-count">0</strong> movies selected</span>
-        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;padding:8px 16px;font-size:0.82rem;" onclick="confirmDeleteSelected()">🗑 Selected Confirm Delete</button>
-        <button class="btn btn-s" style="padding:8px 16px;font-size:0.82rem;" onclick="deselectAll()">✕ Deselect Karo</button>
+        <select class="fi" id="sel-bar-cat" style="width:auto;padding:8px 12px;font-size:0.82rem;">
+          <option value="">📁 Category change...</option>
+          <option value="hollywood">🌟 Hollywood</option>
+          <option value="bollywood">🎭 Bollywood</option>
+          <option value="tollywood">🎬 Tollywood</option>
+          <option value="animation">🧸 Animation</option>
+          <option value="webseries">📺 Web Series</option>
+          <option value="kdrama">🇰🇷 K-Drama</option>
+          <option value="adult">🔞 Adult</option>
+        </select>
+        <button class="btn" style="background:#1d4ed8;color:#fff;padding:8px 16px;font-size:0.82rem;" onclick="changeSelectedCategory()">✅ Category Apply</button>
+        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;padding:8px 16px;font-size:0.82rem;" onclick="confirmDeleteSelected()">🗑 Delete</button>
+        <button class="btn btn-s" style="padding:8px 16px;font-size:0.82rem;" onclick="deselectAll()">✕ Deselect</button>
       </div>
       <div class="cat-filter">
         <button class="cf-btn active" id="cf-all" onclick="filterByCat('all')">All</button>
@@ -1396,10 +1407,48 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-bulkedit">
       <div class="sec-title">✏️ Bulk <span>Edit</span></div>
       <div style="background:rgba(29,78,216,0.08);border:1px solid rgba(29,78,216,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#93c5fd;">
-        💡 Select multiple movies and change <strong>Category, Genre, Language, Quality</strong> all at once.
+        💡 <b>3 tareeqe:</b><br>
+        1) Neeche movies select karke category change<br>
+        2) Poori category ek saath move (jaise saari Hollywood → Bollywood)<br>
+        3) All Content page pe checkbox se select → category change
       </div>
+
+      <!-- MASS MOVE ENTIRE CATEGORY -->
+      <div class="card" style="border-color:rgba(56,189,248,0.35);">
+        <h3>🔄 Poori Category Move Karo</h3>
+        <div style="color:var(--grey);font-size:0.8rem;margin-bottom:12px;">Example: Hollywood ki <b>saari</b> movies ko Web Series mein bhej do — ek click.</div>
+        <div class="fg">
+          <div class="fgg"><label>From Category</label>
+            <select class="fi" id="be-move-from" onchange="beUpdateMoveCount()">
+              <option value="hollywood">🌟 Hollywood</option>
+              <option value="bollywood">🎭 Bollywood</option>
+              <option value="tollywood">🎬 Tollywood</option>
+              <option value="animation">🧸 Animation</option>
+              <option value="webseries">📺 Web Series</option>
+              <option value="kdrama">🇰🇷 K-Drama</option>
+              <option value="adult">🔞 Adult (18+)</option>
+            </select>
+          </div>
+          <div class="fgg"><label>To Category</label>
+            <select class="fi" id="be-move-to">
+              <option value="hollywood">🌟 Hollywood</option>
+              <option value="bollywood">🎭 Bollywood</option>
+              <option value="tollywood">🎬 Tollywood</option>
+              <option value="animation">🧸 Animation</option>
+              <option value="webseries">📺 Web Series</option>
+              <option value="kdrama">🇰🇷 K-Drama</option>
+              <option value="adult">🔞 Adult (18+)</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-p" style="background:#0284c7;" onclick="beMoveEntireCategory()">🚀 Move All Movies</button>
+          <span id="be-move-count" style="font-size:0.8rem;color:#7dd3fc;"></span>
+        </div>
+      </div>
+
       <div class="card">
-        <h3>Bulk Change Settings</h3>
+        <h3>Bulk Change Settings (Selected Movies)</h3>
         <div class="fg">
           <div class="fgg"><label>Change Category</label>
             <select class="fi" id="be-cat">
@@ -1432,7 +1481,20 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <span id="be-sel-count" style="color:var(--grey);font-size:0.82rem;">0 selected</span>
         </div>
       </div>
-      <input class="si" id="be-srch" placeholder="🔍 Movie search karo..." oninput="beFilter()" style="width:100%;margin:10px 0;"/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;align-items:center;">
+        <select class="fi" id="be-filter-cat" onchange="beFilter()" style="width:auto;min-width:160px;">
+          <option value="">📁 All Categories</option>
+          <option value="hollywood">🌟 Hollywood</option>
+          <option value="bollywood">🎭 Bollywood</option>
+          <option value="tollywood">🎬 Tollywood</option>
+          <option value="animation">🧸 Animation</option>
+          <option value="webseries">📺 Web Series</option>
+          <option value="kdrama">🇰🇷 K-Drama</option>
+          <option value="adult">🔞 Adult</option>
+        </select>
+        <input class="si" id="be-srch" placeholder="🔍 Movie search karo..." oninput="beFilter()" style="flex:1;min-width:180px;margin:0;"/>
+        <button class="btn btn-s" onclick="beSelectFiltered()" style="white-space:nowrap;">☑ Select Filtered</button>
+      </div>
       <div id="be-list"></div>
     </div>
 
@@ -5886,6 +5948,26 @@ function updateSelUI(){
   }
 }
 
+function changeSelectedCategory(){
+  var keys = Object.keys(selectedKeys);
+  if(!keys.length){ toast('❌ Pehle movies select karo (checkbox)', 1); return; }
+  var cat = (document.getElementById('sel-bar-cat')||{}).value;
+  if(!cat){ toast('❌ Category choose karo', 1); return; }
+  if(!confirm(keys.length+' movies ki category → "'+cat+'" karein?')) return;
+  var updates={};
+  keys.forEach(function(k){ updates['movies/'+k+'/category']=cat; });
+  db.ref().update(updates).then(function(){
+    keys.forEach(function(k){
+      var m=allMovies.find(function(x){return x.key===k;});
+      if(m) m.category=cat;
+    });
+    toast('✅ '+keys.length+' movies → '+cat);
+    selectedKeys={};
+    updateSelUI();
+    try{ updateCounts(); renderDash(); renderTable(currentCatFilter==='all'?allMovies:allMovies.filter(function(m){return m.category===currentCatFilter;})); }catch(e){}
+  }).catch(function(e){ toast('❌ '+e.message,1); });
+}
+
 function confirmDeleteSelected(){
   var keys = Object.keys(selectedKeys);
   if(!keys.length){ toast('❌ Please select at least one movie first!', 1); return; }
@@ -8243,11 +8325,65 @@ function clearAllContacts(){
 // ✏️ BULK EDIT
 // ═══════════════════════════════════════════
 var beSelected={};
-function beFilter(){
-  var q=(document.getElementById('be-srch')||{}).value||''; q=q.toLowerCase().trim();
-  var list=q?allMovies.filter(function(m){return(m.title||'').toLowerCase().includes(q);}):allMovies;
-  renderBeList(list);
+function bulkEditLoad(){
+  beSelected={};
+  var fcat=document.getElementById('be-filter-cat');
+  if(fcat) fcat.value='';
+  var sr=document.getElementById('be-srch');
+  if(sr) sr.value='';
+  beFilter();
+  beUpdateMoveCount();
 }
+function beUpdateMoveCount(){
+  var fromEl=document.getElementById('be-move-from');
+  var cntEl=document.getElementById('be-move-count');
+  if(!fromEl||!cntEl) return;
+  var from=fromEl.value;
+  var n=allMovies.filter(function(m){return m.category===from;}).length;
+  cntEl.textContent = n + ' movies is category mein hain';
+}
+function beFilter(){
+  var q=((document.getElementById('be-srch')||{}).value||'').toLowerCase().trim();
+  var fcat=((document.getElementById('be-filter-cat')||{}).value||'');
+  var list=allMovies.filter(function(m){
+    if(fcat && m.category!==fcat) return false;
+    if(q && (m.title||'').toLowerCase().indexOf(q)===-1) return false;
+    return true;
+  });
+  renderBeList(list);
+  beUpdateMoveCount();
+}
+function beSelectFiltered(){
+  var q=((document.getElementById('be-srch')||{}).value||'').toLowerCase().trim();
+  var fcat=((document.getElementById('be-filter-cat')||{}).value||'');
+  beSelected={};
+  allMovies.forEach(function(m){
+    if(fcat && m.category!==fcat) return;
+    if(q && (m.title||'').toLowerCase().indexOf(q)===-1) return;
+    beSelected[m.key]=true;
+  });
+  beFilter();
+  toast('✅ '+Object.keys(beSelected).length+' movies selected');
+}
+/** Poori category ki saari movies move */
+function beMoveEntireCategory(){
+  var from=(document.getElementById('be-move-from')||{}).value;
+  var to=(document.getElementById('be-move-to')||{}).value;
+  if(!from||!to){ toast('❌ From / To category select karo',1); return; }
+  if(from===to){ toast('❌ From aur To same nahi ho sakte',1); return; }
+  var targets=allMovies.filter(function(m){ return m.category===from; });
+  if(!targets.length){ toast('❌ Is category mein koi movie nahi',1); return; }
+  if(!confirm(targets.length+' movies ko "'+from+'" se "'+to+'" mein move karein?\\nYe Firebase update karega.')) return;
+  var updates={};
+  targets.forEach(function(m){ updates['movies/'+m.key+'/category']=to; });
+  db.ref().update(updates).then(function(){
+    targets.forEach(function(m){ m.category=to; });
+    toast('✅ '+targets.length+' movies → '+to);
+    try{ updateCounts(); renderDash(); }catch(e){}
+    beFilter();
+  }).catch(function(e){ toast('❌ '+e.message,1); });
+}
+
 function renderBeList(list){
   var el=document.getElementById('be-list');if(!el)return;
   el.innerHTML=list.map(function(m){
@@ -12283,14 +12419,15 @@ function ffiFetchPosts() {
   // Home page pe listCat khali rahe → har post page se detect hogi
   _ffiListCategory = '';
   var su = siteUrl.toLowerCase();
+  // Order: adult → kdrama → tv/web series → regional → hollywood (hollywood last because dual-audio matches many pages)
   if (/adult-movies|\/adult\/|category\/\d+\/[^\/]*adult|category\/11\/|hot-web-series|hot-movies|\bxxx\b/i.test(su)) _ffiListCategory = 'adult';
-  else if (/web-series|webseries|\/tv-shows?|category\/\d+\/[^\/]*web/i.test(su)) _ffiListCategory = 'webseries';
-  else if (/hindi-movies|bollywood|category\/\d+\/[^\/]*bollywood|category\/\d+\/[^\/]*hindi-movie/i.test(su)) _ffiListCategory = 'bollywood';
-  else if (/dual-audio|hindi-dubbed|hollywood|category\/\d+\/[^\/]*hollywood|category\/\d+\/[^\/]*english/i.test(su)) _ffiListCategory = 'hollywood';
-  else if (/tollywood|south-indian|category\/\d+\/[^\/]*south|category\/\d+\/[^\/]*tamil|category\/\d+\/[^\/]*telugu/i.test(su)) _ffiListCategory = 'tollywood';
   else if (/k-?drama|korean|c-?drama|asian.?drama|category\/\d+\/[^\/]*korean|katdrama/i.test(su)) _ffiListCategory = 'kdrama';
+  else if (/web-series|webseries|\/tv-shows?|tv[\s\-]?series|category\/\d+\/[^\/]*web|category\/\d+\/[^\/]*series/i.test(su)) _ffiListCategory = 'webseries';
+  else if (/hindi-movies|bollywood|category\/\d+\/[^\/]*bollywood|category\/\d+\/[^\/]*hindi-movie/i.test(su)) _ffiListCategory = 'bollywood';
+  else if (/tollywood|south-indian|category\/\d+\/[^\/]*south|category\/\d+\/[^\/]*tamil|category\/\d+\/[^\/]*telugu/i.test(su)) _ffiListCategory = 'tollywood';
   else if (/animation|anime|category\/\d+\/[^\/]*anim/i.test(su)) _ffiListCategory = 'animation';
-  // pure home URLs (9xflix.ist/m/ or hdfun.in/) → listCat empty, per-post detect
+  else if (/dual-audio|hindi-dubbed|hollywood|category\/\d+\/[^\/]*hollywood|category\/\d+\/[^\/]*english/i.test(su)) _ffiListCategory = 'hollywood';
+  // pure home URLs → listCat empty, per-post detect
 
   _ffiPosts = [];
   btn.disabled = true; btn.textContent = '⏳ Fetching...';
@@ -12625,24 +12762,49 @@ function ffiStartImport() {
           if (!data.description && tmdb.description) data.description = tmdb.description;
           if (!data.genre && tmdb.genre) data.genre = tmdb.genre;
           if (!data.year && tmdb.year) data.year = tmdb.year;
-          // Category: page/list pehle — TMDB last resort only
-          if (!data.category && !_ffiListCategory && tmdb.category) data.category = tmdb.category;
+          // Category: TMDB Asian drama → kdrama (even on hollywood dual-audio list)
+          if (tmdb.isAsianDrama && data.category !== 'adult') {
+            data.category = 'kdrama';
+          } else if (!data.category && !_ffiListCategory && tmdb.category) {
+            data.category = tmdb.category;
+          }
         }
 
         // Listing URL category (HDFun style) — wins for category pages
-        if (_ffiListCategory) data.category = _ffiListCategory;
+        // Listing = default only; keep parser K-Drama / adult / series overrides
+        if (_ffiListCategory && !data.category) data.category = _ffiListCategory;
+        if (_ffiListCategory && data.category) {
+          // Allow overrides that parser already set
+          var forced = data.category;
+          var isKd = /k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b/i.test((data.title||'')+' '+(p.title||'')+' '+(p.url||''));
+          var isAd = /erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+/i.test((data.title||'')+' '+(data.genre||'')+' '+(p.url||''));
+          var isSer = /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test((data.title||'')+' '+(p.title||''));
+          if (isKd && _ffiListCategory !== 'adult') data.category = 'kdrama';
+          else if (isAd) data.category = 'adult';
+          else if (forced === 'kdrama') data.category = 'kdrama';
+          else if (isSer && _ffiListCategory === 'kdrama') data.category = 'kdrama';
+          else if (isSer && _ffiListCategory !== 'adult' && forced !== 'kdrama') data.category = 'webseries';
+          else if (!forced || forced === 'hollywood') data.category = _ffiListCategory;
+          // else keep forced (parser already chose)
+        }
         if (!data.category) data.category = defaultCat || 'hollywood';
 
-        // Series title safety
+        // Series title → webseries, but NEVER overwrite kdrama / adult
         var tCheck0 = (data.title || '') + ' ' + (p.title || '') + ' ' + (p.url || '');
-        if (_ffiListCategory !== 'adult' && /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck0)) {
+        if (data.category !== 'kdrama' && data.category !== 'adult' && _ffiListCategory !== 'adult' &&
+            /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck0)) {
           data.category = 'webseries';
+        }
+        // TMDB Korean/Chinese/Japanese TV → kdrama (title mein "korean" na ho to bhi)
+        if (tmdb && tmdb.isAsianDrama && data.category !== 'adult') {
+          data.category = 'kdrama';
         }
         // Weak adult false positive kill
         if (_ffiListCategory !== 'adult' && data.category === 'adult' &&
             !/erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie/i.test(tCheck0 + ' ' + (data.genre || ''))) {
           data.category = _ffiListCategory || 'hollywood';
-          if (/\bS\d{1,2}\b|Season/i.test(tCheck0)) data.category = 'webseries';
+          if (data.category !== 'kdrama' && /\bS\d{1,2}\b|Season/i.test(tCheck0)) data.category = 'webseries';
+          if (tmdb && tmdb.isAsianDrama) data.category = 'kdrama';
         }
 
         // ── CATEGORY GUARD: listing se match na kare to SKIP ──
@@ -12668,13 +12830,15 @@ function ffiStartImport() {
         }
         // If listing is adult, skip clear non-adult blockbusters without adult signals? soft — keep all from adult list
         // If listing is webseries, skip pure movies without Sxx/Season/Series in title (optional soft)
-        if (_ffiListCategory === 'webseries') {
+        if (_ffiListCategory === 'webseries' && data.category !== 'kdrama' && data.category !== 'adult') {
           if (!/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series|Episodes?/i.test(tCheck0) &&
               !/series/i.test(data.genre || '')) {
-            // still allow if list forced category already webseries - user selected from web-series page
             data.category = 'webseries';
           }
         }
+        // Re-assert kdrama after all list logic
+        if (tmdb && tmdb.isAsianDrama && data.category !== 'adult') data.category = 'kdrama';
+        if (/k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b/i.test(tCheck0) && data.category !== 'adult') data.category = 'kdrama';
         // Hollywood listing: skip if clearly bollywood-only without dual/english?
         // Don't over-skip — listCat already set category.
 
@@ -12702,17 +12866,30 @@ function ffiStartImport() {
         if (data.year) obj.year = String(data.year);
         if (data.rating) obj.rating = String(data.rating);
         if (data.category) obj.category = data.category;
-        if (_ffiListCategory) obj.category = _ffiListCategory;
-        // Final series / anti-adult safety again on obj
+        // Prefer data.category from parser (already has K-Drama override)
+        if (data.category) obj.category = data.category;
+        else if (_ffiListCategory) obj.category = _ffiListCategory;
+        // Final safety on obj — NEVER wipe kdrama
         var tCheck = (obj.title || '') + ' ' + (p.title || '') + ' ' + (p.url || '');
-        if (_ffiListCategory !== 'adult' && /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck)) {
+        // TMDB / parser already set kdrama → keep it
+        if (data.category === 'kdrama' || (tmdb && tmdb.isAsianDrama)) {
+          obj.category = 'kdrama';
+        } else if (obj.category !== 'kdrama' && obj.category !== 'adult' && _ffiListCategory !== 'adult' &&
+            /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck)) {
           obj.category = 'webseries';
         }
         if (_ffiListCategory !== 'adult' && obj.category === 'adult' &&
             !/erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie/i.test(tCheck + ' ' + (data.genre || ''))) {
           obj.category = _ffiListCategory || 'hollywood';
-          if (/\bS\d{1,2}\b|Season/i.test(tCheck)) obj.category = 'webseries';
+          if (obj.category !== 'kdrama' && /\bS\d{1,2}\b|Season/i.test(tCheck)) obj.category = 'webseries';
           if (obj.category === 'adult') obj.category = 'hollywood';
+        }
+        // Absolute last: Asian language signals in title/url/genre
+        if (obj.category !== 'adult' && /k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b|chinese\s*drama|japanese\s*drama/i.test(tCheck + ' ' + (data.genre||'') + ' ' + (data.language||''))) {
+          obj.category = 'kdrama';
+        }
+        if (tmdb && tmdb.isAsianDrama && obj.category !== 'adult') {
+          obj.category = 'kdrama';
         }
 
         if (data.genre) obj.genre = data.genre;
@@ -13564,20 +13741,43 @@ function ffiParsePage(html, srcUrl) {
   if (/\/adult-movies\//i.test(srcUrl || '')) isAdultPost = true;
 
   var isSeries = /\bs\d{1,2}\b|season\s*\d|web\s*series|tv\s*series|\be\d{1,3}\b/i.test(titleOnly);
-  var isKdrama = /k[\s\-]?drama|korean[\s\-]?drama|c[\s\-]?drama|asian[\s\-]?drama|\bkorean\b/i.test(titleOnly) || /katdrama|asiandrama/i.test(srcUrl||'');
+  var pageLangBlob = (data.language || '') + ' ' + (data.genre || '') + ' ' + titleOnly;
+  var isKdrama = /k[\s\-]?drama|korean[\s\-]?drama|c[\s\-]?drama|j[\s\-]?drama|asian[\s\-]?drama|korean\s*series|netflix\s*korea/i.test(pageLangBlob)
+              || /katdrama|asiandrama|mydramalist/i.test(srcUrl||'')
+              || (/\bkorean\b/i.test(pageLangBlob) && !/korean\s*war/i.test(pageLangBlob))
+              || /language\s*:\s*korean/i.test(html.slice(0, 8000))
+              || /genres?\s*:\s*[^\n]{0,60}korean/i.test(html.slice(0, 8000));
   var isBolly = /bollywood/i.test(titleOnly) || (/\/hindi-movies\//i.test(srcUrl||'') && !/dub/i.test(titleOnly));
   var isSouth = /tollywood|telugu|tamil|malayalam|kannada|south\s*indian/i.test(titleOnly) && !/hindi\s*dub/i.test(titleOnly);
   var isAnim = /animation|anime|cartoon/i.test(titleOnly);
   var isHolly = /hollywood|dual\s*audio|hindi\s*dubbed|english\s*movie/i.test(titleOnly) || /\/dual-audio\/|\/hindi-dubbed\//i.test(srcUrl||'');
 
-  // 1) Listing URL (user ne category page se fetch kiya)
-  if (listCat) {
+  // Category priority (IMPORTANT):
+  // 1) Strong post signals (K-Drama / Adult / Series) — override wrong listing
+  // 2) Listing URL category — default for normal posts
+  // 3) Soft title signals
+  cat = '';
+
+  // Strong: K-Drama post always kdrama (even if listing was hollywood dual-audio)
+  if (isKdrama && listCat !== 'adult') {
+    cat = 'kdrama';
+  }
+  // Strong: adult post content
+  else if (isAdultPost) {
+    cat = 'adult';
+  }
+  // Strong: series/season → webseries (unless listing is kdrama — keep kdrama series in kdrama)
+  else if (isSeries && listCat === 'kdrama') {
+    cat = 'kdrama';
+  }
+  else if (isSeries && listCat !== 'adult') {
+    cat = 'webseries';
+  }
+  // Listing URL default
+  else if (listCat) {
     cat = listCat;
   }
-  // 2) Title signals — series pehle (Vadhandhi S02 → webseries, kabhi adult nahi)
-  else if (isSeries) cat = 'webseries';
-  else if (isKdrama) cat = 'kdrama';
-  else if (isAdultPost) cat = 'adult';
+  // Soft title signals
   else if (isBolly) cat = 'bollywood';
   else if (isSouth) cat = 'tollywood';
   else if (isAnim) cat = 'animation';
@@ -13585,15 +13785,16 @@ function ffiParsePage(html, srcUrl) {
   else if (isMmshd) cat = 'adult';
   else cat = 'hollywood';
 
-  // Safety: series title never adult unless listing was explicitly adult
-  if (isSeries && listCat !== 'adult') cat = 'webseries';
-  // Listing always wins when set
-  if (listCat) cat = listCat;
-
+  // KatDrama domain
   if (isKat) {
     if (/chinese|c[\s\-]?drama/i.test(titleOnly)) cat = 'kdrama';
     else if (/korean|k[\s\-]?drama/i.test(titleOnly)) cat = 'kdrama';
-    else if (!listCat) cat = 'kdrama';
+    else if (!listCat || listCat === 'kdrama') cat = 'kdrama';
+  }
+
+  // Safety: never adult for series unless listing/post is adult
+  if (isSeries && cat === 'adult' && listCat !== 'adult' && !isAdultPost) {
+    cat = isKdrama ? 'kdrama' : 'webseries';
   }
 
   data.category = cat;
@@ -13738,7 +13939,17 @@ function ffiParsePage(html, srcUrl) {
 function ffiTmdbEnrich(title, year, cb) {
   var apiKey = typeof TMDB_API !== 'undefined' ? TMDB_API : (typeof TKEY !== 'undefined' ? TKEY : '');
   if (!apiKey) { cb(null); return; }
-  var q = encodeURIComponent(title);
+  // Clean title for better TMDB match (remove quality/dub/season noise)
+  var clean = String(title || '')
+    .replace(/\b(19|20)\d{2}\b/g, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
+    .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|complete\s*series|full\s*season)\b/gi, ' ')
+    .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
+    .replace(/\b(download|watch\s*online|hd)\b/gi, ' ')
+    .replace(/[\[\]\(\)\{\}]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  if (clean.length < 2) clean = String(title || '').trim();
+  var q = encodeURIComponent(clean);
   var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
   fetch(url)
     .then(function(r){ return r.json(); })
@@ -13746,21 +13957,35 @@ function ffiTmdbEnrich(title, year, cb) {
       var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
       if (year) {
         var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(year); });
-        // Sirf tab filter apply karo jab kam-se-kam 1 match mile — warna
-        // (jaise FilmyFly ka year TMDB se thoda mismatch ho) unfiltered
-        // results hi rehne do, taake enrichment poori tarah fail na ho.
         if (filtered.length) results = filtered;
+      }
+      // Prefer TV result if title looks like series
+      var wantTv = /\bS\d{1,2}\b|Season|Series|Drama/i.test(String(title||''));
+      if (wantTv) {
+        var tvFirst = results.filter(function(r){ return r.media_type === 'tv'; });
+        if (tvFirst.length) results = tvFirst.concat(results.filter(function(r){ return r.media_type !== 'tv'; }));
       }
       var m = results[0];
       if (!m) { cb(null); return; }
       var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
+      var lang = (m.original_language || '').toLowerCase();
+      // Korean / Chinese / Japanese dramas & series
+      var asianLang = (lang === 'ko' || lang === 'zh' || lang === 'ja' || lang === 'th' || lang === 'id');
+      var isAsianDrama = asianLang && (m.media_type === 'tv' || /drama/i.test((m.genre_ids||[]).join(',')));
+      // TV with Asian origin language → treat as kdrama category
+      if (asianLang && m.media_type === 'tv') isAsianDrama = true;
+      var catGuess = '';
+      if (isAsianDrama) catGuess = 'kdrama';
+      else if (m.media_type === 'tv') catGuess = 'webseries';
       cb({
         poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
         rating: m.vote_average ? m.vote_average.toFixed(1) : '',
         description: m.overview || '',
         year: (m.release_date || m.first_air_date || '').substring(0,4),
         genre: genreMap[m.genre_ids && m.genre_ids[0]] || '',
-        category: m.media_type === 'tv' ? 'webseries' : ''
+        category: catGuess,
+        original_language: lang,
+        isAsianDrama: isAsianDrama
       });
     })
     .catch(function(){ cb(null); });
