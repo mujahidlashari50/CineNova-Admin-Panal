@@ -455,6 +455,11 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 .plyr-preview-iframe{width:100%;aspect-ratio:16/9;border:none;display:block;}
 .plyr-preview-direct{width:100%;border:none;display:block;}
 .plyr-preview-label{font-size:0.68rem;color:var(--grey2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+
+/* PANEL SNAPPY */
+.nav-item, .btn, .toggle-wrap, button { touch-action: manipulation; }
+.section { content-visibility: auto; }
+.section.active { content-visibility: visible; }
 </style>
 <!-- Plyr.io -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
@@ -1108,7 +1113,12 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-trending">
       <div class="sec-title">🔥 Trending <span>Manager</span></div>
       <div style="background:rgba(229,9,20,0.07);border:1px solid rgba(229,9,20,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fca5a5;">
-        💡 Mark movies as <strong>Trending</strong> or <strong>Featured</strong> — they will appear in a special section on the website. Use the toggle to turn on/off.
+        💡 Mark movies as <strong>Trending</strong> or <strong>Featured</strong> — website slider mein dikhengi.
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <button class="btn" onclick="autoTrendLatest(15)" style="background:#e50914;">🔥 Auto ON Latest 15</button>
+        <button class="btn" onclick="autoTrendLatest(30)" style="background:#b00710;">🔥 Latest 30</button>
+        <button class="btn" onclick="clearAllTrending()" style="background:#333;">Clear All Trending</button>
       </div>
       <input class="si" id="trend-srch" placeholder="🔍 Movie search karo..." oninput="trendFilter()" style="width:100%;margin-bottom:14px;"/>
       <div id="trend-list"></div>
@@ -1118,7 +1128,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-motd">
       <div class="sec-title">🎬 Movie of the <span>Day</span></div>
       <div style="background:rgba(250,204,21,0.07);border:1px solid rgba(250,204,21,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fde68a;">
-        💡 Har roz sabse zyada downloads wali movie khud-ba-khud "Movie of the Day" ban jati hai (Automatic). Agar aap koi specific movie highlight karna chahte ho to neeche search kar ke "Set" kar do (Manual Override) — wo sirf aaj ke din ke liye lagu hogi.
+        💡 Automatic: top downloads. Manual: neeche search karke <strong>1–4 movies</strong> add karo — website pe har <strong>10 second</strong> rotate hongi.
       </div>
       <div id="motd-current" class="card" style="padding:14px;margin-bottom:18px;"></div>
       <input class="si" id="motd-srch" placeholder="🔍 Manual override ke liye movie search karo..." oninput="motdFilter()" style="width:100%;margin-bottom:14px;"/>
@@ -4008,7 +4018,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}
+  if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4062,21 +4072,34 @@ function filterCat(){
 
 // ═══ LOAD DATA ═══
 function loadAllContent(){
-  db.ref('movies').on('value',function(snap){
+  // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
+  // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
+  var _moviesUiTimer = null;
+  function _applyMoviesSnap(snap){
     allMovies=[];
     if(snap.exists()){snap.forEach(function(c){var m=c.val();m.key=c.key;allMovies.push(m);});}
-    // addedAt ke hisaab se sort — naya/edited movie hamesha top pe
     allMovies.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
-    renderDash();
-    renderTable(allMovies);
-    updateCounts();
-    // My Links: jo links bina key ke save hue thay unhe ab dobara match karke fix karo
-    // (race condition: link tab save hua jab movies list abhi load nahi hui thi)
-    if (typeof mlAutoFixUnmatched === 'function') mlAutoFixUnmatched();
-    // Update link manager no-links badge
+    try { renderDash(); } catch(e){}
+    try { updateCounts(); } catch(e){}
+    var moviesSec = document.getElementById('sec-movies');
+    var onMovies = moviesSec && moviesSec.classList.contains('active');
+    if(onMovies){
+      try { renderTable(allMovies); } catch(e){}
+    }
+    var trendSec = document.getElementById('sec-trending');
+    if(trendSec && trendSec.classList.contains('active')){
+      try { renderTrendList(allMovies.slice(0,80)); } catch(e){}
+    }
+    if (typeof mlAutoFixUnmatched === 'function') {
+      try { mlAutoFixUnmatched(); } catch(e){}
+    }
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
+  }
+  db.ref('movies').on('value',function(snap){
+    clearTimeout(_moviesUiTimer);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(snap); }, 280);
   });
 }
 
@@ -7315,10 +7338,43 @@ async function blkRun() {
 // ═══════════════════════════════════════════
 // 🔥 TRENDING MANAGER
 // ═══════════════════════════════════════════
+
+function autoTrendLatest(n){
+  n = n || 20;
+  if(!db || !allMovies.length){ toast('Movies load nahi hui',1); return; }
+  var latest = allMovies.slice().sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);}).slice(0,n);
+  var updates = {};
+  latest.forEach(function(m){ if(m.key) updates['movies/'+m.key+'/trending'] = true; });
+  db.ref().update(updates).then(function(){
+    latest.forEach(function(m){ m.trending = true; });
+    toast('✅ Latest '+latest.length+' movies Trending ON');
+    renderTrendList(allMovies.slice(0,100));
+  }).catch(function(e){ toast('❌ '+e.message,1); });
+}
+function clearAllTrending(){
+  if(!confirm('Saari movies se Trending hataani hai?')) return;
+  var updates = {};
+  allMovies.forEach(function(m){ if(m.trending && m.key) updates['movies/'+m.key+'/trending'] = null; });
+  var keys = Object.keys(updates);
+  if(!keys.length){ toast('Koi trending nahi thi'); return; }
+  db.ref().update(updates).then(function(){
+    allMovies.forEach(function(m){ m.trending = false; });
+    toast('✅ '+keys.length+' se Trending hata di');
+    renderTrendList(allMovies.slice(0,100));
+  }).catch(function(e){ toast('❌ '+e.message,1); });
+}
+
 function trendFilter(){
   var q=(document.getElementById('trend-srch')||{}).value||'';
   q=q.toLowerCase().trim();
-  var list=q?allMovies.filter(function(m){return(m.title||'').toLowerCase().includes(q);}):allMovies;
+  var list;
+  if(q){
+    list=allMovies.filter(function(m){return(m.title||'').toLowerCase().includes(q);}).slice(0,80);
+  } else {
+    // PERF: empty search pe poori 1000+ list mat banao
+    var on=allMovies.filter(function(m){return m.trending||m.featured;});
+    list=on.concat(allMovies.filter(function(m){return !m.trending&&!m.featured;}).slice(0,60));
+  }
   renderTrendList(list);
 }
 function renderTrendList(list){
@@ -7375,31 +7431,39 @@ function motdRenderCurrent(){
   var el=document.getElementById('motd-current');if(!el)return;
   db.ref('motd').once('value').then(function(snap){
     var d=snap.val()||{};
-    var isManual = d.manualDate===uaToday() && d.manualKey;
-    var active=null, modeLabel='';
+    var keys=[];
+    if(Array.isArray(d.manualKeys) && d.manualKeys.length) keys=d.manualKeys.slice();
+    else if(d.manualDate===uaToday() && d.manualKey) keys=[d.manualKey];
+    var isManual = keys.length>0 && d.manualDate===uaToday();
     if(isManual){
-      active=allMovies.find(function(x){return x.key===d.manualKey;});
-      modeLabel='<span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">MANUAL</span>';
+      var cards=keys.map(function(k){
+        var m=allMovies.find(function(x){return x.key===k;});
+        if(!m) return '<div class="card" style="padding:8px;margin:4px 0;color:#888;">Missing key '+k+' <button class="btn" onclick="motdRemoveKey(\''+k+'\')">Remove</button></div>';
+        var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=50&h=70&fit=cover&output=jpg':'';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #222;">'
+          +(tu?'<img src="'+tu+'" style="width:36px;height:50px;object-fit:cover;border-radius:4px;">':'')
+          +'<div style="flex:1;min-width:0;font-weight:700;font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(m.title||'')+'</div>'
+          +'<button class="btn" onclick="motdRemoveKey(\''+k+'\')" style="background:#333;font-size:0.7rem;">✕</button></div>';
+      }).join('');
+      el.innerHTML='<div style="margin-bottom:8px;"><span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">MANUAL ×'+keys.length+'</span> <span style="color:#888;font-size:0.75rem;">Website pe har 10s rotate</span></div>'
+        +cards
+        +'<button class="btn" onclick="motdClear()" style="margin-top:10px;background:#333;">Clear All Manual</button>';
+      return;
     }
+    var active=motdAutoPick();
     if(!active){
-      active=motdAutoPick();
-      modeLabel='<span style="background:#22c55e;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">AUTOMATIC</span>';
-    }
-    if(!active){
-      el.innerHTML='<div style="text-align:center;color:#444;padding:10px;">Abhi koi movie qualify nahi karti (downloads chahiye)</div>';
+      el.innerHTML='<div style="text-align:center;color:#444;padding:10px;">Automatic: koi movie qualify nahi (downloads chahiye). Neeche 1–4 movies Set karo.</div>';
       return;
     }
     var tu=active.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(active.thumbnail)+'&w=60&h=84&fit=cover&output=jpg':'';
     el.innerHTML='<div style="display:flex;align-items:center;gap:14px;">'
-      +(tu?'<img src="'+tu+'" style="width:46px;height:64px;object-fit:cover;border-radius:5px;flex-shrink:0;">':'<div style="width:46px;height:64px;background:#222;border-radius:5px;flex-shrink:0;"></div>')
+      +(tu?'<img src="'+tu+'" style="width:46px;height:64px;object-fit:cover;border-radius:5px;flex-shrink:0;">':'')
       +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Aaj ki Movie of the Day '+modeLabel+'</div>'
-        +'<div style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(active.title||'Untitled')+'</div>'
+        +'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Aaj ki Movie of the Day <span style="background:#22c55e;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">AUTOMATIC</span></div>'
+        +'<div style="font-weight:700;font-size:0.95rem;">'+(active.title||'Untitled')+'</div>'
         +'<div style="color:var(--grey);font-size:0.75rem;">⬇ '+(active.downloadCount||0)+' downloads</div>'
-      +'</div>'
-      +(isManual?'<button class="btn" onclick="motdClear()" style="background:#333;flex-shrink:0;">🚫 Clear Override</button>':'')
-    +'</div>';
-  }).catch(function(e){el.innerHTML='<div style="color:#f87171;">❌ '+e.message+'</div>';});
+      +'</div></div>';
+  }).catch(function(){ el.innerHTML='<div style="color:#888;">MOTD load error</div>'; });
 }
 function motdFilter(){
   var q=(document.getElementById('motd-srch')||{}).value||'';
@@ -7424,23 +7488,49 @@ function motdRenderList(list){
 }
 function motdSet(key){
   var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
-  var updates={};
-  updates['motd/manualKey']=key;
-  updates['motd/manualDate']=uaToday();
-  updates['motd/setAt']=Date.now();
-  db.ref().update(updates).then(function(){
-    toast('✅ "'+(m.title||'')+'" aaj ke liye Movie of the Day set ho gayi!');
-    document.getElementById('motd-srch').value='';
-    motdRenderList([]);
-    motdRenderCurrent();
+  db.ref('motd').once('value').then(function(snap){
+    var d=snap.val()||{};
+    var keys=[];
+    if(Array.isArray(d.manualKeys)) keys=d.manualKeys.slice();
+    else if(d.manualKey) keys=[d.manualKey];
+    if(keys.indexOf(key)>=0){ toast('Already MOTD list mein hai'); return; }
+    if(keys.length>=4){ toast('Max 4 movies — pehle ek hatao',1); return; }
+    keys.push(key);
+    var updates={};
+    updates['motd/manualKeys']=keys;
+    updates['motd/manualKey']=keys[0]; // backward compat
+    updates['motd/manualDate']=uaToday();
+    updates['motd/setAt']=Date.now();
+    updates['motd/rotateSec']=10;
+    return db.ref().update(updates).then(function(){
+      toast('✅ "'+(m.title||'')+'" MOTD list mein ('+keys.length+'/4)');
+      document.getElementById('motd-srch').value='';
+      motdRenderList([]);
+      motdRenderCurrent();
+    });
+  }).catch(function(e){toast('❌ '+e.message,1);});
+}
+function motdRemoveKey(key){
+  db.ref('motd').once('value').then(function(snap){
+    var d=snap.val()||{};
+    var keys=Array.isArray(d.manualKeys)?d.manualKeys.filter(function(k){return k!==key;}):[];
+    var updates={};
+    updates['motd/manualKeys']=keys.length?keys:null;
+    updates['motd/manualKey']=keys[0]||null;
+    if(!keys.length){ updates['motd/manualDate']=null; }
+    return db.ref().update(updates).then(function(){
+      toast('Removed from MOTD');
+      motdRenderCurrent();
+    });
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 function motdClear(){
   var updates={};
   updates['motd/manualKey']=null;
+  updates['motd/manualKeys']=null;
   updates['motd/manualDate']=null;
   db.ref().update(updates).then(function(){
-    toast('🚫 Manual override hat gaya, ab automatic pick chalegi');
+    toast('🚫 Manual MOTD clear — automatic chalega');
     motdRenderCurrent();
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
