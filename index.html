@@ -12916,6 +12916,14 @@ function ffiStartImport() {
           if (ssArr.length) obj.screenshots = ssArr.join(',');
         }
 
+        // Episode packs (Web Series / Season) — auto from /dl/ episode-01-05 links
+        if (data.episodes && data.episodes.length) {
+          obj.episodes = data.episodes;
+          if (!obj.category || obj.category === 'hollywood') {
+            obj.category = data.category || 'webseries';
+          }
+        }
+
         if (data.download_link) {
           obj.download480p = data.download_link;
           obj.download720p = data.download_link;
@@ -13930,6 +13938,130 @@ function ffiParsePage(html, srcUrl) {
     }
     if (!dlLink) dlLink = srcUrl; // at least source page
   }
+
+  // ═══════════════════════════════════════════════════
+  // EPISODE PACKS — Web Series / K-Drama / Season batches
+  // HDFun example:
+  //   /dl/...-episode-01-05-...-1080p-hdrip
+  //   /dl/...-episode-06-10-...
+  // Multiple packs → data.episodes[] (site pe Ep 01-05, 06-10 dikhe)
+  // ═══════════════════════════════════════════════════
+  (function() {
+    var allDl = [];
+    var dlRe2 = /href=["']((?:https?:\/\/[^"']*)?\/dl\/[^"'#?\s]+)["']/gi;
+    var m2;
+    while ((m2 = dlRe2.exec(html)) !== null) {
+      var h = m2[1].replace(/&amp;/g, '&');
+      if (!/^https?:\/\//i.test(h) && srcUrl) {
+        try { h = new URL(h, srcUrl).toString(); } catch (e) { continue; }
+      }
+      if (h && allDl.indexOf(h) === -1) allDl.push(h);
+    }
+    // mmshd /download/slug (not /download/dl/) also as candidates
+    var mmRe2 = /href=["']((?:https?:\/\/[^"']*)?\/download\/(?!dl\/)[^"'#?\s]+)["']/gi;
+    while ((m2 = mmRe2.exec(html)) !== null) {
+      var h2 = m2[1].replace(/&amp;/g, '&');
+      if (!/^https?:\/\//i.test(h2) && srcUrl) {
+        try { h2 = new URL(h2, srcUrl).toString(); } catch (e) { continue; }
+      }
+      if (h2 && allDl.indexOf(h2) === -1) allDl.push(h2);
+    }
+
+    function parseEpFromUrl(u) {
+      var path = '';
+      try { path = decodeURIComponent(new URL(u).pathname); } catch(e) { path = u; }
+      path = path.toLowerCase();
+      // episode-01-05 / episode-1-5 / ep-01-05 / episodes-01-to-05
+      var range = path.match(/(?:episode|episodes|ep)s?[-_]?(\d{1,3})(?:[-_]|[-_]to[-_])(\d{1,3})/i);
+      if (range) {
+        var a = range[1], b = range[2];
+        // zero-pad consistency for display
+        var label = 'Episode ' + a + '-' + b;
+        var qual = (path.match(/(2160p|1080p|720p|480p|4k)/i) || [])[1] || '';
+        return { episode: a + '-' + b, title: label, quality: qual };
+      }
+      // single episode-01 / ep-01 / e01 (avoid matching year-like)
+      var single = path.match(/(?:episode|episodes|ep)[-_](\d{1,3})(?!\d)/i)
+                || path.match(/[-_]e(\d{1,3})(?:[-_.]|$)/i);
+      if (single) {
+        var n = single[1];
+        var num = parseInt(n, 10);
+        if (num > 0 && num < 500) {
+          var qual2 = (path.match(/(2160p|1080p|720p|480p|4k)/i) || [])[1] || '';
+          return { episode: String(num), title: 'Episode ' + num, quality: qual2 };
+        }
+      }
+      return null;
+    }
+
+    var seasonNum = '1';
+    var seaSrc = (ogTitle || data.title || srcUrl || '');
+    var seaM = seaSrc.match(/season\s*(\d{1,2})/i) || seaSrc.match(/\bS(\d{1,2})\b/i);
+    if (seaM) seasonNum = String(parseInt(seaM[1], 10));
+
+    var eps = [];
+    allDl.forEach(function(u) {
+      var info = parseEpFromUrl(u);
+      if (!info) return;
+      var ep = {
+        season: seasonNum,
+        episode: info.episode,
+        title: info.title
+      };
+      var q = (info.quality || '').toLowerCase();
+      if (q.indexOf('1080') !== -1 || q.indexOf('2160') !== -1 || q === '4k') {
+        ep.dl1080 = u;
+      } else if (q.indexOf('720') !== -1) {
+        ep.dl720 = u;
+      } else if (q.indexOf('480') !== -1) {
+        ep.dl480 = u;
+      } else {
+        ep.dl1080 = u;
+        ep.dl720 = u;
+      }
+      ep.videoSourceUrl = u;
+      ep.dlSourceUrl = u;
+      eps.push(ep);
+    });
+
+    // Merge same episode + different quality into one row
+    var merged = {};
+    eps.forEach(function(ep) {
+      var key = ep.season + '|' + ep.episode;
+      if (!merged[key]) {
+        merged[key] = ep;
+      } else {
+        if (ep.dl1080) merged[key].dl1080 = ep.dl1080;
+        if (ep.dl720) merged[key].dl720 = ep.dl720;
+        if (ep.dl480) merged[key].dl480 = ep.dl480;
+        if (ep.videoSourceUrl) merged[key].videoSourceUrl = ep.videoSourceUrl;
+      }
+    });
+    var epList = Object.keys(merged).map(function(k){ return merged[k]; });
+    epList.sort(function(a, b) {
+      var na = parseInt(String(a.episode).split('-')[0], 10) || 0;
+      var nb = parseInt(String(b.episode).split('-')[0], 10) || 0;
+      return na - nb;
+    });
+
+    if (epList.length >= 1) {
+      data.episodes = epList;
+      // Series/season page: primary source = movie PAGE (not one pack)
+      if (srcUrl && /hdfun\.in|mmshd\.com/i.test(srcUrl)) {
+        dlLink = srcUrl;
+      }
+      // Category: webseries / kdrama when packs found
+      var tAll = (ogTitle || '') + ' ' + (data.title || '') + ' ' + (srcUrl || '');
+      if (/k[\s\-]?drama|korean|c[\s\-]?drama/i.test(tAll)) {
+        if (data.category !== 'adult') data.category = 'kdrama';
+      } else if (epList.length >= 2 || /season|series|s\d{1,2}/i.test(tAll)) {
+        if (!data.category || data.category === 'hollywood' || data.category === 'bollywood') {
+          data.category = 'webseries';
+        }
+      }
+    }
+  })();
+
   data.download_link = dlLink;
 
   return data;
