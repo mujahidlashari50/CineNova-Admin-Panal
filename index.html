@@ -8333,8 +8333,8 @@ function loadViewsAnalytics(){
 // 📬 MOVIE REQUESTS
 // ═══════════════════════════════════════════
 function loadRequests(){
-  db.ref('requests').orderByChild('createdAt').once('value',function(snap){
-    var reqs=[]; if(snap.exists())snap.forEach(function(c){var r=c.val();r.key=c.key;reqs.unshift(r);});
+  db.ref('requests').once('value',function(snap){
+    var reqs=[]; if(snap.exists())snap.forEach(function(c){var r=c.val();r.key=c.key;reqs.push(r);}); reqs.sort(function(a,b){return (b.createdAt||b.ts||0)-(a.createdAt||a.ts||0);});
     var el=document.getElementById('req-table');
     var empty=document.getElementById('req-empty');
     var badge=document.getElementById('req-count');
@@ -8342,11 +8342,11 @@ function loadRequests(){
     if(!reqs.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';return;}
     if(empty)empty.style.display='none';
     el.innerHTML=reqs.map(function(r){
-      var d=new Date(r.createdAt||Date.now()).toLocaleDateString('en-GB');
+      var d=new Date(r.createdAt||r.ts||Date.now()).toLocaleDateString('en-GB');
       var st=r.status||'pending';
       var stBadge=st==='fulfilled'?'<span class="badge bg">✅ Fulfilled</span>':'<span class="badge" style="background:#1f1f1f;color:#f59e0b;">⏳ Pending</span>';
       return '<tr><td style="font-weight:600;">'+(r.title||'—')+'</td>'
-        +'<td style="color:var(--grey);font-size:0.82rem;">'+(r.userName||r.userEmail||'Anonymous')+'</td>'
+        +'<td style="color:var(--grey);font-size:0.82rem;">'+(r.name||r.userName||r.userEmail||r.user||'Anonymous')+'</td>'
         +'<td style="color:var(--grey);font-size:0.8rem;">'+d+'</td>'
         +'<td>'+stBadge+'</td>'
         +'<td><div class="ta">'
@@ -15859,10 +15859,7 @@ function tmdbSeoStart() {
   next();
 }
 
-
-op-btn').textContent = '⏹ Stopping...';
-}
-// ══ END DESCRIPTION WRITER ══
+// ══ END DESCRIPTION WRITER + TMDB SEO ══
 </script>
 </body>
 </html>
