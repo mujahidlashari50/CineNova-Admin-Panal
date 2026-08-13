@@ -460,6 +460,12 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 .nav-item, .btn, .toggle-wrap, button { touch-action: manipulation; }
 .section { content-visibility: auto; }
 .section.active { content-visibility: visible; }
+
+/* PANEL PERF SECTIONS */
+.section{display:none!important;}
+.section.active{display:block!important;}
+#mtbl img{width:40px!important;height:56px!important;object-fit:cover;background:#222;}
+#mtbl-pager .btn{min-width:64px;}
 </style>
 <!-- Plyr.io -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
@@ -591,6 +597,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
     <div class="nav-item" id="nav-metascan" onclick="show('metascan')" style="color:#a855f7;">🔍 Meta Tag Scanner <span class="nav-count" id="ms-issue-count" style="background:#a855f7;">0</span></div>
     <div class="nav-item" id="nav-descwriter" onclick="show('descwriter')" style="color:#06b6d4;">📝 Description Writer</div>
+    <div class="nav-item" id="nav-tmdbseo" onclick="show('tmdbseo')" style="color:#34d399;">🎬 TMDB SEO Descriptions</div>
     <div class="nav-section-title">Features</div>
     <div class="nav-item" id="nav-trending" onclick="show('trending')">🔥 Trending Manager</div>
     <div class="nav-item" id="nav-motd" onclick="show('motd')" style="color:#facc15;">🎬 Movie of the Day</div>
@@ -1110,7 +1117,45 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
 
         <!-- TRENDING MANAGER -->
-    <div class="section" id="sec-trending">
+    
+    <!-- TMDB SEO DESCRIPTIONS -->
+    <div class="section" id="sec-tmdbseo">
+      <div class="sec-title">🎬 TMDB SEO <span>Descriptions</span></div>
+      <div class="card" style="border-color:rgba(52,211,153,0.35);background:linear-gradient(135deg,rgba(52,211,153,0.07),rgba(0,0,0,0));margin-bottom:16px;">
+        <div style="font-size:0.84rem;color:#6ee7b7;line-height:1.5;">
+          <strong>One click:</strong> har movie ka description TMDB se overview le kar <strong>Google-friendly SEO paragraph</strong> banata hai aur Firebase mein save karta hai.
+          Format: Title + Year + Watch/Download keywords + TMDB plot + quality/language.
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px;">
+          <label style="font-size:0.82rem;color:#aaa;display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="tmdbseo-only-empty" checked style="width:16px;height:16px;"/>
+            Sirf khali description wali movies
+          </label>
+          <label style="font-size:0.82rem;color:#aaa;display:flex;align-items:center;gap:6px;">
+            Delay (ms)
+            <input class="fi" id="tmdbseo-delay" type="number" value="300" min="150" max="2000" style="width:90px;"/>
+          </label>
+          <label style="font-size:0.82rem;color:#aaa;display:flex;align-items:center;gap:6px;">
+            Max movies (0 = all)
+            <input class="fi" id="tmdbseo-max" type="number" value="0" min="0" style="width:90px;"/>
+          </label>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <button class="btn" id="tmdbseo-start" onclick="tmdbSeoStart()" style="background:#059669;">▶ Start TMDB SEO Fill</button>
+          <button class="btn" id="tmdbseo-stop" onclick="tmdbSeoStop()" style="background:#333;display:none;">⏹ Stop</button>
+          <button class="btn btn-s" onclick="tmdbSeoPreviewStats()">📊 Count</button>
+        </div>
+        <div id="tmdbseo-stats" style="font-size:0.82rem;color:#9ca3af;margin-bottom:8px;">Ready — Count dabao ya Start.</div>
+        <div style="background:#111;border-radius:8px;height:10px;overflow:hidden;margin-bottom:8px;">
+          <div id="tmdbseo-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#059669,#34d399);transition:width 0.3s;"></div>
+        </div>
+        <div id="tmdbseo-log" style="max-height:280px;overflow-y:auto;font-size:0.78rem;color:#9ca3af;background:#0a0a0a;border-radius:8px;padding:10px;border:1px solid #222;"></div>
+      </div>
+    </div>
+
+<div class="section" id="sec-trending">
       <div class="sec-title">🔥 Trending <span>Manager</span></div>
       <div style="background:rgba(229,9,20,0.07);border:1px solid rgba(229,9,20,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fca5a5;">
         💡 Mark movies as <strong>Trending</strong> or <strong>Featured</strong> — website slider mein dikhengi.
@@ -1834,6 +1879,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.4);color:#f9a8d4;" onclick="document.getElementById('ffi-site-url').value='https://www.mmshd.com/category/1/new-releases-movies/1.html';">📌 MMSHD New Releases</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.4);color:#f9a8d4;" onclick="document.getElementById('ffi-site-url').value='https://www.mmshd.com/category/2/hot-web-series-desi/1.html';">📌 MMSHD Hot Series</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(34,197,94,0.4);color:#86efac;" onclick="document.getElementById('ffi-site-url').value='https://hdfun.in/';">📌 HDFun Home</button>
+          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(244,114,182,0.5);color:#f9a8d4;" onclick="document.getElementById('ffi-site-url').value='https://letsporn.com/newest';">📌 LetsPorn Newest</button>
+          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(244,114,182,0.5);color:#f9a8d4;" onclick="document.getElementById('ffi-site-url').value='https://letsporn.com/';">📌 LetsPorn Home</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(34,197,94,0.4);color:#86efac;" onclick="document.getElementById('ffi-site-url').value='https://hdfun.in/category/11/adult-movies/1.html';">📌 HDFun Adult</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(96,165,250,0.45);color:#93c5fd;" onclick="document.getElementById('ffi-site-url').value='https://9xflix.ist/m/';">📌 9xflix Home</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(96,165,250,0.45);color:#93c5fd;" onclick="document.getElementById('ffi-site-url').value='https://9xflix.ist/m/page/2/';">📌 9xflix Page 2</button>
@@ -4018,7 +4065,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}
+  if(name==='movies'){currentCatFilter='all';_tblPage=1;updateCfBtns();renderTable(allMovies);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4084,7 +4131,12 @@ function loadAllContent(){
     var moviesSec = document.getElementById('sec-movies');
     var onMovies = moviesSec && moviesSec.classList.contains('active');
     if(onMovies){
-      try { renderTable(allMovies); } catch(e){}
+      try {
+        var _lst = currentCatFilter==='all' ? allMovies : allMovies.filter(function(m){
+          return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
+        });
+        renderTable(_lst);
+      } catch(e){}
     }
     var trendSec = document.getElementById('sec-trending');
     if(trendSec && trendSec.classList.contains('active')){
@@ -4099,7 +4151,7 @@ function loadAllContent(){
   }
   db.ref('movies').on('value',function(snap){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(snap); }, 280);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(snap); }, 500);
   });
 }
 
@@ -4139,20 +4191,67 @@ function getCatBadge(cat){
 }
 
 // ═══ TABLE RENDER ═══
+// PERF: table pagination — 1800 rows ek saath DOM mein mat daalo
+var _tblPage = 1;
+var _tblPageSize = 40;
+var _tblLastList = [];
 function renderTable(list){
   var tbody=document.getElementById('mtbl');var empty=document.getElementById('tempty');
-  if(!list||!list.length){tbody.innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';
-  tbody.innerHTML=list.map(function(m){return buildRow(m,false);}).join('');
+  if(!tbody) return;
+  if(!list) list = _tblLastList || [];
+  _tblLastList = list;
+  if(!list.length){
+    tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    var pg0=document.getElementById('mtbl-pager'); if(pg0) pg0.innerHTML='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  var totalPages = Math.max(1, Math.ceil(list.length / _tblPageSize));
+  if(_tblPage > totalPages) _tblPage = totalPages;
+  if(_tblPage < 1) _tblPage = 1;
+  var start = (_tblPage - 1) * _tblPageSize;
+  var pageItems = list.slice(start, start + _tblPageSize);
+  // DocumentFragment-style: one innerHTML for page only
+  var html = '';
+  for(var i=0;i<pageItems.length;i++) html += buildRow(pageItems[i], false);
+  tbody.innerHTML = html;
+  // pager UI
+  var pager = document.getElementById('mtbl-pager');
+  if(!pager){
+    pager = document.createElement('div');
+    pager.id = 'mtbl-pager';
+    pager.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 8px;';
+    if(tbody.parentNode) tbody.parentNode.appendChild(pager);
+  }
+  var info = '<span style="color:#888;font-size:0.8rem;margin-right:8px;">' + list.length + ' movies · page ' + _tblPage + '/' + totalPages + '</span>';
+  var btns = '';
+  btns += '<button class="btn btn-s" onclick="_tblGo(1)" ' + (_tblPage<=1?'disabled':'') + '>First</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage-1) + ')" ' + (_tblPage<=1?'disabled':'') + '>Prev</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage+1) + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Next</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + totalPages + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Last</button>';
+  pager.innerHTML = info + btns;
+}
+function _tblGo(p){
+  _tblPage = p;
+  renderTable(_tblLastList);
+  try { var sec=document.getElementById('sec-movies'); if(sec) sec.scrollTop=0; } catch(e){}
 }
 function renderCatTable(list){
   var tbody=document.getElementById('cattbl');var empty=document.getElementById('catempty');
-  if(!list||!list.length){tbody.innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';
-  tbody.innerHTML=list.map(function(m){return buildRow(m,true);}).join('');
+  if(!list||!list.length){if(tbody)tbody.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty) empty.style.display='none';
+  // max 60 rows in category view
+  var slice = list.slice(0, 60);
+  var html = '';
+  for(var i=0;i<slice.length;i++) html += buildRow(slice[i], true);
+  tbody.innerHTML = html;
+  if(list.length > 60){
+    tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;color:#888;padding:12px;">Showing 60 of ' + list.length + ' — search to narrow</td></tr>';
+  }
 }
 function buildRow(m,hideCategory){
-  var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=80&h=112&fit=cover&output=jpg':'';
+  var tu=m.thumbnail||m.poster||'';
   var cb=getCatBadge(m.category);
   var hasLinks=m.download480p||m.download720p||m.download1080p||m.download4k||m.videoUrl;
   var lbadge=hasLinks?'<span class="badge bg" style="font-size:0.6rem;">✓ Links</span>':'<span class="badge bgy" style="font-size:0.6rem;">No Links</span>';
@@ -4206,16 +4305,33 @@ function togglePublish(key, toggleEl) {
 // ═══ CAT FILTER BUTTONS ═══
 function filterByCat(cat){
   currentCatFilter=cat;updateCfBtns();
-  renderTable(cat==='all'?allMovies:allMovies.filter(function(m){return m.category===cat;}));
+  _tblPage = 1;
+  var list = cat==='all'?allMovies:allMovies.filter(function(m){
+    return (m.category||'').toLowerCase()===(cat||'').toLowerCase();
+  });
+  renderTable(list);
 }
 function updateCfBtns(){
   document.querySelectorAll('.cf-btn').forEach(function(b){b.classList.remove('active');});
   var el=document.getElementById('cf-'+currentCatFilter);if(el)el.classList.add('active');
 }
+var _filterMTimer=null;
 function filterM(){
-  var q=document.getElementById('srch').value.toLowerCase().trim();
-  var list=currentCatFilter==='all'?allMovies:allMovies.filter(function(m){return m.category===currentCatFilter;});
-  renderTable(q?list.filter(function(m){return(m.title||'').toLowerCase().includes(q)||(m.category||'').toLowerCase().includes(q)||(m.genre||'').toLowerCase().includes(q);}):list);
+  clearTimeout(_filterMTimer);
+  _filterMTimer=setTimeout(function(){
+    var q=(document.getElementById('srch')||{}).value||'';
+    q=q.toLowerCase().trim();
+    var list=currentCatFilter==='all'?allMovies:allMovies.filter(function(m){
+      return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
+    });
+    if(q){
+      list=list.filter(function(m){
+        return ((m.title||'')+(m.category||'')+(m.genre||'')).toLowerCase().indexOf(q)>-1;
+      });
+    }
+    _tblPage=1;
+    renderTable(list);
+  }, 200);
 }
 
 // ═══ ADD MOVIE ═══
@@ -4393,6 +4509,70 @@ function filmyflyFetch() {
     // ── Screenshot ──
     var ssMatch = html.match(/screenshot[^>]*>([\s\S]*?)<img[^>]+src=["']([^"']+)["']/i);
     if (ssMatch) data.screenshot = ssMatch[2];
+
+    // ══ LetsPorn.com ══
+    if (/letsporn\.com/i.test(srcUrl || '')) {
+      try {
+        var lpTitle = (html.match(/<title>([^<]+)/i) || [])[1] || '';
+      lpTitle = lpTitle.replace(/\s*[-–|]\s*LET'?S?\s*PORN.*$/i, '').replace(/\s*[-–|]\s*LetsPorn.*$/i, '').trim();
+        if (lpTitle && !data.title) data.title = lpTitle;
+        // Poster
+        var lpPoster = (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/preview\.jpg/i) || [])[0]
+        || (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/preview_720p[^"'\s]*/i) || [])[0]
+        || (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/\d+x\d+\/1\.jpg/i) || [])[0];
+        if (lpPoster) {
+        data.thumbnail = lpPoster;
+        data.poster = lpPoster;
+      }
+        // Screenshots gallery
+        var lpShots = [];
+        var reShot = /https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/\d+x\d+\/\d+\.jpg/gi;
+        var sm;
+      while ((sm = reShot.exec(html)) !== null) {
+        if (lpShots.indexOf(sm[0]) === -1) lpShots.push(sm[0]);
+        if (lpShots.length >= 12) break;
+      }
+        if (lpShots.length) data.screenshots = lpShots;
+        // Direct MP4 qualities from get_file
+        var re480 = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+_480p\.mp4[^"\']*/i;
+        var re720 = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+_720p\.mp4[^"\']*/i;
+        var reFull = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+\/\d+\.mp4[^"\']*/i;
+        var u480 = (html.match(re480) || [])[0];
+        var u720 = (html.match(re720) || [])[0];
+        var uFull = (html.match(reFull) || [])[0];
+        // flashvars style
+        if (!u480) {
+        var fv480 = html.match(/video_url:\s*['"](https:\/\/letsporn\.com\/get_file[^'"]+)/i);
+        if (fv480) u480 = fv480[1];
+      }
+        if (!u720) {
+        var fv720 = html.match(/video_alt_url:\s*['"](https:\/\/letsporn\.com\/get_file[^'"]+)/i);
+        if (fv720) u720 = fv720[1];
+      }
+        if (u720) {
+        data.download720p = u720;
+        data.videoSourceUrl = u720;
+        data.videoUrl = u720;
+      }
+        if (u480) {
+        data.download480p = u480;
+        if (!data.videoSourceUrl) { data.videoSourceUrl = u480; data.videoUrl = u480; }
+      }
+        if (uFull && !data.download1080p) {
+        // full often higher quality
+        if (/_720p|_1080p/i.test(uFull)) data.download720p = data.download720p || uFull;
+        else data.download1080p = uFull;
+        if (!data.videoSourceUrl) { data.videoSourceUrl = uFull; data.videoUrl = uFull; }
+      }
+        // page download link
+        var dlPage = (html.match(/https:\/\/letsporn\.com\/download\/\d+/i) || [])[0];
+        if (dlPage) data.dlSourceUrl = dlPage;
+      data.category = data.category || 'adult';
+      data.quality = data.quality || (u720 ? '720p' : (u480 ? '480p' : 'HD'));
+        if (!data.language) data.language = 'English';
+    } catch (eLp) {}
+      }
+
 
     return data;
   }
@@ -12510,7 +12690,7 @@ function ffiFetchPosts() {
   _ffiListCategory = '';
   var su = siteUrl.toLowerCase();
   // Order: adult → kdrama → tv/web series → regional → hollywood (hollywood last because dual-audio matches many pages)
-  if (/adult-movies|\/adult\/|category\/\d+\/[^\/]*adult|category\/11\/|hot-web-series|hot-movies|\bxxx\b/i.test(su)) _ffiListCategory = 'adult';
+  if (/adult-movies|\/adult\/|category\/\d+\/[^\/]*adult|category\/11\/|hot-web-series|hot-movies|\bxxx\b|letsporn\.com/i.test(su)) _ffiListCategory = 'adult';
   else if (/k-?drama|korean|c-?drama|asian.?drama|category\/\d+\/[^\/]*korean|katdrama/i.test(su)) _ffiListCategory = 'kdrama';
   else if (/web-series|webseries|\/tv-shows?|tv[\s\-]?series|category\/\d+\/[^\/]*web|category\/\d+\/[^\/]*series/i.test(su)) _ffiListCategory = 'webseries';
   else if (/hindi-movies|bollywood|category\/\d+\/[^\/]*bollywood|category\/\d+\/[^\/]*hindi-movie/i.test(su)) _ffiListCategory = 'bollywood';
@@ -12550,6 +12730,16 @@ function ffiFetchPosts() {
         // 9xflix: /m/page/N/  or category /m/hindi-movies/page/N/
         var base9 = siteUrl.replace(/\/?(\?.*)?$/, '').replace(/\/page\/\d+\/?$/i, '');
         url = base9 + '/page/' + pageNum + '/';
+      } else if (/letsporn\.com/i.test(siteUrl)) {
+        // LetsPorn: /newest , /newest/2 , /best-of-this-week/2 , channels/slug/2
+        var baseLp = siteUrl.replace(/\/?(\?.*)?$/, '').replace(/\/\d+$/, '');
+        if (/\/newest\/?$/i.test(baseLp) || baseLp.replace(/\/$/,'').endsWith('newest')) {
+          url = baseLp.replace(/\/?$/, '') + '/' + pageNum;
+        } else if (/letsporn\.com\/?$/i.test(baseLp)) {
+          url = 'https://letsporn.com/newest/' + pageNum;
+        } else {
+          url = baseLp.replace(/\/?$/, '') + '/' + pageNum;
+        }
       } else {
         url = siteUrl + (siteUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum;
       }
@@ -12616,7 +12806,27 @@ function ffiFetchPosts() {
             if (!allFound[u9b]) { allFound[u9b] = 1; _ffiPosts.push({ url: u9b, title: ffiTitleFromUrl(u9b), checked: true }); }
           }
         }
-// Pattern 1d: KatDrama (new.katdrama.my) — Svelte JSON embeds slug:"..."
+// Pattern LetsPorn: /slug-title-12345 video pages
+        if (/letsporn\.com/i.test(siteUrl) || /letsporn\.com/i.test(baseHost) || /letsporn\.com/i.test(html.slice(0, 3000))) {
+          var reLp = /href=["']((?:https?:\/\/(?:www\.)?letsporn\.com)?\/([a-z0-9]+(?:-[a-z0-9]+){1,}-\d{3,5}))\/?["']/gi;
+          var mLp;
+          var skipLp = /^(channels|pornstars|categories|newest|best-of-this-week|search|contact|dmca|2257|charts|explore|models|tags|members|login|signup|get_file|download)$/i;
+          while ((mLp = reLp.exec(html)) !== null) {
+            var pathLp = mLp[2];
+            var firstSeg = pathLp.split('-')[0];
+            if (skipLp.test(firstSeg)) continue;
+            if (/^(channels|pornstars|categories)\//i.test(pathLp)) continue;
+            var uLp = mLp[1].startsWith('http') ? mLp[1] : baseHost + mLp[1];
+            uLp = uLp.replace(/&amp;/g,'&').replace(/\/$/, '');
+            if (!allFound[uLp]) {
+              allFound[uLp] = 1;
+              var tLp = pathLp.replace(/-\d+$/, '').replace(/-/g, ' ');
+              tLp = tLp.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+              _ffiPosts.push({ url: uLp, title: tLp, checked: true });
+            }
+          }
+        }
+        // Pattern 1d: KatDrama (new.katdrama.my) — Svelte JSON embeds slug:"..."
         if (/katdrama\.my/i.test(siteUrl) || /katdrama\.my/i.test(baseHost)) {
           var reKat = /slug:"([a-z0-9][a-z0-9\-]{2,})"/gi;
           var km, katTitles = {};
@@ -14154,6 +14364,70 @@ function ffiParsePage(html, srcUrl) {
 
   data.download_link = dlLink;
 
+  // ══ LetsPorn.com ══
+  if (/letsporn\.com/i.test(srcUrl || '')) {
+    try {
+      var lpTitle = (html.match(/<title>([^<]+)/i) || [])[1] || '';
+      lpTitle = lpTitle.replace(/\s*[-–|]\s*LET'?S?\s*PORN.*$/i, '').replace(/\s*[-–|]\s*LetsPorn.*$/i, '').trim();
+      if (lpTitle && !data.title) data.title = lpTitle;
+      // Poster
+      var lpPoster = (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/preview\.jpg/i) || [])[0]
+        || (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/preview_720p[^"'\s]*/i) || [])[0]
+        || (html.match(/https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/\d+x\d+\/1\.jpg/i) || [])[0];
+      if (lpPoster) {
+        data.thumbnail = lpPoster;
+        data.poster = lpPoster;
+      }
+      // Screenshots gallery
+      var lpShots = [];
+      var reShot = /https:\/\/img\.letsporn\.com\/contents\/videos_screenshots\/\d+\/\d+\/\d+x\d+\/\d+\.jpg/gi;
+      var sm;
+      while ((sm = reShot.exec(html)) !== null) {
+        if (lpShots.indexOf(sm[0]) === -1) lpShots.push(sm[0]);
+        if (lpShots.length >= 12) break;
+      }
+      if (lpShots.length) data.screenshots = lpShots;
+      // Direct MP4 qualities from get_file
+      var re480 = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+_480p\.mp4[^"\']*/i;
+        var re720 = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+_720p\.mp4[^"\']*/i;
+        var reFull = /https:\/\/letsporn\.com\/get_file\/[\w\/.-]+\/\d+\.mp4[^"\']*/i;
+        var u480 = (html.match(re480) || [])[0];
+      var u720 = (html.match(re720) || [])[0];
+      var uFull = (html.match(reFull) || [])[0];
+      // flashvars style
+      if (!u480) {
+        var fv480 = html.match(/video_url:\s*['"](https:\/\/letsporn\.com\/get_file[^'"]+)/i);
+        if (fv480) u480 = fv480[1];
+      }
+      if (!u720) {
+        var fv720 = html.match(/video_alt_url:\s*['"](https:\/\/letsporn\.com\/get_file[^'"]+)/i);
+        if (fv720) u720 = fv720[1];
+      }
+      if (u720) {
+        data.download720p = u720;
+        data.videoSourceUrl = u720;
+        data.videoUrl = u720;
+      }
+      if (u480) {
+        data.download480p = u480;
+        if (!data.videoSourceUrl) { data.videoSourceUrl = u480; data.videoUrl = u480; }
+      }
+      if (uFull && !data.download1080p) {
+        // full often higher quality
+        if (/_720p|_1080p/i.test(uFull)) data.download720p = data.download720p || uFull;
+        else data.download1080p = uFull;
+        if (!data.videoSourceUrl) { data.videoSourceUrl = uFull; data.videoUrl = uFull; }
+      }
+      // page download link
+      var dlPage = (html.match(/https:\/\/letsporn\.com\/download\/\d+/i) || [])[0];
+      if (dlPage) data.dlSourceUrl = dlPage;
+      data.category = data.category || 'adult';
+      data.quality = data.quality || (u720 ? '720p' : (u480 ? '480p' : 'HD'));
+      if (!data.language) data.language = 'English';
+    } catch (eLp) {}
+  }
+
+
   return data;
 }
 
@@ -15374,8 +15648,219 @@ function dwBulkStartAll() {
 
 function dwBulkStop() {
   _dwBulkStopped = true;
-  document.getElementById('dw-bulk-stop-btn').disabled = true;
-  document.getElementById('dw-bulk-stop-btn').textContent = '⏹ Stopping...';
+  try {
+    var b = document.getElementById('dw-bulk-stop-btn');
+    if (b) b.disabled = true;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+// TMDB SEO DESCRIPTIONS — bulk one-click
+// ═══════════════════════════════════════════
+var _tmdbSeoRunning = false;
+var _tmdbSeoStop = false;
+
+function tmdbSeoLog(msg, isErr) {
+  var el = document.getElementById('tmdbseo-log');
+  if (!el) return;
+  var line = document.createElement('div');
+  line.style.color = isErr ? '#f87171' : '#9ca3af';
+  line.style.marginBottom = '4px';
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function tmdbSeoPreviewStats() {
+  var onlyEmpty = document.getElementById('tmdbseo-only-empty').checked;
+  var list = (allMovies || []).filter(function(m) {
+    if (!m || !m.key) return false;
+    if (onlyEmpty) {
+      var d = (m.description || m.overview || '').trim();
+      if (d.length > 40) return false;
+    }
+    return true;
+  });
+  var max = parseInt((document.getElementById('tmdbseo-max') || {}).value, 10) || 0;
+  var n = max > 0 ? Math.min(max, list.length) : list.length;
+  document.getElementById('tmdbseo-stats').textContent =
+    'Eligible: ' + list.length + ' movies · Will process: ' + n + (onlyEmpty ? ' (empty only)' : ' (all)');
+  tmdbSeoLog('Count: ' + list.length + ' eligible, processing ' + n);
+}
+
+function tmdbSeoCleanTitle(title) {
+  return String(title || '')
+    .replace(/\b(19|20)\d{2}\b/g, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265|hdts|cam|hdcam)\b/gi, ' ')
+    .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|full\s*movie)\b/gi, ' ')
+    .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
+    .replace(/\b(download|watch\s*online|hd)\b/gi, ' ')
+    .replace(/[\[\]\(\)\{\}]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function tmdbSeoBuildDescription(m, overview, tmdbTitle, tmdbYear) {
+  var title = (tmdbTitle || m.title || 'Movie').trim();
+  var year = tmdbYear || m.year || '';
+  var cat = (m.category || '').toLowerCase();
+  var lang = m.language || m.lang || (cat === 'bollywood' || cat === 'tollywood' ? 'Hindi' : 'English');
+  var quality = m.quality || 'HD';
+  var genre = m.genre || '';
+  var site = 'CineNova';
+
+  // Google-friendly: primary keywords early, natural paragraph, no keyword stuffing
+  var parts = [];
+  parts.push('Watch ' + title + (year ? ' (' + year + ')' : '') + ' full movie online in ' + quality + '.');
+  if (overview) {
+    var ov = String(overview).replace(/\s+/g, ' ').trim();
+    if (ov.length > 280) ov = ov.substring(0, 277).replace(/\s+\S*$/, '') + '…';
+    parts.push(ov);
+  }
+  var mid = 'Download ' + title + ' in ' + quality;
+  if (lang) mid += ' ' + lang;
+  mid += ' from ' + site + '.';
+  parts.push(mid);
+  if (genre) parts.push('Genre: ' + genre + '.');
+  parts.push('Stream free HD movies and web series on ' + site + '.');
+  return parts.join(' ');
+}
+
+function tmdbSeoFetchOverview(m, cb) {
+  var apiKey = (typeof TMDB_API !== 'undefined' && TMDB_API) ? TMDB_API : '';
+  if (!apiKey) { cb(null, 'No TMDB API key'); return; }
+  var clean = tmdbSeoCleanTitle(m.title);
+  if (clean.length < 2) clean = String(m.title || '').trim();
+  var year = String(m.year || '').replace(/\D/g, '').substring(0, 4);
+  var q = encodeURIComponent(clean);
+  var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
+  fetch(url).then(function(r) { return r.json(); }).then(function(res) {
+    var results = (res.results || []).filter(function(r) {
+      return r.media_type === 'movie' || r.media_type === 'tv';
+    });
+    if (year) {
+      var filtered = results.filter(function(r) {
+        return (r.release_date || r.first_air_date || '').indexOf(year) === 0;
+      });
+      if (filtered.length) results = filtered;
+    }
+    if (!results.length) { cb(null, 'No TMDB match'); return; }
+    var hit = results[0];
+    var mediaType = hit.media_type || 'movie';
+    var id = hit.id;
+    var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + id + '?api_key=' + apiKey + '&language=en-US';
+    return fetch(detailUrl).then(function(r2) { return r2.json(); }).then(function(detail) {
+      var overview = (detail && detail.overview) || hit.overview || '';
+      var tTitle = (detail && (detail.title || detail.name)) || hit.title || hit.name || m.title;
+      var tYear = '';
+      var rd = (detail && (detail.release_date || detail.first_air_date)) || hit.release_date || hit.first_air_date || '';
+      if (rd) tYear = rd.substring(0, 4);
+      if (!overview) { cb(null, 'Empty overview'); return; }
+      cb({ overview: overview, title: tTitle, year: tYear }, null);
+    });
+  }).catch(function(e) {
+    cb(null, (e && e.message) || 'Fetch error');
+  });
+}
+
+function tmdbSeoStop() {
+  _tmdbSeoStop = true;
+  tmdbSeoLog('Stop requested…');
+}
+
+function tmdbSeoStart() {
+  if (_tmdbSeoRunning) return;
+  if (!allMovies || !allMovies.length) {
+    toast('Movies load nahi hui', 1);
+    return;
+  }
+  if (typeof TMDB_API === 'undefined' || !TMDB_API) {
+    toast('TMDB API key missing', 1);
+    return;
+  }
+  var onlyEmpty = document.getElementById('tmdbseo-only-empty').checked;
+  var delay = parseInt((document.getElementById('tmdbseo-delay') || {}).value, 10) || 300;
+  if (delay < 150) delay = 150;
+  var max = parseInt((document.getElementById('tmdbseo-max') || {}).value, 10) || 0;
+
+  var queue = allMovies.filter(function(m) {
+    if (!m || !m.key) return false;
+    if (onlyEmpty) {
+      var d = (m.description || m.overview || '').trim();
+      if (d.length > 40) return false;
+    }
+    return true;
+  });
+  if (max > 0) queue = queue.slice(0, max);
+  if (!queue.length) {
+    toast('Koi movie queue mein nahi', 1);
+    tmdbSeoLog('Queue empty');
+    return;
+  }
+
+  _tmdbSeoRunning = true;
+  _tmdbSeoStop = false;
+  document.getElementById('tmdbseo-start').style.display = 'none';
+  document.getElementById('tmdbseo-stop').style.display = '';
+  document.getElementById('tmdbseo-log').innerHTML = '';
+  tmdbSeoLog('Starting ' + queue.length + ' movies…');
+
+  var i = 0, ok = 0, fail = 0;
+
+  function finish() {
+    _tmdbSeoRunning = false;
+    document.getElementById('tmdbseo-start').style.display = '';
+    document.getElementById('tmdbseo-stop').style.display = 'none';
+    document.getElementById('tmdbseo-stats').textContent = 'Done — OK: ' + ok + ' · Fail: ' + fail;
+    document.getElementById('tmdbseo-bar').style.width = '100%';
+    toast('TMDB SEO done: ' + ok + ' ok, ' + fail + ' fail');
+    tmdbSeoLog('Finished. OK=' + ok + ' Fail=' + fail);
+  }
+
+  function next() {
+    if (_tmdbSeoStop || i >= queue.length) {
+      finish();
+      return;
+    }
+    var m = queue[i];
+    var pct = Math.round((i / queue.length) * 100);
+    document.getElementById('tmdbseo-bar').style.width = pct + '%';
+    document.getElementById('tmdbseo-stats').textContent =
+      'Processing ' + (i + 1) + '/' + queue.length + ' — ' + (m.title || '').substring(0, 40);
+
+    tmdbSeoFetchOverview(m, function(data, err) {
+      if (_tmdbSeoStop) { finish(); return; }
+      if (!data) {
+        fail++;
+        tmdbSeoLog('✗ ' + (m.title || m.key) + ' — ' + (err || 'fail'), true);
+        i++;
+        setTimeout(next, delay);
+        return;
+      }
+      var desc = tmdbSeoBuildDescription(m, data.overview, data.title, data.year);
+      var updates = { description: desc };
+      // optional SEO fields if panel uses them
+      if (m.seoDesc !== undefined || true) {
+        updates.seoDescription = desc.substring(0, 160);
+      }
+      db.ref('movies/' + m.key).update(updates, function(e) {
+        if (e) {
+          fail++;
+          tmdbSeoLog('✗ Save fail: ' + (m.title || ''), true);
+        } else {
+          ok++;
+          m.description = desc;
+          tmdbSeoLog('✓ ' + (m.title || '').substring(0, 50));
+        }
+        i++;
+        setTimeout(next, delay);
+      });
+    });
+  }
+  next();
+}
+
+
+op-btn').textContent = '⏹ Stopping...';
 }
 // ══ END DESCRIPTION WRITER ══
 </script>
