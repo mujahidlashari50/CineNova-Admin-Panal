@@ -617,6 +617,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-adwatch" onclick="show('adwatch')">🎬 Watch Now Ads</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
     <div class="nav-item" id="nav-mylinks" onclick="show('mylinks')">🔗 My Links <span class="nav-count" id="mylinks-count" style="background:#3b82f6;">0</span></div>
+    <div class="nav-item" id="nav-logomanager" onclick="show('logomanager')" style="color:#e50914;">🎨 Logo Manager</div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
   </div>
 
@@ -1610,6 +1611,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
       <div id="srcfix-results"></div>
     </div>
+
+<!-- ══ LOGO MANAGER ══ -->
+<div class="section" id="sec-logomanager">
+  <div class="sec-title">🎨 <span>Logo Manager</span></div>
+  <div class="card" style="margin-bottom:18px;">
+    <h3>Website Logos — Auto Rotate</h3>
+    <p style="font-size:0.82rem;color:var(--grey);margin-bottom:14px;line-height:1.5;">
+      5 logos add karo. Jo logos <b style="color:#22c55e;">ON</b> hongi, woh website pe har <b>12 seconds</b> auto change hongi (Header + Featured Banner).<br>
+      <b style="color:#f87171;">OFF</b> wali logos website pe nahi dikhengi.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-p" onclick="lmSaveLogos()">💾 Save All Logos</button>
+      <button class="btn btn-s" onclick="lmLoadLogos()">🔄 Reload</button>
+      <span id="lm-status" style="font-size:0.8rem;color:var(--grey);align-self:center;"></span>
+    </div>
+  </div>
+  <div id="lm-logos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
+</div>
 
 <div class="section" id="sec-settings">
       <div class="sec-title">⚙️ <span>Settings</span></div>
@@ -4074,6 +4093,7 @@ function show(name){
   if(name==='adwatch'){awpLoadSettings();}
   if(name==='push'){puLoadAll();}
   if(name==='mylinks'){mlLoadAll();}
+  if(name==='logomanager'){if(typeof lmLoadLogos==='function')lmLoadLogos();}
   if(name==='metascan'){if(typeof msScan==='function')msScan();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
   if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
@@ -15860,6 +15880,107 @@ function tmdbSeoStart() {
 }
 
 // ══ END DESCRIPTION WRITER + TMDB SEO ══
+
+// ══════════════════════════════════════════════════
+// 🎨 LOGO MANAGER — 5 logos with On/Off + auto-rotate on website
+// ══════════════════════════════════════════════════
+var _lmLogos = [
+  { url: '', enabled: true, name: 'Classic Glossy' },
+  { url: '', enabled: true, name: 'Minimal Flat' },
+  { url: '', enabled: true, name: 'Neon Glow' },
+  { url: '', enabled: true, name: 'Cinema Film' },
+  { url: '', enabled: true, name: 'Metallic 3D' }
+];
+
+function lmLoadLogos() {
+  var status = document.getElementById('lm-status');
+  if (status) status.textContent = 'Loading...';
+  if (typeof db === 'undefined' || !db) {
+    lmRenderGrid();
+    if (status) status.textContent = 'Firebase not ready';
+    return;
+  }
+  db.ref('settings/siteLogos').once('value', function(snap) {
+    var val = snap.val();
+    if (val && Array.isArray(val) && val.length) {
+      _lmLogos = val.map(function(l, i) {
+        return {
+          url: (l && l.url) || '',
+          enabled: l && l.enabled !== false,
+          name: (l && l.name) || ('Logo ' + (i + 1))
+        };
+      });
+      while (_lmLogos.length < 5) _lmLogos.push({ url: '', enabled: true, name: 'Logo ' + (_lmLogos.length + 1) });
+      _lmLogos = _lmLogos.slice(0, 5);
+    }
+    lmRenderGrid();
+    if (status) status.textContent = 'Loaded ✓';
+  }, function() {
+    lmRenderGrid();
+    if (status) status.textContent = 'Load error';
+  });
+}
+
+function lmRenderGrid() {
+  var grid = document.getElementById('lm-logos-grid');
+  if (!grid) return;
+  var html = '';
+  _lmLogos.forEach(function(logo, i) {
+    var on = logo.enabled !== false;
+    html += '<div class="card" style="padding:16px;margin:0;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
+        '<div style="font-weight:700;font-size:0.9rem;">Logo ' + (i + 1) + ' — ' + escHtml(logo.name || '') + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="font-size:0.72rem;color:' + (on ? '#22c55e' : '#f87171') + ';font-weight:700;">' + (on ? 'ON' : 'OFF') + '</span>' +
+          '<div class="toggle-wrap' + (on ? ' on' : '') + '" id="lm-toggle-' + i + '" onclick="lmToggle(' + i + ')" title="On/Off">' +
+            '<div class="toggle-btn"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="background:#0a0a0a;border:1px solid var(--border);border-radius:10px;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;">' +
+        (logo.url
+          ? '<img src="' + escHtml(logo.url) + '" alt="Logo ' + (i+1) + '" style="max-height:80px;max-width:95%;object-fit:contain;" onerror="this.style.display=\'none\'">'
+          : '<span style="color:#444;font-size:0.8rem;">No image URL</span>') +
+      '</div>' +
+      '<label style="font-size:0.68rem;color:var(--grey);display:block;margin-bottom:4px;">Image URL (PNG)</label>' +
+      '<input class="fi" id="lm-url-' + i + '" type="text" placeholder="https://i.ibb.co/....png" value="' + escHtml(logo.url || '') + '">' +
+      '<label style="font-size:0.68rem;color:var(--grey);display:block;margin:10px 0 4px;">Name (optional)</label>' +
+      '<input class="fi" id="lm-name-' + i + '" type="text" placeholder="e.g. Classic" value="' + escHtml(logo.name || '') + '">' +
+    '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+function lmToggle(i) {
+  if (!_lmLogos[i]) return;
+  _lmLogos[i].enabled = !_lmLogos[i].enabled;
+  lmRenderGrid();
+}
+
+function lmSaveLogos() {
+  for (var i = 0; i < 5; i++) {
+    var u = document.getElementById('lm-url-' + i);
+    var n = document.getElementById('lm-name-' + i);
+    if (u) _lmLogos[i].url = u.value.trim();
+    if (n) _lmLogos[i].name = n.value.trim() || ('Logo ' + (i + 1));
+  }
+  var status = document.getElementById('lm-status');
+  if (status) status.textContent = 'Saving...';
+  if (typeof db === 'undefined' || !db) {
+    if (status) status.textContent = 'Firebase not ready';
+    toast('Firebase not ready', 1);
+    return;
+  }
+  db.ref('settings/siteLogos').set(_lmLogos, function(err) {
+    if (err) {
+      if (status) status.textContent = 'Save failed';
+      toast('❌ Logo save fail', 1);
+    } else {
+      if (status) status.textContent = 'Saved ✓ — Website pe apply ho jayega';
+      toast('✅ Logos saved! Website pe auto-rotate active.');
+    }
+  });
+}
 </script>
 </body>
 </html>
