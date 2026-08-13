@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>CineNova Admin — Master Panel</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
 <link href='https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap' rel='stylesheet'/>
@@ -3423,20 +3422,17 @@ var LOGIN_LOCKOUT_MS   = 15 * 60 * 1000;        // 15 min lockout
 var TFA_SECRET_KEY     = 'cv_2fa_secret';       // TOTP secret (localStorage)
 var TFA_ENABLED_KEY    = 'cv_2fa_enabled';      // '1' if enabled
 
+var firebaseConfig = {
+  apiKey: "AIzaSyACX5MktMm99R2ThEbfrtwrh5ZAzT5tCM0",
+  authDomain: "cinenova-8987c.firebaseapp.com",
+  databaseURL: "https://cinenova-8987c-default-rtdb.firebaseio.com",
+  projectId: "cinenova-8987c",
+  storageBucket: "cinenova-8987c.firebasestorage.app",
+  messagingSenderId: "387796185004",
+  appId: "1:387796185004:web:080b4544e1fb53a1cd9409",
+  measurementId: "G-N67Y5B8T2Z"
+};
 
-// ══════════════════════════════════
-// SUPABASE (replaces Firebase)
-// ══════════════════════════════════
-var SUPABASE_URL = 'https://chsetbvabowidbyncock.supabase.co';
-var SUPABASE_ANON_KEY = 'sb_publishable_w0-cw6Vx5j5u_GVozoWDEg_SUGbtFBL';
-var supabaseClient = null;
-try {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-  console.error(e);
-}
-
-var firebaseConfig = {}; // kept for any leftover refs
 var db = null;
 var allMovies = [];
 var editKey = null;
@@ -3447,316 +3443,86 @@ var ssEditRows = [];
 
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY)||ADMIN_PASS_DEFAULT; }
 
-// Map admin movie object <-> Supabase row
-function adminToRow(m, firebaseKey) {
-  var row = {
-    firebase_key: firebaseKey || m.key || null,
-    title: m.title || 'Untitled',
-    description: m.description || '',
-    thumbnail: m.thumbnail || '',
-    category: (m.category || 'hollywood').toLowerCase(),
-    genre: m.genre || '',
-    year: m.year != null ? String(m.year) : '',
-    language: m.language || '',
-    quality: m.quality || '',
-    rating: (m.rating !== undefined && m.rating !== '' && !isNaN(parseFloat(m.rating))) ? parseFloat(m.rating) : null,
-    trending: !!m.trending,
-    seo_slug: m.seoSlug || null,
-    seo_title: m.seoTitle || null,
-    seo_desc: m.seoDesc || m.seoDescription || null,
-    seo_keywords: m.seoKeywords || null,
-    download_480p: m.download480p || '',
-    download_720p: m.download720p || '',
-    download_1080p: m.download1080p || '',
-    download_4k: m.download4k || '',
-    size: m.size || '',
-    screenshots: m.screenshots || '',
-    video_source_url: m.videoSourceUrl || m.videoUrl || '',
-    source_page_url: m.sourcePageUrl || '',
-    cast_info: m.cast || '',
-    director: m.director || '',
-    status: m.status || '',
-    views: parseInt(m.views || 0, 10) || 0,
-    download_count: parseInt(m.downloadCount || 0, 10) || 0,
-    added_at: parseInt(m.addedAt || Date.now(), 10) || Date.now(),
-    episodes: m.episodes || [],
-    download_links: {
-      '480p': m.download480p || '',
-      '720p': m.download720p || '',
-      '1080p': m.download1080p || '',
-      '4k': m.download4k || ''
-    }
+// ═══ FIREBASE LOAD WITH INTERNATIONAL CDN FALLBACK ═══
+// gstatic.com kuch countries mein block hai (China, Iran, Russia etc)
+// jsDelivr fallback lagaya hai — yeh globally accessible hai
+var _FB_VER = '10.14.1';
+var _FB_PRIMARY = 'https://www.gstatic.com/firebasejs/' + _FB_VER + '/';
+var _FB_FALLBACK = 'https://cdn.jsdelivr.net/npm/firebase@' + _FB_VER + '/';
+var _FB_LOADED_FROM = 'primary'; // track karo kahan se load hua
+
+function loadScript(src, cb, fallbackSrc) {
+  var done = false;
+  var s = document.createElement('script');
+  s.src = src;
+  var timer = setTimeout(function() {
+    if (done) return;
+    done = true;
+    // Timeout — try fallback
+    if (fallbackSrc) {
+      _FB_LOADED_FROM = 'fallback';
+      var s2 = document.createElement('script');
+      s2.src = fallbackSrc;
+      s2.onload = cb;
+      s2.onerror = function() { cb(); }; // cb anyway, error handle karega
+      document.body.appendChild(s2);
+    } else { cb(); }
+  }, 6000);
+  s.onload = function() {
+    if (done) return; done = true; clearTimeout(timer); cb();
   };
-  return row;
-}
-
-function rowToAdmin(row) {
-  var m = {
-    key: row.firebase_key || String(row.id),
-    title: row.title,
-    description: row.description,
-    thumbnail: row.thumbnail,
-    category: row.category,
-    genre: row.genre,
-    year: row.year,
-    language: row.language,
-    quality: row.quality,
-    rating: row.rating,
-    trending: row.trending,
-    seoSlug: row.seo_slug,
-    seoTitle: row.seo_title,
-    seoDesc: row.seo_desc,
-    seoKeywords: row.seo_keywords,
-    download480p: row.download_480p,
-    download720p: row.download_720p,
-    download1080p: row.download_1080p,
-    download4k: row.download_4k,
-    size: row.size,
-    screenshots: row.screenshots,
-    videoSourceUrl: row.video_source_url,
-    videoUrl: row.video_source_url,
-    sourcePageUrl: row.source_page_url,
-    cast: row.cast_info,
-    director: row.director,
-    status: row.status,
-    views: row.views,
-    downloadCount: row.download_count,
-    addedAt: row.added_at,
-    episodes: row.episodes || [],
-    published: true
+  s.onerror = function() {
+    if (done) return; done = true; clearTimeout(timer);
+    if (fallbackSrc) {
+      _FB_LOADED_FROM = 'fallback';
+      var s2 = document.createElement('script');
+      s2.src = fallbackSrc;
+      s2.onload = cb;
+      s2.onerror = function() { showFbError(); };
+      document.body.appendChild(s2);
+    } else { showFbError(); }
   };
-  return m;
-}
-
-function makePushKey() {
-  // Firebase-like push id
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  var t = Date.now().toString(36);
-  var r = '';
-  for (var i = 0; i < 12; i++) r += chars[Math.floor(Math.random() * chars.length)];
-  return '-S' + t + r;
-}
-
-function fakeSnapFromMovies(list) {
-  var data = {};
-  list.forEach(function(m) {
-    var k = m.key;
-    var copy = {};
-    Object.keys(m).forEach(function(f){ if (f !== 'key') copy[f] = m[f]; });
-    data[k] = copy;
-  });
-  return {
-    val: function(){ return data; },
-    exists: function(){ return list.length > 0; },
-    forEach: function(cb){
-      list.forEach(function(m){
-        var copy = {};
-        Object.keys(m).forEach(function(f){ if (f !== 'key') copy[f] = m[f]; });
-        cb({ key: m.key, val: function(){ return copy; } });
-      });
-    },
-    numChildren: function(){ return list.length; }
-  };
-}
-
-// Minimal Firebase Realtime Database compatible layer for movies + settings stubs
-function createSupabaseDb() {
-  var moviesListeners = [];
-
-  async function reloadMoviesAndNotify() {
-    if (!supabaseClient) return;
-    var res = await supabaseClient.from('movies').select('*').order('added_at', { ascending: false });
-    if (res.error) {
-      console.error(res.error);
-      return;
-    }
-    allMovies = (res.data || []).map(rowToAdmin);
-    var snap = fakeSnapFromMovies(allMovies);
-    moviesListeners.forEach(function(fn){ try { fn(snap); } catch(e){ console.error(e); } });
-  }
-
-  function ref(path) {
-    path = String(path || '');
-    var api = {
-      on: function(event, cb) {
-        if (path === 'movies' || path === '/movies') {
-          if (event === 'value') {
-            moviesListeners.push(cb);
-            reloadMoviesAndNotify();
-          }
-        }
-        return api;
-      },
-      off: function() {},
-      once: function(event) {
-        if (path === 'movies' || path === '/movies') {
-          return supabaseClient.from('movies').select('*').order('added_at', { ascending: false })
-            .then(function(res){
-              var list = (res.data || []).map(rowToAdmin);
-              return fakeSnapFromMovies(list);
-            });
-        }
-        // settings / motd / analytics stubs
-        return Promise.resolve({ val: function(){ return null; }, exists: function(){ return false; }, forEach: function(){} });
-      },
-      push: function(val) {
-        if (path === 'movies' || path === '/movies') {
-          var key = makePushKey();
-          var row = adminToRow(val || {}, key);
-          var p = supabaseClient.from('movies').insert(row).then(function(res){
-            if (res.error) throw res.error;
-            return reloadMoviesAndNotify();
-          });
-          // firebase push returns ThenableReference-like
-          return {
-            key: key,
-            then: function(ok, fail){ return p.then(ok, fail); },
-            catch: function(fail){ return p.catch(fail); }
-          };
-        }
-        return { key: makePushKey(), then: function(ok){ if(ok) ok(); return { catch: function(){} }; }, catch: function(){} };
-      },
-      set: function(val) {
-        // movies/{key} set full object rarely used
-        var m = path.match(/^movies\/(.+)$/);
-        if (m) {
-          var key = m[1];
-          var row = adminToRow(val || {}, key);
-          var p = supabaseClient.from('movies').upsert(row, { onConflict: 'firebase_key' }).then(function(res){
-            if (res.error) throw res.error;
-            return reloadMoviesAndNotify();
-          });
-          return p;
-        }
-        return Promise.resolve();
-      },
-      update: function(val) {
-        var m = path.match(/^movies\/(.+)$/);
-        if (m) {
-          var key = m[1];
-          // partial update - merge with mapping
-          var partial = adminToRow(Object.assign({ title: 'x' }, val), key);
-          // remove title if not in val
-          if (!val.title) delete partial.title;
-          // always keep firebase_key
-          partial.firebase_key = key;
-          // only send defined fields from val
-          var patch = { firebase_key: key };
-          if (val.title !== undefined) patch.title = val.title;
-          if (val.description !== undefined) patch.description = val.description;
-          if (val.thumbnail !== undefined) patch.thumbnail = val.thumbnail;
-          if (val.category !== undefined) patch.category = val.category;
-          if (val.genre !== undefined) patch.genre = val.genre;
-          if (val.year !== undefined) patch.year = String(val.year);
-          if (val.language !== undefined) patch.language = val.language;
-          if (val.quality !== undefined) patch.quality = val.quality;
-          if (val.rating !== undefined) patch.rating = val.rating === '' || val.rating == null ? null : parseFloat(val.rating);
-          if (val.trending !== undefined) patch.trending = !!val.trending;
-          if (val.seoSlug !== undefined) patch.seo_slug = val.seoSlug;
-          if (val.seoTitle !== undefined) patch.seo_title = val.seoTitle;
-          if (val.seoDesc !== undefined) patch.seo_desc = val.seoDesc;
-          if (val.seoDescription !== undefined) patch.seo_desc = val.seoDescription;
-          if (val.seoKeywords !== undefined) patch.seo_keywords = val.seoKeywords;
-          if (val.download480p !== undefined) patch.download_480p = val.download480p;
-          if (val.download720p !== undefined) patch.download_720p = val.download720p;
-          if (val.download1080p !== undefined) patch.download_1080p = val.download1080p;
-          if (val.download4k !== undefined) patch.download_4k = val.download4k;
-          if (val.size !== undefined) patch.size = val.size;
-          if (val.screenshots !== undefined) patch.screenshots = val.screenshots;
-          if (val.videoSourceUrl !== undefined) patch.video_source_url = val.videoSourceUrl;
-          if (val.videoUrl !== undefined) patch.video_source_url = val.videoUrl;
-          if (val.sourcePageUrl !== undefined) patch.source_page_url = val.sourcePageUrl;
-          if (val.status !== undefined) patch.status = val.status;
-          if (val.views !== undefined) patch.views = parseInt(val.views,10)||0;
-          if (val.downloadCount !== undefined) patch.download_count = parseInt(val.downloadCount,10)||0;
-          if (val.addedAt !== undefined) patch.added_at = parseInt(val.addedAt,10)||Date.now();
-          if (val.episodes !== undefined) patch.episodes = val.episodes;
-          if (val.download480p !== undefined || val.download720p !== undefined || val.download1080p !== undefined || val.download4k !== undefined) {
-            patch.download_links = {
-              '480p': val.download480p || '',
-              '720p': val.download720p || '',
-              '1080p': val.download1080p || '',
-              '4k': val.download4k || ''
-            };
-          }
-          var p = supabaseClient.from('movies').update(patch).eq('firebase_key', key).then(function(res){
-            if (res.error) throw res.error;
-            return reloadMoviesAndNotify();
-          });
-          return p;
-        }
-        // multi-path update from root db.ref().update({...})
-        if (path === '' || path === '/') {
-          var jobs = [];
-          Object.keys(val || {}).forEach(function(k){
-            if (k.indexOf('movies/') === 0) {
-              var fk = k.split('/')[1];
-              var v = val[k];
-              if (v === null) {
-                jobs.push(supabaseClient.from('movies').delete().eq('firebase_key', fk));
-              } else {
-                jobs.push(supabaseClient.from('movies').update(adminToRow(v, fk)).eq('firebase_key', fk));
-              }
-            }
-          });
-          return Promise.all(jobs).then(function(){ return reloadMoviesAndNotify(); });
-        }
-        return Promise.resolve();
-      },
-      remove: function() {
-        if (path === 'movies' || path === '/movies') {
-          return supabaseClient.from('movies').delete().neq('id', 0).then(function(){ return reloadMoviesAndNotify(); });
-        }
-        var m = path.match(/^movies\/(.+)$/);
-        if (m) {
-          return supabaseClient.from('movies').delete().eq('firebase_key', m[1]).then(function(res){
-            if (res.error) throw res.error;
-            return reloadMoviesAndNotify();
-          });
-        }
-        return Promise.resolve();
-      },
-      orderByChild: function(){ return api; },
-      orderByKey: function(){ return api; },
-      equalTo: function(){ return api; },
-      limitToLast: function(){ return api; },
-      limitToFirst: function(){ return api; },
-      endAt: function(){ return api; },
-      startAt: function(){ return api; },
-      transaction: function(){ return Promise.resolve({ committed: false }); }
-    };
-    return api;
-  }
-
-  return { ref: ref };
+  document.body.appendChild(s);
 }
 
 function showFbError() {
   var el = document.getElementById('login-err');
-  if (el) el.textContent = '❌ Supabase load nahi hua. Internet check karo.';
-  else alert('Supabase load nahi hua. Internet check karo.');
+  if (el) el.textContent = '❌ Firebase load nahi hua. Internet check karo ya VPN use karo.';
+  else alert('Firebase load nahi hua. Internet check karo.');
 }
 
-// Init immediately (CDN already in head)
-(function initSupabaseAdmin(){
-  try {
-    if (!supabaseClient && window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    if (!supabaseClient) {
-      showFbError();
-      return;
-    }
-    db = window.db = createSupabaseDb();
-    window._adminDbReady = true;
-    window.storage = { ref: function(){ return { put: function(){ return { on: function(){}, then: function(){ return Promise.resolve(); } }; }, getDownloadURL: function(){ return Promise.resolve(''); } }; } };
-    initLoginScreen();
-    if (typeof fpCheckOnLoad === 'function') fpCheckOnLoad();
-  } catch (e) {
-    console.error(e);
-    showFbError();
-  }
-})();
+loadScript(
+  _FB_PRIMARY + 'firebase-app-compat.js',
+  function(){
+    loadScript(
+      _FB_PRIMARY + 'firebase-database-compat.js',
+      function(){
+        loadScript(
+          _FB_PRIMARY + 'firebase-storage-compat.js',
+          function(){
+            loadScript(
+              _FB_PRIMARY + 'firebase-auth-compat.js',
+              function(){
+                try {
+                  firebase.initializeApp(firebaseConfig);
+                  db=window.db=firebase.database();
+                  window.storage=firebase.storage();
+                  window._adminDbReady = true;
+                  initLoginScreen();
+                  fpCheckOnLoad();
+                } catch(e) { showFbError(); }
+              },
+              _FB_FALLBACK + 'firebase-auth-compat.min.js'
+            );
+          },
+          _FB_FALLBACK + 'firebase-storage-compat.min.js'
+        );
+      },
+      _FB_FALLBACK + 'firebase-database-compat.min.js'
+    );
+  },
+  _FB_FALLBACK + 'firebase-app-compat.min.js'
+);
 
 // ═══ LOGIN SCREEN ═══
 function initLoginScreen(){
