@@ -14113,10 +14113,12 @@ function ffiStartImport() {
           if (ssArr.length) obj.screenshots = ssArr.join(',');
         }
 
-        // Episode packs (Web Series / Season) — auto from /dl/ episode-01-05 links
+        // Episode packs (Web Series / Season) — FilmyZilla /server/ SxxEPxx + HDFun packs
         if (data.episodes && data.episodes.length) {
           obj.episodes = data.episodes;
-          if (!obj.category || obj.category === 'hollywood') {
+          if (data.episodes.length >= 2 && obj.category !== 'adult' && obj.category !== 'kdrama') {
+            obj.category = 'webseries';
+          } else if (!obj.category || obj.category === 'hollywood') {
             obj.category = data.category || 'webseries';
           }
         }
@@ -15336,8 +15338,8 @@ function ffiParsePage(html, srcUrl) {
     }
 
     // Quality links + sizes from each <a href="/server/..."> ... <small>(SIZE)</small>
-    var fzChunkRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html)["'][\s\S]{0,400}?<small>\s*\(\s*<span[^>]*>([^<]+)<\/span>\s*\)/gi;
-    var fzPlainRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html)["']/gi;
+    var fzChunkRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html?)["'][\s\S]{0,500}?(?:<small>\s*\(\s*(?:<span[^>]*>)?([^)<]+)(?:<\/span>)?\s*\)|\((\d+(?:\.\d+)?\s*M?B)\))/gi;
+    var fzPlainRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html?)["']/gi;
     var fzSeen = {};
     var fzRows = [];
     var fzm;
@@ -15375,6 +15377,128 @@ function ffiParsePage(html, srcUrl) {
     if (p720) { data.download720p = p720.url; if (p720.size) data.size720 = p720.size; }
     if (p1080) { data.download1080p = p1080.url; if (p1080.size) data.size1080 = p1080.size; }
     if (p4k) { data.download4k = p4k.url; if (p4k.size) data.size4k = p4k.size; }
+
+    // ── Web Series / Season: /server/ links jo Sxx EPxx dikhayein → data.episodes[] ──
+    // Example: "Game of Thrones S08 EP01 Kings Landing English HDRip.mp4 (239 MB)"
+    (function fzEpisodesFromServer() {
+      if (!fzRows || fzRows.length < 1) return;
+      function parseEpLabel(label, url) {
+        var s = String(label || '') + ' ' + String(url || '');
+        s = s.replace(/&amp;/g, '&');
+        // Decode path slug for title
+        var slug = '';
+        try {
+          var path = (url || '').split('/').pop() || '';
+          slug = decodeURIComponent(path).replace(/\.mp4\.html$/i, '').replace(/\.html$/i, '').replace(/[-_]+/g, ' ');
+        } catch (e) {}
+        var season = '1', episode = null, title = '';
+        var m = s.match(/\bS(\d{1,2})\s*E(?:P)?(\d{1,3})\b/i) ||
+                s.match(/\bS(\d{1,2})[\s._-]*EP?(\d{1,3})\b/i) ||
+                s.match(/season[\s._-]*(\d{1,2})[\s._-]*episode[\s._-]*(\d{1,3})/i);
+        if (m) {
+          season = String(parseInt(m[1], 10));
+          episode = String(parseInt(m[2], 10));
+        } else {
+          var m2 = s.match(/\bEP(?:isode)?[\s._-]*0*(\d{1,3})\b/i) || s.match(/\bE(\d{1,3})\b/i);
+          if (m2) episode = String(parseInt(m2[1], 10));
+          var m3 = s.match(/season[\s._-]*(\d{1,2})/i) || s.match(/\bS(\d{1,2})\b/i);
+          if (m3) season = String(parseInt(m3[1], 10));
+        }
+        if (!episode) return null;
+        // Clean title from label (anchor text preferred)
+        title = String(label || slug || '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/\(\s*\d+(?:\.\d+)?\s*M?B\s*\)/ig, '')
+          .replace(/\.mp4$/i, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!title || title.length < 3) title = 'Episode ' + episode;
+        var isHindi = /\bhindi\b/i.test(s);
+        var isEng = /\benglish\b/i.test(s) || !isHindi;
+        var q = '';
+        if (/2160p|4k|uhd/i.test(s)) q = '4k';
+        else if (/1080p/i.test(s)) q = '1080p';
+        else if (/720p/i.test(s)) q = '720p';
+        else if (/480p|360p/i.test(s)) q = '480p';
+        return { season: season, episode: episode, title: title, isHindi: isHindi, isEng: isEng, quality: q };
+      }
+
+      // Capture anchor text for better labels — scan fzHtml
+      var labelByUrl = {};
+      var aRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]*?)<\/a>/gi;
+      var am;
+      while ((am = aRe.exec(fzHtml)) !== null) {
+        var au = am[1].startsWith('http') ? am[1] : (fzHost + am[1]);
+        au = au.replace(/&amp;/g, '&');
+        var lab = am[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (lab) labelByUrl[au] = lab;
+      }
+
+      var epMap = {}; // key season|episode
+      var epCount = 0;
+      fzRows.forEach(function(r) {
+        var lab = labelByUrl[r.url] || r.label || '';
+        var info = parseEpLabel(lab, r.url);
+        if (!info) return;
+        epCount++;
+        var key = info.season + '|' + info.episode;
+        if (!epMap[key]) {
+          epMap[key] = {
+            season: info.season,
+            episode: info.episode,
+            title: info.title,
+            dl480: '',
+            dl720: '',
+            dl1080: '',
+            sz480: '',
+            sz720: '',
+            sz1080: '',
+            videoSourceUrl: r.url,
+            dlSourceUrl: r.url
+          };
+        }
+        var ep = epMap[key];
+        // Prefer English label as title
+        if (info.isEng && /hindi/i.test(ep.title) && !/hindi/i.test(info.title)) ep.title = info.title;
+        // Assign quality fields — Hindi/English same ep share fields (last non-empty wins by quality)
+        var url = r.url;
+        var sz = r.size || '';
+        if (info.quality === '480p') { if (!ep.dl480 || info.isEng) { ep.dl480 = url; if (sz) ep.sz480 = sz; } }
+        else if (info.quality === '720p') { if (!ep.dl720 || info.isEng) { ep.dl720 = url; if (sz) ep.sz720 = sz; } }
+        else if (info.quality === '1080p' || info.quality === '4k') { if (!ep.dl1080 || info.isEng) { ep.dl1080 = url; if (sz) ep.sz1080 = sz; } }
+        else {
+          // No quality in name — put best available slot
+          if (!ep.dl720) { ep.dl720 = url; if (sz) ep.sz720 = sz; }
+          else if (!ep.dl1080) { ep.dl1080 = url; if (sz) ep.sz1080 = sz; }
+          else if (!ep.dl480) { ep.dl480 = url; if (sz) ep.sz480 = sz; }
+          else if (info.isEng) { ep.dl720 = url; if (sz) ep.sz720 = sz; }
+        }
+        if (!ep.videoSourceUrl || info.isEng) {
+          ep.videoSourceUrl = url;
+          ep.dlSourceUrl = url;
+        }
+      });
+
+      var epList = Object.keys(epMap).map(function(k) { return epMap[k]; });
+      epList.sort(function(a, b) {
+        var sa = parseInt(a.season, 10) || 0, sb = parseInt(b.season, 10) || 0;
+        if (sa !== sb) return sa - sb;
+        return (parseInt(a.episode, 10) || 0) - (parseInt(b.episode, 10) || 0);
+      });
+
+      // At least 2 episode-like server links OR 1+ with clear SxxEPxx on series page
+      var seriesHint = /season|episode|tv\s*series|web\s*series|\bS\d{1,2}\b/i.test((data.title || '') + ' ' + (srcUrl || '') + ' ' + (fzName || ''));
+      if (epList.length >= 2 || (epList.length >= 1 && seriesHint && epCount >= 1)) {
+        data.episodes = epList;
+        data.category = data.category === 'adult' ? data.category : 'webseries';
+        // Clear single-movie quality fields so theme shows episodes not one fake pack
+        // Keep one pack only if single episode
+        if (epList.length >= 2) {
+          // optional: don't wipe download* so something still shows — theme uses episodes when present
+        }
+      }
+    })();
 
     // Primary download_link = best available quality link
     if (!dlLink) {
