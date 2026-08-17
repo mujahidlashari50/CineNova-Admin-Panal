@@ -591,6 +591,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly / HDFun / FilmyZilla / 9xflix</div>
+    <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
     <div class="nav-section-title">🤖 SEO AI Tools</div>
@@ -2056,6 +2057,58 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
     <!-- ═══ END FILMYFLY IMPORTER ═══ -->
+
+    <!-- ═══ PLAYMATE UPLOAD ═══ -->
+    <div class="section" id="sec-playmate">
+      <div class="sec-title">▶️ Playmate <span>Upload</span></div>
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#93c5fd;">
+        Direct video link paste karo → Playmate pe <b>remote upload</b> ho jayega → file code + embed mil jayega.
+        API: <code style="color:#bfdbfe;">api.playmate.to/upload/url</code>
+      </div>
+
+      <div class="card">
+        <h3>🔑 API Key</h3>
+        <div style="font-size:0.78rem;color:var(--grey);margin-bottom:10px;">Playmate dashboard → Account Settings / API se key copy karo. Browser mein save rehti hai (localStorage).</div>
+        <div class="fgg full">
+          <label>Playmate API Key</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input class="fi" id="pm-api-key" type="password" placeholder="YOUR_API_KEY" style="flex:1;min-width:220px;"/>
+            <button type="button" class="btn btn-s" onclick="pmToggleKeyVis()">👁</button>
+            <button type="button" class="btn btn-s" onclick="pmSaveApiKey()">💾 Save Key</button>
+            <button type="button" class="btn btn-s" onclick="pmTestApiKey()">🧪 Test</button>
+          </div>
+          <div id="pm-key-status" style="font-size:0.75rem;margin-top:8px;color:#888;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📤 Remote Upload (Direct Link)</h3>
+        <div class="fgg full">
+          <label>Direct video URL(s) — ek line pe ek link</label>
+          <textarea class="fi" id="pm-urls" rows="5" placeholder="https://example.com/movie.mp4&#10;https://cdn.example.com/file.mkv"></textarea>
+        </div>
+        <div class="fgg" style="margin-top:10px;">
+          <label>Title (optional — pehli file ke liye)</label>
+          <input class="fi" id="pm-title" placeholder="Movie name..."/>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="btn btn-p" id="pm-upload-btn" onclick="pmStartRemoteUpload()">🚀 Playmate pe Upload</button>
+          <button type="button" class="btn btn-s" onclick="pmCheckRemoteStatus()">🔄 Status Check</button>
+          <span id="pm-upload-status" style="font-size:0.8rem;color:var(--grey);"></span>
+        </div>
+      </div>
+
+      <div class="card" id="pm-results-card" style="display:none;">
+        <h3>✅ Results</h3>
+        <div id="pm-results" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
+      <div class="card">
+        <h3>📋 Recent (is session)</h3>
+        <div id="pm-history" style="font-size:0.8rem;color:#888;">Abhi koi upload nahi</div>
+      </div>
+    </div>
+    <!-- ═══ END PLAYMATE UPLOAD ═══ -->
 
     <!-- ═══ SOURCE PAGES ═══ -->
     <div class="section" id="sec-sourcepages">
@@ -4163,6 +4216,7 @@ function show(name){
   if(name==='adwatch'){awpLoadSettings();}
   if(name==='push'){puLoadAll();}
   if(name==='mylinks'){mlLoadAll();}
+  if(name==='playmate'){pmOnShow();}
   if(name==='metascan'){if(typeof msScan==='function')msScan();}
   if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
   if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
@@ -6187,6 +6241,181 @@ async function attachPlaymateToMovieObj(obj) {
   }
   return obj;
 }
+
+
+// ═══════════════════════════════════════════════════════════
+// PLAYMATE REMOTE UPLOAD (api.playmate.to)
+// ═══════════════════════════════════════════════════════════
+var _pmHistory = [];
+var PM_API = 'https://api.playmate.to';
+
+function pmOnShow() {
+  var k = localStorage.getItem('cinenova_playmate_api_key') || '';
+  var el = document.getElementById('pm-api-key');
+  if (el && k) el.value = k;
+  var st = document.getElementById('pm-key-status');
+  if (st) st.textContent = k ? '✅ Key saved (local)' : '⚠️ API key zaroori hai';
+  pmRenderHistory();
+}
+
+function pmToggleKeyVis() {
+  var el = document.getElementById('pm-api-key');
+  if (!el) return;
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function pmSaveApiKey() {
+  var k = (document.getElementById('pm-api-key').value || '').trim();
+  if (!k) { toast('API key daalo', 1); return; }
+  localStorage.setItem('cinenova_playmate_api_key', k);
+  document.getElementById('pm-key-status').textContent = '✅ Key saved';
+  toast('Playmate API key save ho gayi');
+}
+
+function pmGetKey() {
+  return (document.getElementById('pm-api-key') && document.getElementById('pm-api-key').value.trim())
+    || localStorage.getItem('cinenova_playmate_api_key') || '';
+}
+
+async function pmTestApiKey() {
+  var key = pmGetKey();
+  var st = document.getElementById('pm-key-status');
+  if (!key) { st.textContent = '❌ Key missing'; return; }
+  st.textContent = '⏳ Testing...';
+  try {
+    var res = await fetch(PM_API + '/account/info?key=' + encodeURIComponent(key), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    var data = await res.json().catch(function(){ return {}; });
+    if (res.ok && (data.status === 200 || data.msg === 'OK' || data.result || data.email || data.username || data.success !== false)) {
+      st.textContent = '✅ Key OK' + (data.username ? (' — ' + data.username) : (data.email ? (' — ' + data.email) : ''));
+      toast('Playmate API connected');
+    } else {
+      st.textContent = '❌ Invalid key / API error: ' + (data.msg || data.message || res.status);
+    }
+  } catch (e) {
+    st.textContent = '❌ Network: ' + e.message;
+  }
+}
+
+async function pmStartRemoteUpload() {
+  var key = pmGetKey();
+  var statusEl = document.getElementById('pm-upload-status');
+  var btn = document.getElementById('pm-upload-btn');
+  if (!key) {
+    statusEl.textContent = '❌ Pehle API key save karo';
+    toast('Playmate API key zaroori hai', 1);
+    return;
+  }
+  var raw = (document.getElementById('pm-urls').value || '').trim();
+  var lines = raw.split(/\n+/).map(function(s){ return s.trim(); }).filter(function(s){ return /^https?:\/\//i.test(s); });
+  if (!lines.length) {
+    statusEl.textContent = '❌ Kam az kam ek valid http(s) link daalo';
+    return;
+  }
+  btn.disabled = true;
+  statusEl.textContent = '⏳ Uploading ' + lines.length + ' link(s)...';
+  var results = [];
+  for (var i = 0; i < lines.length; i++) {
+    var url = lines[i];
+    statusEl.textContent = '⏳ ' + (i+1) + '/' + lines.length + ' — uploading...';
+    try {
+      var apiUrl = PM_API + '/upload/url?key=' + encodeURIComponent(key) + '&url=' + encodeURIComponent(url);
+      var title = (document.getElementById('pm-title').value || '').trim();
+      if (title && i === 0) apiUrl += '&title=' + encodeURIComponent(title);
+      var res = await fetch(apiUrl, { method: 'POST', headers: { 'Accept': 'application/json' } });
+      // some APIs accept GET
+      if (!res.ok && res.status === 405) {
+        res = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      }
+      var data = await res.json().catch(function(){ return {}; });
+      var filecode = data.filecode || data.file_code || (data.result && (data.result.filecode || data.result.file_code)) || data.files && data.files[0] && (data.files[0].filecode || data.files[0].file_code) || '';
+      var ok = !!(filecode || data.status === 200 || data.msg === 'OK' || data.success);
+      results.push({ url: url, ok: ok, filecode: filecode || '', raw: data, error: ok ? '' : (data.msg || data.message || data.error || ('HTTP ' + res.status)) });
+      if (filecode) {
+        _pmHistory.unshift({ filecode: filecode, url: url, embed: 'https://playmate.to/embed/' + filecode, t: Date.now() });
+      }
+    } catch (e) {
+      results.push({ url: url, ok: false, filecode: '', error: e.message, raw: null });
+    }
+  }
+  btn.disabled = false;
+  var okN = results.filter(function(r){ return r.ok; }).length;
+  statusEl.textContent = '✅ Done: ' + okN + '/' + results.length + ' accepted (encoding Playmate pe chalegi)';
+  pmShowResults(results);
+  pmRenderHistory();
+}
+
+function pmShowResults(results) {
+  var card = document.getElementById('pm-results-card');
+  var box = document.getElementById('pm-results');
+  card.style.display = 'block';
+  box.innerHTML = '';
+  results.forEach(function(r) {
+    var div = document.createElement('div');
+    div.style.cssText = 'padding:12px;border-radius:8px;border:1px solid ' + (r.ok ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)') + ';background:' + (r.ok ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)') + ';';
+    var embed = r.filecode ? ('https://playmate.to/embed/' + r.filecode) : '';
+    div.innerHTML = '<div style="font-size:0.78rem;color:#aaa;word-break:break-all;margin-bottom:6px;">' + escHtml(r.url) + '</div>'
+      + (r.ok
+        ? ('<div style="color:#86efac;font-weight:700;">✅ File code: <code style="color:#fff;">' + escHtml(r.filecode || '(processing)') + '</code></div>'
+          + (embed ? '<div style="margin-top:6px;font-size:0.8rem;">Embed: <a href="' + embed + '" target="_blank" style="color:#93c5fd;">' + embed + '</a></div>'
+            + '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">'
+            + '<button type="button" class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + escJs(r.filecode) + '\');toast(\'ID copy\')">📋 Copy ID</button>'
+            + '<button type="button" class="btn btn-s" onclick="navigator.clipboard.writeText(\'' + escJs(embed) + '\');toast(\'Embed copy\')">📋 Copy Embed</button>'
+            + '<button type="button" class="btn btn-s" onclick="pmFillAddForm(\'' + escJs(r.filecode) + '\')">➕ Add Movie form mein</button>'
+            + '</div>' : '')
+          + '<pre style="margin-top:8px;font-size:0.65rem;color:#666;max-height:80px;overflow:auto;white-space:pre-wrap;">' + escHtml(JSON.stringify(r.raw || {}, null, 0).slice(0, 300)) + '</pre>')
+        : ('<div style="color:#fca5a5;">❌ ' + escHtml(r.error || 'failed') + '</div>'));
+    box.appendChild(div);
+  });
+}
+
+function pmFillAddForm(filecode) {
+  if (!filecode) return;
+  try {
+    show('add');
+    var el = document.getElementById('fplaymate');
+    if (el) {
+      el.value = filecode;
+      if (typeof playmatePreview === 'function') playmatePreview(filecode, 'fplaymate-preview');
+    }
+    toast('Playmate ID Add form mein set — baqi details bharo');
+  } catch (e) { toast(e.message, 1); }
+}
+
+function pmRenderHistory() {
+  var el = document.getElementById('pm-history');
+  if (!el) return;
+  if (!_pmHistory.length) { el.innerHTML = 'Abhi koi upload nahi'; return; }
+  el.innerHTML = _pmHistory.slice(0, 20).map(function(h) {
+    return '<div style="padding:8px 0;border-bottom:1px solid #222;">'
+      + '<b style="color:#93c5fd;">' + escHtml(h.filecode) + '</b> '
+      + '<a href="' + escHtml(h.embed) + '" target="_blank" style="color:#60a5fa;font-size:0.75rem;">embed</a>'
+      + '<div style="font-size:0.68rem;color:#555;word-break:break-all;">' + escHtml(h.url) + '</div></div>';
+  }).join('');
+}
+
+async function pmCheckRemoteStatus() {
+  var key = pmGetKey();
+  var statusEl = document.getElementById('pm-upload-status');
+  if (!key) { statusEl.textContent = '❌ Key missing'; return; }
+  statusEl.textContent = '⏳ Status...';
+  try {
+    var res = await fetch(PM_API + '/remote/status?key=' + encodeURIComponent(key), { headers: { 'Accept': 'application/json' } });
+    var data = await res.json().catch(function(){ return {}; });
+    statusEl.textContent = '📊 ' + JSON.stringify(data).slice(0, 180);
+    var res2 = await fetch(PM_API + '/remote/list?key=' + encodeURIComponent(key), { headers: { 'Accept': 'application/json' } });
+    var list = await res2.json().catch(function(){ return {}; });
+    var card = document.getElementById('pm-results-card');
+    var box = document.getElementById('pm-results');
+    card.style.display = 'block';
+    box.innerHTML = '<pre style="font-size:0.75rem;color:#aaa;white-space:pre-wrap;">' + escHtml(JSON.stringify(list, null, 2).slice(0, 2000)) + '</pre>';
+  } catch (e) {
+    statusEl.textContent = '❌ ' + e.message;
+  }
+}
+
 
 function normalizePlaymateId(raw) {
   var id = extractPlaymateIdFromUrl(raw || '');
