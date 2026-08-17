@@ -2048,8 +2048,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
-            ▶️ Save pe Playmate pe bhi upload
+            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;display:none;"/>
+            <span style="font-size:0.75rem;color:#888;">▶️ Playmate ID import pe save nahi hoti — sidebar <b>Playmate Upload</b> se alag upload karo</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -13332,7 +13332,9 @@ function ffiIsRealPostUrl(u, siteUrl) {
   if (!/^https?:\/\//i.test(u)) return false;
   var low = u.toLowerCase();
   // Hard junk paths — kabhi post nahi
-  if (/\/(category|server|verified|templates|cdn-cgi|wp-admin|wp-login|login|signup|register|contact|dmca|privacy|policy|terms|sitemap|rss|feed|search|tag|author|page|cart|checkout)\b/i.test(low)) return false;
+  // NOTE: 'page' alone mat match karo — FilmyFly /page-download/ aur /page-category/ legitimate hain
+  if (/\/(category|server|verified|templates|cdn-cgi|wp-admin|wp-login|login|signup|register|contact|dmca|privacy|policy|terms|sitemap|rss|feed|search|tag|author|cart|checkout)\b/i.test(low) && !/\/page-download\//i.test(low) && !/\/page-category\//i.test(low)) return false;
+  if (/\/page\/\d+/i.test(low) && !/\/page-download\//i.test(low)) return false;
   if (/more-movies|websites\.html|favicon|javascript:|mailto:|tel:|sms:/i.test(low)) return false;
   if (/facebook\.|twitter\.|t\.me|telegram\.|whatsapp|instagram\.|youtube\.|histats|statcounter/i.test(low)) return false;
   // Trailing bare domain / home only
@@ -14359,15 +14361,8 @@ function ffiSaveReviewed() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
 
   var savedCount = 0, errCount = 0, total = selected.length;
+  // Playmate ID import/save pe AUTO nahi — sirf sidebar "Playmate Upload" se manual
   var wantPm = false;
-  try {
-    var pmChk = document.getElementById('ffi-playmate-upload');
-    var hasKey = !!getPlaymateApiKey();
-    if (pmChk && pmChk.checked && !hasKey) {
-      toast('⚠️ Playmate checkbox ON lekin API key Settings mein nahi — pehle key save karo', 1);
-    }
-    wantPm = !!(pmChk && pmChk.checked && hasKey);
-  } catch (e) {}
 
   // Optional: Playmate URL-upload pehle (direct links only)
   function afterPlaymate(doneList) {
