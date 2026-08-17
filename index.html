@@ -1935,7 +1935,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div class="fgg" style="width:100%;">
             <label>Category URL 1</label>
-            <input class="fi" id="ffi-site-url" placeholder="https://www.filmyzilla56.com/category/.../default/1.html" style="border-color:rgba(245,158,11,0.4);"/>
+            <input class="fi" id="ffi-site-url" placeholder="https://filmyfly.green/page-category/4/Hollywood-Hindi-Movies.html" style="border-color:rgba(245,158,11,0.4);"/>
           </div>
           <div class="fgg" style="width:100%;">
             <label>Category URL 2 <span style="color:#888;font-weight:400;">(optional)</span></label>
@@ -1969,8 +1969,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
           <span style="font-size:0.72rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">hdfun.in ✓</span>
           <span style="font-size:0.72rem;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f9a8d4;padding:3px 10px;border-radius:20px;">mmshd.com ✓</span>
-          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.builders ✓</span>
-          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.racing ✓</span>
+          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.green ✓</span>
+          <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly (auto→green) ✓</span>
           <span style="font-size:0.72rem;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);color:#93c5fd;padding:3px 10px;border-radius:20px;">9xflix.ist ✓</span>
           <span style="font-size:0.72rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);color:#fde047;padding:3px 10px;border-radius:20px;">filmyzilla56.com ✓</span>
           <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">Koi bhi similar site ✓</span>
@@ -13284,7 +13284,12 @@ var _ffiProxies = [
 function ffiNormalizeUrl(url) {
   try {
     var u = String(url || '').trim().replace(/\s+/g, '');
+    // 9xflix → ist
     u = u.replace(/https?:\/\/(?:www\.)?9xflix\.(?:sarl|ist|com|in|net|to|se|mom)\b/i, 'https://9xflix.ist');
+    // FilmyFly / Filmy4wap — purane TLD category drop karke home pe bhej dete hain
+    // → live domain filmyfly.green, path same
+    u = u.replace(/https?:\/\/(?:www\.)?filmyfly\.[a-z0-9]+\b/i, 'https://filmyfly.green');
+    u = u.replace(/https?:\/\/(?:www\.)?filmy4wap\.[a-z0-9]+\b/i, 'https://filmyfly.green');
     return u;
   } catch (e) { return url; }
 }
@@ -13459,7 +13464,7 @@ function ffiFetchPosts() {
     (document.getElementById('ffi-site-url-2') || {}).value || '',
     (document.getElementById('ffi-site-url-3') || {}).value || ''
   ];
-  var siteUrls = rawUrls.map(function(s){ return String(s||'').trim(); }).filter(function(s){
+  var siteUrls = rawUrls.map(function(s){ return ffiNormalizeUrl(String(s||'').trim()); }).filter(function(s){
     return s && /^https?:\/\//i.test(s);
   });
   if (!siteUrls.length) {
@@ -13521,6 +13526,10 @@ function ffiFetchPosts() {
         } else {
           url = baseLp.replace(/\/?$/, '') + '/' + pageNum;
         }
+      } else if (/filmyfly|filmy4wap|page-category\//i.test(siteUrl)) {
+        // FilmyFly: keep path, add ?page=N
+        var baseFf = siteUrl.replace(/[?&]page=\d+/gi, '').replace(/[?&]$/, '');
+        url = baseFf + (baseFf.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum;
       } else {
         url = siteUrl + (siteUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum;
       }
@@ -13530,7 +13539,7 @@ function ffiFetchPosts() {
     _ffiFetch(url, function(html) {
       if (html) {
         // Pattern 1: FilmyFly /page-download/123/title.html
-        var re1 = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]*\.html)/gi;
+        var re1 = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]+)/gi;
         var m;
         while ((m = re1.exec(html)) !== null) {
           var u = m[1].startsWith('http') ? m[1] : baseHost + m[1];
@@ -13650,7 +13659,7 @@ function ffiFetchPosts() {
           btn.disabled = false; btn.textContent = '🔍 Posts Fetch Karo (1–3 URLs)';
           if (_ffiPosts.length === 0) {
             status.style.background = 'rgba(229,9,20,0.1)'; status.style.color = '#f87171';
-            status.textContent = '❌ Koi post nahi mila. URL check karo.';
+            status.textContent = '❌ Koi post nahi mila. FilmyFly ke liye live URL use karo: https://filmyfly.green/page-category/4/Hollywood-Hindi-Movies.html';
           } else {
             status.style.background = 'rgba(34,197,94,0.1)'; status.style.color = '#4ade80';
             var cats = {};
