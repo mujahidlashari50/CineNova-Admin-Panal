@@ -2048,8 +2048,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;display:none;"/>
-            <span style="font-size:0.75rem;color:#888;">▶️ Playmate ID import pe save nahi hoti — sidebar <b>Playmate Upload</b> se alag upload karo</span>
+            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto-upload (1080p → worker → embed save)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -6048,9 +6048,10 @@ function isFilmyzillaMovieUrl(u) {
 /** Movie object se candidate URLs (direct pehle, phir FZ server/page) */
 function pickCandidatesForPlaymate(obj) {
   if (!obj) return [];
-  var cands = [
-    obj.download1080p, obj.download720p, obj.download480p, obj.download4k,
-    obj.vlcUrl2, obj.vlcUrl, obj.videoSourceUrl, obj.dlSourceUrl, obj.videoUrl,
+  // Sirf 1 best download link: 1080p → 720p → 4k → 480p → other
+  var priority = [
+    obj.download1080p, obj.download720p, obj.download4k, obj.download480p,
+    obj.dlSourceUrl, obj.videoSourceUrl, obj.vlcUrl2, obj.vlcUrl, obj.videoUrl,
     obj.sourcePageUrl, obj.pageUrl
   ];
   var out = [];
@@ -6059,21 +6060,17 @@ function pickCandidatesForPlaymate(obj) {
     if (!u || typeof u !== 'string') return;
     u = u.trim();
     if (!/^https?:\/\//i.test(u)) return;
+    if (/playmate\.to/i.test(u)) return;
     if (seen[u]) return;
     seen[u] = 1;
     out.push(u);
   }
-  // 1) Direct first
-  cands.forEach(function(u) { if (isLikelyDirectVideoUrl(u)) add(u); });
-  // 2) FilmyZilla /server/ pages (resolveable)
-  cands.forEach(function(u) { if (isFilmyzillaServerUrl(u)) add(u); });
-  // 3) FilmyZilla movie page
-  cands.forEach(function(u) { if (isFilmyzillaMovieUrl(u)) add(u); });
-  // 4) Other https (non-listing junk)
-  cands.forEach(function(u) {
-    if (u && /^https?:\/\//i.test(u) && !/category\/|default\/\d+\.html/i.test(u)) add(u);
-  });
-  return out;
+  // Prefer direct video URLs first in priority order
+  priority.forEach(function(u) { if (isLikelyDirectVideoUrl(u)) add(u); });
+  // Then best intermediate (worker resolve karega)
+  priority.forEach(function(u) { add(u); });
+  // Only first candidate needed for Playmate (1 file per movie)
+  return out.slice(0, 3);
 }
 
 function pickDirectUrlForPlaymate(obj) {
@@ -6237,7 +6234,7 @@ async function uploadUrlToPlaymate(sourceUrl, apiKey, title) {
   // 1) DL Worker — same links jo download ke liye save hote hain
   try {
     var base = getDlWorkerBase();
-    var wu = base + '/playmate-upload?url=' + encodeURIComponent(sourceUrl) + '&q=720p';
+    var wu = base + '/playmate-upload?url=' + encodeURIComponent(sourceUrl) + '&q=1080p';
     if (title) wu += '&title=' + encodeURIComponent(String(title).slice(0, 180));
     var secret = (localStorage.getItem('cinenova_playmate_secret') || '').trim();
     if (secret) wu += '&secret=' + encodeURIComponent(secret);
@@ -14460,8 +14457,9 @@ function ffiSaveReviewed() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
 
   var savedCount = 0, errCount = 0, total = selected.length;
-  // Playmate ID import/save pe AUTO nahi — sirf sidebar "Playmate Upload" se manual
-  var wantPm = false;
+  // Import pe Playmate auto — checkbox + DL worker resolve (1080p preferred)
+  var wantPm = !!(document.getElementById('ffi-playmate-upload') && document.getElementById('ffi-playmate-upload').checked)
+    || (localStorage.getItem('cinenova_playmate_auto') !== '0');
 
   // Optional: Playmate URL-upload pehle (direct links only)
   function afterPlaymate(doneList) {
