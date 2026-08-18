@@ -14528,13 +14528,61 @@ function ffiSaveReviewed() {
 
   // FAST batch save — 10 movies ek Firebase update mein
   var BATCH = 10;
+  function ffiRefreshMoviesList() {
+    // Force panel list update (import ke baad table khali na rahe)
+    try {
+      db.ref('movies').once('value', function(snap) {
+        allMovies = [];
+        if (snap.exists()) {
+          snap.forEach(function(c) {
+            var m = c.val() || {};
+            m.key = c.key;
+            allMovies.push(m);
+          });
+        }
+        allMovies.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+        try { renderDash(); } catch (e) {}
+        try { updateCounts(); } catch (e) {}
+        try {
+          currentCatFilter = 'all';
+          var cf = document.querySelectorAll('.cf-btn');
+          for (var i = 0; i < cf.length; i++) cf[i].classList.remove('active');
+          var allBtn = document.querySelector('.cf-btn[data-cat="all"], .cf-btn[onclick*="all"]');
+          if (allBtn) allBtn.classList.add('active');
+        } catch (e) {}
+        try { renderTable(allMovies); } catch (e) {}
+        try { if (typeof show === 'function') show('movies'); } catch (e) {}
+        if (statusEl) {
+          statusEl.textContent = savedCount + ' saved — list refresh (' + allMovies.length + ' total)';
+        }
+      });
+    } catch (e) {
+      console.warn('ffiRefreshMoviesList', e);
+      try { loadAllContent(); } catch (e2) {}
+    }
+  }
+  function sanitizeMovieForFb(obj) {
+    if (!obj || typeof obj !== 'object') return { title: 'Untitled', addedAt: Date.now() };
+    var clean = {};
+    Object.keys(obj).forEach(function(k) {
+      if (k.charAt(0) === '_') return; // skip _playmateError etc
+      var v = obj[k];
+      if (v === undefined || typeof v === 'function') return;
+      clean[k] = v;
+    });
+    if (!clean.title || !String(clean.title).trim()) clean.title = 'Untitled';
+    clean.title = String(clean.title).slice(0, 299);
+    if (!clean.addedAt) clean.addedAt = Date.now();
+    return clean;
+  }
   function saveBatch(startIdx) {
     if (startIdx >= total) {
       if (btn) { btn.disabled = false; btn.textContent = '💾 Save Selected to Firebase'; }
-      if (statusEl) statusEl.textContent = savedCount + ' saved, ' + errCount + ' error';
+      if (statusEl) statusEl.textContent = savedCount + ' saved, ' + errCount + ' error — refreshing list...';
       toast('✅ ' + savedCount + ' movies Firebase mein save!');
       _ffiReviewQueue = _ffiReviewQueue.filter(function(r) { return !r.checked; });
-      ffiRenderReviewQueue();
+      try { ffiRenderReviewQueue(); } catch (e) {}
+      ffiRefreshMoviesList();
       return;
     }
     var end = Math.min(startIdx + BATCH, total);
@@ -14543,17 +14591,18 @@ function ffiSaveReviewed() {
     for (var i = startIdx; i < end; i++) {
       var item = selected[i];
       applyCategoryDefaults(item.obj);
-      // Ensure sizes stay on object
       if (item.obj.size480) item.obj.size480 = String(item.obj.size480);
       if (item.obj.size720) item.obj.size720 = String(item.obj.size720);
       if (item.obj.size1080) item.obj.size1080 = String(item.obj.size1080);
       if (item.obj.size4k) item.obj.size4k = String(item.obj.size4k);
       var movieKey = db.ref('movies').push().key;
-      updates['movies/' + movieKey] = item.obj;
+      var payload = sanitizeMovieForFb(item.obj);
+      payload.addedAt = Date.now() + (total - i); // newest first
+      updates['movies/' + movieKey] = payload;
       if (item.link) {
         var mlKey = db.ref('mylinks').push().key;
         updates['mylinks/' + mlKey] = {
-          title: item.obj.title || 'Untitled',
+          title: payload.title || 'Untitled',
           url: item.link,
           movieKey: movieKey,
           ts: Date.now() + i
@@ -14564,18 +14613,18 @@ function ffiSaveReviewed() {
     db.ref().update(updates).then(function() {
       savedCount += batchCount;
       saveBatch(end);
-    }).catch(function() {
-      // Fallback: one-by-one for this batch
+    }).catch(function(err) {
+      console.warn('batch update fail, one-by-one', err);
       var j = startIdx;
       function one() {
         if (j >= end) { saveBatch(end); return; }
         var item = selected[j];
         applyCategoryDefaults(item.obj);
-        var updates2 = {};
         var mk = db.ref('movies').push().key;
-        updates2['movies/' + mk] = item.obj;
-        db.ref().update(updates2).then(function(){ savedCount++; j++; one(); })
-          .catch(function(){ errCount++; j++; one(); });
+        var payload = sanitizeMovieForFb(item.obj);
+        payload.addedAt = Date.now();
+        db.ref('movies/' + mk).set(payload).then(function(){ savedCount++; j++; one(); })
+          .catch(function(e){ console.error(e); errCount++; j++; one(); });
       }
       one();
     });
