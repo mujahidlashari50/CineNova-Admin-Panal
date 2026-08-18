@@ -3547,14 +3547,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 // ═══ CONFIG ═══
 // ═══ CONFIG ═══
 // Credentials (obfuscated — do not edit manually)
-var _a=[77,117,106,97,104,105,100,64,35,36,55,56,54];
-var _b=[109,117,106,97,104,105,100,108,97,115,104,97,114,105,53,48,64,103,109,97,105,108,46,99,111,109];
-function _gp(){return _a.map(function(c){return String.fromCharCode(c);}).join('');}
-function _ge(){return _b.map(function(c){return String.fromCharCode(c);}).join('');}
-var ADMIN_PASS_DEFAULT = _gp();
+// ✅ SECURITY FIX: purana hardcoded default password (char-code se
+// "obfuscate" kiya hua) hata diya — wo View Source se 5 second mein decode
+// ho sakta tha. Ab asli security Firebase Authentication (email+password)
+// se aati hai, neeche ADMIN_EMAIL constant aur doLogin() dekhen.
+var ADMIN_EMAIL = 'mujahidlashari50@gmail.com';
 var ADMIN_NAME_KEY = 'cv_admin_name';
 var ADMIN_PIC_KEY  = 'cv_admin_pic';
-var ADMIN_PASS_KEY = 'cv_pass';
 var SITE_URL_KEY   = 'cv_site_url';
 
 // ─── Login Security Constants ───
@@ -3583,7 +3582,9 @@ var currentCatFilter = 'all';
 var activeCatView = '';
 var ssEditRows = [];
 
-function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY)||ADMIN_PASS_DEFAULT; }
+// getPass()/ADMIN_PASS_KEY hata diye gaye — password ab kahin bhi
+// localStorage ya JS mein plain/obfuscated store nahi hota, Firebase Auth
+// khud securely handle karta hai.
 
 // ═══ FIREBASE LOAD WITH INTERNATIONAL CDN FALLBACK ═══
 // gstatic.com kuch countries mein block hai (China, Iran, Russia etc)
@@ -3843,7 +3844,15 @@ function doLogin(){
     return;
   }
   var p = document.getElementById('ap').value.trim();
-  if(p === getPass()){
+  if(!p){ if(errEl) errEl.innerText='❌ Password dalein'; return; }
+  var btn = document.getElementById('login-btn');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Checking...'; }
+  // ✅ SECURITY FIX: password ab local JS/localStorage se nahi, seedha
+  // Firebase Authentication se verify hoti hai — isliye Database Rules
+  // mein bhi "auth.uid === admin" laga kar likhne ka access asal mein
+  // lock kiya ja sakta hai (pehle koi bhi console se likh sakta tha).
+  firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, p).then(function(){
+    if(btn){ btn.disabled = false; btn.textContent = 'LOGIN'; }
     // Password correct — check 2FA
     if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
       var secret = localStorage.getItem(TFA_SECRET_KEY);
@@ -3863,7 +3872,8 @@ function doLogin(){
     loginReset();
     sessionStorage.setItem('cva','1');
     showPanel();
-  } else {
+  }).catch(function(err){
+    if(btn){ btn.disabled = false; btn.textContent = 'LOGIN'; }
     var count = loginBumpAttempt();
     if(loginIsLocked()){
       loginUpdateBanner();
@@ -3874,7 +3884,7 @@ function doLogin(){
     }
     document.getElementById('ap').value='';
     document.getElementById('ap').focus();
-  }
+  });
 }
 
 /* ── 2FA verify ── */
@@ -3911,7 +3921,7 @@ function tfaCancel(){
   document.getElementById('ap').value='';
   document.getElementById('login-err').innerText='';
 }
-function doLogout(){ sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; location.reload(); }
+function doLogout(){ try{ firebase.auth().signOut(); }catch(e){} sessionStorage.removeItem('cva'); document.getElementById('mob-bottomnav').style.display='none'; location.reload(); }
 
 function _oldShowPanel_removed(){ return; }
 
@@ -7094,12 +7104,21 @@ function changePassword(){
   var cur=document.getElementById('cur-pw').value.trim();
   var nw=document.getElementById('new-pw').value.trim();
   var nw2=document.getElementById('new-pw2').value.trim();
-  if(cur!==getPass()){toast('❌ Purana password galat hai!',1);return;}
   if(!nw||nw.length<6){toast('❌ New password must be at least 6 characters!',1);return;}
   if(nw!==nw2){toast('❌ Both new passwords do not match!',1);return;}
-  localStorage.setItem(ADMIN_PASS_KEY,nw);
-  toast('✅ Password updated successfully!');
-  document.getElementById('cur-pw').value='';document.getElementById('new-pw').value='';document.getElementById('new-pw2').value='';
+  var user = firebase.auth().currentUser;
+  if(!user){toast('❌ Session expired, dobara login karein!',1);return;}
+  // ✅ Ab real Firebase Auth password change hota hai (reauthenticate
+  // karke, security ke liye) — localStorage mein kuch save nahi hota.
+  var cred = firebase.auth.EmailAuthProvider.credential(ADMIN_EMAIL, cur);
+  user.reauthenticateWithCredential(cred).then(function(){
+    return user.updatePassword(nw);
+  }).then(function(){
+    toast('✅ Password updated successfully!');
+    document.getElementById('cur-pw').value='';document.getElementById('new-pw').value='';document.getElementById('new-pw2').value='';
+  }).catch(function(err){
+    toast('❌ Purana password galat hai ya error: ' + (err && err.message ? err.message : ''),1);
+  });
 }
 function changeAdminName(){
   var name=document.getElementById('new-admin-name').value.trim();
