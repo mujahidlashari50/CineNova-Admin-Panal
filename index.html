@@ -2079,6 +2079,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </div>
           <div id="pm-key-status" style="font-size:0.75rem;margin-top:8px;color:#888;"></div>
         </div>
+        <div class="fgg full" style="margin-top:12px;">
+          <label>DL Worker URL (Playmate auto-upload ke liye)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input class="fi" id="pm-dl-worker" placeholder="https://your-dl-worker.workers.dev" style="flex:1;min-width:220px;"/>
+            <button type="button" class="btn btn-s" onclick="pmSaveDlWorker()">💾 Save Worker</button>
+          </div>
+          <div style="font-size:0.72rem;color:#888;margin-top:6px;">Import pe download links isi worker se resolve ho kar Playmate pe upload hoti hain. v4.9.11+ chahiye.</div>
+        </div>
       </div>
 
       <div class="card">
@@ -6190,34 +6198,92 @@ async function resolveFilmyzillaToDirect(sourceUrl) {
 /**
  * Candidate → resolve to direct if needed → ready for Playmate
  */
+// DL Worker base — Playmate resolve+upload yahi se hota hai
+// localStorage key: cinenova_dl_worker  (example: https://dl.cinenova.site ya workers.dev URL)
+function getDlWorkerBase() {
+  var u = (localStorage.getItem('cinenova_dl_worker') || '').trim();
+  if (!u) u = 'https://cinenova-fetch.mujahidlashari50.workers.dev';
+  return u.replace(/\/$/, '');
+}
+function setDlWorkerBase(url) {
+  url = (url || '').trim().replace(/\/$/, '');
+  if (url) localStorage.setItem('cinenova_dl_worker', url);
+  else localStorage.removeItem('cinenova_dl_worker');
+}
+
 async function resolveUrlForPlaymateUpload(url) {
   if (!url) return null;
   if (isLikelyDirectVideoUrl(url)) return url;
   if (/filmyzilla/i.test(url)) {
-    var direct = await resolveFilmyzillaToDirect(url);
-    if (direct) return direct;
+    try {
+      var direct = await resolveFilmyzillaToDirect(url);
+      if (direct) return direct;
+    } catch (e) {}
   }
-  // Try as-is (Playmate may follow some redirects)
+  // Intermediate links: worker resolve karega — yahan raw URL wapas
   if (/^https?:\/\//i.test(url) && !/\/category\//i.test(url)) return url;
   return null;
 }
 
 /**
- * Remote URL upload to Playmate
- * @returns {Promise<{ok, filecode, embedUrl, error}>}
+ * Upload to Playmate via DL Worker (resolve download link → direct → playmate.to)
+ * Fallback: browser se direct API (agar URL pehle se direct ho)
  */
-async function uploadUrlToPlaymate(directUrl, apiKey) {
+async function uploadUrlToPlaymate(sourceUrl, apiKey, title) {
+  if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) {
+    return { ok: false, error: 'Download/source URL missing' };
+  }
+
+  // 1) DL Worker — same links jo download ke liye save hote hain
+  try {
+    var base = getDlWorkerBase();
+    var wu = base + '/playmate-upload?url=' + encodeURIComponent(sourceUrl) + '&q=720p';
+    if (title) wu += '&title=' + encodeURIComponent(String(title).slice(0, 180));
+    var secret = (localStorage.getItem('cinenova_playmate_secret') || '').trim();
+    if (secret) wu += '&secret=' + encodeURIComponent(secret);
+    var wres = await fetch(wu, { method: 'GET', headers: { 'Accept': 'application/json' } });
+    var wdata = await wres.json().catch(function(){ return {}; });
+    if (wdata && wdata.ok && (wdata.embedId || wdata.filecode)) {
+      var eid = wdata.embedId || '';
+      if (!eid && wdata.filecode) {
+        if (/playmate\.to/i.test(String(wdata.filecode))) {
+          var m = String(wdata.filecode).match(/playmate\.to\/(?:embed|e|v|watch)\/([A-Za-z0-9_-]+)/i);
+          if (m) eid = m[1];
+        } else eid = String(wdata.filecode);
+      }
+      if (eid) {
+        return {
+          ok: true,
+          filecode: eid,
+          embedUrl: wdata.embedUrl || ('https://playmate.to/embed/' + eid),
+          via: 'worker',
+          directUrl: wdata.directUrl || '',
+          raw: wdata
+        };
+      }
+    }
+    // Worker route missing / old worker → fall through
+    if (wres.status === 404 || (wdata && /not set|missing|Unauthorized/i.test(String(wdata.error || '')))) {
+      console.warn('[Playmate] worker:', wdata && wdata.error);
+    }
+  } catch (e) {
+    console.warn('[Playmate] worker call failed', e);
+  }
+
+  // 2) Fallback: direct Playmate API (only works well for already-direct URLs)
   var key = (apiKey || getPlaymateApiKey() || '').trim();
-  if (!key) return { ok: false, error: 'Playmate API key missing (Settings)' };
-  if (!directUrl || !/^https?:\/\//i.test(directUrl)) return { ok: false, error: 'Direct URL missing' };
+  if (!key) return { ok: false, error: 'Worker fail + Playmate API key missing' };
+  if (!isLikelyDirectVideoUrl(sourceUrl)) {
+    return { ok: false, error: 'Worker resolve fail — direct URL nahi mili. DL worker v4.9.11 deploy karo.' };
+  }
   try {
     var api = 'https://api.playmate.to/upload/url?key=' + encodeURIComponent(key)
-      + '&url=' + encodeURIComponent(directUrl);
+      + '&url=' + encodeURIComponent(sourceUrl);
+    if (title) api += '&title=' + encodeURIComponent(String(title).slice(0, 180));
     var res = await fetch(api, { method: 'POST', headers: { 'Accept': 'application/json' } });
     var data = await res.json().catch(function(){ return {}; });
     if (data.status === 401 || res.status === 401) return { ok: false, error: 'Invalid API key' };
     var filecode = (data.result && (data.result.filecode || data.result.file_code)) || data.filecode || '';
-    // Sometimes filecode is full embed URL
     if (/playmate\.to/i.test(filecode)) {
       var idM = filecode.match(/playmate\.to\/(?:embed|e|v|watch)\/([A-Za-z0-9_-]+)/i);
       if (idM) filecode = idM[1];
@@ -6230,6 +6296,7 @@ async function uploadUrlToPlaymate(directUrl, apiKey) {
       ok: true,
       filecode: filecode,
       embedUrl: 'https://playmate.to/embed/' + filecode,
+      via: 'direct-api',
       raw: data
     };
   } catch (e) {
@@ -6242,7 +6309,7 @@ async function attachPlaymateToMovieObj(obj) {
   if (obj.playmateId || (obj.playmateUrl && /playmate\.to/i.test(obj.playmateUrl))) return obj;
   var url = pickDirectUrlForPlaymate(obj);
   if (!url) return obj;
-  var r = await uploadUrlToPlaymate(url);
+  var r = await uploadUrlToPlaymate(url, null, obj.title || '');
   if (r.ok) {
     obj.playmateId = r.filecode;
     obj.playmateUrl = r.embedUrl;
@@ -6263,6 +6330,8 @@ function pmOnShow() {
   var k = localStorage.getItem('cinenova_playmate_api_key') || '';
   var el = document.getElementById('pm-api-key');
   if (el && k) el.value = k;
+  var dw = document.getElementById('pm-dl-worker');
+  if (dw) dw.value = localStorage.getItem('cinenova_dl_worker') || 'https://cinenova-fetch.mujahidlashari50.workers.dev';
   var st = document.getElementById('pm-key-status');
   if (st) st.textContent = k ? '✅ Key saved (local)' : '⚠️ API key zaroori hai';
   pmRenderHistory();
@@ -6280,6 +6349,15 @@ function pmSaveApiKey() {
   localStorage.setItem('cinenova_playmate_api_key', k);
   document.getElementById('pm-key-status').textContent = '✅ Key saved';
   toast('Playmate API key save ho gayi');
+}
+
+function pmSaveDlWorker() {
+  var el = document.getElementById('pm-dl-worker');
+  var u = el ? el.value.trim().replace(/\/$/, '') : '';
+  if (!u) { toast('DL Worker URL daalo', 1); return; }
+  if (!/^https?:\/\//i.test(u)) { toast('Full URL chahiye (https://...)', 1); return; }
+  localStorage.setItem('cinenova_dl_worker', u);
+  toast('✅ DL Worker URL saved');
 }
 
 function pmGetKey() {
@@ -14430,7 +14508,7 @@ function ffiSaveReviewed() {
           return;
         }
         if (statusEl) statusEl.textContent = '▶️ Playmate upload ' + (pmOk + pmSkip + 1) + '/' + selected.length + '...';
-        var r = await uploadUrlToPlaymate(finalUrl);
+        var r = await uploadUrlToPlaymate(finalUrl, null, (item.obj && item.obj.title) || '');
         if (r.ok) {
           item.obj.playmateId = r.filecode;
           item.obj.playmateUrl = r.embedUrl;
