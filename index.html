@@ -2111,6 +2111,64 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="pm-results" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
 
+
+      <div class="card" style="border-color:rgba(96,165,250,0.4);">
+        <h3>🚀 Bulk — Panel ki purani movies → Playmate</h3>
+        <div style="font-size:0.8rem;color:#93c5fd;margin-bottom:12px;line-height:1.5;">
+          Jo movies pehle se Firebase mein hain aur unpe <b>Playmate ID nahi</b>, unko queue mein daal kar
+          worker se direct link resolve + Playmate upload + Firebase save automatically hoga.
+          Ek-ek karke nahi — bulk.
+        </div>
+        <div class="fg" style="margin-bottom:12px;">
+          <div class="fgg">
+            <label>Category filter</label>
+            <select class="fi" id="pm-bulk-cat">
+              <option value="all">All categories</option>
+              <option value="hollywood">Hollywood</option>
+              <option value="bollywood">Bollywood</option>
+              <option value="tollywood">Tollywood</option>
+              <option value="webseries">Web Series</option>
+              <option value="animation">Animation</option>
+              <option value="kdrama">K-Drama</option>
+              <option value="adult">Adult</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Only missing Playmate ID</label>
+            <select class="fi" id="pm-bulk-filter">
+              <option value="missing" selected>Sirf bina Playmate ID</option>
+              <option value="all">Sab (re-upload)</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Max movies (0 = all)</label>
+            <input class="fi" id="pm-bulk-limit" type="number" value="50" min="0" max="5000"/>
+          </div>
+          <div class="fgg">
+            <label>Quality priority</label>
+            <select class="fi" id="pm-bulk-quality">
+              <option value="1080p" selected>1080p → 720p → 480p</option>
+              <option value="720p">720p → 1080p → 480p</option>
+              <option value="480p">480p first</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <button type="button" class="btn btn-s" onclick="pmBulkLoad()">📋 Load Queue</button>
+          <button type="button" class="btn btn-p" id="pm-bulk-start" onclick="pmBulkStart()" style="display:none;">▶️ Start Bulk Upload</button>
+          <button type="button" class="btn btn-s" id="pm-bulk-stop" onclick="pmBulkStop()" style="display:none;background:#7f1d1d;color:#fff;">⏹ Stop</button>
+          <span id="pm-bulk-stats" style="font-size:0.8rem;color:#888;"></span>
+        </div>
+        <div id="pm-bulk-prog-wrap" style="display:none;margin-bottom:12px;">
+          <div style="height:8px;background:#222;border-radius:4px;overflow:hidden;">
+            <div id="pm-bulk-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#22c55e);transition:width 0.3s;"></div>
+          </div>
+          <div id="pm-bulk-prog-text" style="font-size:0.75rem;color:#888;margin-top:6px;"></div>
+        </div>
+        <div id="pm-bulk-queue" style="max-height:320px;overflow-y:auto;display:none;flex-direction:column;gap:6px;"></div>
+        <div id="pm-bulk-log" style="font-size:0.72rem;color:#666;max-height:160px;overflow-y:auto;margin-top:10px;"></div>
+      </div>
+
       <div class="card">
         <h3>📋 Recent (is session)</h3>
         <div id="pm-history" style="font-size:0.8rem;color:#888;">Abhi koi upload nahi</div>
@@ -6314,6 +6372,213 @@ async function attachPlaymateToMovieObj(obj) {
     obj._playmateError = r.error;
   }
   return obj;
+}
+
+
+
+// ═══════════════════════════════════════════
+// PLAYMATE BULK — existing Firebase movies
+// ═══════════════════════════════════════════
+var _pmBulkQueue = [];
+var _pmBulkRunning = false;
+var _pmBulkStop = false;
+
+function pmBulkLog(msg, isErr) {
+  var el = document.getElementById('pm-bulk-log');
+  if (!el) return;
+  var line = document.createElement('div');
+  line.style.color = isErr ? '#f87171' : '#9ca3af';
+  line.style.marginBottom = '3px';
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function pmBulkPickSource(m, qualityPref) {
+  var order;
+  if (qualityPref === '720p') order = ['download720p', 'download1080p', 'download4k', 'download480p'];
+  else if (qualityPref === '480p') order = ['download480p', 'download720p', 'download1080p', 'download4k'];
+  else order = ['download1080p', 'download720p', 'download4k', 'download480p'];
+  order = order.concat(['dlSourceUrl', 'videoSourceUrl', 'vlcUrl2', 'vlcUrl', 'videoUrl']);
+  for (var i = 0; i < order.length; i++) {
+    var u = m[order[i]];
+    if (u && typeof u === 'string' && /^https?:\/\//i.test(u) && !/playmate\.to/i.test(u)) return u;
+  }
+  return '';
+}
+
+function pmBulkLoad() {
+  if (!allMovies || !allMovies.length) {
+    toast('Movies load nahi hui — thodi der baad try', 1);
+    return;
+  }
+  var cat = (document.getElementById('pm-bulk-cat') || {}).value || 'all';
+  var filter = (document.getElementById('pm-bulk-filter') || {}).value || 'missing';
+  var limit = parseInt((document.getElementById('pm-bulk-limit') || {}).value, 10);
+  if (isNaN(limit) || limit < 0) limit = 50;
+  var q = (document.getElementById('pm-bulk-quality') || {}).value || '1080p';
+
+  var list = allMovies.filter(function(m) {
+    if (!m || !m.key) return false;
+    if (cat !== 'all' && (m.category || '').toLowerCase() !== cat.toLowerCase()) return false;
+    if (filter === 'missing') {
+      if (m.playmateId || (m.playmateUrl && /playmate\.to/i.test(m.playmateUrl))) return false;
+    }
+    return !!pmBulkPickSource(m, q);
+  });
+  list.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+  if (limit > 0) list = list.slice(0, limit);
+
+  _pmBulkQueue = list.map(function(m) {
+    return { key: m.key, title: m.title || 'Untitled', source: pmBulkPickSource(m, q), status: 'wait' };
+  });
+
+  var stats = document.getElementById('pm-bulk-stats');
+  if (stats) stats.textContent = 'Queue: ' + _pmBulkQueue.length + ' movies';
+  var startBtn = document.getElementById('pm-bulk-start');
+  if (startBtn) startBtn.style.display = _pmBulkQueue.length ? '' : 'none';
+  document.getElementById('pm-bulk-stop').style.display = 'none';
+  document.getElementById('pm-bulk-prog-wrap').style.display = 'none';
+  document.getElementById('pm-bulk-log').innerHTML = '';
+
+  var box = document.getElementById('pm-bulk-queue');
+  if (!_pmBulkQueue.length) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    toast('Koi movie queue mein nahi (filter check karo)', 1);
+    return;
+  }
+  box.style.display = 'flex';
+  box.innerHTML = _pmBulkQueue.map(function(item, i) {
+    return '<div id="pm-bulk-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:8px;padding:8px 12px;">' +
+      '<div style="flex:1;min-width:0;font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(item.title) + '</div>' +
+      '<div id="pm-bulk-st-' + i + '" style="font-size:0.72rem;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
+  }).join('');
+  pmBulkLog('Loaded ' + _pmBulkQueue.length + ' movies (quality: ' + q + ')');
+  toast('Queue ready: ' + _pmBulkQueue.length);
+}
+
+function pmBulkStop() {
+  _pmBulkStop = true;
+  pmBulkLog('Stop requested…');
+}
+
+function pmBulkStart() {
+  if (_pmBulkRunning || !_pmBulkQueue.length) return;
+  if (!getDlWorkerBase()) {
+    toast('Pehle DL Worker URL save karo (Playmate section)', 1);
+    return;
+  }
+  _pmBulkRunning = true;
+  _pmBulkStop = false;
+  document.getElementById('pm-bulk-start').style.display = 'none';
+  document.getElementById('pm-bulk-stop').style.display = '';
+  document.getElementById('pm-bulk-prog-wrap').style.display = 'block';
+  var total = _pmBulkQueue.length, done = 0, ok = 0, fail = 0;
+  var q = (document.getElementById('pm-bulk-quality') || {}).value || '1080p';
+
+  function setRow(i, html, color) {
+    var el = document.getElementById('pm-bulk-st-' + i);
+    if (el) { el.innerHTML = html; if (color) el.style.color = color; }
+  }
+  function prog() {
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('pm-bulk-bar').style.width = pct + '%';
+    document.getElementById('pm-bulk-prog-text').textContent =
+      done + '/' + total + ' · ✅ ' + ok + ' · ❌ ' + fail;
+  }
+
+  function next(i) {
+    if (_pmBulkStop || i >= total) {
+      _pmBulkRunning = false;
+      document.getElementById('pm-bulk-start').style.display = '';
+      document.getElementById('pm-bulk-stop').style.display = 'none';
+      toast((_pmBulkStop ? '⏹ Stopped — ' : '✅ Done — ') + ok + ' uploaded, ' + fail + ' fail');
+      pmBulkLog('Finished OK=' + ok + ' Fail=' + fail);
+      try { if (typeof loadAllContent === 'function') loadAllContent(); } catch (e) {}
+      return;
+    }
+    var item = _pmBulkQueue[i];
+    setRow(i, '⏳ Uploading…', '#60a5fa');
+    prog();
+
+    // Prefer worker by movie id (uses Firebase fields + resolve)
+    var base = getDlWorkerBase();
+    var wu = base + '/playmate-upload?id=' + encodeURIComponent(item.key) +
+      '&q=' + encodeURIComponent(q) +
+      '&title=' + encodeURIComponent(item.title || '');
+    var secret = (localStorage.getItem('cinenova_playmate_secret') || '').trim();
+    if (secret) wu += '&secret=' + encodeURIComponent(secret);
+
+    fetch(wu, { headers: { 'Accept': 'application/json' } })
+      .then(function(res) { return res.json().catch(function(){ return {}; }); })
+      .then(function(data) {
+        if (_pmBulkStop) { next(total); return; }
+        if (data && data.ok && (data.embedId || data.filecode)) {
+          var eid = data.embedId || '';
+          if (!eid && data.filecode) {
+            if (/playmate\.to/i.test(String(data.filecode))) {
+              var m = String(data.filecode).match(/playmate\.to\/(?:embed|e|v|watch)\/([A-Za-z0-9_-]+)/i);
+              if (m) eid = m[1];
+            } else eid = String(data.filecode);
+          }
+          var embedUrl = data.embedUrl || ('https://playmate.to/embed/' + eid);
+          return db.ref('movies/' + item.key).update({
+            playmateId: eid,
+            playmateUrl: embedUrl
+          }).then(function() {
+            ok++;
+            done++;
+            setRow(i, '✅ ' + eid, '#22c55e');
+            pmBulkLog('✓ ' + (item.title || '').substring(0, 40) + ' → ' + eid);
+            // update local cache
+            for (var mi = 0; mi < allMovies.length; mi++) {
+              if (allMovies[mi].key === item.key) {
+                allMovies[mi].playmateId = eid;
+                allMovies[mi].playmateUrl = embedUrl;
+                break;
+              }
+            }
+            setTimeout(function(){ next(i + 1); }, 400);
+          });
+        }
+        // fallback: try source URL mode
+        if (item.source) {
+          return uploadUrlToPlaymate(item.source, null, item.title).then(function(r) {
+            if (r.ok && r.filecode) {
+              var eid2 = r.filecode;
+              var embed2 = r.embedUrl || ('https://playmate.to/embed/' + eid2);
+              return db.ref('movies/' + item.key).update({
+                playmateId: eid2,
+                playmateUrl: embed2
+              }).then(function() {
+                ok++; done++;
+                setRow(i, '✅ ' + eid2, '#22c55e');
+                pmBulkLog('✓ (fallback) ' + (item.title || '').substring(0, 40));
+                setTimeout(function(){ next(i + 1); }, 400);
+              });
+            }
+            fail++; done++;
+            setRow(i, '❌ ' + (r.error || data.error || 'fail').substring(0, 28), '#f87171');
+            pmBulkLog('✗ ' + (item.title || '').substring(0, 30) + ' — ' + (r.error || data.error || 'fail'), true);
+            setTimeout(function(){ next(i + 1); }, 300);
+          });
+        }
+        fail++; done++;
+        setRow(i, '❌ ' + String(data.error || 'fail').substring(0, 28), '#f87171');
+        pmBulkLog('✗ ' + (item.title || '').substring(0, 30) + ' — ' + (data.error || 'fail'), true);
+        setTimeout(function(){ next(i + 1); }, 300);
+      })
+      .catch(function(e) {
+        fail++; done++;
+        setRow(i, '❌ err', '#f87171');
+        pmBulkLog('✗ ' + (item.title || '') + ' — ' + (e.message || e), true);
+        setTimeout(function(){ next(i + 1); }, 300);
+      });
+  }
+  pmBulkLog('Starting bulk upload…');
+  prog();
+  next(0);
 }
 
 
