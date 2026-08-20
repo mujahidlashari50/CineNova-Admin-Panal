@@ -3616,11 +3616,25 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 // ✅ SECURITY FIX: purana hardcoded default password (char-code se
 // "obfuscate" kiya hua) hata diya — wo View Source se 5 second mein decode
 // ho sakta tha. Ab asli security Firebase Authentication (email+password)
-// se aati hai, neeche ADMIN_EMAIL constant aur doLogin() dekhen.
+// se aati hai, neeche ADMIN_EMAIL + ADMIN_UID constants aur doLogin() dekhen.
+//
+// ADMIN_UID: Firebase Auth Users se (Aug 20, 2026 — mujahidlashari50@gmail.com)
+// Purane Google / dusre UIDs reject — sirf yeh UID panel open kar sakta hai.
 var ADMIN_EMAIL = 'mujahidlashari50@gmail.com';
+var ADMIN_UID   = 'nVxAz61SNjRQnZ5eB1kEGeDPspg2';
 var ADMIN_NAME_KEY = 'cv_admin_name';
 var ADMIN_PIC_KEY  = 'cv_admin_pic';
 var SITE_URL_KEY   = 'cv_site_url';
+
+function isAllowedAdminUser(user) {
+  if (!user) return false;
+  if (ADMIN_UID && user.uid === ADMIN_UID) return true;
+  if (ADMIN_EMAIL && user.email &&
+      String(user.email).toLowerCase() === String(ADMIN_EMAIL).toLowerCase()) {
+    return true;
+  }
+  return false;
+}
 
 // ─── Login Security Constants ───
 var LOGIN_ATTEMPT_KEY  = 'cv_login_attempts';   // {count, lockUntil}
@@ -3917,8 +3931,16 @@ function doLogin(){
   // Firebase Authentication se verify hoti hai — isliye Database Rules
   // mein bhi "auth.uid === admin" laga kar likhne ka access asal mein
   // lock kiya ja sakta hai (pehle koi bhi console se likh sakta tha).
-  firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, p).then(function(){
+  firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, p).then(function(cred){
     if(btn){ btn.disabled = false; btn.textContent = 'LOGIN'; }
+    var user = (cred && cred.user) || (firebase.auth().currentUser);
+    // Sirf allowed ADMIN_UID / ADMIN_EMAIL
+    if (!isAllowedAdminUser(user)) {
+      try { firebase.auth().signOut(); } catch (e) {}
+      if (errEl) errEl.innerText = '❌ Yeh account admin nahi hai (UID mismatch).';
+      document.getElementById('ap').value = '';
+      return;
+    }
     // Password correct — check 2FA
     if(localStorage.getItem(TFA_ENABLED_KEY)==='1'){
       var secret = localStorage.getItem(TFA_SECRET_KEY);
