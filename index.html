@@ -14375,12 +14375,47 @@ function ffiStartImport() {
         return;
       }
 
-      if (item) document.getElementById('ffi-st-'+n).textContent = '🔄 TMDB...';
+      // HDFun / MMSHD: /dl/ page se "File Size: 1.42 GB" fill
+      function ffiEnrichHdfunSizes(dataObj, done) {
+        if (!/hdfun\.in|mmshd\.com/i.test(p.url || '')) { done(); return; }
+        var jobs = [];
+        function addJob(url, sizeKey) {
+          if (!url || dataObj[sizeKey]) return;
+          if (!/\/dl\//i.test(String(url))) return;
+          jobs.push({ url: url, sizeKey: sizeKey });
+        }
+        addJob(dataObj.download1080p, 'size1080');
+        addJob(dataObj.download720p, 'size720');
+        addJob(dataObj.download480p, 'size480');
+        addJob(dataObj.download4k, 'size4k');
+        if (!jobs.length) { done(); return; }
+        if (item) document.getElementById('ffi-st-'+n).textContent = '🔄 Sizes...';
+        var left = jobs.length;
+        jobs.forEach(function(job) {
+          _ffiFetch(job.url, function(dlHtml) {
+            if (dlHtml) {
+              var sm = dlHtml.match(/File\s*Size\s*:?\s*<\/[^>]+>\s*([\d.]+\s*(?:GB|MB))/i)
+                    || dlHtml.match(/File\s*Size\s*:?\s*([\d.]+\s*(?:GB|MB))/i)
+                    || dlHtml.match(/>\s*([\d.]+\s*(?:GB|MB))\s*</i);
+              if (sm) {
+                var norm = sm[1].toUpperCase().replace(/\s+/g, '');
+                dataObj[job.sizeKey] = norm;
+              }
+            }
+            left--;
+            if (left <= 0) {
+              if (!dataObj.size) dataObj.size = dataObj.size1080 || dataObj.size720 || dataObj.size480 || dataObj.size4k || '';
+              done();
+            }
+          });
+        });
+      }
 
       // ── REAL DATA PIPELINE ──
       // 1) Page se jo mila wo primary
-      // 2) TMDB sirf missing fields fill kare (overwrite NA)
-      // 3) Listing category mismatch → SKIP
+      // 2) HDFun sizes from /dl/
+      // 3) TMDB sirf missing fields
+      ffiEnrichHdfunSizes(data, function() {
       if (item) document.getElementById('ffi-st-'+n).textContent = '🔄 TMDB...';
 
       ffiTmdbEnrich(data.title, data.year, function(tmdb) {
@@ -14669,8 +14704,9 @@ function ffiStartImport() {
         existingTitles[data.title.toLowerCase()] = true;
         if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Ready'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
         ffiItemDone();
-      });
-    });
+      }); // ffiTmdbEnrich
+      }); // ffiEnrichHdfunSizes
+    }); // _ffiFetch
   }
 
   // Start parallel workers
@@ -16115,7 +16151,7 @@ function ffiParsePage(html, srcUrl) {
         if (seen[href]) continue;
         seen[href] = 1;
         var lab = (am[3] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-        var around = html.substring(Math.max(0, am.index - 80), am.index + am[0].length + 120)
+        var around = html.substring(Math.max(0, am.index - 200), am.index + am[0].length + 250)
           .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
         var blob = (lab + ' ' + href + ' ' + around).toLowerCase();
         var q = '';
@@ -16123,6 +16159,13 @@ function ffiParsePage(html, srcUrl) {
         else if (/1080p/.test(blob)) q = '1080p';
         else if (/720p/.test(blob)) q = '720p';
         else if (/480p|360p|300mb/.test(blob)) q = '480p';
+        if (!q) {
+          var hs = href.toLowerCase();
+          if (/4k|2160/.test(hs)) q = '4k';
+          else if (/1080/.test(hs)) q = '1080p';
+          else if (/720/.test(hs)) q = '720p';
+          else if (/480|360/.test(hs)) q = '480p';
+        }
         var epN = null, epTo = null, seaN = '1';
         // Pack range: Ep 1-5 / Episodes 1 to 5
         var rangeM = blob.match(/\b(?:episodes?|eps?\.?)\s*0*(\d{1,3})\s*(?:to|-|–)\s*0*(\d{1,3})\b/) ||
@@ -16229,9 +16272,17 @@ function ffiParsePage(html, srcUrl) {
         if (h4k) { data.download4k = h4k.url; if (h4k.size) data.size4k = h4k.size; }
         // Agar quality slug nahi — sab links quality order se assign
         if (!data.download480p && !data.download720p && !data.download1080p && rows.length) {
-          if (rows[0]) data.download1080p = rows[0].url;
-          if (rows[1]) data.download720p = rows[1].url;
-          if (rows[2]) data.download480p = rows[2].url;
+          if (rows[0]) { data.download1080p = rows[0].url; if (rows[0].size) data.size1080 = rows[0].size; }
+          if (rows[1]) { data.download720p = rows[1].url; if (rows[1].size) data.size720 = rows[1].size; }
+          if (rows[2]) { data.download480p = rows[2].url; if (rows[2].size) data.size480 = rows[2].size; }
+        }
+        if (!data.size) data.size = data.size1080 || data.size720 || data.size480 || data.size4k || '';
+        if (!data.quality) {
+          var hq = [];
+          if (data.download1080p || data.size1080) hq.push('1080p');
+          if (data.download720p || data.size720) hq.push('720p');
+          if (data.download480p || data.size480) hq.push('480p');
+          if (hq.length) data.quality = hq.join(' ');
         }
         if (!dlLink) {
           dlLink = data.download1080p || data.download720p || data.download480p || data.download4k || srcUrl;
@@ -16278,30 +16329,78 @@ function ffiParsePage(html, srcUrl) {
       }
     })();
   }
-  // 9xflix: page itself is source — worker resolves quality → indishare token
+  // 9xflix: page + per-quality indishare + sizes (1080p [3.6GB] etc.)
   if (srcUrl && /9xflix/i.test(srcUrl)) {
-    // Prefer page URL as dlSource so worker can pick quality
     if (!dlLink) dlLink = srcUrl;
-    // Also capture per-quality indishare links if present
+    // Size labels: 1080p [3.6GB] / 720p [1.7GB] / 480p [614MB] / 720p [200MB/EP]
+    var sizePairRe = /\b(2160p|1080p|720p|480p|360p|4K)\b\s*[\[\(\-:–]?\s*(\d+(?:\.\d+)?\s*(?:GB|MB))(?:\s*\/\s*EP)?/gi;
+    var spm;
+    while ((spm = sizePairRe.exec(html)) !== null) {
+      var sq = spm[1].toLowerCase();
+      var ssz = spm[2].toUpperCase().replace(/\s+/g, '');
+      if ((sq === '1080p' || sq === '2160p') && !data.size1080) data.size1080 = ssz;
+      else if (sq === '720p' && !data.size720) data.size720 = ssz;
+      else if ((sq === '480p' || sq === '360p') && !data.size480) data.size480 = ssz;
+      else if (sq === '4k' && !data.size4k) data.size4k = ssz;
+    }
+    // Also reverse: 3.6GB 1080p
+    var sizePairRe2 = /(\d+(?:\.\d+)?\s*(?:GB|MB))\s*[\[\(\-]?\s*(2160p|1080p|720p|480p|4K)\b/gi;
+    while ((spm = sizePairRe2.exec(html)) !== null) {
+      var ssz2 = spm[1].toUpperCase().replace(/\s+/g, '');
+      var sq2 = spm[2].toLowerCase();
+      if ((sq2 === '1080p' || sq2 === '2160p') && !data.size1080) data.size1080 = ssz2;
+      else if (sq2 === '720p' && !data.size720) data.size720 = ssz2;
+      else if (sq2 === '480p' && !data.size480) data.size480 = ssz2;
+      else if (sq2 === '4k' && !data.size4k) data.size4k = ssz2;
+    }
+    // Per-quality indishare — CORRECT field names: download1080p (not download1080)
     var qx = /<a[^>]+href=["'](https?:\/\/(?:fs\d*\.)?indishare\.info\/[^"'\s]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
     var qm, best9 = {};
     while ((qm = qx.exec(html)) !== null) {
       var lab = (qm[2] || '').replace(/<[^>]+>/g, ' ').toLowerCase();
       var hrefq = qm[1].replace(/&amp;/g, '&');
-      if (/1080/.test(lab)) best9['1080p'] = hrefq;
-      else if (/720/.test(lab)) best9['720p'] = hrefq;
-      else if (/480|360/.test(lab)) best9['480p'] = hrefq;
-      else if (/2160|4k|uhd/.test(lab)) best9['4k'] = hrefq;
+      // quality from label OR nearby text before href
+      var aroundQ = html.substring(Math.max(0, qm.index - 120), qm.index + 20).replace(/<[^>]+>/g, ' ').toLowerCase();
+      var blobQ = lab + ' ' + aroundQ;
+      if (/1080|2160|4k|uhd/.test(blobQ) && !best9['1080p']) best9['1080p'] = hrefq;
+      else if (/720/.test(blobQ) && !best9['720p']) best9['720p'] = hrefq;
+      else if (/480|360/.test(blobQ) && !best9['480p']) best9['480p'] = hrefq;
+      else if (/2160|4k|uhd/.test(blobQ) && !best9['4k']) best9['4k'] = hrefq;
     }
-    if (best9['1080p'] || best9['720p'] || best9['480p'] || best9['4k']) {
-      data.download1080 = best9['1080p'] || '';
-      data.download720 = best9['720p'] || '';
-      data.download480 = best9['480p'] || '';
-      data.download4k = best9['4k'] || '';
-      // keep page as primary source for worker resolve
-      dlLink = srcUrl;
+    // Order fallback: 3 indishare links = 1080, 720, 480
+    if (!best9['1080p'] && !best9['720p'] && !best9['480p']) {
+      var allIndi = [];
+      var qx2 = /href=["'](https?:\/\/(?:fs\d*\.)?indishare\.info\/[^"'\s]+)["']/gi;
+      var qm2;
+      while ((qm2 = qx2.exec(html)) !== null) {
+        var u = qm2[1].replace(/&amp;/g, '&');
+        if (allIndi.indexOf(u) === -1) allIndi.push(u);
+      }
+      if (allIndi.length >= 3) {
+        best9['1080p'] = allIndi[0];
+        best9['720p'] = allIndi[1];
+        best9['480p'] = allIndi[2];
+      } else if (allIndi.length === 2) {
+        best9['720p'] = allIndi[0];
+        best9['480p'] = allIndi[1];
+      } else if (allIndi.length === 1) {
+        best9['1080p'] = allIndi[0];
+      }
     }
-    // 9xflix labels: Title: / IMDB Ratings: / Released Date:
+    if (best9['1080p']) data.download1080p = best9['1080p'];
+    if (best9['720p']) data.download720p = best9['720p'];
+    if (best9['480p']) data.download480p = best9['480p'];
+    if (best9['4k']) data.download4k = best9['4k'];
+    dlLink = srcUrl;
+    // Aggregate size field
+    if (!data.size) data.size = data.size1080 || data.size720 || data.size480 || data.size4k || '';
+    if (!data.quality) {
+      var qs = [];
+      if (data.download1080p || data.size1080) qs.push('1080p');
+      if (data.download720p || data.size720) qs.push('720p');
+      if (data.download480p || data.size480) qs.push('480p');
+      if (qs.length) data.quality = qs.join(' ');
+    }
     if (!data.rating) {
       var ir = html.match(/IMDB\s*Ratings?\s*:\s*([0-9.]+)\s*\/?\s*10/i) || html.match(/IMDB[^0-9]{0,20}([0-9.]+)\s*\/\s*10/i);
       if (ir) data.rating = ir[1];
