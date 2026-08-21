@@ -3525,6 +3525,21 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <input class="fi" id="e-videoSourceUrl" placeholder="https://new6.filesdl.top/cloud/xxxxx"/>
         <div style="font-size:0.68rem;color:#888;margin-top:5px;">💡 Yeh worker ke <code>/video</code> route ke liye hai — har play pe fresh Cloud Direct link resolve hoti hai, kabhi expire nahi hoti. My Links → "🎬 Video URL" se auto-save hoti hai, ya yahan manually filesdl/cloud page URL paste bhi kar sakte ho.</div>
       </div>
+      <div class="fgg full" style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:12px;">
+        <label style="color:#86efac;">🔗 DL Source URL (HDFun / FilmyZilla / 9xflix movie page — worker resolve)</label>
+        <input class="fi" id="e-dlSourceUrl" placeholder="https://hdfun.in/movie/... ya https://www.filmyzilla56.com/movie/..."/>
+        <div style="font-size:0.68rem;color:#888;margin-top:5px;">💡 Import se aata hai. Worker <code>/get</code> is page se fresh direct link nikalta hai.</div>
+      </div>
+      <div class="fgg full">
+        <label>📄 Source Page URL</label>
+        <input class="fi" id="e-sourcePageUrl" placeholder="Original post URL"/>
+      </div>
+      <div class="fgg"><label>🎬 Director</label><input class="fi" id="e-director" placeholder="Director name"/></div>
+      <div class="fgg"><label>⏱ Duration</label><input class="fi" id="e-duration" placeholder="2h 10m"/></div>
+      <div class="fgg full"><label>👥 Cast (comma separated)</label><input class="fi" id="e-cast" placeholder="Actor1, Actor2, Actor3"/></div>
+      <div class="fgg full"><label>🖼 Backdrop URL</label><input class="fi" id="e-backdrop" placeholder="https://image.tmdb.org/..."/></div>
+      <div class="fgg"><label>⬇ Download Count</label><input class="fi" id="e-downloadCount" type="number" min="0" placeholder="0"/><div style="font-size:0.65rem;color:#888;margin-top:3px;">Worker se auto badhta hai</div></div>
+      <div class="fgg"><label>TMDB ID</label><input class="fi" id="e-tmdbId" placeholder="optional"/></div>
       <div class="fgg full">
         <label>📲 PixelDrain File ID <span style="color:#555;font-weight:400;">(jaise: 7Ru6uMX7)</span></label>
         <div style="display:flex;align-items:center;gap:0;">
@@ -4363,9 +4378,20 @@ function loadAllContent(){
   // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
   // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
   var _moviesUiTimer = null;
-  function _applyMoviesSnap(snap){
+  function _applyMoviesSnap(snap, countsSnap){
     allMovies=[];
     if(snap.exists()){snap.forEach(function(c){var m=c.val();m.key=c.key;allMovies.push(m);});}
+    // Worker public path downloadCounts/$key (movies write auth-locked)
+    if(countsSnap && countsSnap.exists()){
+      var counts = countsSnap.val() || {};
+      allMovies.forEach(function(m){
+        var c = counts[m.key];
+        if(c != null){
+          var n = typeof c === 'number' ? c : parseInt(c, 10);
+          if(!isNaN(n) && n > (m.downloadCount || 0)) m.downloadCount = n;
+        }
+      });
+    }
     allMovies.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
     try { renderDash(); } catch(e){}
     try { updateCounts(); } catch(e){}
@@ -4390,10 +4416,23 @@ function loadAllContent(){
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
   }
-  db.ref('movies').on('value',function(snap){
+  var _lastMoviesSnap = null;
+  var _lastCountsSnap = null;
+  function _refreshMoviesUi(){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(snap); }, 500);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 500);
+  }
+  db.ref('movies').on('value',function(snap){
+    _lastMoviesSnap = snap;
+    _refreshMoviesUi();
   });
+  // Public download counters (worker /get se)
+  try {
+    db.ref('downloadCounts').on('value',function(snap){
+      _lastCountsSnap = snap;
+      if(_lastMoviesSnap) _refreshMoviesUi();
+    });
+  } catch(e){}
 }
 
 // ═══ DASHBOARD ═══
@@ -7031,6 +7070,10 @@ function openEdit(key){
   sv('et',m.title);sv('ey',m.year);sv('er',m.rating);sv('ec',m.category||'');
   applyCategoryDefaults(m);sv('eg',m.genre||'');sv('el',m.language||'');sv('eq',m.quality||'');sv('esz',m.size||'');
   sv('ed',m.description);sv('eth',m.thumbnail);sv('ev',m.videoUrl);sv('e-videoSourceUrl',m.videoSourceUrl||'');sv('eplaymate',m.playmateId||extractPlaymateIdFromUrl(m.playmateUrl||m.embedUrl||m.videoUrl||'')||'');sv('evlc',(m.vlcUrl||'').replace('https://pixeldrain.com/api/file/',''));sv('evlc2',m.vlcUrl2||'');sv('etrailer',m.trailerUrl||'');try{playmatePreview(gv('eplaymate'),'eplaymate-preview');}catch(e){}
+  sv('e-dlSourceUrl',m.dlSourceUrl||'');sv('e-sourcePageUrl',m.sourcePageUrl||'');
+  sv('e-director',m.director||'');sv('e-duration',m.duration||'');sv('e-cast',m.cast||'');
+  sv('e-backdrop',m.backdrop||'');sv('e-downloadCount',m.downloadCount!=null?String(m.downloadCount):'0');
+  sv('e-tmdbId',m.tmdbId!=null?String(m.tmdbId):'');
   sv('enetwork',m.network||'');sv('estatus',m.status||'ongoing');
   sv('ed4',m.download480p);sv('es4',m.size480);sv('ed7',m.download720p);sv('es7',m.size720);
   sv('ed10',m.download1080p);sv('es10',m.size1080);sv('ed4k',m.download4k);sv('es4k',m.size4k);
@@ -7078,7 +7121,12 @@ function saveEdit(){
   var cat=gv('ec');var ws=cat==='webseries';
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
-    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),videoSourceUrl:gv('e-videoSourceUrl'),playmateId:normalizePlaymateId(gv('eplaymate')),playmateUrl:playmateUrlFromInput(gv('eplaymate')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
+    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),videoSourceUrl:gv('e-videoSourceUrl'),
+    dlSourceUrl:gv('e-dlSourceUrl'),sourcePageUrl:gv('e-sourcePageUrl'),
+    director:gv('e-director'),duration:gv('e-duration'),cast:gv('e-cast'),backdrop:gv('e-backdrop'),
+    downloadCount:(function(){var n=parseInt(gv('e-downloadCount'),10);return isNaN(n)?0:n;})(),
+    tmdbId:gv('e-tmdbId')||null,
+    playmateId:normalizePlaymateId(gv('eplaymate')),playmateUrl:playmateUrlFromInput(gv('eplaymate')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
     download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
     seoTitle:gv('eseoTitle'),seoDesc:gv('eseoDesc'),seoKeywords:gv('eseoKeywords'),seoSlug:gv('eseoSlug')};
