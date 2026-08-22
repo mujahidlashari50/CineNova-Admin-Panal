@@ -4492,7 +4492,6 @@ function loadAllContent(){
     // 600ms debounce — hang kam, multiple Firebase events batch
     _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 600);
   }
-  }
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
     _refreshMoviesUi();
