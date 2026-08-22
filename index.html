@@ -580,20 +580,12 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     
     <div class="nav-section-title">Categories</div>
     <div class="nav-item" id="nav-cat-hollywood" onclick="showCat('hollywood')">🌟 Hollywood <span class="nav-count" id="cnt-hollywood">0</span></div>
-    <div class="nav-item" id="nav-cat-hollywood_dubbed" onclick="showCat('hollywood_dubbed')">🌐 Hollywood Hindi Dub <span class="nav-count" id="cnt-hollywood_dubbed">0</span></div>
     <div class="nav-item" id="nav-cat-bollywood" onclick="showCat('bollywood')">🎭 Bollywood <span class="nav-count" id="cnt-bollywood">0</span></div>
-    <div class="nav-item" id="nav-cat-south" onclick="showCat('south')">🎬 South Hindi Dub <span class="nav-count" id="cnt-south">0</span></div>
     <div class="nav-item" id="nav-cat-tollywood" onclick="showCat('tollywood')">🎬 Tollywood <span class="nav-count" id="cnt-tollywood">0</span></div>
-    <div class="nav-item" id="nav-cat-punjabi" onclick="showCat('punjabi')">🟡 Punjabi <span class="nav-count" id="cnt-punjabi">0</span></div>
-    <div class="nav-item" id="nav-cat-bengali" onclick="showCat('bengali')">🟣 Bengali <span class="nav-count" id="cnt-bengali">0</span></div>
-    <div class="nav-item" id="nav-cat-animation" onclick="showCat('animation')">🧸 Animation <span class="nav-count" id="cnt-animation">0</span></div>
-    <div class="nav-item" id="nav-cat-webseries" onclick="showCat('webseries')">📺 Hindi Web Series <span class="nav-count" id="cnt-webseries">0</span></div>
-    <div class="nav-item" id="nav-cat-bengali_series" onclick="showCat('bengali_series')">📺 Bengali Web Series <span class="nav-count" id="cnt-bengali_series">0</span></div>
+    <div class="nav-item" id="nav-cat-animation" onclick="showCat('animation')">🧸 Animated <span class="nav-count" id="cnt-animation">0</span></div>
+    <div class="nav-item" id="nav-cat-webseries" onclick="showCat('webseries')">📺 Web Series <span class="nav-count" id="cnt-webseries">0</span></div>
     <div class="nav-item" id="nav-cat-kdrama" onclick="showCat('kdrama')">🇰🇷 K-Drama <span class="nav-count" id="cnt-kdrama">0</span></div>
-    <div class="nav-item" id="nav-cat-vivamax" onclick="showCat('vivamax')">🇵🇭 VivaMax <span class="nav-count" id="cnt-vivamax">0</span></div>
-    <div class="nav-item" id="nav-cat-short_films" onclick="showCat('short_films')">🎞️ Hot Short Films <span class="nav-count" id="cnt-short_films">0</span></div>
-    <div class="nav-item adult-nav" id="nav-cat-hot_series" onclick="showCat('hot_series')">🔥 Hindi Hot Web Series <span class="nav-count" id="cnt-hot_series">0</span></div>
-    <div class="nav-item adult-nav" id="nav-cat-adult" onclick="showCat('adult')">🔞 Adult (18+) <span class="nav-count" id="cnt-adult">0</span></div>
+    <div class="nav-item adult-nav" id="nav-cat-adult" onclick="showCat('adult')">🔞 Adult <span class="nav-count" id="cnt-adult">0</span></div>
     
     <div class="nav-section-title">System</div>
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
@@ -639,10 +631,10 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <div class="stat-card"><div class="num" id="sh">0</div><div class="lbl">🌟 Hollywood</div></div>
         <div class="stat-card"><div class="num" id="sb">0</div><div class="lbl">🎭 Bollywood</div></div>
         <div class="stat-card"><div class="num" id="stoll">0</div><div class="lbl">🎬 Tollywood</div></div>
-        <div class="stat-card"><div class="num" id="san">0</div><div class="lbl">🧸 Animation</div></div>
+        <div class="stat-card"><div class="num" id="san">0</div><div class="lbl">🧸 Animated</div></div>
         <div class="stat-card"><div class="num" id="sws">0</div><div class="lbl">📺 Web Series</div></div>
         <div class="stat-card"><div class="num" id="skd" style="color:#38bdf8;">0</div><div class="lbl">🇰🇷 K-Drama</div></div>
-        <div class="stat-card" style="border-color:rgba(245,158,11,0.25);"><div class="num" id="sad" style="color:var(--adult);text-shadow:0 0 20px var(--adult-glow);">0</div><div class="lbl">🔞 Adult (18+)</div></div>
+        <div class="stat-card" style="border-color:rgba(245,158,11,0.25);"><div class="num" id="sad" style="color:var(--adult);text-shadow:0 0 20px var(--adult-glow);">0</div><div class="lbl">🔞 Adult</div></div>
       </div>
       <div class="card"><h3>🕐 Recently Added</h3><div id="recent"></div></div>
       <div class="card" style="margin-top:14px;"><h3>🔥 Trending & ⭐ Featured</h3><div style="display:flex;gap:12px;flex-wrap:wrap;"><div class="stat-card" style="flex:1;min-width:120px;"><div class="num" id="s-trend" style="font-size:1.8rem;">0</div><div class="lbl">🔥 Trending</div></div><div class="stat-card" style="flex:1;min-width:120px;"><div class="num" id="s-feat" style="font-size:1.8rem;">0</div><div class="lbl">⭐ Featured</div></div><div class="stat-card" style="flex:1;min-width:120px;"><div class="num" id="s-rated" style="font-size:1.8rem;">0</div><div class="lbl">⭐ User Rated</div></div><div class="stat-card" style="flex:1;min-width:120px;"><div class="num" id="s-noposter" style="font-size:1.8rem;color:#f59e0b;">0</div><div class="lbl">🖼 No Poster</div></div></div></div>
@@ -769,21 +761,13 @@ tr:hover td{background:rgba(229,9,20,0.04);}
             <select class="fi" id="fc" onchange="onCatChange();amAutoGenSeo();">
               <option value="">— Select Category —</option>
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
           <div class="fgg full adult-warn" id="adult-warn-add" style="display:none">
             🔞 <span><strong>Adult Category:</strong> Sirf 18+ users ko dikhega (Home pe nahi). <strong>Language</strong> se Hindi / English alag rakho — mix mat karo.</span>
@@ -968,21 +952,13 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <select class="fi" id="sel-bar-cat" style="width:auto;padding:8px 12px;font-size:0.82rem;">
           <option value="">📁 Category change...</option>
           <option value="hollywood">🌟 Hollywood</option>
-          <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
           <option value="bollywood">🎭 Bollywood</option>
-          <option value="south">🎬 South Indian Hindi Dubbed</option>
           <option value="tollywood">🎬 Tollywood</option>
-          <option value="punjabi">🟡 Punjabi</option>
-          <option value="bengali">🟣 Bengali</option>
-          <option value="animation">🧸 Animation</option>
-          <option value="webseries">📺 Hindi Web Series</option>
-          <option value="bengali_series">📺 Bengali Web Series</option>
+          <option value="animation">🧸 Animated</option>
+          <option value="webseries">📺 Web Series</option>
           <option value="kdrama">🇰🇷 K-Drama</option>
-          <option value="vivamax">🇵🇭 VivaMax</option>
-          <option value="short_films">🎞️ Hot Short Films</option>
-          <option value="hot_series">🔥 Hindi Hot Web Series</option>
           <option value="adult">🔞 Adult</option>
-        </select>
+</select>
         <button class="btn" style="background:#1d4ed8;color:#fff;padding:8px 16px;font-size:0.82rem;" onclick="changeSelectedCategory()">✅ Category Apply</button>
         <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;padding:8px 16px;font-size:0.82rem;" onclick="confirmDeleteSelected()">🗑 Delete</button>
         <button class="btn btn-s" style="padding:8px 16px;font-size:0.82rem;" onclick="deselectAll()">✕ Deselect</button>
@@ -990,20 +966,12 @@ tr:hover td{background:rgba(229,9,20,0.04);}
       <div class="cat-filter">
         <button class="cf-btn active" id="cf-all" onclick="filterByCat('all')">All</button>
         <button class="cf-btn" id="cf-hollywood" onclick="filterByCat('hollywood')">🌟 Hollywood</button>
-        <button class="cf-btn" id="cf-hollywood_dubbed" onclick="filterByCat('hollywood_dubbed')">🌐 Hollywood Hindi</button>
         <button class="cf-btn" id="cf-bollywood" onclick="filterByCat('bollywood')">🎭 Bollywood</button>
-        <button class="cf-btn" id="cf-south" onclick="filterByCat('south')">🎬 South Hindi</button>
         <button class="cf-btn" id="cf-tollywood" onclick="filterByCat('tollywood')">🎬 Tollywood</button>
-        <button class="cf-btn" id="cf-punjabi" onclick="filterByCat('punjabi')">🟡 Punjabi</button>
-        <button class="cf-btn" id="cf-bengali" onclick="filterByCat('bengali')">🟣 Bengali</button>
-        <button class="cf-btn" id="cf-animation" onclick="filterByCat('animation')">🧸 Animation</button>
+        <button class="cf-btn" id="cf-animation" onclick="filterByCat('animation')">🧸 Animated</button>
         <button class="cf-btn" id="cf-webseries" onclick="filterByCat('webseries')">📺 Web Series</button>
-        <button class="cf-btn" id="cf-bengali_series" onclick="filterByCat('bengali_series')">📺 Bengali Series</button>
         <button class="cf-btn" id="cf-kdrama" onclick="filterByCat('kdrama')">🇰🇷 K-Drama</button>
-        <button class="cf-btn" id="cf-vivamax" onclick="filterByCat('vivamax')">🇵🇭 VivaMax</button>
-        <button class="cf-btn" id="cf-short_films" onclick="filterByCat('short_films')">🎞️ Short Films</button>
-        <button class="cf-btn adult-cf" id="cf-hot_series" onclick="filterByCat('hot_series')">🔥 Hot Series</button>
-        <button class="cf-btn adult-cf" id="cf-adult" onclick="filterByCat('adult')">🔞 Adult (18+)</button>
+        <button class="cf-btn adult-cf" id="cf-adult" onclick="filterByCat('adult')">🔞 Adult</button>
       </div>
       <div class="card" style="padding:0">
         <div class="tw">
@@ -1058,11 +1026,11 @@ tr:hover td{background:rgba(229,9,20,0.04);}
             <option value="hollywood">🌟 Hollywood</option>
             <option value="bollywood">🎭 Bollywood</option>
             <option value="tollywood">🎬 Tollywood</option>
-            <option value="animation">🧸 Animation</option>
+            <option value="animation">🧸 Animated</option>
             <option value="webseries">📺 Web Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-            <option value="adult">🔞 Adult (18+)</option>
-            </optgroup>
+            <option value="kdrama">🇰🇷 K-Drama</option>
+            <option value="adult">🔞 Adult</option>
+</optgroup>
             <optgroup label="── Genres ──">
             <option value="action">💥 Action</option>
             <option value="adventure">🗺️ Adventure</option>
@@ -1522,40 +1490,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div class="fgg"><label>From Category</label>
             <select class="fi" id="be-move-from" onchange="beUpdateMoveCount()">
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
           <div class="fgg"><label>To Category</label>
             <select class="fi" id="be-move-to">
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
         </div>
         <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
@@ -1571,21 +1523,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <select class="fi" id="be-cat">
               <option value="">— No Change —</option>
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
           <div class="fgg"><label>Change Genre</label>
             <select class="fi" id="be-genre">
@@ -1612,11 +1556,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <option value="hollywood">🌟 Hollywood</option>
           <option value="bollywood">🎭 Bollywood</option>
           <option value="tollywood">🎬 Tollywood</option>
-          <option value="animation">🧸 Animation</option>
+          <option value="animation">🧸 Animated</option>
           <option value="webseries">📺 Web Series</option>
           <option value="kdrama">🇰🇷 K-Drama</option>
           <option value="adult">🔞 Adult</option>
-        </select>
+</select>
         <input class="si" id="be-srch" placeholder="🔍 Movie search karo..." oninput="beFilter()" style="flex:1;min-width:180px;margin:0;"/>
         <button class="btn btn-s" onclick="beSelectFiltered()" style="white-space:nowrap;">☑ Select Filtered</button>
       </div>
@@ -2058,11 +2002,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <option value="hollywood">🌟 Hollywood</option>
               <option value="bollywood">🎭 Bollywood</option>
               <option value="tollywood">🎬 Tollywood</option>
+              <option value="animation">🧸 Animated</option>
               <option value="webseries">📺 Web Series</option>
-              <option value="animation">🧸 Animation</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
         </div>
         <input class="si" id="ffi-posts-search" placeholder="🔍 Movie ka naam likho search karne ke liye..." oninput="ffiRenderPosts()" style="width:100%;margin-bottom:10px;"/>
@@ -2101,29 +2045,21 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <select class="fi" id="ffi-review-bulk-cat" style="padding:8px 12px;font-size:0.82rem;width:auto;min-width:160px;border-color:rgba(245,158,11,0.5);">
             <option value="">— Select Category —</option>
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-          </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           <button type="button" class="btn btn-p" style="padding:8px 16px;font-size:0.8rem;background:#d97706;" onclick="ffiApplyBulkCategory()">✅ Selected pe Apply</button>
           <span style="font-size:0.72rem;color:#888;">Save se pehle yahan category choose karo — hollywood list galat tollywood mein nahi jayegi.</span>
         </div>
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;"/>
-            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun — FilmyZilla skip)</span>
+            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto-upload (1080p → worker → embed save)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -2199,21 +2135,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <select class="fi" id="pm-bulk-cat">
               <option value="all">All categories</option>
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-            </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           </div>
           <div class="fgg">
             <label>Only missing Playmate ID</label>
@@ -2430,15 +2358,14 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <label style="font-size:0.68rem;color:var(--grey);text-transform:uppercase;">Category</label>
               <select class="sm-sort-sel" id="hd-cat">
                 <option value="bollywood">🎭 Bollywood</option>
-                <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
-                <option value="hollywood">🌟 Hollywood</option>
-                <option value="south">🎬 South Hindi Dubbed</option>
-                <option value="punjabi">🟡 Punjabi</option>
-                <option value="bengali">🟣 Bengali</option>
+<option value="hollywood">🌟 Hollywood</option>
+                <option value="bollywood">🎭 Bollywood</option>
+                <option value="tollywood">🎬 Tollywood</option>
+                <option value="animation">🧸 Animated</option>
                 <option value="webseries">📺 Web Series</option>
-                <option value="animation">🧸 Animation</option>
+                <option value="kdrama">🇰🇷 K-Drama</option>
                 <option value="adult">🔞 Adult</option>
-              </select>
+</select>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px;">
               <label style="font-size:0.68rem;color:var(--grey);text-transform:uppercase;">Sort</label>
@@ -2996,21 +2923,13 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <select id="bdf-cat" class="fi" style="width:160px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
             <option value="all">-- All Categories --</option>
               <option value="hollywood">🌟 Hollywood</option>
-              <option value="hollywood_dubbed">🌐 Hollywood Hindi Dubbed</option>
               <option value="bollywood">🎭 Bollywood</option>
-              <option value="south">🎬 South Indian Hindi Dubbed</option>
               <option value="tollywood">🎬 Tollywood</option>
-              <option value="punjabi">🟡 Punjabi</option>
-              <option value="bengali">🟣 Bengali</option>
-              <option value="animation">🧸 Animation</option>
-              <option value="webseries">📺 Hindi Web Series</option>
-              <option value="bengali_series">📺 Bengali Web Series</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="webseries">📺 Web Series</option>
               <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="vivamax">🇵🇭 VivaMax</option>
-              <option value="short_films">🎞️ Hot Short Films</option>
-              <option value="hot_series">🔥 Hindi Hot Web Series</option>
-              <option value="adult">🔞 Adult (18+)</option>
-          </select>
+              <option value="adult">🔞 Adult</option>
+</select>
           <select id="bdf-filter" class="fi" style="width:200px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
             <option value="empty">Only Empty DL Links</option>
             <option value="all">All Movies (update karo)</option>
@@ -3289,10 +3208,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
                 <option value="hollywood">🌟 Hollywood</option>
                 <option value="bollywood">🎭 Bollywood</option>
                 <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animation</option>
+                <option value="animation">🧸 Animated</option>
                 <option value="webseries">📺 Web Series</option>
                 <option value="kdrama">🇰🇷 K-Drama</option>
-              </select>
+                <option value="adult">🔞 Adult</option>
+</select>
             </div>
             <div class="fgg"><label>Genre</label>
               <select class="fi" id="tg-m-genre">
@@ -3332,10 +3252,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
                 <option value="hollywood">🌟 Hollywood</option>
                 <option value="bollywood">🎭 Bollywood</option>
                 <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animation</option>
+                <option value="animation">🧸 Animated</option>
                 <option value="webseries">📺 Web Series</option>
                 <option value="kdrama">🇰🇷 K-Drama</option>
-              </select>
+                <option value="adult">🔞 Adult</option>
+</select>
             </div>
             <div class="fgg"><label>Filter</label>
               <select class="fi" id="tg-bulk-filter">
@@ -3457,10 +3378,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
                 <option value="hollywood">🌟 Hollywood</option>
                 <option value="bollywood">🎭 Bollywood</option>
                 <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animation</option>
+                <option value="animation">🧸 Animated</option>
                 <option value="webseries">📺 Web Series</option>
                 <option value="kdrama">🇰🇷 K-Drama</option>
-              </select>
+                <option value="adult">🔞 Adult</option>
+</select>
             </div>
             <div class="fgg"><label>Genre</label>
               <select class="fi" id="dw-m-genre">
@@ -3501,10 +3423,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
                 <option value="hollywood">🌟 Hollywood</option>
                 <option value="bollywood">🎭 Bollywood</option>
                 <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animation</option>
+                <option value="animation">🧸 Animated</option>
                 <option value="webseries">📺 Web Series</option>
                 <option value="kdrama">🇰🇷 K-Drama</option>
-              </select>
+                <option value="adult">🔞 Adult</option>
+</select>
             </div>
             <div class="fgg"><label>Filter</label>
               <select class="fi" id="dw-bulk-filter">
@@ -3555,11 +3478,11 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <option value="hollywood">🌟 Hollywood</option>
           <option value="bollywood">🎭 Bollywood</option>
           <option value="tollywood">🎬 Tollywood</option>
-          <option value="animation">🧸 Animation</option>
+          <option value="animation">🧸 Animated</option>
           <option value="webseries">📺 Web Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-          <option value="adult">🔞 Adult (18+)</option>
-        </select>
+          <option value="kdrama">🇰🇷 K-Drama</option>
+          <option value="adult">🔞 Adult</option>
+</select>
       </div>
       <div class="fgg full adult-warn" id="adult-warn-edit" style="display:none">
         🔞 <span><strong>Adult Category:</strong> Sirf 18+ users ko dikhega (Home pe nahi). <strong>Language</strong> se Hindi / English alag rakho — mix mat karo.</span>
@@ -3774,6 +3697,28 @@ var firebaseConfig = {
 
 var db = null;
 var allMovies = [];
+
+// ── Professional categories (7 only) ──
+// Hollywood = English + Hindi Dub | Tollywood = Tamil + South Hindi
+// Animated = EN + HI Dub | Adult = EN + HI | Language field se distinguish
+var CV_MAIN_CATS = ['hollywood','bollywood','tollywood','animation','webseries','kdrama','adult'];
+function normalizeCategory(cat) {
+  cat = String(cat || '').toLowerCase().trim();
+  if (cat === 'hollywood_dubbed') return 'hollywood';
+  if (cat === 'south' || cat === 'tamil' || cat === 'telugu') return 'tollywood';
+  if (cat === 'bengali_series' || cat === 'series') return 'webseries';
+  if (cat === 'hot_series' || cat === 'adult_hindi' || cat === 'adult_english' || cat === 'vivamax' || cat === 'short_films') return 'adult';
+  if (cat === 'punjabi' || cat === 'bengali') return 'bollywood';
+  if (cat === 'anime') return 'animation';
+  return cat;
+}
+function movieMatchesCat(m, cat) {
+  if (!cat || cat === 'all') return true;
+  var c = normalizeCategory(m && m.category);
+  return c === normalizeCategory(cat);
+}
+
+
 var editKey = null;
 var deleteKey = null;
 var currentCatFilter = 'all';
@@ -4463,15 +4408,15 @@ function showCat(cat){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var catSec=document.getElementById('sec-catview');if(catSec)catSec.classList.add('active');
   var nav=document.getElementById('nav-cat-'+cat);if(nav)nav.classList.add('active');
-  var labels={hollywood:'🌟 Hollywood',hollywood_dubbed:'🌐 Hollywood Hindi Dub',bollywood:'🎭 Bollywood',south:'🎬 South Hindi Dub',tollywood:'🎬 Tollywood',punjabi:'🟡 Punjabi',bengali:'🟣 Bengali',animation:'🧸 Animation',webseries:'📺 Hindi Web Series',bengali_series:'📺 Bengali Web Series',kdrama:'🇰🇷 K-Drama',vivamax:'🇵🇭 VivaMax',short_films:'🎞️ Hot Short Films',hot_series:'🔥 Hindi Hot Web Series',adult:'🔞 Adult (18+)'};
+  var labels={hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animated',webseries:'📺 Web Series',kdrama:'🇰🇷 K-Drama',adult:'🔞 Adult'};
   document.getElementById('cat-view-title').innerHTML=(labels[cat]||cat)+' <span>Content</span>';
   document.getElementById('catsrch').value='';
-  renderCatTable(allMovies.filter(function(m){return m.category===cat;}));
+  renderCatTable(allMovies.filter(function(m){return movieMatchesCat(m,cat);}));
 }
 
 function filterCat(){
   var q=document.getElementById('catsrch').value.toLowerCase().trim();
-  var list=allMovies.filter(function(m){return m.category===activeCatView;});
+  var list=allMovies.filter(function(m){return movieMatchesCat(m,activeCatView);});
   if(q)list=list.filter(function(m){return (m.title||'').toLowerCase().includes(q)||(m.genre||'').toLowerCase().includes(q);});
   renderCatTable(list);
 }
@@ -4481,48 +4426,72 @@ function loadAllContent(){
   // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
   // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
   var _moviesUiTimer = null;
-  function _applyMoviesSnap(snap, countsSnap){
-    allMovies=[];
-    if(snap.exists()){snap.forEach(function(c){var m=c.val();m.key=c.key;allMovies.push(m);});}
-    // Worker public path downloadCounts/$key (movies write auth-locked)
-    if(countsSnap && countsSnap.exists()){
-      var counts = countsSnap.val() || {};
-      allMovies.forEach(function(m){
-        var c = counts[m.key];
-        if(c != null){
-          var n = typeof c === 'number' ? c : parseInt(c, 10);
-          if(!isNaN(n) && n > (m.downloadCount || 0)) m.downloadCount = n;
-        }
+    function _applyMoviesSnap(snap, countsSnap){
+    if(!snap) return;
+    var arr = [];
+    if(snap.exists()){
+      snap.forEach(function(c){
+        var m = c.val();
+        if(!m) return;
+        m.key = c.key;
+        // normalize legacy cats in-memory (display only)
+        if(m.category) m._normCat = normalizeCategory(m.category);
+        arr.push(m);
       });
     }
-    allMovies.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
-    try { renderDash(); } catch(e){}
+    // merge download counts (cheap)
+    if(countsSnap && countsSnap.exists()){
+      var counts = countsSnap.val() || {};
+      for(var i=0;i<arr.length;i++){
+        var c = counts[arr[i].key];
+        if(c == null) continue;
+        var n = typeof c === 'number' ? c : parseInt(c, 10);
+        if(!isNaN(n) && n > (arr[i].downloadCount || 0)) arr[i].downloadCount = n;
+      }
+    }
+    arr.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
+    allMovies = arr;
+    // light UI only
     try { updateCounts(); } catch(e){}
-    var moviesSec = document.getElementById('sec-movies');
-    var onMovies = moviesSec && moviesSec.classList.contains('active');
-    if(onMovies){
+    var dashSec = document.getElementById('sec-dashboard');
+    if(dashSec && dashSec.classList.contains('active')){
+      try { renderDash(); } catch(e){}
+    } else {
+      // only total count badge
       try {
-        var _lst = currentCatFilter==='all' ? allMovies : allMovies.filter(function(m){
-          return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
+        var mc = document.getElementById('mc');
+        if(mc) mc.innerText = allMovies.length;
+        var st = document.getElementById('st');
+        if(st) st.innerText = allMovies.length;
+      } catch(e){}
+    }
+    var moviesSec = document.getElementById('sec-movies');
+    if(moviesSec && moviesSec.classList.contains('active')){
+      try {
+        var _lst = (!currentCatFilter || currentCatFilter==='all') ? allMovies : allMovies.filter(function(m){
+          return movieMatchesCat(m, currentCatFilter);
         });
         renderTable(_lst);
       } catch(e){}
     }
+    var catSec = document.getElementById('sec-catview');
+    if(catSec && catSec.classList.contains('active') && typeof activeCatView !== 'undefined' && activeCatView){
+      try {
+        renderCatTable(allMovies.filter(function(m){ return movieMatchesCat(m, activeCatView); }));
+      } catch(e){}
+    }
     var trendSec = document.getElementById('sec-trending');
     if(trendSec && trendSec.classList.contains('active')){
-      try { renderTrendList(allMovies.slice(0,80)); } catch(e){}
+      try { renderTrendList(allMovies.slice(0,60)); } catch(e){}
     }
-    // PERF: mlAutoFixUnmatched not on every snap
-
-    var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
-    var lmBadge = document.getElementById('lm-no-link-count');
-    if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
   }
   var _lastMoviesSnap = null;
   var _lastCountsSnap = null;
   function _refreshMoviesUi(){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 280);
+    // 600ms debounce — hang kam, multiple Firebase events batch
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 600);
+  }
   }
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
@@ -4540,18 +4509,18 @@ function loadAllContent(){
 // ═══ DASHBOARD ═══
 function renderDash(){
   document.getElementById('st').innerText=allMovies.length;
-  document.getElementById('sh').innerText=allMovies.filter(function(m){return m.category==='hollywood';}).length;
-  document.getElementById('sb').innerText=allMovies.filter(function(m){return m.category==='bollywood';}).length;
-  document.getElementById('stoll').innerText=allMovies.filter(function(m){return m.category==='tollywood';}).length;
-  document.getElementById('san').innerText=allMovies.filter(function(m){return m.category==='animation';}).length;
-  document.getElementById('sws').innerText=allMovies.filter(function(m){return m.category==='webseries';}).length;
-  var skdEl=document.getElementById('skd'); if(skdEl) skdEl.innerText=allMovies.filter(function(m){return m.category==='kdrama';}).length;
-  document.getElementById('sad').innerText=allMovies.filter(function(m){return m.category==='adult';}).length;
+  document.getElementById('sh').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'hollywood');}).length;
+  document.getElementById('sb').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'bollywood');}).length;
+  document.getElementById('stoll').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'tollywood');}).length;
+  document.getElementById('san').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'animation');}).length;
+  document.getElementById('sws').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'webseries');}).length;
+  var skdEl=document.getElementById('skd'); if(skdEl) skdEl.innerText=allMovies.filter(function(m){return movieMatchesCat(m,'kdrama');}).length;
+  document.getElementById('sad').innerText=allMovies.filter(function(m){return movieMatchesCat(m,'adult');}).length;
   var trend=allMovies.filter(function(m){return m.trending;}).length;
   var feat=allMovies.filter(function(m){return m.featured;}).length;
   var noposter=allMovies.filter(function(m){return!pfHasPoster(m);}).length;
   try { pfUpdateMissingCount(); } catch(e) {}
-  try { setTimeout(function(){ autoFillMissingPostersQuiet(); }, 2500); } catch(e) {}
+  /* autoFillMissingPostersQuiet disabled — panel hang fix */
   var et=document.getElementById("s-trend");if(et)et.innerText=trend;
   var ef=document.getElementById("s-feat");if(ef)ef.innerText=feat;
   var en=document.getElementById("s-noposter");if(en)en.innerText=noposter;
@@ -4560,15 +4529,16 @@ function renderDash(){
 function updateCounts(){
   var t=allMovies.length;
   document.getElementById('mc').innerText=t;
-  ['hollywood','hollywood_dubbed','bollywood','south','tollywood','punjabi','bengali','animation','webseries','bengali_series','kdrama','vivamax','short_films','hot_series','adult'].forEach(function(c){
-    var n=allMovies.filter(function(m){return m.category===c;}).length;
+  CV_MAIN_CATS.forEach(function(c){
+    var n=allMovies.filter(function(m){return movieMatchesCat(m,c);}).length;
     var el=document.getElementById('cnt-'+c);if(el)el.innerText=n;
   });
 }
 
 // ═══ CATEGORY BADGE ═══
 function getCatBadge(cat){
-  var map={hollywood:{cls:'bg',lbl:'Hollywood'},hollywood_dubbed:{cls:'bg',lbl:'Hollywood Hindi'},bollywood:{cls:'bb',lbl:'Bollywood'},south:{cls:'br',lbl:'South Hindi'},tollywood:{cls:'br',lbl:'Tollywood'},punjabi:{cls:'bo',lbl:'Punjabi'},bengali:{cls:'bv',lbl:'Bengali'},animation:{cls:'bv',lbl:'Animation'},webseries:{cls:'bo',lbl:'Web Series'},bengali_series:{cls:'bv',lbl:'Bengali Series'},kdrama:{cls:'bo',lbl:'K-Drama'},vivamax:{cls:'badult',lbl:'VivaMax'},short_films:{cls:'badult',lbl:'Short Films'},hot_series:{cls:'badult',lbl:'Hot Series'},adult:{cls:'badult',lbl:'🔞 Adult'}};
+  cat = typeof normalizeCategory === 'function' ? normalizeCategory(cat) : cat;
+  var map={hollywood:{cls:'bg',lbl:'Hollywood'},bollywood:{cls:'bb',lbl:'Bollywood'},tollywood:{cls:'br',lbl:'Tollywood'},animation:{cls:'bv',lbl:'Animated'},webseries:{cls:'bo',lbl:'Web Series'},kdrama:{cls:'bo',lbl:'K-Drama'},adult:{cls:'badult',lbl:'🔞 Adult'}};
   return map[cat]||{cls:'bgy',lbl:cat||'—'};
 }
 
@@ -4688,8 +4658,8 @@ function togglePublish(key, toggleEl) {
 function filterByCat(cat){
   currentCatFilter=cat;updateCfBtns();
   _tblPage = 1;
-  var list = cat==='all'?allMovies:allMovies.filter(function(m){
-    return (m.category||'').toLowerCase()===(cat||'').toLowerCase();
+  var list = (!cat || cat==='all') ? allMovies : allMovies.filter(function(m){
+    return movieMatchesCat(m, cat);
   });
   renderTable(list);
 }
@@ -4704,7 +4674,7 @@ function filterM(){
     var q=(document.getElementById('srch')||{}).value||'';
     q=q.toLowerCase().trim();
     var list=currentCatFilter==='all'?allMovies:allMovies.filter(function(m){
-      return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
+      return movieMatchesCat(m, currentCatFilter);
     });
     if(q){
       list=list.filter(function(m){
@@ -6134,7 +6104,7 @@ function addMovie(){
   if(!gv('fseoSlug')) document.getElementById('fseoSlug').value = amBuildSeoSlug();
   var ws=cat==='webseries';
   var eps=ws?collectEpisodes('movie'):null;
-  var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
+  var m={title:title,year:gv('fy'),rating:gv('fr'),category:normalizeCategory(cat),genre:gv('fg'),
     language:gv('fl'),quality:gv('fq'),size:gv('fsz'),description:gv('fd'),
     thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),playmateId:normalizePlaymateId(gv('fplaymate')),playmateUrl:playmateUrlFromInput(gv('fplaymate')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',vlcUrl2:gv('fvlc2'),trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
@@ -6207,7 +6177,7 @@ function loadPlaymateApiSettings() {
   var auto = document.getElementById('playmate-auto-upload');
   if (auto) auto.checked = localStorage.getItem(PLAYMATE_AUTO_LS) !== '0';
   var ffi = document.getElementById('ffi-playmate-upload');
-  if (ffi) ffi.checked = localStorage.getItem(PLAYMATE_AUTO_LS) === '1';
+  if (ffi) ffi.checked = localStorage.getItem(PLAYMATE_AUTO_LS) !== '0';
 }
 async function testPlaymateApiKey() {
   var key = (document.getElementById('playmate-api-key') || {}).value || getPlaymateApiKey();
@@ -6266,41 +6236,10 @@ function isFilmyzillaMovieUrl(u) {
   return /filmyzilla/i.test(u) && !/\/server\//i.test(u);
 }
 
-function isFilmyzillaAnyUrl(u) {
-  if (!u || typeof u !== 'string') return false;
-  return /filmyzilla\d*\.com/i.test(u) || /filmyzilla/i.test(u);
-}
-
-function isObjFilmyzillaSource(obj) {
-  if (!obj) return false;
-  var fields = [
-    obj.dlSourceUrl, obj.videoSourceUrl, obj.sourcePageUrl, obj.pageUrl,
-    obj.download1080p, obj.download720p, obj.download480p, obj.download4k,
-    obj.videoUrl, obj.vlcUrl, obj.vlcUrl2
-  ];
-  for (var i = 0; i < fields.length; i++) {
-    if (fields[i] && isFilmyzillaAnyUrl(String(fields[i]))) return true;
-  }
-  return false;
-}
-
-function isObjHdfunSource(obj) {
-  if (!obj) return false;
-  var fields = [
-    obj.dlSourceUrl, obj.videoSourceUrl, obj.sourcePageUrl,
-    obj.download1080p, obj.download720p, obj.download480p, obj.download4k
-  ];
-  for (var i = 0; i < fields.length; i++) {
-    var u = fields[i] ? String(fields[i]) : '';
-    if (/hdfun\.in|downloadxdesi\.com/i.test(u)) return true;
-  }
-  return false;
-}
-
-/** Playmate candidates — FilmyZilla never */
+/** Movie object se candidate URLs (direct pehle, phir FZ server/page) */
 function pickCandidatesForPlaymate(obj) {
   if (!obj) return [];
-  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj)) return [];
+  // Sirf 1 best download link: 1080p → 720p → 4k → 480p → other
   var priority = [
     obj.download1080p, obj.download720p, obj.download4k, obj.download480p,
     obj.dlSourceUrl, obj.videoSourceUrl, obj.vlcUrl2, obj.vlcUrl, obj.videoUrl,
@@ -6313,18 +6252,19 @@ function pickCandidatesForPlaymate(obj) {
     u = u.trim();
     if (!/^https?:\/\//i.test(u)) return;
     if (/playmate\.to/i.test(u)) return;
-    if (isFilmyzillaAnyUrl(u)) return;
     if (seen[u]) return;
     seen[u] = 1;
     out.push(u);
   }
+  // Prefer direct video URLs first in priority order
   priority.forEach(function(u) { if (isLikelyDirectVideoUrl(u)) add(u); });
+  // Then best intermediate (worker resolve karega)
   priority.forEach(function(u) { add(u); });
+  // Only first candidate needed for Playmate (1 file per movie)
   return out.slice(0, 3);
 }
 
 function pickDirectUrlForPlaymate(obj) {
-  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj)) return '';
   var list = pickCandidatesForPlaymate(obj);
   for (var i = 0; i < list.length; i++) {
     if (isLikelyDirectVideoUrl(list[i])) return list[i];
@@ -6555,10 +6495,6 @@ async function uploadUrlToPlaymate(sourceUrl, apiKey, title) {
 async function attachPlaymateToMovieObj(obj) {
   if (!obj) return obj;
   if (obj.playmateId || (obj.playmateUrl && /playmate\.to/i.test(obj.playmateUrl))) return obj;
-  if (typeof isObjFilmyzillaSource === 'function' && isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj)) {
-    obj._playmateSkip = 'filmyzilla';
-    return obj;
-  }
   var url = pickDirectUrlForPlaymate(obj);
   if (!url) return obj;
   var r = await uploadUrlToPlaymate(url, null, obj.title || '');
@@ -6592,7 +6528,6 @@ function pmBulkLog(msg, isErr) {
 }
 
 function pmBulkPickSource(m, qualityPref) {
-  if (typeof isObjFilmyzillaSource === 'function' && isObjFilmyzillaSource(m) && !isObjHdfunSource(m)) return '';
   var order;
   if (qualityPref === '720p') order = ['download720p', 'download1080p', 'download4k', 'download480p'];
   else if (qualityPref === '480p') order = ['download480p', 'download720p', 'download1080p', 'download4k'];
@@ -6600,10 +6535,7 @@ function pmBulkPickSource(m, qualityPref) {
   order = order.concat(['dlSourceUrl', 'videoSourceUrl', 'vlcUrl2', 'vlcUrl', 'videoUrl']);
   for (var i = 0; i < order.length; i++) {
     var u = m[order[i]];
-    if (!u || typeof u !== 'string' || !/^https?:\/\//i.test(u)) continue;
-    if (/playmate\.to/i.test(u)) continue;
-    if (typeof isFilmyzillaAnyUrl === 'function' && isFilmyzillaAnyUrl(u)) continue;
-    return u;
+    if (u && typeof u === 'string' && /^https?:\/\//i.test(u) && !/playmate\.to/i.test(u)) return u;
   }
   return '';
 }
@@ -7259,7 +7191,7 @@ function closeEdit(){document.getElementById('edit-modal').classList.remove('act
 function saveEdit(){
   if(!editKey)return;
   var cat=gv('ec');var ws=cat==='webseries';
-  var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
+  var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:normalizeCategory(cat),genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
     thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),videoSourceUrl:gv('e-videoSourceUrl'),
     dlSourceUrl:gv('e-dlSourceUrl'),sourcePageUrl:gv('e-sourcePageUrl'),
@@ -8238,7 +8170,7 @@ function aiImportSelected(){
     var cat = srcCatMap[m._src] || langCatMap[m.original_language] || (isTV?'webseries':'hollywood');
     if(m._src==='animation'||m.genre_ids&&m.genre_ids.indexOf(16)>-1){ cat='animation'; genre='animation'; }
 
-    var obj = {title:title, year:year, rating:rating, category:cat, genre:genre, description:desc, thumbnail:poster, addedAt:Date.now()};
+    var obj = {title:title, year:year, rating:rating, category:normalizeCategory(cat), genre:genre, description:desc, thumbnail:poster, addedAt:Date.now()};
     // ✅ SEO slug auto-generate
     var aiSlug=(title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
     if(aiSlug)obj.seoSlug=aiSlug;
@@ -11054,7 +10986,7 @@ function puSaveNewContent(){
   db.ref('pushUpdates/newContent').set({
     showNewContent:isOn,
     title:title,
-    category:cat,
+    category:normalizeCategory(cat),
     poster:poster,
     description:desc||'Abhi available hai!',
     link:link,
@@ -14046,55 +13978,55 @@ function ffiDetectListCategory(siteUrl) {
   // FilmyZilla category paths
   if (/filmyzilla/i.test(su)) {
     if (/web-series|webseries|tv-shows|kapil/i.test(su)) return 'webseries';
-    if (/south-indian|south|tamil|telugu/i.test(su)) return 'south';
+    if (/south-indian|south|tamil|telugu/i.test(su)) return 'tollywood';
     if (/hollywood-english|english-movies/i.test(su)) return 'hollywood';
-    if (/hollywood|hindi-dubbed/i.test(su)) return 'hollywood_dubbed';
-    if (/punjabi/i.test(su)) return 'punjabi';
+    if (/hollywood|hindi-dubbed/i.test(su)) return 'hollywood';
+    if (/punjabi/i.test(su)) return 'bollywood';
     if (/bollywood|hindi-movie/i.test(su)) return 'bollywood';
     if (/gujrati|gujarati|marathi/i.test(su)) return 'bollywood';
   }
   // Mp4Moviez category paths (/1/bollywood-movies.html etc.)
   if (/mp4moviez/i.test(su)) {
-    if (/\/88\/|hot-web-series|ullu/i.test(su)) return 'hot_series';
-    if (/\/63\/|short-films/i.test(su)) return 'short_films';
+    if (/\/88\/|hot-web-series|ullu/i.test(su)) return 'adult';
+    if (/\/63\/|short-films/i.test(su)) return 'adult';
     if (/\/13\/|tv-series|hindi-web|web-series/i.test(su)) return 'webseries';
     if (/\/72\/|\/76\/|\/93\/|hollywood.*series|tv-shows/i.test(su)) return 'webseries';
     if (/\/337\/|anime/i.test(su)) return 'animation';
     if (/\/1\/|bollywood/i.test(su)) return 'bollywood';
-    if (/\/3\/|hollywood-hindi/i.test(su)) return 'hollywood_dubbed';
-    if (/\/4\/|south-indian/i.test(su)) return 'south';
+    if (/\/3\/|hollywood-hindi/i.test(su)) return 'hollywood';
+    if (/\/4\/|south-indian/i.test(su)) return 'tollywood';
     if (/\/5\/|hollywood-english/i.test(su)) return 'hollywood';
-    if (/\/6\/|punjabi/i.test(su)) return 'punjabi';
-    if (/\/7\/|tamil/i.test(su)) return 'south';
-    if (/\/8\/|telugu/i.test(su)) return 'south';
-    if (/\/9\/|bengali/i.test(su)) return 'bengali';
-    if (/\/14\/|kannada|\/15\/|malayalam/i.test(su)) return 'south';
+    if (/\/6\/|punjabi/i.test(su)) return 'bollywood';
+    if (/\/7\/|tamil/i.test(su)) return 'tollywood';
+    if (/\/8\/|telugu/i.test(su)) return 'tollywood';
+    if (/\/9\/|bengali/i.test(su)) return 'bollywood';
+    if (/\/14\/|kannada|\/15\/|malayalam/i.test(su)) return 'tollywood';
   }
   // HDFun category IDs / slugs (exact match first)
   if (/category\/11\/|\/adult-movies/i.test(su) && !/hot-web-series|hot-short/i.test(su)) return 'adult';
-  if (/category\/79\/|hot-short-films/i.test(su)) return 'short_films';
-  if (/category\/62\/|hot-web-series/i.test(su)) return 'hot_series';
-  if (/category\/33\/|vivamax|tagalog/i.test(su)) return 'vivamax';
-  if (/category\/302\/|bengali-web-series/i.test(su)) return 'bengali_series';
-  if (/category\/103\/|bengali-movies/i.test(su)) return 'bengali';
+  if (/category\/79\/|hot-short-films/i.test(su)) return 'adult';
+  if (/category\/62\/|hot-web-series/i.test(su)) return 'adult';
+  if (/category\/33\/|vivamax|tagalog/i.test(su)) return 'adult';
+  if (/category\/302\/|bengali-web-series/i.test(su)) return 'webseries';
+  if (/category\/103\/|bengali-movies/i.test(su)) return 'bollywood';
   if (/category\/36\/|hollywood-hindi-dubbed-tv/i.test(su)) return 'kdrama';
   if (/category\/35\/|hindi-web-series/i.test(su)) return 'webseries';
   if (/category\/13\/|bollywood-movies|bollywood-full-movies/i.test(su)) return 'bollywood';
-  if (/category\/215\/|punjabi-movies/i.test(su)) return 'punjabi';
-  if (/category\/7\/|south-indian-hindi-dubbed|south-indian/i.test(su)) return 'south';
-  if (/category\/3\/|latest-hollywood-hindi-dubbed|hollywood-hindi-dubbed-movies/i.test(su)) return 'hollywood_dubbed';
+  if (/category\/215\/|punjabi-movies/i.test(su)) return 'bollywood';
+  if (/category\/7\/|south-indian-hindi-dubbed|south-indian/i.test(su)) return 'tollywood';
+  if (/category\/3\/|latest-hollywood-hindi-dubbed|hollywood-hindi-dubbed-movies/i.test(su)) return 'hollywood';
   if (/category\/25\/|hollywood-movies/i.test(su)) return 'hollywood';
   // Generic fallbacks
   if (/adult-movies|\/adult\/|hot-movies|letsporn/i.test(su)) return 'adult';
   if (/k-?drama|korean|c-?drama|katdrama/i.test(su)) return 'kdrama';
-  if (/bengali-web-series|bengali.*series/i.test(su)) return 'bengali_series';
-  if (/bengali/i.test(su)) return 'bengali';
+  if (/bengali-web-series|bengali.*series/i.test(su)) return 'webseries';
+  if (/bengali/i.test(su)) return 'bollywood';
   if (/web-series|webseries|tv[\s\-]?series/i.test(su) && !/hot-web-series/i.test(su)) return 'webseries';
   if (/bollywood|hindi-movies/i.test(su)) return 'bollywood';
-  if (/punjabi/i.test(su)) return 'punjabi';
-  if (/tollywood|south-indian|tamil|telugu|malayalam|kannada/i.test(su)) return 'south';
+  if (/punjabi/i.test(su)) return 'bollywood';
+  if (/tollywood|south-indian|tamil|telugu|malayalam|kannada/i.test(su)) return 'tollywood';
   if (/animation|anime|cartoon/i.test(su)) return 'animation';
-  if (/hollywood|dual-audio|hindi-dubbed|english-movies/i.test(su)) return 'hollywood_dubbed';
+  if (/hollywood|dual-audio|hindi-dubbed|english-movies/i.test(su)) return 'hollywood';
   try {
     var defEl = document.getElementById('ffi-default-cat');
     if (defEl && defEl.value) return defEl.value;
@@ -15342,8 +15274,8 @@ function ffiSaveReviewed() {
 
   var savedCount = 0, errCount = 0, total = selected.length;
   // Import pe Playmate auto — checkbox + DL worker resolve (1080p preferred)
-  // Checkbox only; FilmyZilla items always skip Playmate inside runPlaymateThenSave
-  var wantPm = !!(document.getElementById('ffi-playmate-upload') && document.getElementById('ffi-playmate-upload').checked);
+  var wantPm = !!(document.getElementById('ffi-playmate-upload') && document.getElementById('ffi-playmate-upload').checked)
+    || (localStorage.getItem('cinenova_playmate_auto') !== '0');
 
   // Optional: Playmate URL-upload pehle (direct links only)
   function afterPlaymate(doneList) {
@@ -15363,18 +15295,10 @@ function ffiSaveReviewed() {
         return;
       }
       var item = selected[i++];
-      // FilmyZilla → Playmate auto BAND
-      if (item.obj && isObjFilmyzillaSource(item.obj) && !isObjHdfunSource(item.obj)) {
-        pmSkip++;
-        item.obj._playmateSkip = 'filmyzilla';
-        if (statusEl) statusEl.textContent = '▶️ Playmate skip FZ ' + (pmOk + pmSkip) + '/' + selected.length;
-        nextPm();
-        return;
-      }
       var cands = pickCandidatesForPlaymate(item.obj);
       if (!cands.length) {
         pmSkip++;
-        item.obj._playmateError = 'No HDFun/direct link';
+        item.obj._playmateError = 'No uploadable link (FilmyZilla/direct missing)';
         if (statusEl) statusEl.textContent = '▶️ Playmate ' + (pmOk + pmSkip) + '/' + selected.length + ' (skip: no link)';
         nextPm();
         return;
@@ -15419,7 +15343,7 @@ function ffiSaveReviewed() {
   }
 
   // FAST batch save — 10 movies ek Firebase update mein
-  var BATCH = 25;
+  var BATCH = 40;
   function ffiRefreshMoviesList() {
     // Force panel list update (import ke baad table khali na rahe)
     try {
@@ -15454,6 +15378,8 @@ function ffiSaveReviewed() {
     }
   }
   function sanitizeMovieForFb(obj) {
+  if (obj && obj.category) obj.category = normalizeCategory(obj.category);
+
     if (!obj || typeof obj !== 'object') return { title: 'Untitled', addedAt: Date.now() };
     var clean = {};
     Object.keys(obj).forEach(function(k) {
@@ -15634,6 +15560,8 @@ function isGarbageDescription(d) {
 
 
 function applyCategoryDefaults(obj) {
+  if (obj && obj.category) obj.category = normalizeCategory(obj.category);
+
   if (!obj || typeof obj !== 'object') return obj;
   var cat = (obj.category || '').toLowerCase();
   var title = (obj.title || '') + ' ' + (obj.quality || '') + ' ' + (obj.language || '');
