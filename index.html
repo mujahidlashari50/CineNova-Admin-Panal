@@ -3086,9 +3086,15 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </div>
         </h3>
         <div style="color:var(--grey);font-size:0.79rem;margin-bottom:14px;">ON karo toh website pe "Site Under Maintenance" page dikhega. Visitors access nahi kar sakenge.</div>
+        <div class="fgg" style="margin-bottom:12px;"><label>📌 Title</label><input class="fi" id="maint-title" placeholder="We'll be back soon" /></div>
         <div class="fgg" style="margin-bottom:12px;"><label>🔤 Maintenance Message</label><input class="fi" id="maint-msg" placeholder="We are performing maintenance. Back soon!" /></div>
         <div class="fgg" style="margin-bottom:14px;"><label>⏰ Expected Back Time (Optional)</label><input class="fi" id="maint-time" placeholder="e.g. 2 hours, Tonight 10 PM" /></div>
-        <button class="btn btn-p" onclick="puSaveMaintenance()">💾 Save Maintenance Settings</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <button class="btn btn-p" onclick="puSaveMaintenance()">💾 Save &amp; Apply</button>
+          <button class="btn btn-s" style="border-color:rgba(239,68,68,0.5);color:#f87171;" onclick="puForceMaintenance(true)">🔴 Force ON</button>
+          <button class="btn btn-s" style="border-color:rgba(34,197,94,0.5);color:#86efac;" onclick="puForceMaintenance(false)">🟢 Force OFF</button>
+        </div>
+        <div style="font-size:0.72rem;color:#888;margin-top:6px;">Theme mein <code style="color:#fbbf24;">cinenova-maintenance.js</code> hona chahiye — ON ke baad refresh se bhi site nahi khulegi jab tak OFF na karo.</div>
         <div id="maint-live-badge" style="display:none;margin-top:10px;padding:8px 14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:0.78rem;color:#f87171;">🔴 Site abhi MAINTENANCE MODE mein hai! Users access nahi kar sakte.</div>
       </div>
 
@@ -10835,6 +10841,7 @@ function puLoadAll(){
     var mOn=!!m.active;
     _puSetToggle('maint-toggle',mOn);
     document.getElementById('maint-status-lbl').innerText=mOn?'ON':'OFF';
+    var mt=document.getElementById('maint-title'); if(mt) mt.value=m.title||'';
     document.getElementById('maint-msg').value=m.message||'';
     document.getElementById('maint-time').value=m.backTime||'';
     var badge=document.getElementById('maint-live-badge');
@@ -10906,19 +10913,47 @@ function puToggleMaintenance(){
   if(badge)badge.style.display=isOn?'block':'none';
 }
 
+function puBuildMaintPayload(isOn){
+  var msg=(document.getElementById('maint-msg')&&document.getElementById('maint-msg').value.trim())||'';
+  var bt=(document.getElementById('maint-time')&&document.getElementById('maint-time').value.trim())||'';
+  var title=(document.getElementById('maint-title')&&document.getElementById('maint-title').value.trim())||'';
+  return {
+    active: !!isOn,
+    title: title || "We'll be back soon",
+    message: msg || 'We are performing maintenance. Back soon!',
+    backTime: bt,
+    updatedAt: Date.now()
+  };
+}
+function puWriteMaint(payload){
+  // Dual write — theme dono paths sun sakta hai (strong lock)
+  return Promise.all([
+    db.ref('pushUpdates/maintenance').set(payload),
+    db.ref('settings/siteMaintenance').set(payload)
+  ]);
+}
 function puSaveMaintenance(){
   if(!db){toast('❌ Firebase connect nahi hua!',1);return;}
   var isOn=document.getElementById('maint-toggle').classList.contains('on');
-  var msg=document.getElementById('maint-msg').value.trim();
-  var bt=document.getElementById('maint-time').value.trim();
-  db.ref('pushUpdates/maintenance').set({
-    active:isOn,
-    message:msg||'We are performing maintenance. Back soon!',
-    backTime:bt,
-    updatedAt:Date.now()
-  }).then(function(){
-    toast(isOn?'🔴 Maintenance Mode ON kar diya! Site band hai.':'✅ Maintenance Mode OFF!');
+  var payload=puBuildMaintPayload(isOn);
+  puWriteMaint(payload).then(function(){
+    toast(isOn?'🔴 Maintenance Mode ON — site lock!':'✅ Maintenance Mode OFF — site live!');
     document.getElementById('pu-st-maint').innerText=isOn?'🔴':'⬜';
+    var badge=document.getElementById('maint-live-badge');
+    if(badge) badge.style.display=isOn?'block':'none';
+  }).catch(function(e){toast('❌ '+e.message,1);});
+}
+function puForceMaintenance(on){
+  if(!db){toast('❌ Firebase connect nahi hua!',1);return;}
+  var w=document.getElementById('maint-toggle');
+  if(w){ if(on) w.classList.add('on'); else w.classList.remove('on'); }
+  document.getElementById('maint-status-lbl').innerText=on?'ON':'OFF';
+  var payload=puBuildMaintPayload(!!on);
+  puWriteMaint(payload).then(function(){
+    toast(on?'🔴 Maintenance FORCE ON':'🟢 Maintenance FORCE OFF');
+    document.getElementById('pu-st-maint').innerText=on?'🔴':'⬜';
+    var badge=document.getElementById('maint-live-badge');
+    if(badge) badge.style.display=on?'block':'none';
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
 
