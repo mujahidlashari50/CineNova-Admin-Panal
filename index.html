@@ -14993,17 +14993,29 @@ function ffiStartImport() {
 
         // Episode packs: series pack → episodes[] | single movie → quality fields only
         if (data.episodes && data.episodes.length > 1) {
-          // Multiple episodes — har episode ka APNA link (same URL sab pe force mat karo)
+          // Multiple episodes — har ep: 480p/720p/1080p alag (FilmyZilla jaisa)
           obj.episodes = data.episodes.map(function(ep) {
-            var e = { season: String(ep.season || '1'), episode: String(ep.episode || ''), title: ep.title || ('Episode ' + (ep.episode || '')) };
-            if (ep.dl1080 || ep.download1080p) e.dl1080 = ep.dl1080 || ep.download1080p;
-            if (ep.dl720 || ep.download720p) e.dl720 = ep.dl720 || ep.download720p;
-            if (ep.dl480 || ep.download480p) e.dl480 = ep.dl480 || ep.download480p;
-            // Prefer episode-specific source
-            var vs = ep.videoSourceUrl || ep.dlSourceUrl || ep.dl1080 || ep.dl720 || ep.dl480 || '';
-            if (vs) e.videoSourceUrl = vs;
-            if (ep.dlSourceUrl) e.dlSourceUrl = ep.dlSourceUrl;
-            else if (vs) e.dlSourceUrl = vs;
+            var e = {
+              season: String(ep.season || '1'),
+              episode: String(ep.episode || ''),
+              title: ep.title || ('Episode ' + (ep.episode || ''))
+            };
+            // Quality fields — only set if present (empty mat overwrite)
+            var q480 = ep.dl480 || ep.download480p || '';
+            var q720 = ep.dl720 || ep.download720p || '';
+            var q1080 = ep.dl1080 || ep.download1080p || '';
+            if (q480) e.dl480 = q480;
+            if (q720) e.dl720 = q720;
+            if (q1080) e.dl1080 = q1080;
+            // Also mirror to download* keys (theme/worker compatibility)
+            if (q480) e.download480p = q480;
+            if (q720) e.download720p = q720;
+            if (q1080) e.download1080p = q1080;
+            var vs = ep.videoSourceUrl || ep.dlSourceUrl || q1080 || q720 || q480 || '';
+            if (vs) {
+              e.videoSourceUrl = vs;
+              e.dlSourceUrl = ep.dlSourceUrl || vs;
+            }
             return e;
           });
           if (obj.category !== 'adult' && obj.category !== 'kdrama' && obj.category !== 'hot_series') {
@@ -16571,12 +16583,12 @@ function ffiParsePage(html, srcUrl) {
       data.dlSourceUrl = data.download1080p || data.download720p || data.download480p || data.download4k || srcUrl;
     })();
 
-    // ── Web Series / Season: har /server/ link → ALAG episode (same link sab pe MAT)
-    // Example: "...S08 EP01....html" / "Episode 3 720p" — unique URL per episode
+    // ── Web Series: har episode ke ALAG 480p / 720p / 1080p /server/ links ──
+    // FilmyZilla post jaisa: Ep1→3 qualities, Ep2→3 qualities, …
     (function fzEpisodesFromServer() {
       if (!fzRows || fzRows.length < 1) return;
 
-      // Anchor text map
+      // Anchor text for each server URL
       var labelByUrl = {};
       var aRe = /href=["']((?:https?:\/\/[^"']*)?\/server\/\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]*?)<\/a>/gi;
       var am;
@@ -16587,19 +16599,27 @@ function ffiParsePage(html, srcUrl) {
         if (lab) labelByUrl[au] = lab;
       }
 
-      // Context before each href (Episode heading near link)
       function contextNear(url) {
         var pathOnly = '';
         try { pathOnly = new URL(url).pathname; } catch (e) { pathOnly = url; }
         var idx = fzHtml.indexOf(pathOnly);
         if (idx < 0) idx = fzHtml.indexOf(url);
         if (idx < 0) return '';
-        return fzHtml.substring(Math.max(0, idx - 450), idx + 80)
+        return fzHtml.substring(Math.max(0, idx - 500), idx + 120)
           .replace(/<[^>]+>/g, ' ')
           .replace(/\s+/g, ' ');
       }
 
-      function parseEpLabel(label, url) {
+      function detectQuality(s) {
+        s = String(s || '');
+        if (/2160p|4k|uhd/i.test(s)) return '4k';
+        if (/1080p/i.test(s)) return '1080p';
+        if (/720p/i.test(s)) return '720p';
+        if (/480p|360p|240p/i.test(s)) return '480p';
+        return '';
+      }
+
+      function parseEpMeta(label, url) {
         var slug = '';
         try {
           var path = (url || '').split('/').pop() || '';
@@ -16607,18 +16627,19 @@ function ffiParsePage(html, srcUrl) {
             .replace(/\.mp4\.html$/i, '')
             .replace(/\.mkv\.html$/i, '')
             .replace(/\.html$/i, '')
-            .replace(/[-_]+/g, ' ');
+            .replace(/[-_.]+/g, ' ');
         } catch (e) {}
         var ctx = contextNear(url);
-        var s = [label || '', slug, url || '', ctx].join(' ');
+        var s = [label || '', slug, ctx].join(' ');
         s = s.replace(/&amp;/g, '&');
 
-        var season = '1', episode = null, episodeTo = null;
+        var season = '1';
+        var episode = null;
+        var episodeTo = null;
 
-        // Range packs: Ep 1-5 / E01-E05 (ONE file for many eps)
+        // Pack range: Ep 1-5 (single file covering many eps)
         var rangeM = s.match(/\b(?:episodes?|eps?\.?)\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*0*(\d{1,3})\b/i) ||
-                     s.match(/\bE(?:P)?\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*E?(?:P)?\s*0*(\d{1,3})\b/i) ||
-                     s.match(/\bS\d{1,2}\s*E(?:P)?\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*E?(?:P)?\s*0*(\d{1,3})\b/i);
+                     s.match(/\bE(?:P)?\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*E?(?:P)?\s*0*(\d{1,3})\b/i);
         if (rangeM) {
           episode = String(parseInt(rangeM[1], 10));
           episodeTo = String(parseInt(rangeM[2], 10));
@@ -16631,59 +16652,42 @@ function ffiParsePage(html, srcUrl) {
         }
 
         // S01E05 / S01 EP05 / Season 1 Episode 5
-        var m = s.match(/\bS(\d{1,2})\s*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
-                s.match(/\bS(\d{1,2})[\s._-]*EP?[\s._-]*0*(\d{1,3})\b/i) ||
+        var m = s.match(/\bS(\d{1,2})\s*[\s._-]*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
+                s.match(/\bS(\d{1,2})[\s._-]+EP?[\s._-]*0*(\d{1,3})\b/i) ||
                 s.match(/season[\s._-]*(\d{1,2})[\s._-]*episode[\s._-]*0*(\d{1,3})/i);
-        if (m && !episode) {
+        if (m) {
           season = String(parseInt(m[1], 10));
-          episode = String(parseInt(m[2], 10));
-        } else if (m) {
-          season = String(parseInt(m[1], 10));
+          if (!episode) episode = String(parseInt(m[2], 10));
         }
 
         if (!episode) {
           var m2 = s.match(/\bEP(?:isode)?[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/\bE[\s._-]*0*(\d{1,3})\b/i);
+                   s.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i);
           if (m2) episode = String(parseInt(m2[1], 10));
         }
+        // Careful with bare E01 — avoid matching "HEVC" etc.
+        if (!episode) {
+          var mE = s.match(/(?:^|[\s_\-])E[\s._-]*0*(\d{1,3})(?:\b|[\s_\-])/i);
+          if (mE) episode = String(parseInt(mE[1], 10));
+        }
+
         var m3 = s.match(/season[\s._-]*(\d{1,2})/i) || s.match(/\bS(\d{1,2})\b/i);
         if (m3) season = String(parseInt(m3[1], 10));
 
+        var quality = detectQuality(s + ' ' + (url || ''));
         if (!episode) return null;
-
-        var title = String(label || slug || '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/&amp;/g, '&')
-          .replace(/\(\s*\d+(?:\.\d+)?\s*M?B\s*\)/ig, '')
-          .replace(/\.mp4$/i, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        if (!title || title.length < 3) title = 'Episode ' + episode + (episodeTo ? '-' + episodeTo : '');
-
-        var isHindi = /\bhindi\b/i.test(s);
-        var isEng = /\benglish\b/i.test(s) || !isHindi;
-        var q = '';
-        if (/2160p|4k|uhd/i.test(s)) q = '4k';
-        else if (/1080p/i.test(s)) q = '1080p';
-        else if (/720p/i.test(s)) q = '720p';
-        else if (/480p|360p/i.test(s)) q = '480p';
 
         return {
           season: season,
           episode: episode,
           episodeTo: episodeTo,
-          title: title,
-          isHindi: isHindi,
-          isEng: isEng,
-          quality: q,
-          isPack: !!(episodeTo && parseInt(episodeTo, 10) > parseInt(episode, 10))
+          quality: quality,
+          isPack: !!(episodeTo && parseInt(episodeTo, 10) > parseInt(episode, 10)),
+          title: ('Episode ' + episode)
         };
       }
 
-      var epMap = {};
-      var epCount = 0;
-      var uniqueEpUrls = {};
+      var epMap = {}; // key: season|episode
 
       function ensureEp(season, epNum) {
         var key = season + '|' + epNum;
@@ -16692,8 +16696,12 @@ function ffiParsePage(html, srcUrl) {
             season: String(season),
             episode: String(epNum),
             title: 'Episode ' + epNum,
-            dl480: '', dl720: '', dl1080: '',
-            sz480: '', sz720: '', sz1080: '',
+            dl480: '',
+            dl720: '',
+            dl1080: '',
+            sz480: '',
+            sz720: '',
+            sz1080: '',
             videoSourceUrl: '',
             dlSourceUrl: ''
           };
@@ -16701,98 +16709,77 @@ function ffiParsePage(html, srcUrl) {
         return epMap[key];
       }
 
-      function assignQuality(ep, info, url, size) {
+      /** Assign THIS url only to matching quality slot of THIS episode */
+      function setQualityLink(ep, quality, url, size) {
+        if (!url) return;
         var sz = size || '';
-        // NEVER overwrite an existing link with a DIFFERENT episode's URL
-        // Only fill empty slots, or same-episode quality variants
-        if (info.quality === '480p') {
-          if (!ep.dl480) { ep.dl480 = url; if (sz) ep.sz480 = sz; }
-        } else if (info.quality === '720p') {
-          if (!ep.dl720) { ep.dl720 = url; if (sz) ep.sz720 = sz; }
-        } else if (info.quality === '1080p' || info.quality === '4k') {
-          if (!ep.dl1080) { ep.dl1080 = url; if (sz) ep.sz1080 = sz; }
+        if (quality === '480p') {
+          ep.dl480 = url;
+          if (sz) ep.sz480 = sz;
+        } else if (quality === '720p') {
+          ep.dl720 = url;
+          if (sz) ep.sz720 = sz;
+        } else if (quality === '1080p' || quality === '4k') {
+          ep.dl1080 = url;
+          if (sz) ep.sz1080 = sz;
         } else {
+          // Unknown quality: fill first empty slot (prefer 720)
           if (!ep.dl720) { ep.dl720 = url; if (sz) ep.sz720 = sz; }
-          else if (!ep.dl1080 && ep.dl720 !== url) { ep.dl1080 = url; if (sz) ep.sz1080 = sz; }
-          else if (!ep.dl480 && ep.dl720 !== url && ep.dl1080 !== url) { ep.dl480 = url; if (sz) ep.sz480 = sz; }
+          else if (!ep.dl1080) { ep.dl1080 = url; if (sz) ep.sz1080 = sz; }
+          else if (!ep.dl480) { ep.dl480 = url; if (sz) ep.sz480 = sz; }
         }
-        if (!ep.videoSourceUrl) ep.videoSourceUrl = url;
-        if (!ep.dlSourceUrl) ep.dlSourceUrl = url;
-        if (info.title && info.title.length > 3 && !info.isPack) {
-          if (ep.title === ('Episode ' + ep.episode) || !ep.title) ep.title = info.title;
-        }
+        // Best available as default play/source for this episode
+        ep.videoSourceUrl = ep.dl1080 || ep.dl720 || ep.dl480 || ep.videoSourceUrl || url;
+        ep.dlSourceUrl = ep.videoSourceUrl;
       }
 
-      // Pass 1: links with clear episode numbers in label/slug/context
+      var matched = 0;
       var unmatched = [];
+
       fzRows.forEach(function(r) {
         var lab = labelByUrl[r.url] || '';
-        var info = parseEpLabel(lab, r.url);
+        // Also use path as label fallback for quality detection
+        var info = parseEpMeta(lab, r.url);
         if (!info) {
           unmatched.push(r);
           return;
         }
-        epCount++;
+        matched++;
         var fromN = parseInt(info.episode, 10);
         var toN = info.episodeTo ? parseInt(info.episodeTo, 10) : fromN;
         if (!fromN || fromN < 1) return;
         if (!toN || toN < fromN) toN = fromN;
 
-        // Pack (1 file, many eps): same link on each — only if NO separate per-ep links later
-        // Mark pack; still assign unique URL string (same) but individual links override later
         for (var n = fromN; n <= toN; n++) {
           var ep = ensureEp(info.season, n);
           if (toN > fromN) {
             ep.title = 'Episode ' + n + ' (pack ' + fromN + '-' + toN + ')';
             ep.packFrom = String(fromN);
             ep.packTo = String(toN);
-            // Pack: only fill if empty (individual ep link can override)
-            if (!ep.dl720 && !ep.dl1080 && !ep.dl480) {
-              assignQuality(ep, info, r.url, r.size);
-            }
-          } else {
-            // Single episode — this URL belongs ONLY to this episode
-            assignQuality(ep, info, r.url, r.size);
-            uniqueEpUrls[r.url] = (info.season + '|' + n);
           }
+          // For packs: same file link on every ep in range (real pack zip)
+          // For single: quality-specific link only for this episode
+          setQualityLink(ep, info.quality, r.url, r.size);
         }
       });
 
-      // Pass 2: sequential fallback — series page, multiple server links without E numbers
-      // Assign next free episode numbers in order (don't reuse one URL for all)
-      var seriesHint = /season|episode|tv\s*series|web\s*series|\bS\d{1,2}\b|ep\s*\d/i.test(
-        (data.title || '') + ' ' + (srcUrl || '') + ' ' + (fzName || '') + ' ' + fzHtml.slice(0, 1500)
-      );
-      if (unmatched.length >= 2 && (seriesHint || epCount >= 1 || Object.keys(epMap).length >= 1)) {
-        // Group unmatched by quality from URL; assign sequential ep if still no epMap from pass1
-        var nextEp = 1;
-        // If we already have some episodes, continue after max
-        Object.keys(epMap).forEach(function(k) {
-          var n = parseInt(epMap[k].episode, 10) || 0;
-          if (n >= nextEp) nextEp = n + 1;
-        });
-        // Only sequential-assign if almost no episode numbers found but many server links
-        if (Object.keys(epMap).length < 2 && unmatched.length >= 2) {
-          // Treat each unique URL as its own episode (by order on page)
-          unmatched.forEach(function(r, idx) {
-            var lab = labelByUrl[r.url] || r.url;
-            var q = '';
-            if (/1080p/i.test(lab + r.url)) q = '1080p';
-            else if (/720p/i.test(lab + r.url)) q = '720p';
-            else if (/480p/i.test(lab + r.url)) q = '480p';
-            else if (/2160p|4k/i.test(lab + r.url)) q = '4k';
-            // Same quality variants of same ep? Heuristic: if consecutive same slug base, same ep
-            var ep = ensureEp('1', nextEp);
-            assignQuality(ep, { quality: q, title: 'Episode ' + nextEp, isPack: false }, r.url, r.size);
-            // Advance episode only when quality "resets" or URL looks like new ep
-            var looksNew = /episode|ep\s*\d|e\d{2}/i.test(lab) || idx === unmatched.length - 1;
-            // Better: always advance per unique URL unless URL is clearly only quality sibling
-            // For FilmyZilla series, each /server/ID/ is usually different file → new ep
-            nextEp++;
-            epCount++;
-          });
-        }
-      }
+      // Unmatched: try quality-only links under series page — attach by nearest episode heading in context
+      unmatched.forEach(function(r) {
+        var lab = labelByUrl[r.url] || '';
+        var ctx = contextNear(r.url);
+        var q = detectQuality(lab + ' ' + r.url + ' ' + ctx);
+        // Find episode number only from context heading (not from random E in words)
+        var em = ctx.match(/\b(?:episode|ep)\s*0*(\d{1,3})\b/i) ||
+                 ctx.match(/\bS\d{1,2}\s*E(?:P)?\s*0*(\d{1,3})\b/i);
+        if (!em) return;
+        var epNum = String(parseInt(em[1], 10));
+        if (!epNum || epNum === '0') return;
+        var sm = ctx.match(/\bS(\d{1,2})\b/i);
+        var season = sm ? String(parseInt(sm[1], 10)) : '1';
+        var ep = ensureEp(season, epNum);
+        setQualityLink(ep, q, r.url, r.size);
+        matched++;
+      });
 
       var epList = Object.keys(epMap).map(function(k) { return epMap[k]; });
       epList.sort(function(a, b) {
@@ -16801,29 +16788,35 @@ function ffiParsePage(html, srcUrl) {
         return (parseInt(a.episode, 10) || 0) - (parseInt(b.episode, 10) || 0);
       });
 
-      // Deduplicate: if two episodes ended up with EXACT same links and sequential numbers
-      // from a true pack, keep them; if same single URL on all and we had unique URLs, fix
-      // Final safety: each episode should prefer its own videoSourceUrl
-      for (var i = 0; i < epList.length; i++) {
-        var e = epList[i];
-        if (!e.videoSourceUrl) e.videoSourceUrl = e.dl1080 || e.dl720 || e.dl480 || '';
-        if (!e.dlSourceUrl) e.dlSourceUrl = e.videoSourceUrl;
-      }
+      // Final: ensure each ep has videoSourceUrl from best quality
+      epList.forEach(function(e) {
+        e.videoSourceUrl = e.dl1080 || e.dl720 || e.dl480 || e.videoSourceUrl || '';
+        e.dlSourceUrl = e.videoSourceUrl;
+        if (!e.title) e.title = 'Episode ' + e.episode;
+      });
 
-      if (epList.length >= 2 || (epList.length >= 1 && seriesHint && epCount >= 1)) {
+      var seriesHint = /season|episode|tv\s*series|web\s*series|\bS\d{1,2}\b|\bep\s*\d/i.test(
+        (data.title || '') + ' ' + (srcUrl || '') + ' ' + (fzName || '') + ' ' + fzHtml.slice(0, 2000)
+      );
+
+      if (epList.length >= 2 || (epList.length >= 1 && seriesHint && matched >= 1)) {
         data.episodes = epList;
         if (data.category !== 'adult') data.category = data.category || 'webseries';
-        // Debug flag for admin
         data._fzEpCount = epList.length;
-        data._fzUniqueLinks = (function() {
-          var u = {};
-          epList.forEach(function(e) {
-            [e.dl480, e.dl720, e.dl1080, e.videoSourceUrl].forEach(function(x) {
-              if (x) u[x] = 1;
-            });
-          });
-          return Object.keys(u).length;
-        })();
+        // How many unique quality links across episodes (debug)
+        var u = {};
+        epList.forEach(function(e) {
+          if (e.dl480) u[e.dl480] = 1;
+          if (e.dl720) u[e.dl720] = 1;
+          if (e.dl1080) u[e.dl1080] = 1;
+        });
+        data._fzUniqueLinks = Object.keys(u).length;
+        data._fzQualityStats = epList.map(function(e) {
+          return 'E' + e.episode + ':' +
+            (e.dl480 ? '480 ' : '') +
+            (e.dl720 ? '720 ' : '') +
+            (e.dl1080 ? '1080' : '');
+        }).join(' | ');
       }
     })();
 
