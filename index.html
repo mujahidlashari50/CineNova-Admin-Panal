@@ -6496,7 +6496,20 @@ async function resolveFilmyzillaToDirect(sourceUrl) {
         var q = /1080p/i.test(low) ? 3 : /720p/i.test(low) ? 2 : /480p/i.test(low) ? 1 : 0;
         links.push({ href: href, q: q });
       }
-      if (!links.length) return null;
+      
+    // New FilmyZilla flow: /verified/{id}/server_N/
+    if (!/\/server\/\d+\//i.test(sourceUrl) && !links.length) {
+      var reV = /href=["']((?:https?:\/\/[^"']*)?\/verified\/\d+\/server_\d+\/?)["']/gi;
+      var mv;
+      while ((mv = reV.exec(html)) !== null) {
+        var hv = mv[1].replace(/&amp;/g, '&');
+        if (!/^https?:\/\//i.test(hv)) {
+          try { hv = new URL(hv, origin).toString(); } catch (e2) { continue; }
+        }
+        links.push({ href: hv, q: 1 });
+      }
+    }
+if (!links.length) return null;
       links.sort(function(a, b) { return b.q - a.q; });
       // Prefer 720 if available else highest
       var pick = links.find(function(l) { return l.q === 2; }) || links[0];
@@ -13988,21 +14001,30 @@ var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
 
 var _ffiProxies = [
   { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'Jina',            getUrl: function(u){ return 'https://r.jina.ai/' + u; }, parse: function(t){ return t; } },
+  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
-  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
+  { name: 'CodeTabs',        getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'Jina',            getUrl: function(u){ return 'https://r.jina.ai/' + u; }, parse: function(t){ return t; } }
 ];
+function _ffiHtmlLooksValid(html) {
+  if (!html || html.length < 200) return false;
+  var low = String(html).slice(0, 500).toLowerCase();
+  if (/authenticationrequirederror|bad ip reputation|access denied|just a moment|cf-browser-verification|captcha/i.test(low)) return false;
+  if (/^{"data":null/.test(String(html).trim())) return false;
+  return true;
+}
 
 function ffiNormalizeUrl(url) {
   try {
     var u = String(url || '').trim().replace(/\s+/g, '');
     // 9xflix → ist
     u = u.replace(/https?:\/\/(?:www\.)?9xflix\.(?:sarl|ist|com|in|net|to|se|mom)\b/i, 'https://9xflix.ist');
-    // FilmyFly / Filmy4wap — purane TLD category drop karke home pe bhej dete hain
-    // → live domain filmyfly.green, path same
+    // FilmyFly / Filmy4wap
     u = u.replace(/https?:\/\/(?:www\.)?filmyfly\.[a-z0-9]+\b/i, 'https://filmyfly.green');
     u = u.replace(/https?:\/\/(?:www\.)?filmy4wap\.[a-z0-9]+\b/i, 'https://filmyfly.green');
+    // FilmyZilla — har number domain ko live 57 pe lao (path same)
+    u = u.replace(/https?:\/\/(?:www\.)?filmyzilla\d*\.com/i, 'https://www.filmyzilla57.com');
     return u;
   } catch (e) { return url; }
 }
@@ -14024,14 +14046,13 @@ function _ffiFetch(url, cb) {
         var html = '';
         try { html = p.parse(raw) || ''; } catch (e) { html = ''; }
         // Jina returns markdown — still usable
-        if (p.name === 'Jina' && html && html.length > 80) {
+        if (p.name === 'Jina' && html && html.length > 200 && _ffiHtmlLooksValid(html)) {
           var jt = (html.match(/(?:^|\n)Title:\s*(.+)/i) || [])[1] || '';
           html = '<!--JINA--><title>' + jt + '</title>\n' + html;
           cb(html);
           return;
         }
-        // Same threshold as working _mlProxyFetch (>80)
-        if (html && html.length > 80) { cb(html); } else { next(); }
+        if (_ffiHtmlLooksValid(html)) { cb(html); } else { next(); }
       })
       .catch(function(){ clearTimeout(timer); next(); });
   }
@@ -14071,7 +14092,7 @@ function ffiIsRealPostUrl(u, siteUrl) {
 
   // FilmyZilla56 — ONLY /movie/123/slug.html
   if (/filmyzilla\d*\.com/i.test(host) || /filmyzilla\d*\.com/i.test(siteUrl || '')) {
-    return /\/movie\/\d+\/[a-z0-9][^\/?#]*\.html$/i.test(u);
+    return /\/movie\/\d+\/[^\/?#]+\.html$/i.test(u);
   }
   // Mp4Moviez — /c12345/slug.html only
   if (/mp4moviez/i.test(host) || /mp4moviez/i.test(siteUrl || '')) {
@@ -14340,6 +14361,12 @@ function ffiFetchPosts() {
           while ((mFz = reFzAbs.exec(html)) !== null) {
             var uFz = mFz[0].replace(/&amp;/g, '&');
             ffiPushPost(uFz, ffiTitleFromUrl(uFz), allFound, siteUrl);
+          }
+          // Relative /movie/ID/slug.html without host
+          var reFzRel = /href=["'](\/movie\/\d+\/[^"'#?]+\.html)["']/gi;
+          while ((mFz = reFzRel.exec(html)) !== null) {
+            var uRel = (baseHost || 'https://www.filmyzilla57.com') + mFz[1];
+            ffiPushPost(uRel, ffiTitleFromUrl(uRel), allFound, siteUrl);
           }
         }
         // Pattern 1c: MMSHD / HDFun style /dl/slug (post pages)
