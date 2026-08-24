@@ -1952,12 +1952,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(250,204,21,0.5);color:#fde047;" onclick="ffiFillUrl('https://www.filmyzilla57.com/category/406/2026-latest-south-indian-hindi-dubbed-movies/default/1.html');">📌 FZ South Hindi</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(250,204,21,0.5);color:#fde047;" onclick="ffiFillUrl('https://www.filmyzilla57.com/category/18/Hindi-web-series-download/default/1.html');">📌 FZ Web Series</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(250,204,21,0.5);color:#fde047;" onclick="ffiFillUrl('https://www.filmyzilla57.com/category/410/2026-latest-hollywood-english-movies/default/1.html');">📌 FZ Hollywood English</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/category/videodownload/korean-drama');">📌 9ja Korean Drama</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/category/videodownload/foreign-movies');">📌 9ja Foreign Movies</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/category/videodownload/other-foreign-series');">📌 9ja Foreign Series</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/category/videodownload/chinese-drama');">📌 9ja Chinese Drama</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/category/videodownload/anime');">📌 9ja Anime</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(236,72,153,0.5);color:#f9a8d4;" onclick="ffiFillUrl('https://9jarocks.net/');">📌 9jaRocks Home</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(59,130,246,0.5);color:#93c5fd;" onclick="ffiFillUrl('https://mp4moviez.rip/');">📌 Mp4Moviez Home</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(59,130,246,0.5);color:#93c5fd;" onclick="ffiFillUrl('https://mp4moviez.rip/1/bollywood-movies.html');">📌 Mp4 Bollywood</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(59,130,246,0.5);color:#93c5fd;" onclick="ffiFillUrl('https://mp4moviez.rip/3/hollywood-hindi-movies.html');">📌 Mp4 Hollywood Hindi</button>
@@ -2078,7 +2072,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
           <span style="font-size:0.72rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);color:#fde047;padding:3px 10px;border-radius:20px;">filmyzilla57.com ✓</span>
-          <span style="font-size:0.72rem;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.35);color:#f9a8d4;padding:3px 10px;border-radius:20px;">9jarocks.net ✓</span>
           <span style="font-size:0.72rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;padding:3px 10px;border-radius:20px;">mp4moviez.rip ✓</span>
           <span style="font-size:0.72rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">hdfun.in ✓</span>
           <span style="font-size:0.72rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);color:#fde68a;padding:3px 10px;border-radius:20px;">filmyfly.green ✓</span>
@@ -6752,116 +6745,6 @@ function setDlWorkerBase(url) {
   else localStorage.removeItem('cinenova_dl_worker');
 }
 
-
-/** loadedfiles.net / 9jarocks hoster → worker se best available download URL */
-async function resolveLoadedfilesToDirect(sourceUrl) {
-  if (!sourceUrl || !/loadedfiles\.(net|org)/i.test(sourceUrl)) return null;
-  try {
-    var base = (typeof getDlWorkerBase === 'function') ? getDlWorkerBase() : 'https://cinenova-fetch.mujahidlashari50.workers.dev';
-    // 1) Worker resolve endpoint (agar worker support kare)
-    try {
-      var ru = base + '/resolve?url=' + encodeURIComponent(sourceUrl);
-      var rr = await fetch(ru, { headers: { 'Accept': 'application/json' } });
-      var ct = (rr.headers.get('content-type') || '');
-      if (ct.indexOf('json') >= 0) {
-        var j = await rr.json();
-        var direct = j.direct || j.url || j.download || j.file || (j.ok && j.link) || '';
-        if (direct && /^https?:\/\//i.test(direct) && !/loadedfiles\.(net|org)\/[a-f0-9]+\/?$/i.test(direct)) {
-          return direct;
-        }
-      }
-    } catch (e1) {}
-
-    // 2) Fetch page via worker proxy → extract downloadUrl?pt= token link
-    var html = null;
-    try {
-      if (typeof pmFetchText === 'function') html = await pmFetchText(sourceUrl);
-    } catch (e2) {}
-    if (!html) {
-      try {
-        var pr = await fetch(base + '/?url=' + encodeURIComponent(sourceUrl));
-        html = await pr.text();
-      } catch (e3) {}
-    }
-    if (!html) return null;
-    var m = html.match(/var\s+downloadUrl\s*=\s*['"]([^'"]+)['"]/i);
-    if (m && m[1]) {
-      var ptUrl = m[1].replace(/&amp;/g, '&');
-      // Try resolve pt URL again through worker
-      try {
-        var ru2 = base + '/resolve?url=' + encodeURIComponent(ptUrl);
-        var rr2 = await fetch(ru2, { headers: { 'Accept': 'application/json' } });
-        var ct2 = (rr2.headers.get('content-type') || '');
-        if (ct2.indexOf('json') >= 0) {
-          var j2 = await rr2.json();
-          var d2 = j2.direct || j2.url || j2.download || j2.file || '';
-          if (d2 && /^https?:\/\//i.test(d2)) return d2;
-        }
-      } catch (e4) {}
-      return ptUrl; // best effort: proceed-to-download link
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
-}
-
-/** 9jarocks / loadedfiles / generic hoster resolve via worker */
-async function resolveHosterViaWorker(sourceUrl) {
-  if (!sourceUrl || !/^https?:\/\//i.test(sourceUrl)) return null;
-  if (typeof isLikelyDirectVideoUrl === 'function' && isLikelyDirectVideoUrl(sourceUrl)) return sourceUrl;
-  if (/loadedfiles\.(net|org)/i.test(sourceUrl)) {
-    return await resolveLoadedfilesToDirect(sourceUrl);
-  }
-  if (/filmyzilla/i.test(sourceUrl) && typeof resolveFilmyzillaToDirect === 'function') {
-    try { return await resolveFilmyzillaToDirect(sourceUrl); } catch (e) { return null; }
-  }
-  // Generic: ask worker /resolve
-  try {
-    var base = (typeof getDlWorkerBase === 'function') ? getDlWorkerBase() : 'https://cinenova-fetch.mujahidlashari50.workers.dev';
-    var ru = base + '/resolve?url=' + encodeURIComponent(sourceUrl);
-    var rr = await fetch(ru, { headers: { 'Accept': 'application/json' } });
-    var ct = (rr.headers.get('content-type') || '');
-    if (ct.indexOf('json') >= 0) {
-      var j = await rr.json();
-      var direct = j.direct || j.url || j.download || j.file || '';
-      if (direct && /^https?:\/\//i.test(direct)) return direct;
-    }
-  } catch (e) {}
-  return null;
-}
-
-
-/** Import ke baad episodes/hoster links worker se resolve */
-async function ffiResolveHosterLinksOnObj(dataObj) {
-  if (!dataObj) return dataObj;
-  async function one(u) {
-    if (!u) return u;
-    if (!/loadedfiles\.(net|org)|9jarocks\.net/i.test(u)) return u;
-    try {
-      var d = await resolveHosterViaWorker(u);
-      return d || u;
-    } catch (e) { return u; }
-  }
-  if (dataObj.episodes && dataObj.episodes.length) {
-    for (var i = 0; i < dataObj.episodes.length; i++) {
-      var ep = dataObj.episodes[i];
-      if (ep.dl720) ep.dl720 = await one(ep.dl720);
-      if (ep.dl1080) ep.dl1080 = await one(ep.dl1080);
-      if (ep.dl480) ep.dl480 = await one(ep.dl480);
-      if (ep.videoSourceUrl) ep.videoSourceUrl = await one(ep.videoSourceUrl);
-      if (ep.dlSourceUrl && /loadedfiles/i.test(ep.dlSourceUrl)) ep.dlSourceUrl = await one(ep.dlSourceUrl);
-      // keep play source = best quality link for this ep only
-      ep.videoSourceUrl = ep.dl1080 || ep.dl720 || ep.dl480 || ep.videoSourceUrl || '';
-      ep.dlSourceUrl = ep.videoSourceUrl || ep.dlSourceUrl || '';
-    }
-  }
-  if (dataObj.download720p) dataObj.download720p = await one(dataObj.download720p);
-  if (dataObj.download1080p) dataObj.download1080p = await one(dataObj.download1080p);
-  if (dataObj.download480p) dataObj.download480p = await one(dataObj.download480p);
-  return dataObj;
-}
-
 async function resolveUrlForPlaymateUpload(url) {
   if (!url) return null;
   if (isLikelyDirectVideoUrl(url)) return url;
@@ -6870,12 +6753,6 @@ async function resolveUrlForPlaymateUpload(url) {
       var direct = await resolveFilmyzillaToDirect(url);
       if (direct) return direct;
     } catch (e) {}
-  }
-  if (/loadedfiles\.(net|org)|9jarocks\.net/i.test(url)) {
-    try {
-      var d2 = await resolveHosterViaWorker(url);
-      if (d2) return d2;
-    } catch (e2) {}
   }
   // Intermediate links: worker resolve karega — yahan raw URL wapas
   if (/^https?:\/\//i.test(url) && !/\/category\//i.test(url)) return url;
@@ -14371,10 +14248,6 @@ function ffiIsRealPostUrl(u, siteUrl) {
     }
   }
 
-  // 9jaRocks — /videodownload/slug-id123.html
-  if (/9jarocks\.net/i.test(host) || /9jarocks\.net/i.test(siteUrl || '')) {
-    return /\/videodownload\/[a-z0-9][a-z0-9\-]*-id\d+\.html$/i.test(u);
-  }
   // FilmyZilla56 — ONLY /movie/123/slug.html
   if (/filmyzilla\d*\.com/i.test(host) || /filmyzilla\d*\.com/i.test(siteUrl || '')) {
     return /\/movie\/\d+\/[^\/?#]+\.html$/i.test(u);
@@ -14464,16 +14337,6 @@ function ffiFillUrl(url) {
 function ffiDetectListCategory(siteUrl) {
   var su = String(siteUrl || '').toLowerCase();
   if (!su) return '';
-  // 9jaRocks categories
-  if (/9jarocks/i.test(su)) {
-    if (/korean-drama|k-?drama/i.test(su)) return 'kdrama';
-    if (/chinese-drama|thai-drama|japanese-drama|filipino-drama/i.test(su)) return 'kdrama';
-    if (/anime/i.test(su)) return 'animation';
-    if (/foreign-movies|hollywood-movie/i.test(su)) return 'hollywood';
-    if (/other-foreign-series|european-tv|nollywood-tv/i.test(su)) return 'webseries';
-    if (/nollywood-movie/i.test(su)) return 'hollywood';
-    return 'hollywood';
-  }
   // FilmyZilla category paths
   if (/filmyzilla/i.test(su)) {
     if (/web-series|webseries|tv-shows|kapil/i.test(su)) return 'webseries';
@@ -14542,7 +14405,7 @@ function ffiFetchPosts() {
   function ffiIsAllowedSite(u) {
     var s = String(u || '').toLowerCase();
     if (!s) return false;
-    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mp4moviez|filmyzilla|9jarocks/i.test(s);
+    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mp4moviez|filmyzilla/i.test(s);
   }
 
   // 3 category URLs ek sath
@@ -14558,10 +14421,10 @@ function ffiFetchPosts() {
   var blocked = siteUrls.filter(function(s){ return !ffiIsAllowedSite(s); });
   siteUrls = siteUrls.filter(function(s){ return ffiIsAllowedSite(s); });
   if (blocked.length) {
-    toast('⏭ Sirf FilmyFly / HDFun / Mp4Moviez / FilmyZilla / 9jaRocks allowed — ' + blocked.length + ' URL skip', 1);
+    toast('⏭ Sirf FilmyFly / HDFun / Mp4Moviez / FilmyZilla allowed — ' + blocked.length + ' URL skip', 1);
   }
   if (!siteUrls.length) {
-    toast('❌ Kam az kam 1 FilmyFly / HDFun / Mp4Moviez / FilmyZilla / 9jaRocks category URL daalo!', 1);
+    toast('❌ Kam az kam 1 FilmyFly / HDFun / Mp4Moviez / FilmyZilla category URL daalo!', 1);
     return;
   }
 
@@ -14623,10 +14486,6 @@ function ffiFetchPosts() {
         // Mp4Moviez: /1/bollywood-movies.html&p=2  (or ?p=2)
         var baseMp = siteUrl.replace(/[&?]p=\d+/gi, '').replace(/[?&]$/, '');
         url = baseMp + (baseMp.indexOf('?') !== -1 || baseMp.indexOf('&') !== -1 ? '&' : (baseMp.indexOf('.html') !== -1 ? '&' : '?')) + 'p=' + pageNum;
-      } else if (/9jarocks\.net/i.test(siteUrl)) {
-        // 9jarocks WP: /category/.../page/N
-        var base9j = siteUrl.replace(/\/page\/\d+\/?$/i, '').replace(/\/?$/, '');
-        url = base9j + '/page/' + pageNum;
       } else if (/filmyfly|filmy4wap|page-category\//i.test(siteUrl)) {
         // FilmyFly: keep path, add ?page=N
         var baseFf = siteUrl.replace(/[?&]page=\d+/gi, '').replace(/[?&]$/, '');
@@ -14645,20 +14504,6 @@ function ffiFetchPosts() {
         while ((m = re1.exec(html)) !== null) {
           var u = m[1].startsWith('http') ? m[1] : baseHost + m[1];
           ffiPushPost(u, ffiTitleFromUrl(u.replace(/&amp;/g,'&')), allFound, siteUrl);
-        }
-        // Pattern 9jaRocks: /videodownload/slug-id12345.html
-        if (/9jarocks/i.test(siteUrl) || /9jarocks/i.test(baseHost) || /9jarocks/i.test(html.slice(0, 2000))) {
-          var re9j = /href=["']((https?:\/\/[^"']*)?\/videodownload\/[a-z0-9][a-z0-9\-]*-id\d+\.html)["']/gi;
-          var m9j;
-          while ((m9j = re9j.exec(html)) !== null) {
-            var u9 = m9j[1].startsWith('http') ? m9j[1] : baseHost + m9j[1];
-            u9 = u9.replace(/&amp;/g, '&');
-            ffiPushPost(u9, ffiTitleFromUrl(u9), allFound, siteUrl);
-          }
-          var re9jAbs = /https?:\/\/(?:www\.)?9jarocks\.net\/videodownload\/[a-z0-9][a-z0-9\-]*-id\d+\.html/gi;
-          while ((m9j = re9jAbs.exec(html)) !== null) {
-            ffiPushPost(m9j[0].replace(/&amp;/g, '&'), ffiTitleFromUrl(m9j[0]), allFound, siteUrl);
-          }
         }
         // Pattern 1b: HDFun / FilmyZilla /movie/123/title.html
         var re1b = /href=["']((https?:\/\/[^"']*)?\/movie\/\d+\/[^"'#?]*\.html)/gi;
@@ -15109,12 +14954,6 @@ function ffiAwFetchPostList(siteUrl, cb) {
       var u3 = m[1].startsWith('http') ? m[1] : baseHost + m[1];
       push(u3.replace(/&amp;/g, '&').replace(/\/$/, ''), ffiTitleFromUrl(u3));
     }
-    // 9jaRocks posts
-    re = /href=["']((https?:\/\/[^"']*)?\/videodownload\/[a-z0-9][a-z0-9\-]*-id\d+\.html)["']/gi;
-    while ((m = re.exec(html)) !== null) {
-      var u9 = m[1].startsWith('http') ? m[1] : baseHost + m[1];
-      push(u9.replace(/&amp;/g, '&'), ffiTitleFromUrl(u9));
-    }
     cb(posts);
   });
 }
@@ -15400,30 +15239,6 @@ function ffiStartImport() {
         return;
       }
 
-      // 9jaRocks / loadedfiles → worker resolve (pt token / direct)
-      function ffiEnrich9jarocks(dataObj, done) {
-        var need = /9jarocks/i.test(p.url || '');
-        if (!need && dataObj.episodes) {
-          need = dataObj.episodes.some(function(e) {
-            return /loadedfiles\.(net|org)/i.test(e.dl720 || e.dl1080 || e.videoSourceUrl || '');
-          });
-        }
-        if (!need && !/loadedfiles\.(net|org)/i.test(dataObj.download720p || dataObj.download1080p || '')) {
-          done(); return;
-        }
-        if (item) document.getElementById('ffi-st-'+n).textContent = '🔄 Worker resolve...';
-        if (typeof ffiResolveHosterLinksOnObj !== 'function') { done(); return; }
-        ffiResolveHosterLinksOnObj(dataObj).then(function(resolved) {
-          if (resolved) {
-            dataObj.episodes = resolved.episodes || dataObj.episodes;
-            dataObj.download720p = resolved.download720p || dataObj.download720p;
-            dataObj.download1080p = resolved.download1080p || dataObj.download1080p;
-            dataObj.download480p = resolved.download480p || dataObj.download480p;
-          }
-          done();
-        }).catch(function(){ done(); });
-      }
-
       // FilmyZilla: /server/ → get_link.php → direct CDN URL (best effort)
       function ffiEnrichFilmyzilla(dataObj, done) {
         if (!/filmyzilla/i.test(p.url || '')) { done(); return; }
@@ -15634,7 +15449,6 @@ function ffiStartImport() {
       // 1) Page se jo mila wo primary
       // 2) HDFun sizes from /dl/
       // 3) TMDB sirf missing fields
-      ffiEnrich9jarocks(data, function() {
       ffiEnrichHdfunSizes(data, function() {
       ffiEnrichFilmyzilla(data, function() {
       ffiEnrichMp4moviez(data, function() {
@@ -15990,7 +15804,6 @@ function ffiStartImport() {
       }); // ffiEnrichMp4moviez
       }); // ffiEnrichFilmyzilla
       }); // ffiEnrichHdfunSizes
-      }); // ffiEnrich9jarocks
     }); // _ffiFetch
   }
 
@@ -16629,102 +16442,6 @@ function ffiParsePage(html, srcUrl) {
   // Year
   var yearM = ogTitle.match(/\b(20\d{2})\b/) || html.match(/Release[^>]*>.*?(20\d{2})/i);
   data.year = yearM ? yearM[1] : '';
-
-  // ═══════════════════════════════════════════════════
-  // 9jaRocks.net — /videodownload/ posts (episode hoster links)
-  // ═══════════════════════════════════════════════════
-  if (/9jarocks\.net/i.test(srcUrl || '') || /9jarocks/i.test(html.slice(0, 2500))) {
-    (function nineJaParse() {
-      try {
-        // Clean title from og/title
-        var rawT = (meta('og:title') || meta('twitter:title') || ogTitle || '').trim();
-        rawT = rawT.replace(/\s*[\|–\-»]\s*9jaRocks.*$/i, '').trim();
-        if (rawT) {
-          data.title = rawT
-            .replace(/\s*\(Episode[^)]*\)/i, '')
-            .replace(/\s*\(Complete\)/i, '')
-            .replace(/\s*\(Korean Drama\)/i, '')
-            .replace(/\s*\(Chinese Drama\)/i, '')
-            .replace(/\s+$/,'')
-            .trim() || data.title;
-        }
-        var yearM = rawT.match(/\b(20\d{2}|19\d{2})\b/);
-        if (yearM) data.year = yearM[1];
-
-        // Thumbnail
-        var thumb = meta('og:image') || meta('twitter:image') || '';
-        if (thumb) data.thumbnail = thumb;
-
-        // Category hints from URL/title
-        var blob = (srcUrl || '') + ' ' + rawT;
-        if (/korean|k-?drama/i.test(blob)) data.category = data.category || 'kdrama';
-        else if (/anime/i.test(blob)) data.category = data.category || 'animation';
-        else if (/series|season\s*\d+|episode/i.test(blob)) data.category = data.category || 'webseries';
-        else data.category = data.category || 'hollywood';
-        data.language = data.language || 'English';
-
-        // Collect EPISODE N → hoster links (loadedfiles, mediafire, etc.)
-        var epMap = {};
-        var epRe = /EPISODE\s*(\d{1,3})[\s\S]{0,600}?href=["'](https?:\/\/[^"']+)["']/gi;
-        var em;
-        while ((em = epRe.exec(html)) !== null) {
-          var n = String(parseInt(em[1], 10));
-          var link = em[2].replace(/&amp;/g, '&');
-          if (/9jarocks\.net|associationfoam|javascript:/i.test(link)) continue;
-          if (!epMap[n]) epMap[n] = { season: '1', episode: n, title: 'Episode ' + n, dl720: '', videoSourceUrl: '', dlSourceUrl: '' };
-          if (!epMap[n].dl720) {
-            epMap[n].dl720 = link;
-            epMap[n].videoSourceUrl = link;
-            epMap[n].dlSourceUrl = link;
-          }
-        }
-        // Also SERVER links near episode without strict order
-        if (!Object.keys(epMap).length) {
-          var blockRe = /(EPISODE\s*\d{1,3})([\s\S]{0,800}?)(?=EPISODE\s*\d{1,3}|$)/gi;
-          var bm;
-          while ((bm = blockRe.exec(html)) !== null) {
-            var n2m = bm[1].match(/(\d{1,3})/);
-            if (!n2m) continue;
-            var n2 = String(parseInt(n2m[1], 10));
-            var hrefs = [];
-            var hr = /href=["'](https?:\/\/[^"']+)["']/gi;
-            var hm;
-            while ((hm = hr.exec(bm[2])) !== null) {
-              var L = hm[1].replace(/&amp;/g, '&');
-              if (/loadedfiles|mediafire|mega\.|drive\.google|pixeldrain|gofile|upstream|mixdrop|dood/i.test(L)) hrefs.push(L);
-            }
-            if (hrefs.length) {
-              epMap[n2] = {
-                season: '1', episode: n2, title: 'Episode ' + n2,
-                dl720: hrefs[0], videoSourceUrl: hrefs[0], dlSourceUrl: hrefs[0]
-              };
-            }
-          }
-        }
-
-        var epList = Object.keys(epMap).map(function(k){ return epMap[k]; });
-        epList.sort(function(a,b){ return parseInt(a.episode,10) - parseInt(b.episode,10); });
-
-        if (epList.length >= 1) {
-          data.episodes = epList;
-          data.category = data.category || 'webseries';
-          // movie-level: first ep link only as reference, not shared to all
-          data.download720p = epList[0].dl720 || '';
-          data.videoSourceUrl = '';
-          data.dlSourceUrl = srcUrl || '';
-        } else {
-          // Single movie: first non-9jarocks download-ish link
-          var single = html.match(/href=["'](https?:\/\/(?:loadedfiles|mediafire|mega\.|drive\.google)[^"']+)["']/i);
-          if (single) {
-            data.download720p = single[1].replace(/&amp;/g, '&');
-            data.videoSourceUrl = data.download720p;
-            data.dlSourceUrl = srcUrl || data.download720p;
-          }
-        }
-        data.sourcePageUrl = srcUrl || '';
-      } catch (e9) {}
-    })();
-  }
 
   // ═══════════════════════════════════════════════════
   // Mp4Moviez.rip — post page + HD download page links
