@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>CineNova Admin — Master Panel</title>
+<title>CineNova Admin — Master Panel (HDFun Final)</title>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
 <link href='https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap' rel='stylesheet'/>
@@ -18139,8 +18139,9 @@ function ffiParsePage(html, srcUrl) {
         if (!dlLink) {
           dlLink = data.download1080p || data.download720p || data.download480p || data.download4k || srcUrl;
         }
-        // Series title but ONLY one link / no per-ep rows → pack expand (same link intentional)
-        // Sirf tab jab alag episode links maujood NA hon
+                // Series hint but NO per-episode unique links:
+        // Complete-pack page → sirf movie-level quality links (same link har ep pe MAT lagao)
+        // Single-episode page → 1 episode entry with ITS own /dl/
         if (seriesHint && data.category !== 'adult' && (!data.episodes || !data.episodes.length)) {
           data.category = 'webseries';
           var fromEp = 1, toEp = 1, sea = '1';
@@ -18157,7 +18158,8 @@ function ffiParsePage(html, srcUrl) {
           }
           var smT = pageTitle.match(/season\s*0*(\d{1,2})/i) || pageTitle.match(/\bs(\d{1,2})\b/i);
           if (smT) sea = String(parseInt(smT[1], 10));
-          // Agar page pe multiple unique /dl/ the lekin ep number miss ho gaya — sequential map
+
+          // Multiple UNIQUE /dl/ URLs without ep labels → treat as separate episodes
           if (rows.length >= 2 && fromEp === toEp) {
             var uniqR = [];
             var su = {};
@@ -18184,32 +18186,34 @@ function ffiParsePage(html, srcUrl) {
               });
             }
           }
+
+          // Single episode page (Episode 11 only) → ONE episode, own links
+          if ((!data.episodes || !data.episodes.length) && fromEp === toEp && fromEp >= 1 &&
+              /episode\s*0*\d+|\bep\.?\s*0*\d+/i.test(pageTitle)) {
+            var epOne = {
+              season: sea,
+              episode: String(fromEp),
+              title: 'Episode ' + fromEp,
+              dl480: data.download480p || '',
+              dl720: data.download720p || '',
+              dl1080: data.download1080p || '',
+              sz480: data.size480 || '',
+              sz720: data.size720 || '',
+              sz1080: data.size1080 || '',
+              videoSourceUrl: data.download1080p || data.download720p || data.download480p || srcUrl,
+              dlSourceUrl: srcUrl
+            };
+            data.episodes = [epOne];
+          }
+
+          // Complete season pack (Season 1 Complete / Ep1-10 one file):
+          // DO NOT clone same link onto Ep1, Ep2, Ep3...
+          // Movie-level download1080p/720p/480p already set above — enough for download button.
           if (!data.episodes || !data.episodes.length) {
-            // True single-pack page: ek hi download, range expand (same link)
-            if (toEp > fromEp || rows.length <= 1) {
-              var packList = [];
-              for (var ei = fromEp; ei <= toEp; ei++) {
-                packList.push({
-                  season: sea,
-                  episode: String(ei),
-                  title: toEp > fromEp ? ('Episode ' + ei + ' (pack ' + fromEp + '-' + toEp + ')') : ('Episode ' + ei),
-                  dl480: data.download480p || '',
-                  dl720: data.download720p || '',
-                  dl1080: data.download1080p || '',
-                  sz480: data.size480 || '',
-                  sz720: data.size720 || '',
-                  sz1080: data.size1080 || '',
-                  videoSourceUrl: dlLink || srcUrl,
-                  dlSourceUrl: srcUrl,
-                  packFrom: toEp > fromEp ? String(fromEp) : null,
-                  packTo: toEp > fromEp ? String(toEp) : null
-                });
-              }
-              data.episodes = packList;
-            }
+            data._hdfunPack = true;
+            data._hdfunPackNote = 'complete pack — per-episode unique links HDFun pe nahi mile';
           }
         }
-      }
     })();
   }
   // 9xflix: page + per-quality indishare + sizes (1080p [3.6GB] etc.)
@@ -19348,19 +19352,11 @@ function hdfApplyParsedToMovie(movie, hd, hdfunUrl) {
     });
     has = true;
     if ((movie.category || '') !== 'adult') updates.category = movie.category || 'webseries';
-  } else if (movie.episodes && movie.episodes.length && (hd.download1080p || hd.download720p || hd.download480p)) {
-    // Same quality pack links onto each existing episode (HDFun single-pack pages)
-    updates.episodes = movie.episodes.map(function(e) {
-      var ep = Object.assign({}, e);
-      if (hd.download480p) { ep.dl480 = hd.download480p; ep.download480p = hd.download480p; }
-      if (hd.download720p) { ep.dl720 = hd.download720p; ep.download720p = hd.download720p; }
-      if (hd.download1080p) { ep.dl1080 = hd.download1080p; ep.download1080p = hd.download1080p; }
-      ep.videoSourceUrl = ep.dl1080 || ep.dl720 || ep.dl480 || hdfunUrl;
-      ep.dlSourceUrl = hdfunUrl;
-      return ep;
-    });
-    has = true;
+  } else if (hd.episodes && hd.episodes.length) {
+    // already handled above
   }
+  // NOTE: complete-pack pe same /dl/ har episode pe NAHIN lagate
+
 
   var qParts = [];
   if (updates.download1080p || hd.download1080p) qParts.push('1080p');
