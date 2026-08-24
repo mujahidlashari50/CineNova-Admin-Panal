@@ -2012,64 +2012,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </div>
           <button onclick="ffiFetchPosts()" id="ffi-fetch-btn" class="btn btn-p" style="height:42px;padding:0 24px;">🔍 Posts Fetch Karo (1–3 URLs)</button>
         </div>
-        <div class="card" id="ffi-autowatch-card" style="margin-top:14px;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.04);">
-          <h3 style="color:#86efac;">🤖 Auto Watch — Nayi posts khud import</h3>
-          <p style="font-size:0.78rem;color:#9ca3af;margin-bottom:12px;line-height:1.5;">
-            Panel <b>open</b> rehte hue FilmyZilla / HDFun category URLs ko bar-bar check karega.
-            Jo post Firebase mein nahi hogi, auto import ho jayegi. Tab band = watch band.
-          </p>
-          <div class="fg" style="margin-bottom:10px;">
-            <div class="fgg full">
-              <label>Watch URL 1 (FilmyZilla / HDFun category)</label>
-              <input class="fi" id="ffi-aw-url1" placeholder="https://www.filmyzilla57.com/category/405/.../default/1.html"/>
-            </div>
-            <div class="fgg full">
-              <label>Watch URL 2 (optional)</label>
-              <input class="fi" id="ffi-aw-url2" placeholder="https://hdfun.in/category/..."/>
-            </div>
-            <div class="fgg">
-              <label>Har kitne min check</label>
-              <select class="fi" id="ffi-aw-interval">
-                <option value="5">5 min</option>
-                <option value="10" selected>10 min</option>
-                <option value="15">15 min</option>
-                <option value="30">30 min</option>
-                <option value="60">60 min</option>
-              </select>
-            </div>
-            <div class="fgg">
-              <label>Default category</label>
-              <select class="fi" id="ffi-aw-cat">
-                <option value="bollywood">Bollywood</option>
-                <option value="hollywood">Hollywood</option>
-                <option value="hindi_dubbed">Hindi Dubbed</option>
-                <option value="south">South Indian</option>
-                <option value="south_hindi">South Hindi Dubbed</option>
-                <option value="webseries">Web-Series</option>
-                <option value="adult">Adult Movies</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;">
-              <input type="checkbox" id="ffi-aw-playmate" style="width:15px;height:15px;"/>
-              Playmate auto (HDFun)
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#fde047;cursor:pointer;">
-              <input type="checkbox" id="ffi-aw-bridge" style="width:15px;height:15px;"/>
-              FZ → HDFun → Playmate
-            </label>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button type="button" class="btn btn-p" id="ffi-aw-start" onclick="ffiAutoWatchStart()" style="background:#16a34a;">▶ Auto Watch Start</button>
-            <button type="button" class="btn btn-s" id="ffi-aw-stop" onclick="ffiAutoWatchStop()" style="display:none;">⏹ Stop</button>
-            <button type="button" class="btn btn-s" onclick="ffiAutoWatchRunOnce()">🔄 Abhi check karo</button>
-          </div>
-          <div id="ffi-aw-status" style="margin-top:12px;font-size:0.8rem;color:#9ca3af;line-height:1.5;">Status: Band</div>
-          <div id="ffi-aw-log" style="margin-top:8px;max-height:140px;overflow-y:auto;font-size:0.72rem;color:#6b7280;background:#0a0a0a;border-radius:8px;padding:10px;display:none;"></div>
-        </div>
-
-        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
           <span style="font-size:0.72rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);color:#fde047;padding:3px 10px;border-radius:20px;">filmyzilla57.com ✓</span>
           <span style="font-size:0.72rem;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#93c5fd;padding:3px 10px;border-radius:20px;">mp4moviez.rip ✓</span>
@@ -2161,11 +2103,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
             <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;"/>
-            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (HDFun links)</span>
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-left:8px;">
-              <input type="checkbox" id="ffi-fz-hdfun-bridge" style="width:15px;height:15px;"/>
-              <span style="font-size:0.78rem;color:#fde047;">🔗 FilmyZilla → HDFun match → Playmate</span>
-            </label>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun — FilmyZilla skip)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -6474,102 +6412,6 @@ function isObjHdfunSource(obj) {
   return false;
 }
 
-
-// ═══════════════════════════════════════════════════
-// FilmyZilla → HDFun title match → Playmate bridge
-// FZ se metadata save; same title HDFun pe dhoondo; HDFun link Playmate pe
-// ═══════════════════════════════════════════════════
-function ffiCleanTitleForSearch(title) {
-  return String(title || '')
-    .replace(/\b(19|20)\d{2}\b/g, ' ')
-    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265|hindi\s*dubbed|dual\s*audio|english|full\s*movie|watch\s*online)\b/gi, ' ')
-    .replace(/[\[\]\(\)\{\}]/g, ' ')
-    .replace(/[^a-zA-Z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ').trim();
-}
-
-function ffiTitleSimilarity(a, b) {
-  a = ffiCleanTitleForSearch(a).toLowerCase();
-  b = ffiCleanTitleForSearch(b).toLowerCase();
-  if (!a || !b) return 0;
-  if (a === b) return 1;
-  if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 0.9;
-  var aw = a.split(/\s+/).filter(function(w){ return w.length > 2; });
-  var bw = b.split(/\s+/).filter(function(w){ return w.length > 2; });
-  if (!aw.length || !bw.length) return 0;
-  var hit = 0;
-  aw.forEach(function(w){ if (bw.indexOf(w) >= 0) hit++; });
-  return hit / Math.max(aw.length, bw.length);
-}
-
-/** HDFun pe title search → best /movie/ID/slug.html URL */
-function ffiSearchHdfunByTitle(title, year, cb) {
-  var q = ffiCleanTitleForSearch(title);
-  if (q.length < 2) { cb(null); return; }
-  var searchUrl = 'https://hdfun.in/search?q=' + encodeURIComponent(q);
-  _ffiFetch(searchUrl, function(html) {
-    if (!html) { cb(null); return; }
-    var origin = 'https://hdfun.in';
-    var candidates = [];
-    var re = /href=["']((?:https?:\/\/[^"']*)?\/movie\/\d+\/[^"'#?]+\.html)["']/gi;
-    var m;
-    var seen = {};
-    while ((m = re.exec(html)) !== null) {
-      var u = m[1].replace(/&amp;/g, '&');
-      if (!/^https?:\/\//i.test(u)) u = origin + u;
-      if (seen[u]) continue;
-      seen[u] = 1;
-      var slug = (u.split('/').pop() || '').replace(/\.html$/i, '').replace(/-/g, ' ');
-      var score = ffiTitleSimilarity(title, slug);
-      if (year && String(year).length === 4 && u.indexOf(String(year)) >= 0) score += 0.15;
-      candidates.push({ url: u, score: score, slug: slug });
-    }
-    candidates.sort(function(x, y){ return y.score - x.score; });
-    if (candidates.length && candidates[0].score >= 0.45) {
-      cb(candidates[0].url);
-    } else {
-      cb(null);
-    }
-  });
-}
-
-/** FZ movie obj pe HDFun links lagao (metadata FZ se, DL HDFun se) */
-function ffiBridgeFilmyzillaToHdfun(obj, done) {
-  if (!obj || !obj.title) { done(obj); return; }
-  // pehle se HDFun link ho to skip
-  if (isObjHdfunSource(obj)) { done(obj); return; }
-  ffiSearchHdfunByTitle(obj.title, obj.year, function(hdfunUrl) {
-    if (!hdfunUrl) {
-      obj._hdfunBridge = 'not_found';
-      done(obj);
-      return;
-    }
-    _ffiFetch(hdfunUrl, function(html) {
-      if (!html) {
-        obj._hdfunBridge = 'fetch_fail';
-        done(obj);
-        return;
-      }
-      var hd = ffiParsePage(html, hdfunUrl);
-      // Keep FZ title/year/thumb if better; take HDFun download links
-      if (hd.download1080p) obj.download1080p = hd.download1080p;
-      if (hd.download720p) obj.download720p = hd.download720p;
-      if (hd.download480p) obj.download480p = hd.download480p;
-      if (hd.download4k) obj.download4k = hd.download4k;
-      if (hd.videoUrl && !obj.videoUrl) obj.videoUrl = hd.videoUrl;
-      if (hd.vlcUrl && !obj.vlcUrl) obj.vlcUrl = hd.vlcUrl;
-      if (hd.thumbnail && !obj.thumbnail) obj.thumbnail = hd.thumbnail;
-      obj.dlSourceUrl = hdfunUrl;
-      obj.videoSourceUrl = hdfunUrl;
-      obj._hdfunBridge = 'ok';
-      obj._hdfunMatchUrl = hdfunUrl;
-      // mark as hdfun-capable for Playmate
-      obj._playmateSkip = null;
-      done(obj);
-    });
-  });
-}
-
 /** Playmate candidates — FilmyZilla never */
 function pickCandidatesForPlaymate(obj) {
   if (!obj) return [];
@@ -6654,20 +6496,7 @@ async function resolveFilmyzillaToDirect(sourceUrl) {
         var q = /1080p/i.test(low) ? 3 : /720p/i.test(low) ? 2 : /480p/i.test(low) ? 1 : 0;
         links.push({ href: href, q: q });
       }
-      
-    // New FilmyZilla flow: /verified/{id}/server_N/
-    if (!/\/server\/\d+\//i.test(sourceUrl) && !links.length) {
-      var reV = /href=["']((?:https?:\/\/[^"']*)?\/verified\/\d+\/server_\d+\/?)["']/gi;
-      var mv;
-      while ((mv = reV.exec(html)) !== null) {
-        var hv = mv[1].replace(/&amp;/g, '&');
-        if (!/^https?:\/\//i.test(hv)) {
-          try { hv = new URL(hv, origin).toString(); } catch (e2) { continue; }
-        }
-        links.push({ href: hv, q: 1 });
-      }
-    }
-if (!links.length) return null;
+      if (!links.length) return null;
       links.sort(function(a, b) { return b.q - a.q; });
       // Prefer 720 if available else highest
       var pick = links.find(function(l) { return l.q === 2; }) || links[0];
@@ -14159,30 +13988,21 @@ var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
 
 var _ffiProxies = [
   { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'Jina',            getUrl: function(u){ return 'https://r.jina.ai/' + u; }, parse: function(t){ return t; } },
   { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
-  { name: 'CodeTabs',        getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'Jina',            getUrl: function(u){ return 'https://r.jina.ai/' + u; }, parse: function(t){ return t; } }
+  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
 ];
-function _ffiHtmlLooksValid(html) {
-  if (!html || html.length < 200) return false;
-  var low = String(html).slice(0, 500).toLowerCase();
-  if (/authenticationrequirederror|bad ip reputation|access denied|just a moment|cf-browser-verification|captcha/i.test(low)) return false;
-  if (/^{"data":null/.test(String(html).trim())) return false;
-  return true;
-}
 
 function ffiNormalizeUrl(url) {
   try {
     var u = String(url || '').trim().replace(/\s+/g, '');
     // 9xflix → ist
     u = u.replace(/https?:\/\/(?:www\.)?9xflix\.(?:sarl|ist|com|in|net|to|se|mom)\b/i, 'https://9xflix.ist');
-    // FilmyFly / Filmy4wap
+    // FilmyFly / Filmy4wap — purane TLD category drop karke home pe bhej dete hain
+    // → live domain filmyfly.green, path same
     u = u.replace(/https?:\/\/(?:www\.)?filmyfly\.[a-z0-9]+\b/i, 'https://filmyfly.green');
     u = u.replace(/https?:\/\/(?:www\.)?filmy4wap\.[a-z0-9]+\b/i, 'https://filmyfly.green');
-    // FilmyZilla — har number domain ko live 57 pe lao (path same)
-    u = u.replace(/https?:\/\/(?:www\.)?filmyzilla\d*\.com/i, 'https://www.filmyzilla57.com');
     return u;
   } catch (e) { return url; }
 }
@@ -14204,13 +14024,14 @@ function _ffiFetch(url, cb) {
         var html = '';
         try { html = p.parse(raw) || ''; } catch (e) { html = ''; }
         // Jina returns markdown — still usable
-        if (p.name === 'Jina' && html && html.length > 200 && _ffiHtmlLooksValid(html)) {
+        if (p.name === 'Jina' && html && html.length > 80) {
           var jt = (html.match(/(?:^|\n)Title:\s*(.+)/i) || [])[1] || '';
           html = '<!--JINA--><title>' + jt + '</title>\n' + html;
           cb(html);
           return;
         }
-        if (_ffiHtmlLooksValid(html)) { cb(html); } else { next(); }
+        // Same threshold as working _mlProxyFetch (>80)
+        if (html && html.length > 80) { cb(html); } else { next(); }
       })
       .catch(function(){ clearTimeout(timer); next(); });
   }
@@ -14250,7 +14071,7 @@ function ffiIsRealPostUrl(u, siteUrl) {
 
   // FilmyZilla56 — ONLY /movie/123/slug.html
   if (/filmyzilla\d*\.com/i.test(host) || /filmyzilla\d*\.com/i.test(siteUrl || '')) {
-    return /\/movie\/\d+\/[^\/?#]+\.html$/i.test(u);
+    return /\/movie\/\d+\/[a-z0-9][^\/?#]*\.html$/i.test(u);
   }
   // Mp4Moviez — /c12345/slug.html only
   if (/mp4moviez/i.test(host) || /mp4moviez/i.test(siteUrl || '')) {
@@ -14519,12 +14340,6 @@ function ffiFetchPosts() {
           while ((mFz = reFzAbs.exec(html)) !== null) {
             var uFz = mFz[0].replace(/&amp;/g, '&');
             ffiPushPost(uFz, ffiTitleFromUrl(uFz), allFound, siteUrl);
-          }
-          // Relative /movie/ID/slug.html without host
-          var reFzRel = /href=["'](\/movie\/\d+\/[^"'#?]+\.html)["']/gi;
-          while ((mFz = reFzRel.exec(html)) !== null) {
-            var uRel = (baseHost || 'https://www.filmyzilla57.com') + mFz[1];
-            ffiPushPost(uRel, ffiTitleFromUrl(uRel), allFound, siteUrl);
           }
         }
         // Pattern 1c: MMSHD / HDFun style /dl/slug (post pages)
@@ -14826,303 +14641,6 @@ function ffiSelectAll() { _ffiPosts.forEach(function(p){ p.checked=true; }); ffi
 function ffiDeselectAll() { _ffiPosts.forEach(function(p){ p.checked=false; }); ffiRenderPosts(); }
 
 // ── Step 2: Import selected posts ──
-
-// ═══════════════════════════════════════════════════
-// AUTO WATCH — periodic FilmyZilla / HDFun new posts
-// (Panel tab open rehne par chalta hai)
-// ═══════════════════════════════════════════════════
-var _ffiAwTimer = null;
-var _ffiAwRunning = false;
-var _ffiAwBusy = false;
-
-function ffiAwLog(msg) {
-  var el = document.getElementById('ffi-aw-log');
-  var st = document.getElementById('ffi-aw-status');
-  if (st) st.textContent = msg;
-  if (!el) return;
-  el.style.display = 'block';
-  var line = document.createElement('div');
-  line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
-  el.insertBefore(line, el.firstChild);
-  while (el.childNodes.length > 40) el.removeChild(el.lastChild);
-}
-
-function ffiAwSaveSettings() {
-  try {
-    localStorage.setItem('ffi_aw_url1', (document.getElementById('ffi-aw-url1') || {}).value || '');
-    localStorage.setItem('ffi_aw_url2', (document.getElementById('ffi-aw-url2') || {}).value || '');
-    localStorage.setItem('ffi_aw_interval', (document.getElementById('ffi-aw-interval') || {}).value || '10');
-    localStorage.setItem('ffi_aw_cat', (document.getElementById('ffi-aw-cat') || {}).value || 'bollywood');
-    localStorage.setItem('ffi_aw_playmate', document.getElementById('ffi-aw-playmate') && document.getElementById('ffi-aw-playmate').checked ? '1' : '0');
-    localStorage.setItem('ffi_aw_bridge', document.getElementById('ffi-aw-bridge') && document.getElementById('ffi-aw-bridge').checked ? '1' : '0');
-  } catch (e) {}
-}
-
-function ffiAwLoadSettings() {
-  try {
-    var u1 = localStorage.getItem('ffi_aw_url1'); if (u1 && document.getElementById('ffi-aw-url1')) document.getElementById('ffi-aw-url1').value = u1;
-    var u2 = localStorage.getItem('ffi_aw_url2'); if (u2 && document.getElementById('ffi-aw-url2')) document.getElementById('ffi-aw-url2').value = u2;
-    var iv = localStorage.getItem('ffi_aw_interval'); if (iv && document.getElementById('ffi-aw-interval')) document.getElementById('ffi-aw-interval').value = iv;
-    var cat = localStorage.getItem('ffi_aw_cat'); if (cat && document.getElementById('ffi-aw-cat')) document.getElementById('ffi-aw-cat').value = cat;
-    if (document.getElementById('ffi-aw-playmate')) document.getElementById('ffi-aw-playmate').checked = localStorage.getItem('ffi_aw_playmate') === '1';
-    if (document.getElementById('ffi-aw-bridge')) document.getElementById('ffi-aw-bridge').checked = localStorage.getItem('ffi_aw_bridge') === '1';
-  } catch (e) {}
-}
-
-function ffiAutoWatchStart() {
-  ffiAwSaveSettings();
-  var urls = [
-    ((document.getElementById('ffi-aw-url1') || {}).value || '').trim(),
-    ((document.getElementById('ffi-aw-url2') || {}).value || '').trim()
-  ].filter(function(u){ return /^https?:\/\//i.test(u); });
-  if (!urls.length) {
-    toast('❌ Kam az kam 1 category URL daalo (FZ / HDFun)', 1);
-    return;
-  }
-  var mins = parseInt((document.getElementById('ffi-aw-interval') || {}).value, 10) || 10;
-  if (mins < 3) mins = 3;
-  if (_ffiAwTimer) clearInterval(_ffiAwTimer);
-  _ffiAwRunning = true;
-  var startBtn = document.getElementById('ffi-aw-start');
-  var stopBtn = document.getElementById('ffi-aw-stop');
-  if (startBtn) startBtn.style.display = 'none';
-  if (stopBtn) stopBtn.style.display = '';
-  ffiAwLog('▶ Auto Watch ON — har ' + mins + ' min · ' + urls.length + ' URL');
-  toast('🤖 Auto Watch start — har ' + mins + ' min check');
-  ffiAutoWatchRunOnce();
-  _ffiAwTimer = setInterval(function(){ ffiAutoWatchRunOnce(); }, mins * 60 * 1000);
-}
-
-function ffiAutoWatchStop() {
-  _ffiAwRunning = false;
-  if (_ffiAwTimer) { clearInterval(_ffiAwTimer); _ffiAwTimer = null; }
-  var startBtn = document.getElementById('ffi-aw-start');
-  var stopBtn = document.getElementById('ffi-aw-stop');
-  if (startBtn) startBtn.style.display = '';
-  if (stopBtn) stopBtn.style.display = 'none';
-  ffiAwLog('⏹ Auto Watch band');
-}
-
-function ffiAwExistingKeys() {
-  var titles = {};
-  var urls = {};
-  (allMovies || []).forEach(function(m) {
-    if (m.title) titles[String(m.title).toLowerCase().trim()] = true;
-    if (m.sourcePageUrl) urls[String(m.sourcePageUrl).split('?')[0]] = true;
-    if (m.dlSourceUrl) urls[String(m.dlSourceUrl).split('?')[0]] = true;
-    if (m.pageUrl) urls[String(m.pageUrl).split('?')[0]] = true;
-  });
-  return { titles: titles, urls: urls };
-}
-
-/** Ek URL se post links nikaalo (list page) */
-function ffiAwFetchPostList(siteUrl, cb) {
-  siteUrl = ffiNormalizeUrl(siteUrl);
-  _ffiFetch(siteUrl, function(html) {
-    if (!html) { cb([]); return; }
-    var baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['', ''])[1];
-    var allFound = {};
-    var posts = [];
-    function push(u, title) {
-      u = String(u || '').replace(/&amp;/g, '&').split('#')[0].split('?')[0].trim();
-      if (!u.startsWith('http')) {
-        if (u.startsWith('/')) u = baseHost + u;
-        else return;
-      }
-      if (!ffiIsRealPostUrl(u, siteUrl)) return;
-      if (allFound[u]) return;
-      allFound[u] = 1;
-      var t = (title || ffiTitleFromUrl(u) || '').replace(/\s+/g, ' ').trim();
-      if (!t || t.length < 3) return;
-      posts.push({ url: u, title: t, fromUrl: siteUrl });
-    }
-    var m, re;
-    re = /href=["']((https?:\/\/[^"']*)?\/page-download\/\d+\/[^"'#?]+)/gi;
-    while ((m = re.exec(html)) !== null) {
-      var u1 = m[1].startsWith('http') ? m[1] : baseHost + m[1];
-      push(u1, ffiTitleFromUrl(u1));
-    }
-    re = /href=["']((https?:\/\/[^"']*)?\/movie\/\d+\/[^"'#?]*\.html)/gi;
-    while ((m = re.exec(html)) !== null) {
-      var u2 = m[1].startsWith('http') ? m[1] : baseHost + m[1];
-      push(u2.replace(/&amp;/g, '&'), ffiTitleFromUrl(u2));
-    }
-    re = /https?:\/\/(?:www\.)?filmyzilla\d*\.com\/movie\/\d+\/[^\s"'<>]+\.html/gi;
-    while ((m = re.exec(html)) !== null) push(m[0].replace(/&amp;/g, '&'), ffiTitleFromUrl(m[0]));
-    re = /href=["']((https?:\/\/(?:www\.)?(?:mmshd\.com|hdfun\.in))?\/dl\/[a-z0-9][a-z0-9\-]{3,}[^"'#?\s]*)["']/gi;
-    while ((m = re.exec(html)) !== null) {
-      var u3 = m[1].startsWith('http') ? m[1] : baseHost + m[1];
-      push(u3.replace(/&amp;/g, '&').replace(/\/$/, ''), ffiTitleFromUrl(u3));
-    }
-    cb(posts);
-  });
-}
-
-function ffiAutoWatchRunOnce() {
-  if (_ffiAwBusy) {
-    ffiAwLog('⏳ Pichla check abhi chal raha hai — skip');
-    return;
-  }
-  var urls = [
-    ((document.getElementById('ffi-aw-url1') || {}).value || '').trim(),
-    ((document.getElementById('ffi-aw-url2') || {}).value || '').trim()
-  ].filter(function(u){ return /^https?:\/\//i.test(u); });
-  if (!urls.length) {
-    ffiAwLog('❌ URL nahi');
-    return;
-  }
-  ffiAwSaveSettings();
-  _ffiAwBusy = true;
-  ffiAwLog('🔍 Checking ' + urls.length + ' URL(s)...');
-  var existing = ffiAwExistingKeys();
-  var defaultCat = (document.getElementById('ffi-aw-cat') || {}).value || 'bollywood';
-  var allNew = [];
-  var ui = 0;
-
-  function nextUrl() {
-    if (ui >= urls.length) {
-      // dedupe by url
-      var seen = {};
-      allNew = allNew.filter(function(p) {
-        if (seen[p.url]) return false;
-        seen[p.url] = 1;
-        return true;
-      });
-      if (!allNew.length) {
-        ffiAwLog('✅ Koi nayi post nahi — ' + new Date().toLocaleTimeString());
-        _ffiAwBusy = false;
-        return;
-      }
-      ffiAwLog('🆕 ' + allNew.length + ' nayi post — import shuru...');
-      ffiAwImportPosts(allNew, defaultCat, function(ok, skip, err) {
-        ffiAwLog('✅ Auto import done — OK:' + ok + ' Skip:' + skip + ' Err:' + err);
-        _ffiAwBusy = false;
-        toast('🤖 Auto: ' + ok + ' new import');
-      });
-      return;
-    }
-    var siteUrl = urls[ui++];
-    ffiAwFetchPostList(siteUrl, function(posts) {
-      var fresh = posts.filter(function(p) {
-        if (existing.urls[p.url]) return false;
-        if (existing.titles[String(p.title).toLowerCase().trim()]) return false;
-        return true;
-      });
-      ffiAwLog('· ' + siteUrl.replace(/^https?:\/\//, '').substring(0, 40) + ' → ' + posts.length + ' posts, ' + fresh.length + ' new');
-      allNew = allNew.concat(fresh);
-      nextUrl();
-    });
-  }
-  nextUrl();
-}
-
-function ffiAwImportPosts(posts, defaultCat, doneCb) {
-  var ok = 0, skip = 0, err = 0;
-  var i = 0;
-  var CONC = 3;
-  var active = 0;
-  var finished = 0;
-  var existing = ffiAwExistingKeys();
-
-  function finishOne() {
-    finished++;
-    if (finished >= posts.length) {
-      doneCb(ok, skip, err);
-      return;
-    }
-    pump();
-  }
-
-  function pump() {
-    while (active < CONC && i < posts.length) {
-      (function(p) {
-        active++;
-        i++;
-        if (existing.titles[String(p.title).toLowerCase().trim()] || existing.urls[p.url]) {
-          skip++;
-          active--;
-          finishOne();
-          return;
-        }
-        _ffiFetch(p.url, function(html) {
-          if (!html) {
-            err++;
-            active--;
-            finishOne();
-            return;
-          }
-          var data = ffiParsePage(html, p.url);
-          if (!data.title) data.title = p.title;
-          if (existing.titles[String(data.title).toLowerCase().trim()]) {
-            skip++;
-            active--;
-            finishOne();
-            return;
-          }
-          if (!data.category) data.category = defaultCat || ffiDetectListCategory(p.fromUrl) || 'bollywood';
-          data.sourcePageUrl = p.url;
-          data.dlSourceUrl = data.dlSourceUrl || p.url;
-          data.addedAt = Date.now();
-
-          function afterBridge(obj) {
-            // Firebase save
-            try {
-              var ref = db.ref('movies').push();
-              var key = ref.key;
-              obj.key = key;
-              // optional playmate later via review path — auto save core fields
-              var saveObj = Object.assign({}, obj);
-              delete saveObj._playmateSkip;
-              delete saveObj._playmateError;
-              delete saveObj._hdfunBridge;
-              ref.set(saveObj, function(e) {
-                if (e) { err++; }
-                else {
-                  ok++;
-                  existing.titles[String(obj.title).toLowerCase().trim()] = true;
-                  existing.urls[p.url] = true;
-                  if (typeof allMovies !== 'undefined') {
-                    obj._key = key;
-                    allMovies.unshift(obj);
-                  }
-                }
-                active--;
-                finishOne();
-              });
-            } catch (ex) {
-              err++;
-              active--;
-              finishOne();
-            }
-          }
-
-          // optional FZ→HDFun bridge
-          var wantBridge = document.getElementById('ffi-aw-bridge') && document.getElementById('ffi-aw-bridge').checked;
-          if (wantBridge && typeof ffiBridgeFilmyzillaToHdfun === 'function' && /filmyzilla/i.test(p.url)) {
-            ffiBridgeFilmyzillaToHdfun(data, function(bridged) {
-              afterBridge(bridged || data);
-            });
-          } else {
-            afterBridge(data);
-          }
-        });
-      })(posts[i]);
-    }
-  }
-  if (!posts.length) { doneCb(0, 0, 0); return; }
-  pump();
-}
-
-// Load AW settings on boot
-try {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', ffiAwLoadSettings);
-  } else {
-    setTimeout(ffiAwLoadSettings, 800);
-  }
-} catch (e) {}
-
-
 function ffiStartImport() {
   if (_ffiImporting) { toast('Import chal raha hai!', 1); return; }
   var selected = _ffiPosts.filter(function(p){ return p.checked; });
@@ -15389,15 +14907,14 @@ function ffiStartImport() {
             if (ss.indexOf(su) === -1) ss.push(su);
           }
           if (ss.length) dataObj.screenshots = ss.slice(0, 6);
-          // DO NOT copy movie-level links onto every episode (same link bug).
-          // Only fill if series has exactly 1 episode and that ep has no links.
-          if (dataObj.episodes && dataObj.episodes.length === 1) {
-            var ep0 = dataObj.episodes[0];
-            if (!ep0.dl480 && dataObj.download480p) ep0.dl480 = dataObj.download480p;
-            if (!ep0.dl720 && dataObj.download720p) ep0.dl720 = dataObj.download720p;
-            if (!ep0.dl1080 && dataObj.download1080p) ep0.dl1080 = dataObj.download1080p;
-            if (!ep0.videoSourceUrl) ep0.videoSourceUrl = ep0.dl1080 || ep0.dl720 || ep0.dl480 || '';
-            if (!ep0.dlSourceUrl) ep0.dlSourceUrl = ep0.videoSourceUrl;
+          // Update episode pack links if empty
+          if (dataObj.episodes && dataObj.episodes.length) {
+            dataObj.episodes.forEach(function(ep) {
+              if (!ep.dl480 && dataObj.download480p) ep.dl480 = dataObj.download480p;
+              if (!ep.dl720 && dataObj.download720p) ep.dl720 = dataObj.download720p;
+              if (!ep.dl1080 && dataObj.download1080p) ep.dl1080 = dataObj.download1080p;
+              if (!ep.videoSourceUrl) ep.videoSourceUrl = dataObj.download720p || dataObj.download480p || dataObj.download1080p || hdUrl;
+            });
           }
           dataObj.dlSourceUrl = dataObj.dlSourceUrl || hdUrl;
           var qParts = [];
@@ -15961,52 +15478,8 @@ function ffiSaveReviewed() {
         return;
       }
       var item = selected[i++];
-      // FilmyZilla → optional HDFun bridge → Playmate
+      // FilmyZilla → Playmate auto BAND
       if (item.obj && isObjFilmyzillaSource(item.obj) && !isObjHdfunSource(item.obj)) {
-        var wantBridge = !!(document.getElementById('ffi-fz-hdfun-bridge') && document.getElementById('ffi-fz-hdfun-bridge').checked);
-        if (wantBridge) {
-          if (statusEl) statusEl.textContent = '🔗 HDFun match: ' + (item.obj.title || '').substring(0, 40);
-          ffiBridgeFilmyzillaToHdfun(item.obj, function(bridged) {
-            item.obj = bridged || item.obj;
-            if (!isObjHdfunSource(item.obj) && item.obj._hdfunBridge !== 'ok') {
-              pmSkip++;
-              item.obj._playmateSkip = 'fz_no_hdfun_match';
-              if (statusEl) statusEl.textContent = '▶️ FZ no HDFun match ' + (pmOk + pmSkip) + '/' + selected.length;
-              nextPm();
-              return;
-            }
-            // now treat as HDFun — continue Playmate with candidates
-            var cands2 = pickCandidatesForPlaymate(item.obj);
-            if (!cands2.length) {
-              pmSkip++;
-              item.obj._playmateError = 'HDFun match but no DL link';
-              nextPm();
-              return;
-            }
-            (async function() {
-              var finalUrl = null;
-              for (var ci = 0; ci < cands2.length; ci++) {
-                try {
-                  finalUrl = await resolveUrlForPlaymateUpload(cands2[ci]);
-                  if (finalUrl) break;
-                } catch (e) {}
-              }
-              if (!finalUrl) finalUrl = cands2[0];
-              if (statusEl) statusEl.textContent = '▶️ Playmate (via HDFun) ' + (pmOk + pmSkip + 1) + '/' + selected.length;
-              var r = await uploadUrlToPlaymate(finalUrl, null, (item.obj && item.obj.title) || '');
-              if (r && r.ok) {
-                pmOk++;
-                attachPlaymateToMovieObj(item.obj, r);
-              } else {
-                pmSkip++;
-                item.obj._playmateError = (r && r.error) || 'upload fail';
-              }
-              nextPm();
-            })();
-          });
-          return;
-        }
-        // Bridge OFF → old behavior: skip Playmate for pure FZ
         pmSkip++;
         item.obj._playmateSkip = 'filmyzilla';
         if (statusEl) statusEl.textContent = '▶️ Playmate skip FZ ' + (pmOk + pmSkip) + '/' + selected.length;
@@ -17229,9 +16702,7 @@ function ffiParsePage(html, srcUrl) {
       if (fzSeen[fu]) continue;
       fzSeen[fu] = 1;
       var sz = (fzm[2] || '').replace(/\s+/g, ' ').trim().toUpperCase().replace(/\s+/g, '');
-      var labFromUrl = '';
-      try { labFromUrl = decodeURIComponent((fu.split('/').pop() || '').replace(/\.html?$/i, '')).replace(/[-_]+/g, ' '); } catch(e) { labFromUrl = fzm[1]; }
-      fzRows.push({ url: fu, label: labFromUrl || fzm[1], size: sz });
+      fzRows.push({ url: fu, label: fzm[1], size: sz });
     }
     // Fallback without size
     while ((fzm = fzPlainRe.exec(fzHtml)) !== null) {
@@ -17239,9 +16710,7 @@ function ffiParsePage(html, srcUrl) {
       fu2 = fu2.replace(/&amp;/g, '&');
       if (fzSeen[fu2]) continue;
       fzSeen[fu2] = 1;
-      var lab2 = '';
-      try { lab2 = decodeURIComponent((fu2.split('/').pop() || '').replace(/\.html?$/i, '')).replace(/[-_]+/g, ' '); } catch(e) { lab2 = fzm[1]; }
-      fzRows.push({ url: fu2, label: lab2 || fzm[1], size: '' });
+      fzRows.push({ url: fu2, label: fzm[1], size: '' });
     }
 
     function fzPick(qualityRe, preferNonHevc) {
@@ -17342,10 +16811,9 @@ function ffiParsePage(html, srcUrl) {
           }
         }
 
-        // S01E05 / S01-Ep-01 / S01 EP05 / Season 1 Episode 5
+        // S01E05 / S01 EP05 / Season 1 Episode 5
         var m = s.match(/\bS(\d{1,2})\s*[\s._-]*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
                 s.match(/\bS(\d{1,2})[\s._-]+EP?[\s._-]*0*(\d{1,3})\b/i) ||
-                s.match(/S(\d{1,2})[\s._-]*Ep(?:isode)?[\s._-]*0*(\d{1,3})/i) ||
                 s.match(/season[\s._-]*(\d{1,2})[\s._-]*episode[\s._-]*0*(\d{1,3})/i);
         if (m) {
           season = String(parseInt(m[1], 10));
@@ -17354,8 +16822,7 @@ function ffiParsePage(html, srcUrl) {
 
         if (!episode) {
           var m2 = s.match(/\bEP(?:isode)?[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/[\s_\-]Ep[\s._-]*0*(\d{1,3})(?:[\s_\-]|$)/i);
+                   s.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i);
           if (m2) episode = String(parseInt(m2[1], 10));
         }
         // Careful with bare E01 — avoid matching "HEVC" etc.
@@ -17496,19 +16963,6 @@ function ffiParsePage(html, srcUrl) {
         data.episodes = epList;
         if (data.category !== 'adult') data.category = data.category || 'webseries';
         data._fzEpCount = epList.length;
-        // Ensure each episode play/source URL is THAT episode's link, never a shared movie-level URL
-        epList.forEach(function(e) {
-          var own = e.dl1080 || e.dl720 || e.dl480 || '';
-          if (own) {
-            e.videoSourceUrl = own;
-            e.dlSourceUrl = own;
-            // clear generic videoUrl so theme doesn't reuse movie page for all eps
-            if (e.videoUrl && e.videoUrl === data.download720p) e.videoUrl = '';
-            if (e.videoUrl && e.videoUrl === data.download1080p) e.videoUrl = '';
-            if (e.videoUrl && e.videoUrl === data.download480p) e.videoUrl = '';
-          }
-        });
-
         // How many unique quality links across episodes (debug)
         var u = {};
         epList.forEach(function(e) {
