@@ -6994,7 +6994,7 @@ if (!links.length) return null;
 // localStorage key: cinenova_dl_worker  (example: https://dl.cinenova.site ya workers.dev URL)
 function getDlWorkerBase() {
   var u = (localStorage.getItem('cinenova_dl_worker') || '').trim();
-  if (!u) u = 'https://cinenova-fetch.mujahidlashari50.workers.dev';
+  if (!u) u = 'https://cinenova-dl-download.mujahidlashari50.workers.dev';
   return u.replace(/\/$/, '');
 }
 function setDlWorkerBase(url) {
@@ -14415,20 +14415,38 @@ var _ffiImporting = false;
 var _ffiReviewQueue = []; // { obj, link, size, checked } — Step 3 review ke liye, Firebase mein abhi save nahi hui
 var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
 
+function _ffiWorkerProxyBase() {
+  try {
+    if (typeof getDlWorkerBase === 'function') {
+      var b = getDlWorkerBase();
+      if (b) return b.replace(/\/$/, '');
+    }
+  } catch (e) {}
+  var ls = '';
+  try { ls = (localStorage.getItem('cinenova_dl_worker') || '').trim().replace(/\/$/, ''); } catch (e2) {}
+  if (ls) return ls;
+  // user production worker (dashboard screenshot)
+  return 'https://cinenova-dl-download.mujahidlashari50.workers.dev';
+}
 var _ffiProxies = [
-  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CineNova-Worker', getUrl: function(u){ return _ffiWorkerProxyBase() + '/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CineNova-Proxy',  getUrl: function(u){ return _ffiWorkerProxyBase() + '/proxy?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
-  { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'CodeTabs',        getUrl: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'Jina',            getUrl: function(u){ return 'https://r.jina.ai/' + u; }, parse: function(t){ return t; } }
 ];
 function _ffiHtmlLooksValid(html) {
-  if (!html || html.length < 200) return false;
-  var low = String(html).slice(0, 500).toLowerCase();
-  if (/authenticationrequirederror|bad ip reputation|access denied|just a moment|cf-browser-verification|captcha/i.test(low)) return false;
-  if (/^{"data":null/.test(String(html).trim())) return false;
-  return true;
+  if (!html || html.length < 80) return false;
+  var s = String(html);
+  var low = s.slice(0, 800).toLowerCase();
+  if (/authenticationrequirederror|bad ip reputation|access denied|just a moment|cf-browser-verification|captcha|keyless_legacy_url/i.test(low)) return false;
+  if (/^{"data":null/.test(s.trim())) return false;
+  // Must look like page OR contain movie/dl links (Jina markdown ok)
+  if (/\/movie\/\d+\//i.test(s) || /\/page-download\/\d+\//i.test(s) || /\/dl\/[a-z0-9-]+/i.test(s)) return true;
+  if (/<html|<body|<a\s|href=/i.test(low)) return true;
+  if (/^title:|markdown|\]\(https?:/i.test(low)) return true;
+  return s.length > 400;
 }
 
 function ffiNormalizeUrl(url) {
@@ -14769,6 +14787,27 @@ function ffiFetchPosts() {
           var uh = m[1].startsWith('http') ? m[1] : baseHost + m[1];
           uh = uh.replace(/&amp;/g,'&');
           ffiPushPost(uh, ffiTitleFromUrl(uh), allFound, siteUrl);
+        }
+        // Absolute /movie/ in plain text (proxies sometimes strip quotes)
+        var re1bAbs = /https?:\/\/(?:www\.)?(?:hdfun\.in|filmyzilla\d*\.com)\/movie\/\d+\/[^\s"'<>]+\.html/gi;
+        var m1bAbs;
+        while ((m1bAbs = re1bAbs.exec(html)) !== null) {
+          ffiPushPost(m1bAbs[0].replace(/&amp;/g,'&'), ffiTitleFromUrl(m1bAbs[0]), allFound, siteUrl);
+        }
+        // Jina markdown: [title](https://hdfun.in/movie/123/slug.html)
+        var re1bMd = /\[[^\]]{0,120}\]\((https?:\/\/[^\)]*?\/movie\/\d+\/[^\)\s#]+\.html)\)/gi;
+        var m1bMd;
+        while ((m1bMd = re1bMd.exec(html)) !== null) {
+          ffiPushPost(m1bMd[1].replace(/&amp;/g,'&'), ffiTitleFromUrl(m1bMd[1]), allFound, siteUrl);
+        }
+        // Relative /movie/ only path in markdown or text
+        if (/hdfun\.in/i.test(siteUrl || '') || /hdfun\.in/i.test(baseHost || '')) {
+          var re1bRel = /(?:href=["']|\]\()?(\/movie\/\d+\/[a-z0-9\-]+\.html)/gi;
+          var m1bRel;
+          while ((m1bRel = re1bRel.exec(html)) !== null) {
+            var uRelH = (baseHost || 'https://hdfun.in') + m1bRel[1];
+            ffiPushPost(uRelH, ffiTitleFromUrl(uRelH), allFound, siteUrl);
+          }
         }
         // FilmyZilla absolute domain movie links (cross-host 56/57)
         if (/filmyzilla/i.test(siteUrl) || /filmyzilla/i.test(baseHost) || /filmyzilla/i.test(html.slice(0, 2000))) {
