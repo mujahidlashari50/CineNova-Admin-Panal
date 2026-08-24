@@ -612,6 +612,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly / HDFun</div>
+    <div class="nav-item" id="nav-linkupdate" onclick="show('linkupdate')" style="color:#4ade80;">🔄 Link Updater</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
@@ -1664,6 +1665,94 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <!-- SETTINGS -->
     
     <!-- IMPORT SOURCES + CATEGORY FIX -->
+
+    <!-- ═══ LINK UPDATER — existing posts re-fetch from source ═══ -->
+    <div class="section" id="sec-linkupdate">
+      <div class="sec-title">🔄 Link <span>Updater</span></div>
+      <div class="card" style="border-color:rgba(74,222,128,0.35);background:linear-gradient(135deg,rgba(74,222,128,0.06),rgba(0,0,0,0));">
+        <div style="font-size:0.85rem;color:#86efac;line-height:1.55;">
+          Pehle se Firebase mein jo posts hain unke <b>source page</b> (FilmyZilla / HDFun / FilmyFly / Mp4Moviez) se links <b>dobara fetch</b> karke update karta hai.
+          <b>Delete + re-import ki zaroorat nahi</b> — title/poster/description same rehte hain, sirf download / episode links refresh.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>1 — Filter</h3>
+        <div class="fg">
+          <div class="fgg">
+            <label>Category</label>
+            <select class="fi" id="lu-cat">
+              <option value="all">All categories</option>
+              <option value="webseries">📺 Web-Series</option>
+              <option value="kdrama">🇰🇷 K-Drama</option>
+              <option value="bollywood">🎭 Bollywood</option>
+              <option value="hollywood">🌟 Hollywood</option>
+              <option value="tollywood">🎬 Tollywood</option>
+              <option value="animation">🧸 Animated</option>
+              <option value="dual_audio">🔊 Dual Audio</option>
+              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
+              <option value="south">🎬 South</option>
+              <option value="adult">🔞 Adult</option>
+              <option value="short_films">🔞 Short Films</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Source site</label>
+            <select class="fi" id="lu-source">
+              <option value="all">All sources (FZ / HDFun / FF / Mp4)</option>
+              <option value="filmyzilla">FilmyZilla only</option>
+              <option value="hdfun">HDFun / MMSHD only</option>
+              <option value="filmyfly">FilmyFly only</option>
+              <option value="mp4moviez">Mp4Moviez only</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Limit (max posts)</label>
+            <input class="fi" id="lu-limit" type="number" min="1" max="500" value="50"/>
+          </div>
+          <div class="fgg">
+            <label>Mode</label>
+            <select class="fi" id="lu-mode">
+              <option value="links">Links only (episodes + quality URLs)</option>
+              <option value="links_meta">Links + quality/size labels</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--grey);cursor:pointer;">
+            <input type="checkbox" id="lu-only-series" style="width:16px;height:16px;accent-color:var(--red);"/>
+            Sirf webseries / kdrama (episodes wale)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--grey);cursor:pointer;">
+            <input type="checkbox" id="lu-only-has-source" checked style="width:16px;height:16px;accent-color:var(--red);"/>
+            Sirf jinke paas sourcePageUrl / dlSourceUrl hai
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:16px;">
+          <button class="btn btn-p" id="lu-load-btn" onclick="luLoad()">🔍 Queue Load Karo</button>
+          <button class="btn btn-p" id="lu-start-btn" onclick="luStart()" style="display:none;background:#16a34a;">⚡ Update Links Start</button>
+          <button class="btn btn-s" id="lu-stop-btn" onclick="luStop()" style="display:none;">⏹ Stop</button>
+        </div>
+        <div id="lu-summary" style="margin-top:12px;font-size:0.8rem;color:var(--grey);"></div>
+      </div>
+
+      <div class="bi-progress-wrap" id="lu-prog-wrap" style="display:none;">
+        <div class="bi-progress-text" id="lu-prog-text">0 / 0</div>
+        <div class="bi-progress-sub" id="lu-prog-sub"></div>
+        <div class="bi-pbar-bg"><div class="bi-pbar" id="lu-pbar" style="width:0%"></div></div>
+        <div class="bi-stats-row">
+          <div class="bi-stat">✅ OK: <span class="ok" id="lu-s-ok">0</span></div>
+          <div class="bi-stat">⏭ Skip: <span class="skip" id="lu-s-skip">0</span></div>
+          <div class="bi-stat">❌ Fail: <span class="err" id="lu-s-err">0</span></div>
+        </div>
+      </div>
+
+      <div id="lu-queue" class="bi-queue" style="display:none;"></div>
+      <div id="lu-empty" style="display:none;text-align:center;padding:40px;color:#555;">
+        Koi post nahi mili — filter change karo ya pehle FilmyZilla/HDFun se import karo (source URL save hona chahiye).
+      </div>
+    </div>
+
     <div class="section" id="sec-srcfix">
       <div class="sec-title">🌐 Import Sources <span>&amp; Category Fix</span></div>
       <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;">
@@ -4561,6 +4650,7 @@ function _showSectionWork(name){
     if(typeof posterFillLoad==='function')posterFillLoad();
   }
   if(name==='ffimport'){var fs=document.getElementById('ffi-fetch-status');if(fs)fs.style.display='none';}
+  if(name==='linkupdate'){try{ if(typeof luLoad==='function'){ /* optional auto */ } }catch(e){}}
   if(name==='dashboard'){try{if(typeof renderDash==='function')renderDash();}catch(e){}}
 }
 
@@ -18860,6 +18950,282 @@ function bdfStop() {
   document.getElementById('bdf-stop-btn').textContent = '⏹ Stopping...';
 }
 // ══ END BATCH DL FETCH ══
+
+// ══════════════════════════════════════════════════
+// 🔄 LINK UPDATER — existing Firebase posts, re-fetch source links
+// ══════════════════════════════════════════════════
+var _luQueue = [];
+var _luRunning = false;
+var _luStopped = false;
+
+function luGetSourceUrl(m) {
+  var u = m.sourcePageUrl || m.dlSourceUrl || m.pageUrl || m.sourceUrl || '';
+  u = String(u || '').trim();
+  if (!u || !/^https?:\/\//i.test(u)) return '';
+  // category pages mat lo
+  if (/\/category\//i.test(u) && !/\/movie\//i.test(u)) return '';
+  return u;
+}
+
+function luMatchSource(url, filter) {
+  if (filter === 'all') {
+    return /filmyzilla\d*\.com|hdfun\.in|mmshd\.com|filmyfly|filmy4wap|mp4moviez|linkmake\.in/i.test(url);
+  }
+  if (filter === 'filmyzilla') return /filmyzilla\d*\.com/i.test(url);
+  if (filter === 'hdfun') return /hdfun\.in|mmshd\.com/i.test(url);
+  if (filter === 'filmyfly') return /filmyfly|filmy4wap|linkmake\.in/i.test(url);
+  if (filter === 'mp4moviez') return /mp4moviez/i.test(url);
+  return true;
+}
+
+function luLoad() {
+  var cat = (document.getElementById('lu-cat') || {}).value || 'all';
+  var src = (document.getElementById('lu-source') || {}).value || 'all';
+  var limit = parseInt((document.getElementById('lu-limit') || {}).value, 10) || 50;
+  if (limit < 1) limit = 1;
+  if (limit > 500) limit = 500;
+  var onlySeries = !!(document.getElementById('lu-only-series') || {}).checked;
+  var onlySrc = !!(document.getElementById('lu-only-has-source') || {}).checked;
+
+  var list = (typeof allMovies !== 'undefined' && allMovies) ? allMovies.slice() : [];
+  var out = [];
+  list.forEach(function(m) {
+    if (!m || !m.key) return;
+    if (cat !== 'all' && (m.category || '') !== cat) return;
+    if (onlySeries) {
+      var c = (m.category || '').toLowerCase();
+      if (c !== 'webseries' && c !== 'kdrama' && c !== 'hot_series') return;
+    }
+    var url = luGetSourceUrl(m);
+    if (onlySrc && !url) return;
+    if (url && !luMatchSource(url, src)) return;
+    if (!url && src !== 'all') return;
+    if (!url) return;
+    out.push(m);
+  });
+  out.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+  _luQueue = out.slice(0, limit);
+
+  var sum = document.getElementById('lu-summary');
+  var empty = document.getElementById('lu-empty');
+  var qel = document.getElementById('lu-queue');
+  var startBtn = document.getElementById('lu-start-btn');
+  document.getElementById('lu-prog-wrap').style.display = 'none';
+
+  if (!_luQueue.length) {
+    if (sum) sum.textContent = '0 posts matched';
+    if (empty) empty.style.display = 'block';
+    if (qel) { qel.style.display = 'none'; qel.innerHTML = ''; }
+    if (startBtn) startBtn.style.display = 'none';
+    toast('Koi matching post nahi mili', 1);
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  if (sum) sum.textContent = _luQueue.length + ' posts queue mein — source se links update hongi';
+  if (startBtn) startBtn.style.display = '';
+
+  if (qel) {
+    qel.style.display = 'flex';
+    qel.innerHTML = _luQueue.map(function(m, i) {
+      var src = luGetSourceUrl(m);
+      var thumb = m.thumbnail ? escHtml(m.thumbnail) : '';
+      return '<div class="bi-item" id="lu-row-' + i + '">'
+        + '<div class="bi-num">' + (i + 1) + '</div>'
+        + (thumb ? '<img class="bi-poster" src="' + thumb + '" onerror="this.style.display=\'none\'">' : '<div class="bi-poster"></div>')
+        + '<div class="bi-info"><div class="bi-title">' + escHtml(m.title || 'Untitled') + '</div>'
+        + '<div class="bi-meta">' + escHtml((m.category || '') + ' · ' + (src || '').substring(0, 70)) + '</div></div>'
+        + '<div class="bi-status wait" id="lu-st-' + i + '">⏳ Wait</div></div>';
+    }).join('');
+  }
+  toast('✅ ' + _luQueue.length + ' posts loaded');
+}
+
+function luBuildUpdates(data, m) {
+  var updates = {};
+  // Episodes (web series) — full replace when parser found episodes
+  if (data.episodes && data.episodes.length) {
+    updates.episodes = data.episodes.map(function(ep) {
+      var e = {
+        season: String(ep.season || '1'),
+        episode: String(ep.episode || ''),
+        title: ep.title || ('Episode ' + (ep.episode || ''))
+      };
+      if (ep.episodeTo) e.episodeTo = String(ep.episodeTo);
+      if (ep.packFrom) e.packFrom = String(ep.packFrom);
+      if (ep.packTo) e.packTo = String(ep.packTo);
+      if (ep.isPack) e.isPack = true;
+      var q480 = ep.dl480 || ep.download480p || '';
+      var q720 = ep.dl720 || ep.download720p || '';
+      var q1080 = ep.dl1080 || ep.download1080p || '';
+      if (q480) { e.dl480 = q480; e.download480p = q480; }
+      if (q720) { e.dl720 = q720; e.download720p = q720; }
+      if (q1080) { e.dl1080 = q1080; e.download1080p = q1080; }
+      var vs = ep.videoSourceUrl || ep.dlSourceUrl || q1080 || q720 || q480 || '';
+      if (vs) { e.videoSourceUrl = vs; e.dlSourceUrl = ep.dlSourceUrl || vs; }
+      return e;
+    });
+  }
+  // Movie-level quality links
+  if (data.download480p) updates.download480p = data.download480p;
+  if (data.download720p) updates.download720p = data.download720p;
+  if (data.download1080p) updates.download1080p = data.download1080p;
+  if (data.download4k) updates.download4k = data.download4k;
+  if (data.size480) updates.size480 = data.size480;
+  if (data.size720) updates.size720 = data.size720;
+  if (data.size1080) updates.size1080 = data.size1080;
+  if (data.size4k) updates.size4k = data.size4k;
+  if (data.quality) updates.quality = data.quality;
+  // Keep source URLs
+  var src = luGetSourceUrl(m);
+  if (src) {
+    updates.sourcePageUrl = src;
+    if (!/filmyzilla/i.test(src)) {
+      // HDFun etc can use page as dl source
+      updates.dlSourceUrl = data.dlSourceUrl || src;
+    } else {
+      updates.dlSourceUrl = src;
+    }
+  }
+  // Don't wipe movie videoSourceUrl with a generic pack if episodes exist
+  if (!(updates.episodes && updates.episodes.length)) {
+    if (data.videoSourceUrl) updates.videoSourceUrl = data.videoSourceUrl;
+    else if (data.download1080p || data.download720p || data.download480p) {
+      updates.videoSourceUrl = data.download1080p || data.download720p || data.download480p;
+    }
+  }
+  updates.linksUpdatedAt = Date.now();
+  return updates;
+}
+
+function luSetRow(i, html, cls) {
+  var st = document.getElementById('lu-st-' + i);
+  var row = document.getElementById('lu-row-' + i);
+  if (st) { st.innerHTML = html; st.className = 'bi-status ' + (cls || ''); }
+  if (row) {
+    row.classList.remove('bi-done', 'bi-err', 'bi-skip', 'bi-active');
+    if (cls === 'ok') row.classList.add('bi-done');
+    if (cls === 'err') row.classList.add('bi-err');
+    if (cls === 'skip') row.classList.add('bi-skip');
+    if (cls === 'running') row.classList.add('bi-active');
+  }
+}
+
+function luProgress(done, total, ok, skip, fail) {
+  var wrap = document.getElementById('lu-prog-wrap');
+  if (wrap) wrap.style.display = 'block';
+  var pct = total ? Math.round((done / total) * 100) : 0;
+  var bar = document.getElementById('lu-pbar');
+  if (bar) bar.style.width = pct + '%';
+  var txt = document.getElementById('lu-prog-text');
+  if (txt) txt.textContent = done + ' / ' + total + ' (' + pct + '%)';
+  var o = document.getElementById('lu-s-ok'); if (o) o.textContent = ok;
+  var s = document.getElementById('lu-s-skip'); if (s) s.textContent = skip;
+  var e = document.getElementById('lu-s-err'); if (e) e.textContent = fail;
+}
+
+function luStart() {
+  if (_luRunning) return;
+  if (!_luQueue.length) { toast('Pehle queue load karo', 1); return; }
+  if (typeof ffiParsePage !== 'function') { toast('Parser missing', 1); return; }
+  var fetchFn = typeof _ffiFetch === 'function' ? _ffiFetch : (typeof _mlProxyFetch === 'function' ? _mlProxyFetch : null);
+  if (!fetchFn) { toast('Fetch helper missing', 1); return; }
+
+  _luRunning = true;
+  _luStopped = false;
+  document.getElementById('lu-start-btn').style.display = 'none';
+  document.getElementById('lu-stop-btn').style.display = '';
+  document.getElementById('lu-load-btn').disabled = true;
+
+  var total = _luQueue.length, done = 0, ok = 0, skip = 0, fail = 0;
+  luProgress(0, total, 0, 0, 0);
+
+  function finishAll() {
+    _luRunning = false;
+    document.getElementById('lu-start-btn').style.display = '';
+    document.getElementById('lu-stop-btn').style.display = 'none';
+    document.getElementById('lu-load-btn').disabled = false;
+    toast((_luStopped ? '⏹ Stopped — ' : '✅ Done — ') + ok + ' updated, ' + skip + ' skip, ' + fail + ' fail');
+  }
+
+  function processNext(i) {
+    if (_luStopped || i >= _luQueue.length) { finishAll(); return; }
+    var m = _luQueue[i];
+    var src = luGetSourceUrl(m);
+    luSetRow(i, '<span style="color:#60a5fa;">⏳ Fetching...</span>', 'running');
+    var rowEl = document.getElementById('lu-row-' + i);
+    if (rowEl) try { rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+
+    if (!src) {
+      skip++; done++;
+      luSetRow(i, '<span style="color:#f59e0b;">⏭ No source URL</span>', 'skip');
+      luProgress(done, total, ok, skip, fail);
+      setTimeout(function(){ processNext(i + 1); }, 200);
+      return;
+    }
+
+    fetchFn(src, function(pageHtml) {
+      if (_luStopped) { finishAll(); return; }
+      if (!pageHtml || pageHtml.length < 100) {
+        fail++; done++;
+        luSetRow(i, '<span style="color:#f87171;">❌ Fetch fail</span>', 'err');
+        luProgress(done, total, ok, skip, fail);
+        setTimeout(function(){ processNext(i + 1); }, 400);
+        return;
+      }
+      luSetRow(i, '<span style="color:#60a5fa;">⏳ Parsing...</span>', 'running');
+      var data = null;
+      try { data = ffiParsePage(pageHtml, src); } catch (err) { data = null; }
+      if (!data) {
+        fail++; done++;
+        luSetRow(i, '<span style="color:#f87171;">❌ Parse fail</span>', 'err');
+        luProgress(done, total, ok, skip, fail);
+        setTimeout(function(){ processNext(i + 1); }, 400);
+        return;
+      }
+      var updates = luBuildUpdates(data, m);
+      var hasLinks = !!(updates.episodes && updates.episodes.length) ||
+        updates.download480p || updates.download720p || updates.download1080p || updates.download4k ||
+        updates.videoSourceUrl;
+      if (!hasLinks) {
+        skip++; done++;
+        luSetRow(i, '<span style="color:#f59e0b;">⏭ No links on page</span>', 'skip');
+        luProgress(done, total, ok, skip, fail);
+        setTimeout(function(){ processNext(i + 1); }, 300);
+        return;
+      }
+      luSetRow(i, '<span style="color:#60a5fa;">⏳ Saving...</span>', 'running');
+      db.ref('movies/' + m.key).update(updates, function(err) {
+        done++;
+        if (err) {
+          fail++;
+          luSetRow(i, '<span style="color:#f87171;">❌ Save fail</span>', 'err');
+        } else {
+          ok++;
+          // local mirror
+          try {
+            Object.keys(updates).forEach(function(k) { m[k] = updates[k]; });
+            var am = allMovies.find(function(x){ return x.key === m.key; });
+            if (am) Object.keys(updates).forEach(function(k) { am[k] = updates[k]; });
+          } catch (e2) {}
+          var epN = (updates.episodes && updates.episodes.length) ? (updates.episodes.length + ' eps') : 'links';
+          luSetRow(i, '<span style="color:#22c55e;">✅ ' + epN + '</span>', 'ok');
+        }
+        luProgress(done, total, ok, skip, fail);
+        setTimeout(function(){ processNext(i + 1); }, 500);
+      });
+    });
+  }
+  processNext(0);
+}
+
+function luStop() {
+  _luStopped = true;
+  var b = document.getElementById('lu-stop-btn');
+  if (b) { b.disabled = true; b.textContent = '⏹ Stopping...'; }
+}
+// ══ END LINK UPDATER ══
+
+
 
 // ══════════════════════════════════════════════════
 // ✨ AI TITLE / META GENERATOR — Free Template Engine
