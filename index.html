@@ -613,6 +613,7 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ FilmyFly / HDFun</div>
     <div class="nav-item" id="nav-linkupdate" onclick="show('linkupdate')" style="color:#4ade80;">🔄 Link Updater</div>
+    <div class="nav-item" id="nav-hdfunfill" onclick="show('hdfunfill')" style="color:#22d3ee;">🟢 HDFun Link Fill</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
@@ -1751,6 +1752,93 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div id="lu-empty" style="display:none;text-align:center;padding:40px;color:#555;">
         Koi post nahi mili — filter change karo ya pehle FilmyZilla/HDFun se import karo (source URL save hona chahiye).
       </div>
+    </div>
+
+    <div class="section" id="sec-hdfunfill">
+      <div class="sec-title">🟢 HDFun <span>Link Fill</span></div>
+      <div style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.35);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:0.82rem;color:#a5f3fc;line-height:1.55;">
+        <b>Sab posts</b> ke liye HDFun.in se title match karke <b>direct /dl/ links</b> save karta hai.
+        Movies + <b>webseries episodes</b> dono. Pehle index banao (category pages), phir queue start.
+        FilmyZilla page URLs replace ho jayengi jab match milega.
+      </div>
+
+      <div class="card">
+        <h3>1) HDFun Index Build</h3>
+        <div class="fg" style="margin-bottom:12px;">
+          <div class="fgg">
+            <label>Max pages per category</label>
+            <input class="fi" id="hdf-pages" type="number" value="8" min="1" max="40"/>
+          </div>
+          <div class="fgg">
+            <label>Delay (ms)</label>
+            <input class="fi" id="hdf-delay" type="number" value="350" min="150" max="3000"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-p" id="hdf-index-btn" onclick="hdfBuildIndex()" style="background:#0891b2;">📚 Index Build Karo</button>
+          <button class="btn btn-s" id="hdf-index-stop" onclick="hdfIndexStop()" style="display:none;">⏹ Stop Index</button>
+        </div>
+        <div id="hdf-index-stats" style="margin-top:12px;font-size:0.8rem;color:var(--grey);">Index: 0 titles</div>
+        <div class="bi-pbar-bg" style="margin-top:8px;display:none;" id="hdf-index-pwrap"><div class="bi-pbar" id="hdf-index-pbar" style="width:0%;background:#22d3ee;"></div></div>
+        <div id="hdf-index-log" style="margin-top:10px;max-height:120px;overflow-y:auto;font-size:0.75rem;color:#64748b;"></div>
+      </div>
+
+      <div class="card">
+        <h3>2) Queue + Fill Links</h3>
+        <div class="fg" style="margin-bottom:12px;">
+          <div class="fgg">
+            <label>Filter</label>
+            <select class="fi" id="hdf-filter">
+              <option value="fz">FilmyZilla sources only</option>
+              <option value="nohd">No HDFun link yet</option>
+              <option value="all">All movies</option>
+              <option value="series">Webseries only</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Category</label>
+            <select class="fi" id="hdf-cat">
+              <option value="all">All categories</option>
+              <option value="bollywood">Bollywood</option>
+              <option value="hollywood">Hollywood</option>
+              <option value="south">South</option>
+              <option value="webseries">Web Series</option>
+              <option value="adult">Adult</option>
+            </select>
+          </div>
+          <div class="fgg">
+            <label>Limit (0 = all)</label>
+            <input class="fi" id="hdf-limit" type="number" value="100" min="0"/>
+          </div>
+          <div class="fgg">
+            <label>Min title match score</label>
+            <input class="fi" id="hdf-minscore" type="number" value="0.55" min="0.3" max="1" step="0.05"/>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--grey);cursor:pointer;margin-bottom:12px;">
+          <input type="checkbox" id="hdf-overwrite" style="width:16px;height:16px;accent-color:#22d3ee;"/>
+          Already HDFun links overwrite karo
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-p" onclick="hdfLoadQueue()">🔍 Queue Load</button>
+          <button class="btn btn-p" id="hdf-start-btn" onclick="hdfStartFill()" style="display:none;background:#16a34a;">⚡ Start Fill</button>
+          <button class="btn btn-s" id="hdf-stop-btn" onclick="hdfStopFill()" style="display:none;">⏹ Stop</button>
+        </div>
+        <div id="hdf-summary" style="margin-top:12px;font-size:0.8rem;color:var(--grey);"></div>
+      </div>
+
+      <div class="bi-progress-wrap" id="hdf-prog-wrap" style="display:none;">
+        <div class="bi-progress-text" id="hdf-prog-text">0 / 0</div>
+        <div class="bi-progress-sub" id="hdf-prog-sub"></div>
+        <div class="bi-pbar-bg"><div class="bi-pbar" id="hdf-pbar" style="width:0%;background:#22d3ee;"></div></div>
+        <div class="bi-stats-row">
+          <div class="bi-stat">✅ OK: <span class="ok" id="hdf-s-ok">0</span></div>
+          <div class="bi-stat">⏭ Skip: <span class="skip" id="hdf-s-skip">0</span></div>
+          <div class="bi-stat">❌ Fail: <span class="err" id="hdf-s-err">0</span></div>
+        </div>
+      </div>
+      <div id="hdf-queue" class="bi-queue" style="display:none;"></div>
+      <div id="hdf-log" style="margin-top:12px;max-height:180px;overflow-y:auto;font-size:0.75rem;color:#94a3b8;background:#0a0a0a;border-radius:8px;padding:10px;"></div>
     </div>
 
     <div class="section" id="sec-srcfix">
@@ -6666,7 +6754,13 @@ function ffiTitleSimilarity(a, b) {
 function ffiSearchHdfunByTitle(title, year, cb) {
   var q = ffiCleanTitleForSearch(title);
   if (q.length < 2) { cb(null); return; }
-  var searchUrl = 'https://hdfun.in/search?q=' + encodeURIComponent(q);
+  // 1) Local index (category scrape) — reliable
+  if (typeof hdfMatchFromIndex === 'function') {
+    var hit = hdfMatchFromIndex(title, year, 0.5);
+    if (hit) { cb(hit.url); return; }
+  }
+  // 2) Site search ?s= (search?q= often empty)
+  var searchUrl = 'https://hdfun.in/?s=' + encodeURIComponent(q);
   _ffiFetch(searchUrl, function(html) {
     if (!html) { cb(null); return; }
     var origin = 'https://hdfun.in';
@@ -6676,16 +6770,16 @@ function ffiSearchHdfunByTitle(title, year, cb) {
     var seen = {};
     while ((m = re.exec(html)) !== null) {
       var u = m[1].replace(/&amp;/g, '&');
-      if (!/^https?:\/\//i.test(u)) u = origin + u;
+      if (!/^https?:\/\//i.test(u)) u = origin + (u.charAt(0) === '/' ? u : '/' + u);
       if (seen[u]) continue;
       seen[u] = 1;
       var slug = (u.split('/').pop() || '').replace(/\.html$/i, '').replace(/-/g, ' ');
       var score = ffiTitleSimilarity(title, slug);
-      if (year && String(year).length === 4 && u.indexOf(String(year)) >= 0) score += 0.15;
+      if (year && String(year).length === 4 && (u.indexOf(String(year)) >= 0 || slug.indexOf(String(year)) >= 0)) score += 0.15;
       candidates.push({ url: u, score: score, slug: slug });
     }
     candidates.sort(function(x, y){ return y.score - x.score; });
-    if (candidates.length && candidates[0].score >= 0.45) {
+    if (candidates.length && candidates[0].score >= 0.5) {
       cb(candidates[0].url);
     } else {
       cb(null);
@@ -18991,6 +19085,390 @@ function luMatchSource(url, filter) {
   if (filter === 'mp4moviez') return /mp4moviez/i.test(url);
   return true;
 }
+
+
+// ═══════════════════════════════════════════════════
+// HDFun Link Fill — index categories + bulk match save
+// ═══════════════════════════════════════════════════
+var _hdfIndex = []; // {url, slug, titleGuess, year}
+var _hdfIndexRunning = false;
+var _hdfIndexStop = false;
+var _hdfQueue = [];
+var _hdfRunning = false;
+var _hdfStop = false;
+
+var HDF_CATS = [
+  { name: 'Bollywood', url: 'https://hdfun.in/category/13/bollywood-movies/' },
+  { name: 'Hollywood Hindi', url: 'https://hdfun.in/category/3/latest-hollywood-hindi-dubbed-movies/' },
+  { name: 'South Hindi', url: 'https://hdfun.in/category/7/south-indian-hindi-dubbed-movies/' },
+  { name: 'Web Series', url: 'https://hdfun.in/category/35/hindi-web-series/' },
+  { name: 'Hollywood', url: 'https://hdfun.in/category/25/hollywood-movies/' },
+  { name: 'Adult', url: 'https://hdfun.in/category/11/adult-movies/' }
+];
+
+function hdfLog(msg, isErr) {
+  var el = document.getElementById('hdf-log');
+  if (!el) return;
+  var d = document.createElement('div');
+  d.style.color = isErr ? '#f87171' : '#94a3b8';
+  d.style.marginBottom = '3px';
+  d.textContent = msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+function hdfIndexLog(msg) {
+  var el = document.getElementById('hdf-index-log');
+  if (!el) return;
+  var d = document.createElement('div');
+  d.textContent = msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+function hdfParseMoviesFromHtml(html) {
+  var origin = 'https://hdfun.in';
+  var out = [];
+  var seen = {};
+  var re = /href=["']((?:https?:\/\/[^"']*)?\/movie\/(\d+)\/([^"'#?]+\.html))["']/gi;
+  var m;
+  while ((m = re.exec(html)) !== null) {
+    var path = m[1];
+    var id = m[2];
+    var file = m[3];
+    var u = path;
+    if (!/^https?:\/\//i.test(u)) u = origin + (u.charAt(0) === '/' ? u : '/' + u);
+    if (seen[u]) continue;
+    seen[u] = 1;
+    var slug = file.replace(/\.html$/i, '').replace(/-/g, ' ');
+    var yearM = slug.match(/\b(20\d{2}|19\d{2})\b/);
+    out.push({
+      url: u,
+      id: id,
+      slug: slug,
+      titleGuess: slug.replace(/\b(20\d{2}|19\d{2})\b/g, ' ').replace(/\b(hindi|dubbed|movie|web series|season|complete|series)\b/gi, ' ').replace(/\s+/g, ' ').trim(),
+      year: yearM ? yearM[1] : ''
+    });
+  }
+  return out;
+}
+
+function hdfBuildIndex() {
+  if (_hdfIndexRunning) return;
+  if (typeof _ffiFetch !== 'function') {
+    toast('Fetch helper missing', 1);
+    return;
+  }
+  var maxPages = parseInt((document.getElementById('hdf-pages') || {}).value, 10) || 8;
+  if (maxPages < 1) maxPages = 1;
+  if (maxPages > 40) maxPages = 40;
+  var delay = parseInt((document.getElementById('hdf-delay') || {}).value, 10) || 350;
+
+  _hdfIndexRunning = true;
+  _hdfIndexStop = false;
+  _hdfIndex = [];
+  var seenUrl = {};
+  document.getElementById('hdf-index-btn').style.display = 'none';
+  document.getElementById('hdf-index-stop').style.display = '';
+  document.getElementById('hdf-index-log').innerHTML = '';
+  document.getElementById('hdf-index-pwrap').style.display = 'block';
+
+  var jobs = [];
+  HDF_CATS.forEach(function(c) {
+    for (var pg = 1; pg <= maxPages; pg++) {
+      jobs.push({ name: c.name, page: pg, url: c.url + pg + '.html' });
+    }
+  });
+  // home page once
+  jobs.unshift({ name: 'Home', page: 1, url: 'https://hdfun.in/' });
+
+  var i = 0;
+  function next() {
+    if (_hdfIndexStop || i >= jobs.length) {
+      _hdfIndexRunning = false;
+      document.getElementById('hdf-index-btn').style.display = '';
+      document.getElementById('hdf-index-stop').style.display = 'none';
+      document.getElementById('hdf-index-stats').textContent = 'Index: ' + _hdfIndex.length + ' titles ready';
+      document.getElementById('hdf-index-pbar').style.width = '100%';
+      hdfIndexLog('Done. Unique movies: ' + _hdfIndex.length);
+      toast('HDFun index: ' + _hdfIndex.length + ' titles');
+      return;
+    }
+    var job = jobs[i];
+    var pct = Math.round((i / jobs.length) * 100);
+    document.getElementById('hdf-index-pbar').style.width = pct + '%';
+    document.getElementById('hdf-index-stats').textContent = 'Indexing ' + job.name + ' p' + job.page + '… (' + _hdfIndex.length + ' titles)';
+    _ffiFetch(job.url, function(html) {
+      if (html) {
+        var list = hdfParseMoviesFromHtml(html);
+        var added = 0;
+        list.forEach(function(item) {
+          if (seenUrl[item.url]) return;
+          seenUrl[item.url] = 1;
+          _hdfIndex.push(item);
+          added++;
+        });
+        hdfIndexLog(job.name + ' p' + job.page + ' → +' + added);
+      } else {
+        hdfIndexLog(job.name + ' p' + job.page + ' → fail', true);
+      }
+      i++;
+      setTimeout(next, delay);
+    });
+  }
+  next();
+}
+function hdfIndexStop() { _hdfIndexStop = true; }
+
+function hdfMatchFromIndex(title, year, minScore) {
+  if (!_hdfIndex.length) return null;
+  minScore = (typeof minScore === 'number') ? minScore : 0.55;
+  var best = null;
+  var bestScore = 0;
+  for (var i = 0; i < _hdfIndex.length; i++) {
+    var it = _hdfIndex[i];
+    var score = ffiTitleSimilarity(title, it.slug);
+    if (year && String(year).length >= 4) {
+      var y = String(year).substring(0, 4);
+      if (it.year === y || it.slug.indexOf(y) >= 0) score += 0.12;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = it;
+    }
+  }
+  if (best && bestScore >= minScore) {
+    return { url: best.url, score: bestScore, slug: best.slug };
+  }
+  return null;
+}
+
+function hdfIsFzMovie(m) {
+  if (typeof isObjFilmyzillaSource === 'function') return isObjFilmyzillaSource(m);
+  var fields = [m.dlSourceUrl, m.videoSourceUrl, m.sourcePageUrl, m.download1080p, m.download720p, m.download480p];
+  for (var i = 0; i < fields.length; i++) {
+    if (fields[i] && /filmyzilla/i.test(String(fields[i]))) return true;
+  }
+  return false;
+}
+function hdfHasHdfun(m) {
+  if (typeof isObjHdfunSource === 'function') return isObjHdfunSource(m);
+  var fields = [m.dlSourceUrl, m.videoSourceUrl, m.sourcePageUrl, m.download1080p, m.download720p, m.download480p];
+  for (var i = 0; i < fields.length; i++) {
+    if (fields[i] && /hdfun\.in|downloadxdesi/i.test(String(fields[i]))) return true;
+  }
+  return false;
+}
+
+function hdfLoadQueue() {
+  if (!allMovies || !allMovies.length) {
+    toast('Movies load nahi hui', 1);
+    return;
+  }
+  if (!_hdfIndex.length) {
+    toast('Pehle Index Build karo', 1);
+    return;
+  }
+  var filter = (document.getElementById('hdf-filter') || {}).value || 'fz';
+  var cat = (document.getElementById('hdf-cat') || {}).value || 'all';
+  var limit = parseInt((document.getElementById('hdf-limit') || {}).value, 10);
+  if (isNaN(limit)) limit = 100;
+
+  var list = allMovies.filter(function(m) {
+    if (!m || !m.key || !m.title) return false;
+    if (cat !== 'all' && (m.category || '').toLowerCase() !== cat.toLowerCase()) return false;
+    if (filter === 'fz' && !hdfIsFzMovie(m)) return false;
+    if (filter === 'nohd' && hdfHasHdfun(m)) return false;
+    if (filter === 'series') {
+      var c = (m.category || '').toLowerCase();
+      if (c !== 'webseries' && !(m.episodes && m.episodes.length)) return false;
+    }
+    return true;
+  });
+  list.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+  if (limit > 0) list = list.slice(0, limit);
+
+  _hdfQueue = list.map(function(m) {
+    return { key: m.key, title: m.title || 'Untitled', year: m.year || '', status: 'wait', movie: m };
+  });
+
+  var box = document.getElementById('hdf-queue');
+  var sum = document.getElementById('hdf-summary');
+  if (!_hdfQueue.length) {
+    box.style.display = 'none';
+    sum.textContent = 'Queue empty — filter change karo';
+    document.getElementById('hdf-start-btn').style.display = 'none';
+    toast('Queue empty', 1);
+    return;
+  }
+  sum.textContent = 'Queue: ' + _hdfQueue.length + ' · Index: ' + _hdfIndex.length;
+  document.getElementById('hdf-start-btn').style.display = '';
+  box.style.display = 'flex';
+  box.innerHTML = _hdfQueue.map(function(item, i) {
+    return '<div id="hdf-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:8px;padding:8px 12px;">' +
+      '<div style="flex:1;min-width:0;font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(item.title) + '</div>' +
+      '<div id="hdf-st-' + i + '" style="font-size:0.72rem;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
+  }).join('');
+  document.getElementById('hdf-log').innerHTML = '';
+  hdfLog('Queue loaded: ' + _hdfQueue.length);
+  toast('Queue: ' + _hdfQueue.length);
+}
+
+function hdfStopFill() { _hdfStop = true; }
+
+function hdfApplyParsedToMovie(movie, hd, hdfunUrl) {
+  var updates = {};
+  var has = false;
+  if (hd.download1080p) { updates.download1080p = hd.download1080p; has = true; }
+  if (hd.download720p) { updates.download720p = hd.download720p; has = true; }
+  if (hd.download480p) { updates.download480p = hd.download480p; has = true; }
+  if (hd.download4k) { updates.download4k = hd.download4k; has = true; }
+  if (hd.size1080) updates.size1080 = hd.size1080;
+  if (hd.size720) updates.size720 = hd.size720;
+  if (hd.size480) updates.size480 = hd.size480;
+  updates.dlSourceUrl = hdfunUrl;
+  updates.videoSourceUrl = hdfunUrl;
+  updates.sourcePageUrl = hdfunUrl;
+
+  // Episodes: prefer HDFun parsed episodes (proper per-ep links)
+  if (hd.episodes && hd.episodes.length) {
+    updates.episodes = hd.episodes.map(function(e) {
+      return {
+        season: e.season || '1',
+        episode: String(e.episode || e.ep || ''),
+        title: e.title || ('Episode ' + (e.episode || '')),
+        dl480: e.dl480 || e.download480p || '',
+        dl720: e.dl720 || e.download720p || '',
+        dl1080: e.dl1080 || e.download1080p || '',
+        download480p: e.dl480 || e.download480p || '',
+        download720p: e.dl720 || e.download720p || '',
+        download1080p: e.dl1080 || e.download1080p || '',
+        videoSourceUrl: e.videoSourceUrl || e.dl1080 || e.dl720 || e.dl480 || hdfunUrl,
+        dlSourceUrl: e.dlSourceUrl || e.videoSourceUrl || hdfunUrl
+      };
+    });
+    has = true;
+    if ((movie.category || '') !== 'adult') updates.category = movie.category || 'webseries';
+  } else if (movie.episodes && movie.episodes.length && (hd.download1080p || hd.download720p || hd.download480p)) {
+    // Same quality pack links onto each existing episode (HDFun single-pack pages)
+    updates.episodes = movie.episodes.map(function(e) {
+      var ep = Object.assign({}, e);
+      if (hd.download480p) { ep.dl480 = hd.download480p; ep.download480p = hd.download480p; }
+      if (hd.download720p) { ep.dl720 = hd.download720p; ep.download720p = hd.download720p; }
+      if (hd.download1080p) { ep.dl1080 = hd.download1080p; ep.download1080p = hd.download1080p; }
+      ep.videoSourceUrl = ep.dl1080 || ep.dl720 || ep.dl480 || hdfunUrl;
+      ep.dlSourceUrl = hdfunUrl;
+      return ep;
+    });
+    has = true;
+  }
+
+  var qParts = [];
+  if (updates.download1080p || hd.download1080p) qParts.push('1080p');
+  if (updates.download720p || hd.download720p) qParts.push('720p');
+  if (updates.download480p || hd.download480p) qParts.push('480p');
+  if (qParts.length) updates.quality = qParts.join(' ');
+
+  return has ? updates : null;
+}
+
+function hdfStartFill() {
+  if (_hdfRunning || !_hdfQueue.length) return;
+  if (!_hdfIndex.length) {
+    toast('Pehle index build karo', 1);
+    return;
+  }
+  var minScore = parseFloat((document.getElementById('hdf-minscore') || {}).value) || 0.55;
+  var overwrite = !!(document.getElementById('hdf-overwrite') || {}).checked;
+  var delay = parseInt((document.getElementById('hdf-delay') || {}).value, 10) || 350;
+
+  _hdfRunning = true;
+  _hdfStop = false;
+  document.getElementById('hdf-start-btn').style.display = 'none';
+  document.getElementById('hdf-stop-btn').style.display = '';
+  document.getElementById('hdf-prog-wrap').style.display = 'block';
+
+  var total = _hdfQueue.length, done = 0, ok = 0, skip = 0, fail = 0;
+
+  function setSt(i, html) {
+    var el = document.getElementById('hdf-st-' + i);
+    if (el) el.innerHTML = html;
+  }
+  function prog() {
+    document.getElementById('hdf-prog-text').textContent = done + ' / ' + total;
+    document.getElementById('hdf-pbar').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+    document.getElementById('hdf-s-ok').textContent = ok;
+    document.getElementById('hdf-s-skip').textContent = skip;
+    document.getElementById('hdf-s-err').textContent = fail;
+  }
+
+  function finish() {
+    _hdfRunning = false;
+    document.getElementById('hdf-start-btn').style.display = '';
+    document.getElementById('hdf-stop-btn').style.display = 'none';
+    toast('HDFun fill done — OK ' + ok + ' · Skip ' + skip + ' · Fail ' + fail);
+    hdfLog('Finished OK=' + ok + ' Skip=' + skip + ' Fail=' + fail);
+  }
+
+  function process(i) {
+    if (_hdfStop || i >= _hdfQueue.length) {
+      finish();
+      return;
+    }
+    var item = _hdfQueue[i];
+    var movie = item.movie;
+    document.getElementById('hdf-prog-sub').textContent = (movie.title || '').substring(0, 50);
+
+    if (!overwrite && hdfHasHdfun(movie)) {
+      skip++; done++; setSt(i, '<span style="color:#fbbf24;">⏭ Has HDFun</span>');
+      prog(); setTimeout(function(){ process(i + 1); }, 80);
+      return;
+    }
+
+    var match = hdfMatchFromIndex(movie.title, movie.year, minScore);
+    if (!match) {
+      fail++; done++; setSt(i, '<span style="color:#f87171;">❌ No match</span>');
+      hdfLog('No match: ' + movie.title, true);
+      prog(); setTimeout(function(){ process(i + 1); }, delay);
+      return;
+    }
+
+    setSt(i, '<span style="color:#38bdf8;">🔄 Fetch…</span>');
+    _ffiFetch(match.url, function(html) {
+      if (!html) {
+        fail++; done++; setSt(i, '<span style="color:#f87171;">❌ Fetch fail</span>');
+        prog(); setTimeout(function(){ process(i + 1); }, delay);
+        return;
+      }
+      var hd = ffiParsePage(html, match.url);
+      var updates = hdfApplyParsedToMovie(movie, hd, match.url);
+      if (!updates) {
+        fail++; done++; setSt(i, '<span style="color:#f87171;">❌ No links</span>');
+        hdfLog('No links on page: ' + match.slug, true);
+        prog(); setTimeout(function(){ process(i + 1); }, delay);
+        return;
+      }
+      db.ref('movies/' + movie.key).update(updates, function(err) {
+        done++;
+        if (err) {
+          fail++;
+          setSt(i, '<span style="color:#f87171;">❌ Save fail</span>');
+        } else {
+          ok++;
+          // sync local cache
+          Object.keys(updates).forEach(function(k) { movie[k] = updates[k]; });
+          var epN = updates.episodes ? updates.episodes.length : 0;
+          setSt(i, '<span style="color:#22c55e;">✅ ' + (epN ? epN + ' eps' : 'OK') + '</span>');
+          hdfLog('✓ ' + movie.title.substring(0, 40) + ' ← ' + match.slug.substring(0, 40) + ' (' + match.score.toFixed(2) + ')');
+        }
+        prog();
+        setTimeout(function(){ process(i + 1); }, delay);
+      });
+    });
+  }
+  prog();
+  process(0);
+}
+
 
 function luLoad() {
   var cat = (document.getElementById('lu-cat') || {}).value || 'all';
