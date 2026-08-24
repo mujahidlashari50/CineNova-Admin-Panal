@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>CineNova Admin — Mujahid Lashari</title>
+<title>CineNova Admin — Master Panel</title>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
 <link href='https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap' rel='stylesheet'/>
@@ -15705,6 +15705,10 @@ function ffiStartImport() {
               episode: String(ep.episode || ''),
               title: ep.title || ('Episode ' + (ep.episode || ''))
             };
+            if (ep.episodeTo) e.episodeTo = String(ep.episodeTo);
+            if (ep.packFrom) e.packFrom = String(ep.packFrom);
+            if (ep.packTo) e.packTo = String(ep.packTo);
+            if (ep.isPack) e.isPack = true;
             // Quality fields — only set if present (empty mat overwrite)
             var q480 = ep.dl480 || ep.download480p || '';
             var q720 = ep.dl720 || ep.download720p || '';
@@ -17391,53 +17395,70 @@ function ffiParsePage(html, srcUrl) {
             .replace(/[-_.]+/g, ' ');
         } catch (e) {}
         var ctx = contextNear(url);
-        var s = [label || '', slug, ctx].join(' ');
-        s = s.replace(/&amp;/g, '&');
+        // IMPORTANT: range (Ep 1-9) sirf label+slug se — wide page context se mat lo
+        // warna "Complete Episodes 1-9" heading har link pe lag jati hai → same pack link sab episodes pe
+        var tight = [label || '', slug].join(' ').replace(/&amp;/g, '&');
+        var s = [tight, ctx].join(' ').replace(/&amp;/g, '&');
 
         var season = '1';
         var episode = null;
         var episodeTo = null;
 
-        // Pack range: Ep 1-5 (single file covering many eps)
-        var rangeM = s.match(/\b(?:episodes?|eps?\.?)\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*0*(\d{1,3})\b/i) ||
-                     s.match(/\bE(?:P)?\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*E?(?:P)?\s*0*(\d{1,3})\b/i);
-        if (rangeM) {
-          episode = String(parseInt(rangeM[1], 10));
-          episodeTo = String(parseInt(rangeM[2], 10));
-          if (parseInt(episodeTo, 10) < parseInt(episode, 10)) {
-            var tmp = episode; episode = episodeTo; episodeTo = tmp;
-          }
-          if (parseInt(episodeTo, 10) - parseInt(episode, 10) > 29) {
-            episodeTo = String(parseInt(episode, 10) + 29);
-          }
-        }
-
-        // S01E05 / S01-Ep-01 / S01 EP05 / Season 1 Episode 5
-        var m = s.match(/\bS(\d{1,2})\s*[\s._-]*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
-                s.match(/\bS(\d{1,2})[\s._-]+EP?[\s._-]*0*(\d{1,3})\b/i) ||
-                s.match(/S(\d{1,2})[\s._-]*Ep(?:isode)?[\s._-]*0*(\d{1,3})/i) ||
-                s.match(/season[\s._-]*(\d{1,2})[\s._-]*episode[\s._-]*0*(\d{1,3})/i);
+        // 1) Single episode FIRST from label/slug (S01E05, Episode 03, Ep-01)
+        var m = tight.match(/\bS(\d{1,2})\s*[\s._-]*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
+                tight.match(/\bS(\d{1,2})[\s._-]+EP?[\s._-]*0*(\d{1,3})\b/i) ||
+                tight.match(/S(\d{1,2})[\s._-]*Ep(?:isode)?[\s._-]*0*(\d{1,3})/i) ||
+                tight.match(/season[\s._-]*(\d{1,2})[\s._-]*episode[\s._-]*0*(\d{1,3})/i);
         if (m) {
           season = String(parseInt(m[1], 10));
-          if (!episode) episode = String(parseInt(m[2], 10));
+          episode = String(parseInt(m[2], 10));
         }
-
         if (!episode) {
-          var m2 = s.match(/\bEP(?:isode)?[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i) ||
-                   s.match(/[\s_\-]Ep[\s._-]*0*(\d{1,3})(?:[\s_\-]|$)/i);
+          var m2 = tight.match(/\bEP(?:isode)?[\s._-]*0*(\d{1,3})\b/i) ||
+                   tight.match(/\bEpisode[\s._-]*0*(\d{1,3})\b/i) ||
+                   tight.match(/[\s_\-]Ep[\s._-]*0*(\d{1,3})(?:[\s_\-]|$)/i);
           if (m2) episode = String(parseInt(m2[1], 10));
         }
-        // Careful with bare E01 — avoid matching "HEVC" etc.
         if (!episode) {
-          var mE = s.match(/(?:^|[\s_\-])E[\s._-]*0*(\d{1,3})(?:\b|[\s_\-])/i);
+          var mE = tight.match(/(?:^|[\s_\-])E[\s._-]*0*(\d{1,3})(?:\b|[\s_\-])/i);
           if (mE) episode = String(parseInt(mE[1], 10));
         }
 
-        var m3 = s.match(/season[\s._-]*(\d{1,2})/i) || s.match(/\bS(\d{1,2})\b/i);
+        // 2) Pack range ONLY if no single episode found — and only from tight text
+        if (!episode) {
+          var rangeM = tight.match(/\b(?:episodes?|eps?\.?)\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*0*(\d{1,3})\b/i) ||
+                       tight.match(/\bE(?:P)?\s*0*(\d{1,3})\s*(?:to|-|–|—)\s*E?(?:P)?\s*0*(\d{1,3})\b/i) ||
+                       tight.match(/\b(\d{1,2})\s*(?:to|-|–|—)\s*(\d{1,3})\s*(?:ep|episode)/i);
+          if (rangeM) {
+            episode = String(parseInt(rangeM[1], 10));
+            episodeTo = String(parseInt(rangeM[2], 10));
+            if (parseInt(episodeTo, 10) < parseInt(episode, 10)) {
+              var tmp = episode; episode = episodeTo; episodeTo = tmp;
+            }
+            if (parseInt(episodeTo, 10) - parseInt(episode, 10) > 29) {
+              episodeTo = String(parseInt(episode, 10) + 29);
+            }
+          }
+        }
+
+        // 3) Fallback single ep from nearby context (heading), never a range from context
+        if (!episode) {
+          var cm = ctx.match(/\bS(\d{1,2})\s*[\s._-]*E(?:P)?[\s._-]*0*(\d{1,3})\b/i) ||
+                   ctx.match(/\b(?:episode|ep)\s*0*(\d{1,3})\b/i);
+          if (cm) {
+            if (cm[2] !== undefined) {
+              season = String(parseInt(cm[1], 10));
+              episode = String(parseInt(cm[2], 10));
+            } else {
+              episode = String(parseInt(cm[1], 10));
+            }
+          }
+        }
+
+        var m3 = tight.match(/season[\s._-]*(\d{1,2})/i) || tight.match(/\bS(\d{1,2})\b/i);
         if (m3) season = String(parseInt(m3[1], 10));
 
-        var quality = detectQuality(s + ' ' + (url || ''));
+        var quality = detectQuality(tight + ' ' + (url || '') + ' ' + (ctx || ''));
         if (!episode) return null;
 
         return {
@@ -17446,7 +17467,9 @@ function ffiParsePage(html, srcUrl) {
           episodeTo: episodeTo,
           quality: quality,
           isPack: !!(episodeTo && parseInt(episodeTo, 10) > parseInt(episode, 10)),
-          title: ('Episode ' + episode)
+          title: (episodeTo && parseInt(episodeTo, 10) > parseInt(episode, 10))
+            ? ('Episodes ' + episode + '-' + episodeTo + ' (Pack)')
+            : ('Episode ' + episode)
         };
       }
 
@@ -17513,15 +17536,32 @@ function ffiParsePage(html, srcUrl) {
         if (!fromN || fromN < 1) return;
         if (!toN || toN < fromN) toN = fromN;
 
-        for (var n = fromN; n <= toN; n++) {
-          var ep = ensureEp(info.season, n);
-          if (toN > fromN) {
-            ep.title = 'Episode ' + n + ' (pack ' + fromN + '-' + toN + ')';
-            ep.packFrom = String(fromN);
-            ep.packTo = String(toN);
+        // FIX: pack zip (Ep 1-9 ek file) → sirf EK episode entry, same link har ep pe mat chipkao
+        // Individual episode links → har ep apna unique server URL
+        if (toN > fromN) {
+          var packKey = 'pack|' + info.season + '|' + fromN + '-' + toN;
+          if (!epMap[packKey]) {
+            epMap[packKey] = {
+              season: String(info.season),
+              episode: String(fromN),
+              episodeTo: String(toN),
+              title: 'Episodes ' + fromN + '-' + toN + ' (Pack)',
+              packFrom: String(fromN),
+              packTo: String(toN),
+              isPack: true,
+              dl480: '',
+              dl720: '',
+              dl1080: '',
+              sz480: '',
+              sz720: '',
+              sz1080: '',
+              videoSourceUrl: '',
+              dlSourceUrl: ''
+            };
           }
-          // For packs: same file link on every ep in range (real pack zip)
-          // For single: quality-specific link only for this episode
+          setQualityLink(epMap[packKey], info.quality, r.url, r.size);
+        } else {
+          var ep = ensureEp(info.season, fromN);
           setQualityLink(ep, info.quality, r.url, r.size);
         }
       });
