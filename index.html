@@ -14596,20 +14596,48 @@ function ffiPushPost(url, title, allFound, siteUrl, listCat) {
 
 
 function ffiFillUrl(url) {
-  var ids = ['ffi-site-url', 'ffi-site-url-2', 'ffi-site-url-3'];
-  for (var i = 0; i < ids.length; i++) {
-    var el = document.getElementById(ids[i]);
-    if (el && !String(el.value || '').trim()) {
-      el.value = url;
-      toast('URL ' + (i+1) + ' set');
-      return;
+  try {
+    url = String(url || '').trim();
+    if (!url) { toast('URL empty', 1); return; }
+    var ids = ['ffi-site-url', 'ffi-site-url-2', 'ffi-site-url-3'];
+    var filled = null;
+    // 1) pehla khali box
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (!el) continue;
+      if (!String(el.value || '').trim()) {
+        el.value = url;
+        filled = i + 1;
+        break;
+      }
     }
+    // 2) sab bhare hon to URL1 overwrite
+    if (!filled) {
+      var e0 = document.getElementById('ffi-site-url');
+      if (e0) {
+        e0.value = url;
+        filled = 1;
+      }
+    }
+    // visual flash
+    var target = document.getElementById(ids[(filled || 1) - 1]);
+    if (target) {
+      target.style.borderColor = '#22c55e';
+      target.style.boxShadow = '0 0 0 2px rgba(34,197,94,0.35)';
+      try { target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {}
+      setTimeout(function() {
+        target.style.borderColor = '';
+        target.style.boxShadow = '';
+      }, 1200);
+    }
+    if (typeof toast === 'function') toast('✅ Category URL ' + filled + ' set');
+    else alert('URL ' + filled + ' set:\n' + url);
+  } catch (err) {
+    alert('ffiFillUrl error: ' + (err && err.message ? err.message : err));
   }
-  // All full — overwrite first
-  var e0 = document.getElementById('ffi-site-url');
-  if (e0) e0.value = url;
-  toast('URL 1 overwrite');
 }
+// global — inline onclick ke liye
+try { window.ffiFillUrl = ffiFillUrl; } catch (e) {}
 function ffiDetectListCategory(siteUrl) {
   var su = String(siteUrl || '').toLowerCase();
   if (!su) return '';
