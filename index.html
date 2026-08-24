@@ -458,12 +458,31 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 
 /* PANEL SNAPPY */
 .nav-item, .btn, .toggle-wrap, button { touch-action: manipulation; }
-.section { content-visibility: auto; }
-.section.active { content-visibility: visible; }
 
-/* PANEL PERF SECTIONS */
-.section{display:none!important;}
-.section.active{display:block!important;}
+/* PANEL PERF SECTIONS — only one section visible; hide others fully (no content-visibility bleed) */
+.section{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  position:absolute !important;
+  left:-9999px !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  opacity:0 !important;
+}
+.section.active{
+  display:block !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  position:relative !important;
+  left:auto !important;
+  width:auto !important;
+  height:auto !important;
+  overflow:visible !important;
+  opacity:1 !important;
+}
+#content{position:relative;min-height:60vh;}
 #mtbl img{width:40px!important;height:56px!important;object-fit:cover;background:#222;}
 #mtbl-pager .btn{min-width:64px;}
 </style>
@@ -4475,23 +4494,54 @@ function tmdbFillForm(id, mediaType) {
 
 // ═══ SECTIONS ═══
 function show(name){
-  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
-  var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
-  var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';_tblPage=1;updateCfBtns();renderTable(allMovies);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
-  if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
-  if(name==='linkmanager'){lmFilter();}
-  if(name==='servermovies'){smLoadExisting();}
-  if(name==='contacts'){loadContacts();}
-  if(name==='adtimer'){atpLoadSettings();}
-  if(name==='adwatch'){awpLoadSettings();}
-  if(name==='push'){puLoadAll();}
-  if(name==='mylinks'){mlLoadAll();}
-  if(name==='playmate'){pmOnShow();}
+  // 1) Pehle saari sections bilkul hide — class + inline (purana content bleed band)
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+    sections[i].style.setProperty('display', 'none', 'important');
+  }
+  var navs = document.querySelectorAll('.nav-item');
+  for (var j = 0; j < navs.length; j++) navs[j].classList.remove('active');
+
+  var sec = document.getElementById('sec-' + name);
+  if (sec) {
+    sec.classList.add('active');
+    sec.style.setProperty('display', 'block', 'important');
+  }
+  var nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+
+  // Scroll content top
+  try {
+    var content = document.getElementById('content');
+    if (content) content.scrollTop = 0;
+    window.scrollTo(0, 0);
+  } catch (e) {}
+
+  // 2) Heavy work next frame — UI pehle switch ho, hang kam
+  var target = name;
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      try { _showSectionWork(target); } catch (err) { console.warn('show work', err); }
+    }, 0);
+  });
+}
+
+function _showSectionWork(name){
+  if(name==='movies'){currentCatFilter='all';_tblPage=1;updateCfBtns();renderTable(allMovies);}
+  if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){} if(typeof trendFilter==='function')try{trendFilter();}catch(e2){}}
+  if(name==='motd'){try{motdRenderCurrent();}catch(e){} var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')try{motdRenderList([]);}catch(e3){}}
+  if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
+  if(name==='settings'){var st=document.getElementById('sys-total');if(st)st.innerText=allMovies.length; if(typeof tfaRenderSettings==='function')tfaRenderSettings();}
+  if(name==='linkmanager'){if(typeof lmFilter==='function')lmFilter();}
+  if(name==='servermovies'){if(typeof smLoadExisting==='function')smLoadExisting();}
+  if(name==='contacts'){if(typeof loadContacts==='function')loadContacts();}
+  if(name==='adtimer'){if(typeof atpLoadSettings==='function')atpLoadSettings();}
+  if(name==='adwatch'){if(typeof awpLoadSettings==='function')awpLoadSettings();}
+  if(name==='push'){if(typeof puLoadAll==='function')puLoadAll();}
+  if(name==='mylinks'){if(typeof mlLoadAll==='function')mlLoadAll();}
+  if(name==='playmate'){if(typeof pmOnShow==='function')pmOnShow();}
   if(name==='metascan'){if(typeof msScan==='function')msScan();}
-  if(name==='trending'){if(typeof trendFilter==='function')trendFilter();}
-  if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
   if(name==='views'){if(typeof uaLoadAll==='function')uaLoadAll();}
   if(name==='requests'){if(typeof loadRequests==='function')loadRequests();}
   if(name==='ratings'){if(typeof loadRatings==='function')loadRatings();}
@@ -4506,11 +4556,12 @@ function show(name){
     try {
       var cb=document.getElementById('pf-auto-toggle');
       if(cb) cb.checked=!!_pfAutoEnabled;
-      pfUpdateMissingCount();
+      if(typeof pfUpdateMissingCount==='function') pfUpdateMissingCount();
     } catch(e){}
     if(typeof posterFillLoad==='function')posterFillLoad();
   }
-  if(name==='ffimport'){document.getElementById('ffi-fetch-status').style.display='none';}
+  if(name==='ffimport'){var fs=document.getElementById('ffi-fetch-status');if(fs)fs.style.display='none';}
+  if(name==='dashboard'){try{if(typeof renderDash==='function')renderDash();}catch(e){}}
 }
 
 
@@ -4583,14 +4634,33 @@ function autoCategoryFromText(title, language, currentCat) {
 
 function showCat(cat){
   activeCatView=cat;
-  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
-  var catSec=document.getElementById('sec-catview');if(catSec)catSec.classList.add('active');
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+    sections[i].style.setProperty('display', 'none', 'important');
+  }
+  var navs = document.querySelectorAll('.nav-item');
+  for (var j = 0; j < navs.length; j++) navs[j].classList.remove('active');
+  var catSec=document.getElementById('sec-catview');
+  if(catSec){
+    catSec.classList.add('active');
+    catSec.style.setProperty('display', 'block', 'important');
+  }
   var nav=document.getElementById('nav-cat-'+cat);if(nav)nav.classList.add('active');
   var labels={hollywood:'🌟 Hollywood',bollywood:'🎭 Bollywood',tollywood:'🎬 Tollywood',animation:'🧸 Animated',webseries:'📺 Web-Series',kdrama:'🇰🇷 K-Drama',dual_audio:'🔊 Dual Audio',hindi_dubbed:'🇮🇳 Hindi Dubbed',south:'🎬 South Indian',tamil:'Tamil',telugu:'Telugu',south_hindi:'🌐 South Hindi Dubbed',adult:'🔞 Adult Movies',short_films:'🔞 Adult Short Film'};
-  document.getElementById('cat-view-title').innerHTML=(labels[cat]||cat)+' <span>Content</span>';
-  document.getElementById('catsrch').value='';
-  renderCatTable(allMovies.filter(function(m){return m.category===cat;}));
+  var titleEl=document.getElementById('cat-view-title');
+  if(titleEl) titleEl.innerHTML=(labels[cat]||cat)+' <span>Content</span>';
+  var srch=document.getElementById('catsrch'); if(srch) srch.value='';
+  try {
+    var content = document.getElementById('content');
+    if (content) content.scrollTop = 0;
+    window.scrollTo(0, 0);
+  } catch(e){}
+  requestAnimationFrame(function(){
+    setTimeout(function(){
+      try { renderCatTable(allMovies.filter(function(m){return m.category===cat;})); } catch(err){}
+    }, 0);
+  });
 }
 
 function filterCat(){
