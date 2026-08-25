@@ -2085,9 +2085,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
         <input class="si" id="ffi-posts-search" placeholder="🔍 Movie ka naam likho search karne ke liye..." oninput="ffiRenderPosts()" style="width:100%;margin-bottom:10px;"/>
         <div id="ffi-posts-list" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
-        <div style="margin-top:14px;">
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <label style="font-size:0.75rem;color:var(--grey);">Duplicate:</label>
+            <select class="fi" id="ffi-dup-mode" style="padding:8px 12px;font-size:0.8rem;width:auto;min-width:200px;">
+              <option value="skip">⚠️ Skip if Already Exists</option>
+              <option value="force">✅ Force import (dobara bhi le aao)</option>
+              <option value="update">🔄 Update existing (same title pe links refresh)</option>
+            </select>
+          </div>
           <button onclick="ffiStartImport()" id="ffi-import-btn" class="btn btn-p">⚡ Import Karo (Selected Posts)</button>
         </div>
+        <div style="font-size:0.72rem;color:#666;margin-top:8px;">Orange <b style="color:#f59e0b;">Already Exists</b> = Firebase mein same title pehle se hai. Force select karo agar skip nahi chahiye.</div>
       </div>
 
       <!-- Progress -->
@@ -4567,78 +4576,22 @@ function autoCategoryFromText(title, language, currentCat) {
   return 'hollywood';
 }
 
-// Admin table page size — 291+ rows ek saath DOM mein mat dalo (freeze)
-var ADMIN_PAGE_SIZE = 40;
-var _catTblPage = 1;
-var _catTblLastList = [];
-var _catTblToken = 0;
-var _tblPage = 1;
-var _suppressMoviesUi = false; // optimistic delete ke dauran full snap re-render skip
-
-function _ensurePager(hostId, page, total, onPageFnName){
-  var host = document.getElementById(hostId);
-  if(!host) return;
-  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
-  var id = hostId + '-pager';
-  var pager = document.getElementById(id);
-  if(totalPages <= 1){
-    if(pager) pager.remove();
-    return;
-  }
-  if(!pager){
-    pager = document.createElement('div');
-    pager.id = id;
-    pager.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:14px 0 6px;';
-    host.parentNode.insertBefore(pager, host.nextSibling);
-  }
-  var html = '<button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" '+(page<=1?'disabled':'')+' onclick="'+onPageFnName+'('+(page-1)+')">← Prev</button>';
-  html += '<span style="font-size:0.78rem;color:#888;">Page <b style="color:#fff;">'+page+'</b> / '+totalPages+' · '+total+' posts</span>';
-  html += '<button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" '+(page>=totalPages?'disabled':'')+' onclick="'+onPageFnName+'('+(page+1)+')">Next →</button>';
-  pager.innerHTML = html;
-}
-
-function adminCatGoPage(p){
-  if(p < 1) return;
-  renderCatTable(_catTblLastList, p);
-  try { var t = document.getElementById('cattbl'); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); } catch(e){}
-}
-function adminMoviesGoPage(p){
-  if(p < 1) return;
-  renderTable(_tblLastList, p);
-  try { var t = document.getElementById('mtbl'); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); } catch(e){}
-}
-
-function renderCatTable(list, page){
+function renderCatTable(list){
   var tbody=document.getElementById('cattbl');
   var empty=document.getElementById('catempty');
   if(!tbody) return;
-  if(!list) list = _catTblLastList || [];
   if(!list) list = [];
-  _catTblLastList = list;
-  page = page || 1;
-  _catTblPage = page;
-  var token = ++_catTblToken;
   if(!list.length){
     tbody.innerHTML='';
     if(empty) empty.style.display='block';
-    _ensurePager('cattbl', 1, 0, 'adminCatGoPage');
     return;
   }
   if(empty) empty.style.display='none';
-  var total = list.length;
-  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
-  if(page > totalPages) page = totalPages;
-  _catTblPage = page;
-  var start = (page - 1) * ADMIN_PAGE_SIZE;
-  var slice = list.slice(start, start + ADMIN_PAGE_SIZE);
-  tbody.innerHTML = '';
   var html = '';
-  for(var i=0;i<slice.length;i++){
-    if(token !== _catTblToken) return;
-    try { html += buildRow(slice[i], true); } catch(e){}
+  for(var i=0;i<list.length;i++){
+    try { html += buildRow(list[i], true); } catch(e){}
   }
   tbody.innerHTML = html;
-  _ensurePager('cattbl', page, total, 'adminCatGoPage');
 }
 
 function showCat(cat){
@@ -4660,16 +4613,10 @@ function showCat(cat){
   if(titleEl) titleEl.innerHTML = (labels[cat]||cat) + ' <span>Content</span>';
   var srch = document.getElementById('catsrch');
   if(srch) srch.value = '';
-  // Instant skeleton — user ko turant feedback
-  var tbody = document.getElementById('cattbl');
-  if(tbody) tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:28px;color:#666;">⏳ Loading…</td></tr>';
-  // Filter + render next frame (UI pehle paint ho)
-  requestAnimationFrame(function(){
-    var list = (typeof getMoviesForCatFilter === 'function')
-      ? getMoviesForCatFilter(cat)
-      : allMovies.filter(function(m){ return (m.category||'').toLowerCase() === String(cat||'').toLowerCase(); });
-    if(typeof renderCatTable === 'function') renderCatTable(list, 1);
-  });
+  var list = (typeof getMoviesForCatFilter === 'function')
+    ? getMoviesForCatFilter(cat)
+    : allMovies.filter(function(m){ return (m.category||'').toLowerCase() === String(cat||'').toLowerCase(); });
+  if(typeof renderCatTable === 'function') renderCatTable(list);
 }
 
 function filterCat(){
@@ -4684,18 +4631,16 @@ function filterCat(){
       return ((m.title||'')+(m.genre||'')+(m.category||'')).toLowerCase().indexOf(q) > -1;
     });
   }
-  if(typeof renderCatTable === 'function') renderCatTable(list, 1);
+  if(typeof renderCatTable === 'function') renderCatTable(list);
 }
 
 // ═══ LOAD DATA ═══
 function loadAllContent(){
   // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
-  // Debounce + suppress during optimistic delete + section-only re-render.
+  // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
   var _moviesUiTimer = null;
-  var _firstMoviesApplied = false;
   function _applyMoviesSnap(snap, countsSnap){
     if(!snap) return;
-    if(_suppressMoviesUi) return; // local optimistic UI already updated
     var arr = [];
     var counts = (countsSnap && countsSnap.exists()) ? (countsSnap.val() || {}) : null;
     if(snap.exists()){
@@ -4733,36 +4678,30 @@ function loadAllContent(){
           : ((!currentCatFilter || currentCatFilter==='all') ? allMovies : allMovies.filter(function(m){
               return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
             }));
-        renderTable(_lst, _tblPage || 1);
+        renderTable(_lst);
       } catch(e){}
     }
     var catSec = document.getElementById('sec-catview');
     if(catSec && catSec.classList.contains('active') && typeof activeCatView !== 'undefined' && activeCatView){
       try {
-        var _clst = (typeof getMoviesForCatFilter==='function')
-          ? getMoviesForCatFilter(activeCatView)
-          : allMovies.filter(function(m){ return (m.category||'')===activeCatView; });
-        renderCatTable(_clst, _catTblPage || 1);
+        renderCatTable(allMovies.filter(function(m){ return (m.category||'')===activeCatView; }));
       } catch(e){}
     }
     var trendSec = document.getElementById('sec-trending');
     if(trendSec && trendSec.classList.contains('active')){
       try { renderTrendList(allMovies.slice(0,60)); } catch(e){}
     }
+    // PERF: mlAutoFixUnmatched not on every snap
 
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
-    _firstMoviesApplied = true;
   }
   var _lastMoviesSnap = null;
   var _lastCountsSnap = null;
   function _refreshMoviesUi(){
-    if(_suppressMoviesUi) return;
     clearTimeout(_moviesUiTimer);
-    // Pehli load: jaldi; baad mein debounce taake bulk ops freeze na karen
-    var delay = _firstMoviesApplied ? 280 : 40;
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, delay);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 450);
   }
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
@@ -4818,11 +4757,9 @@ var CAT_ALIASES = {
   bollywood_hindi: ['bollywood_hindi','bollywood','bollywood hindi'],
   anime_hindi: ['anime_hindi','animation','animated','anime'],
   webseries_hindi: ['webseries_hindi','webseries','web series','web-series','series'],
-  kdrama_hindi: ['kdrama_hindi','kdrama','k-drama','k drama','k-drama hindi dubbed','k drama hindi'],
-  // Panel display names + slugs — exact match for filter counts
-  philippines: ['philippines','philippines movies','philippine movies','philippine'],
-  hot_short_hindi: ['hot_short_hindi','hot short movies hindi dubbed','hot short movies','hot short hindi','short_films','short films'],
-  adult: ['adult','adult movies','adult_english','adult_hindi','vivamax','hot_series']
+  kdrama_hindi: ['kdrama_hindi','kdrama','k-drama','k drama'],
+  philippines: ['philippines','adult','adult_english','vivamax','adult movies'],
+  hot_short_hindi: ['hot_short_hindi','short_films','hot_series','adult_hindi','short films']
 };
 
 function updateCounts(){
@@ -4889,7 +4826,7 @@ function buildRow(m,hideCategory){
     +'</div></td></tr>';
 }
 
-// ═══ TABLE RENDER — paginated (40/page) — no freeze on 1000+ rows ═══
+// ═══ TABLE RENDER — ALL posts, NO pages, chunked (no freeze) ═══
 var _tblLastList = [];
 var _tblRenderToken = 0;
 var CAT_GROUPS = {
@@ -4901,37 +4838,43 @@ var CAT_GROUPS = {
   kdrama: ['kdrama_hindi'],
   adult: ['philippines','hot_short_hindi']
 };
-function renderTable(list, page){
+function renderTable(list){
   var tbody = document.getElementById('mtbl');
   var empty = document.getElementById('tempty');
   if(!tbody) return;
   if(!list) list = _tblLastList || [];
   if(!list) list = [];
   _tblLastList = list;
-  page = page || 1;
-  _tblPage = page;
+  try {
+    var pager = document.getElementById('mtbl-pager');
+    if(pager) pager.remove();
+  } catch(e){}
+  // cancel any in-progress chunked render
   var token = ++_tblRenderToken;
   if(!list.length){
     tbody.innerHTML = '';
     if(empty) empty.style.display = 'block';
-    _ensurePager('mtbl', 1, 0, 'adminMoviesGoPage');
     return;
   }
   if(empty) empty.style.display = 'none';
-  var total = list.length;
-  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
-  if(page > totalPages) page = totalPages;
-  _tblPage = page;
-  var start = (page - 1) * ADMIN_PAGE_SIZE;
-  var slice = list.slice(start, start + ADMIN_PAGE_SIZE);
   tbody.innerHTML = '';
-  var html = '';
-  for(var i = 0; i < slice.length; i++){
-    if(token !== _tblRenderToken) return;
-    try { html += buildRow(slice[i], false); } catch(e){}
+  var n = list.length;
+  var CHUNK = 80;
+  var i = 0;
+  function paintChunk(){
+    if(token !== _tblRenderToken) return; // cancelled
+    var html = '';
+    var end = Math.min(i + CHUNK, n);
+    for(; i < end; i++){
+      try { html += buildRow(list[i], false); } catch(e){}
+    }
+    if(html) tbody.insertAdjacentHTML('beforeend', html);
+    if(i < n){
+      if(window.requestAnimationFrame) requestAnimationFrame(paintChunk);
+      else setTimeout(paintChunk, 0);
+    }
   }
-  tbody.innerHTML = html;
-  _ensurePager('mtbl', page, total, 'adminMoviesGoPage');
+  paintChunk();
 }
 
 function getMoviesForCatFilter(cat){
@@ -4959,9 +4902,10 @@ function getMoviesForCatFilter(cat){
 function filterByCat(cat){
   if(!cat) return;
   currentCatFilter = cat;
+  
   updateCfBtns();
   var list = getMoviesForCatFilter(cat);
-  renderTable(list, 1);
+  renderTable(list);
 }
 function updateCfBtns(){
   document.querySelectorAll('#cat-filter-wrap .cf-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -4983,8 +4927,9 @@ function filterM(){
         return ((m.title||'')+(m.category||'')+(m.genre||'')).toLowerCase().indexOf(q)>-1;
       });
     }
-    renderTable(list, 1);
-  }, 120);
+    
+    renderTable(list);
+  }, 200);
 }
 
 
@@ -7582,53 +7527,13 @@ function saveEdit(){
   db.ref('movies/'+editKey).update(m).then(function(){toast('✅ Update ho gaya! Movie home page pe top pe aa gayi.');closeEdit();}).catch(function(e){toast('❌ '+e.message,1);});
 }
 
-// ═══ DELETE (optimistic UI + single/batch Firebase write) ═══
-function _adminRefreshCurrentView(){
-  try { updateCounts(); } catch(e){}
-  try {
-    var moviesSec = document.getElementById('sec-movies');
-    if(moviesSec && moviesSec.classList.contains('active')){
-      var list = (typeof getMoviesForCatFilter==='function')
-        ? getMoviesForCatFilter(currentCatFilter||'all')
-        : allMovies;
-      renderTable(list, _tblPage||1);
-    }
-  } catch(e){}
-  try {
-    var catSec = document.getElementById('sec-catview');
-    if(catSec && catSec.classList.contains('active') && activeCatView){
-      var cl = (typeof getMoviesForCatFilter==='function')
-        ? getMoviesForCatFilter(activeCatView)
-        : allMovies.filter(function(m){ return (m.category||'')===activeCatView; });
-      renderCatTable(cl, _catTblPage||1);
-    }
-  } catch(e){}
-  try {
-    var st = document.getElementById('st'); if(st) st.innerText = allMovies.length;
-    var mc = document.getElementById('mc'); if(mc) mc.innerText = allMovies.length;
-  } catch(e){}
-}
-
+// ═══ DELETE ═══
 function confDel(key,title){
   deleteKey=key;
   document.getElementById('cmsg').innerText='"'+title+'" will be permanently deleted.';
   document.getElementById('confirm-modal').classList.add('active');
   document.getElementById('cok').onclick=function(){
-    var k = deleteKey;
-    closeConfirm();
-    // Optimistic: turant list se hatao
-    allMovies = allMovies.filter(function(m){ return m.key !== k; });
-    if(selectedKeys[k]) delete selectedKeys[k];
-    try { updateSelUI(); } catch(e){}
-    _adminRefreshCurrentView();
-    _suppressMoviesUi = true;
-    db.ref('movies/'+k).remove().then(function(){
-      toast('🗑 Delete ho gayi!');
-      setTimeout(function(){ _suppressMoviesUi = false; }, 600);
-    }).catch(function(e){
-      _suppressMoviesUi = false;
-      toast('❌ '+e.message,1);
-    });
+    db.ref('movies/'+deleteKey).remove().then(function(){toast('🗑 Delete ho gayi! Website se bhi hat gayi.');closeConfirm();}).catch(function(e){toast('❌ '+e.message,1);});
   };
 }
 function closeConfirm(){document.getElementById('confirm-modal').classList.remove('active');deleteKey=null;}
@@ -7640,19 +7545,10 @@ function confirmDeleteAll(){
   document.getElementById("cmsg").innerText = "All "+total+" movies will be permanently deleted — including from Firebase!";
   document.getElementById("confirm-modal").classList.add("active");
   document.getElementById("cok").onclick = function(){
-    closeConfirm();
-    allMovies = [];
-    selectedKeys = {};
-    try { updateSelUI(); } catch(e){}
-    _adminRefreshCurrentView();
-    _suppressMoviesUi = true;
     db.ref("movies").remove().then(function(){
       toast("🗑 All "+total+" movies have been deleted!");
-      setTimeout(function(){ _suppressMoviesUi = false; }, 600);
-    }).catch(function(e){
-      _suppressMoviesUi = false;
-      toast("❌ "+e.message, 1);
-    });
+      closeConfirm();
+    }).catch(function(e){ toast("❌ "+e.message, 1); });
   };
 }
 // ═══ END DELETE ALL ═══
@@ -7741,24 +7637,17 @@ function confirmDeleteSelected(){
   document.getElementById('cmsg').innerText = keys.length+' selected movies permanently delete ho jayengi — Firebase se bhi!';
   document.getElementById('confirm-modal').classList.add('active');
   document.getElementById('cok').onclick = function(){
-    closeConfirm();
-    // Optimistic local remove — UI turant update
-    var keySet = {};
-    keys.forEach(function(k){ keySet[k] = true; });
-    allMovies = allMovies.filter(function(m){ return !keySet[m.key]; });
-    selectedKeys = {};
-    try { updateSelUI(); } catch(e){}
-    _adminRefreshCurrentView();
-    // ONE multi-path write — har key pe alag remove() nahi (wo N baar full tree re-download trigger karta tha)
-    var updates = {};
-    keys.forEach(function(k){ updates['movies/' + k] = null; });
-    _suppressMoviesUi = true;
-    db.ref().update(updates).then(function(){
-      toast('🗑 '+keys.length+' movies deleted!');
-      setTimeout(function(){ _suppressMoviesUi = false; }, 800);
-    }).catch(function(e){
-      _suppressMoviesUi = false;
-      toast('❌ '+e.message, 1);
+    var done=0;
+    keys.forEach(function(k){
+      db.ref('movies/'+k).remove().then(function(){
+        done++;
+        if(done===keys.length){
+          toast('🗑 '+done+' movies deleted!');
+          selectedKeys={};
+          updateSelUI();
+          closeConfirm();
+        }
+      }).catch(function(e){ toast('❌ '+e.message,1); });
     });
   };
 }
@@ -14917,12 +14806,21 @@ function ffiStartImport() {
   document.getElementById('ffi-prog-wrap').style.display = 'block';
   document.getElementById('ffi-import-btn').disabled = true;
   document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
+  try {
+    document.getElementById('ffi-prog-title').textContent = 'Firebase se list check...';
+  } catch(e){}
 
-  // Existing titles check
+  // Existing titles — LIVE Firebase se (RAM allMovies stale ho sakti hai
+  // jab "Delete All" ke baad turant import chale bina refresh ke)
   var existingTitles = {};
-  allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
+  var existingTitleKey = {};
+  var dupMode = 'skip';
+  try {
+    var dm = document.getElementById('ffi-dup-mode');
+    if(dm && dm.value) dupMode = dm.value;
+  } catch(e){}
 
-  // Render queue items
+  // Render queue items pehle (UI feedback)
   selected.forEach(function(p, i) {
     var item = document.createElement('div');
     item.className = 'bi-item';
@@ -14939,6 +14837,65 @@ function ffiStartImport() {
   var _ffiActive = 0;
   var _ffiDone = 0;
   var FFI_CONCURRENCY = 5;
+  var _ffiWorkersStarted = false;
+
+  function _ffiBuildExistingFromSnap(snap) {
+    existingTitles = {};
+    existingTitleKey = {};
+    allMovies = [];
+    if (snap && snap.exists()) {
+      snap.forEach(function(c) {
+        var m = c.val() || {};
+        m.key = c.key;
+        allMovies.push(m);
+        if (!m.title) return;
+        var t = String(m.title).toLowerCase().trim();
+        existingTitles[t] = true;
+        existingTitleKey[t] = m.key;
+      });
+      allMovies.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+    }
+    try {
+      document.getElementById('ffi-prog-title').textContent =
+        'DB movies: ' + allMovies.length + ' — Importing 0 / ' + selected.length;
+    } catch(e){}
+  }
+
+  function _ffiStartWorkers() {
+    if (_ffiWorkersStarted) return;
+    _ffiWorkersStarted = true;
+    while (_ffiActive < FFI_CONCURRENCY && _ffiNextIdx < selected.length) {
+      var ni = _ffiNextIdx++;
+      _ffiActive++;
+      processOne(ni);
+    }
+    if (!selected.length) ffiImportDone();
+  }
+
+  // Pehle Firebase se fresh titles lao, phir workers
+  try {
+    db.ref('movies').once('value', function(snap) {
+      _ffiBuildExistingFromSnap(snap);
+      _ffiStartWorkers();
+    }, function() {
+      // Network fail — RAM allMovies se fallback
+      allMovies.forEach(function(m) {
+        if (!m || !m.title) return;
+        var t = String(m.title).toLowerCase().trim();
+        existingTitles[t] = true;
+        if (m.key) existingTitleKey[t] = m.key;
+      });
+      _ffiStartWorkers();
+    });
+  } catch (e) {
+    allMovies.forEach(function(m) {
+      if (!m || !m.title) return;
+      var t = String(m.title).toLowerCase().trim();
+      existingTitles[t] = true;
+      if (m.key) existingTitleKey[t] = m.key;
+    });
+    _ffiStartWorkers();
+  }
 
   function ffiUpdateProg() {
     var pct = Math.round((_ffiDone / selected.length) * 100);
@@ -15010,13 +14967,19 @@ function ffiStartImport() {
         } catch(e){}
       }
 
-      // Check duplicate
-      if (existingTitles[data.title.toLowerCase()]) {
+      // Check duplicate — mode: skip | force | update
+      var _tKey = (data.title || '').toLowerCase().trim();
+      var _isDup = !!(existingTitles[_tKey]);
+      var _existingKey = existingTitleKey[_tKey] || null;
+      if (_isDup && dupMode === 'skip') {
         skip++;
         if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent='⚠️ Already Exists'; document.getElementById('ffi-st-'+n).className='bi-status skip'; }
         ffiItemDone();
         return;
       }
+      // force / update: aage process → review queue mein jayegi
+      var _ffiDupAction = (_isDup && dupMode === 'update' && _existingKey) ? 'update' : 'new';
+      var _ffiUpdateKey = (_ffiDupAction === 'update') ? _existingKey : null;
 
       // FilmyZilla: /server/ → get_link.php → direct CDN URL (best effort)
       function ffiEnrichFilmyzilla(dataObj, done) {
@@ -15744,10 +15707,27 @@ function ffiStartImport() {
         // select karke "Save" dabayega, tab jaake Firebase mein jayega.
         applyCategoryDefaults(obj);
         if (data.size && !obj.size) obj.size = data.size;
-        _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || obj.size || '', checked: true });
+        // Duplicate force/update: existing Firebase key attach karo
+        if (typeof _ffiUpdateKey !== 'undefined' && _ffiUpdateKey) {
+          obj._updateKey = _ffiUpdateKey;
+        }
+        _ffiReviewQueue.push({
+          obj: obj,
+          link: data.download_link || '',
+          size: data.size || obj.size || '',
+          checked: true,
+          updateKey: (typeof _ffiUpdateKey !== 'undefined' && _ffiUpdateKey) ? _ffiUpdateKey : null
+        });
         ok++;
-        existingTitles[data.title.toLowerCase()] = true;
-        if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Ready'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
+        existingTitles[(data.title || '').toLowerCase().trim()] = true;
+        if (item) {
+          item.className='bi-item bi-done';
+          var stTxt = '✅ Ready';
+          if (typeof _ffiDupAction !== 'undefined' && _ffiDupAction === 'update') stTxt = '🔄 Update';
+          else if (typeof _isDup !== 'undefined' && _isDup && dupMode === 'force') stTxt = '✅ Force';
+          document.getElementById('ffi-st-'+n).textContent = stTxt;
+          document.getElementById('ffi-st-'+n).className='bi-status ok';
+        }
         ffiItemDone();
       }); // ffiTmdbEnrich
       }); // ffiEnrichCrossMp4Match
@@ -15757,13 +15737,7 @@ function ffiStartImport() {
     }); // _ffiFetch
   }
 
-  // Start parallel workers
-  while (_ffiActive < FFI_CONCURRENCY && _ffiNextIdx < selected.length) {
-    var ni = _ffiNextIdx++;
-    _ffiActive++;
-    processOne(ni);
-  }
-  if (!selected.length) ffiImportDone();
+  // Workers Firebase once() complete hone ke baad _ffiStartWorkers() se start hote hain
 }
 
 // ── Parse page HTML ──
@@ -16035,9 +16009,14 @@ function ffiSaveReviewed() {
       if (item.obj.size720) item.obj.size720 = String(item.obj.size720);
       if (item.obj.size1080) item.obj.size1080 = String(item.obj.size1080);
       if (item.obj.size4k) item.obj.size4k = String(item.obj.size4k);
-      var movieKey = db.ref('movies').push().key;
+      // Update mode: same Firebase key pe overwrite; force/new: naya key
+      var movieKey = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
       var payload = sanitizeMovieForFb(item.obj);
-      payload.addedAt = Date.now() + (total - i); // newest first
+      if (!(item.updateKey || (item.obj && item.obj._updateKey))) {
+        payload.addedAt = Date.now() + (total - i); // newest first (sirf naya import)
+      } else {
+        payload.addedAt = Date.now(); // update pe top pe laao
+      }
       updates['movies/' + movieKey] = payload;
       if (item.link) {
         var mlKey = db.ref('mylinks').push().key;
@@ -16060,7 +16039,7 @@ function ffiSaveReviewed() {
         if (j >= end) { saveBatch(end); return; }
         var item = selected[j];
         applyCategoryDefaults(item.obj);
-        var mk = db.ref('movies').push().key;
+        var mk = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
         var payload = sanitizeMovieForFb(item.obj);
         payload.addedAt = Date.now();
         db.ref('movies/' + mk).set(payload).then(function(){ savedCount++; j++; one(); })
