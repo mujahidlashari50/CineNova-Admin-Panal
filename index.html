@@ -4484,7 +4484,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';updateCfBtns();renderTable(allMovies);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
+  if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){console.error(e);}try{renderTable(allMovies||[]);}catch(e){console.error('renderTable',e);}}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4766,9 +4766,9 @@ function renderTable(list){
   var tbody=document.getElementById('mtbl');var empty=document.getElementById('tempty');
   if(!tbody) return;
   if(!list) list = _tblLastList || [];
+  if(!list) list = [];
   _tblLastList = list;
-  var pager = document.getElementById('mtbl-pager');
-  if(pager) pager.remove();
+  try { var pager = document.getElementById('mtbl-pager'); if(pager) pager.remove(); } catch(e){}
   if(!list.length){
     tbody.innerHTML='';
     if(empty) empty.style.display='block';
@@ -4776,7 +4776,11 @@ function renderTable(list){
   }
   if(empty) empty.style.display='none';
   var html = '';
-  for(var i=0;i<list.length;i++) html += buildRow(list[i], false);
+  try {
+    for(var i=0;i<list.length;i++) {
+      try { html += buildRow(list[i], false); } catch(rowErr) { console.error('row', rowErr); }
+    }
+  } catch(e) { console.error(e); }
   tbody.innerHTML = html;
 }
 function resetOtherCatDds(activeEl){
