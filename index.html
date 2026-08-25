@@ -2085,18 +2085,9 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         </div>
         <input class="si" id="ffi-posts-search" placeholder="🔍 Movie ka naam likho search karne ke liye..." oninput="ffiRenderPosts()" style="width:100%;margin-bottom:10px;"/>
         <div id="ffi-posts-list" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
-        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <label style="font-size:0.75rem;color:var(--grey);">Duplicate:</label>
-            <select class="fi" id="ffi-dup-mode" style="padding:8px 12px;font-size:0.8rem;width:auto;min-width:200px;">
-              <option value="skip">⚠️ Skip if Already Exists</option>
-              <option value="force">✅ Force import (dobara bhi le aao)</option>
-              <option value="update">🔄 Update existing (same title pe links refresh)</option>
-            </select>
-          </div>
+        <div style="margin-top:14px;">
           <button onclick="ffiStartImport()" id="ffi-import-btn" class="btn btn-p">⚡ Import Karo (Selected Posts)</button>
         </div>
-        <div style="font-size:0.72rem;color:#666;margin-top:8px;">Orange <b style="color:#f59e0b;">Already Exists</b> = Firebase mein same title pehle se hai. Force select karo agar skip nahi chahiye.</div>
       </div>
 
       <!-- Progress -->
@@ -2159,8 +2150,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;"/>
-            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun)</span>
+            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (ON — ID save)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -14806,21 +14797,12 @@ function ffiStartImport() {
   document.getElementById('ffi-prog-wrap').style.display = 'block';
   document.getElementById('ffi-import-btn').disabled = true;
   document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
-  try {
-    document.getElementById('ffi-prog-title').textContent = 'Firebase se list check...';
-  } catch(e){}
 
-  // Existing titles — LIVE Firebase se (RAM allMovies stale ho sakti hai
-  // jab "Delete All" ke baad turant import chale bina refresh ke)
+  // Existing titles check
   var existingTitles = {};
-  var existingTitleKey = {};
-  var dupMode = 'skip';
-  try {
-    var dm = document.getElementById('ffi-dup-mode');
-    if(dm && dm.value) dupMode = dm.value;
-  } catch(e){}
+  allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
 
-  // Render queue items pehle (UI feedback)
+  // Render queue items
   selected.forEach(function(p, i) {
     var item = document.createElement('div');
     item.className = 'bi-item';
@@ -14837,65 +14819,6 @@ function ffiStartImport() {
   var _ffiActive = 0;
   var _ffiDone = 0;
   var FFI_CONCURRENCY = 5;
-  var _ffiWorkersStarted = false;
-
-  function _ffiBuildExistingFromSnap(snap) {
-    existingTitles = {};
-    existingTitleKey = {};
-    allMovies = [];
-    if (snap && snap.exists()) {
-      snap.forEach(function(c) {
-        var m = c.val() || {};
-        m.key = c.key;
-        allMovies.push(m);
-        if (!m.title) return;
-        var t = String(m.title).toLowerCase().trim();
-        existingTitles[t] = true;
-        existingTitleKey[t] = m.key;
-      });
-      allMovies.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
-    }
-    try {
-      document.getElementById('ffi-prog-title').textContent =
-        'DB movies: ' + allMovies.length + ' — Importing 0 / ' + selected.length;
-    } catch(e){}
-  }
-
-  function _ffiStartWorkers() {
-    if (_ffiWorkersStarted) return;
-    _ffiWorkersStarted = true;
-    while (_ffiActive < FFI_CONCURRENCY && _ffiNextIdx < selected.length) {
-      var ni = _ffiNextIdx++;
-      _ffiActive++;
-      processOne(ni);
-    }
-    if (!selected.length) ffiImportDone();
-  }
-
-  // Pehle Firebase se fresh titles lao, phir workers
-  try {
-    db.ref('movies').once('value', function(snap) {
-      _ffiBuildExistingFromSnap(snap);
-      _ffiStartWorkers();
-    }, function() {
-      // Network fail — RAM allMovies se fallback
-      allMovies.forEach(function(m) {
-        if (!m || !m.title) return;
-        var t = String(m.title).toLowerCase().trim();
-        existingTitles[t] = true;
-        if (m.key) existingTitleKey[t] = m.key;
-      });
-      _ffiStartWorkers();
-    });
-  } catch (e) {
-    allMovies.forEach(function(m) {
-      if (!m || !m.title) return;
-      var t = String(m.title).toLowerCase().trim();
-      existingTitles[t] = true;
-      if (m.key) existingTitleKey[t] = m.key;
-    });
-    _ffiStartWorkers();
-  }
 
   function ffiUpdateProg() {
     var pct = Math.round((_ffiDone / selected.length) * 100);
@@ -14967,19 +14890,13 @@ function ffiStartImport() {
         } catch(e){}
       }
 
-      // Check duplicate — mode: skip | force | update
-      var _tKey = (data.title || '').toLowerCase().trim();
-      var _isDup = !!(existingTitles[_tKey]);
-      var _existingKey = existingTitleKey[_tKey] || null;
-      if (_isDup && dupMode === 'skip') {
+      // Check duplicate
+      if (existingTitles[data.title.toLowerCase()]) {
         skip++;
         if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent='⚠️ Already Exists'; document.getElementById('ffi-st-'+n).className='bi-status skip'; }
         ffiItemDone();
         return;
       }
-      // force / update: aage process → review queue mein jayegi
-      var _ffiDupAction = (_isDup && dupMode === 'update' && _existingKey) ? 'update' : 'new';
-      var _ffiUpdateKey = (_ffiDupAction === 'update') ? _existingKey : null;
 
       // FilmyZilla: /server/ → get_link.php → direct CDN URL (best effort)
       function ffiEnrichFilmyzilla(dataObj, done) {
@@ -15707,27 +15624,10 @@ function ffiStartImport() {
         // select karke "Save" dabayega, tab jaake Firebase mein jayega.
         applyCategoryDefaults(obj);
         if (data.size && !obj.size) obj.size = data.size;
-        // Duplicate force/update: existing Firebase key attach karo
-        if (typeof _ffiUpdateKey !== 'undefined' && _ffiUpdateKey) {
-          obj._updateKey = _ffiUpdateKey;
-        }
-        _ffiReviewQueue.push({
-          obj: obj,
-          link: data.download_link || '',
-          size: data.size || obj.size || '',
-          checked: true,
-          updateKey: (typeof _ffiUpdateKey !== 'undefined' && _ffiUpdateKey) ? _ffiUpdateKey : null
-        });
+        _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || obj.size || '', checked: true });
         ok++;
-        existingTitles[(data.title || '').toLowerCase().trim()] = true;
-        if (item) {
-          item.className='bi-item bi-done';
-          var stTxt = '✅ Ready';
-          if (typeof _ffiDupAction !== 'undefined' && _ffiDupAction === 'update') stTxt = '🔄 Update';
-          else if (typeof _isDup !== 'undefined' && _isDup && dupMode === 'force') stTxt = '✅ Force';
-          document.getElementById('ffi-st-'+n).textContent = stTxt;
-          document.getElementById('ffi-st-'+n).className='bi-status ok';
-        }
+        existingTitles[data.title.toLowerCase()] = true;
+        if (item) { item.className='bi-item bi-done'; document.getElementById('ffi-st-'+n).textContent='✅ Ready'; document.getElementById('ffi-st-'+n).className='bi-status ok'; }
         ffiItemDone();
       }); // ffiTmdbEnrich
       }); // ffiEnrichCrossMp4Match
@@ -15737,7 +15637,13 @@ function ffiStartImport() {
     }); // _ffiFetch
   }
 
-  // Workers Firebase once() complete hone ke baad _ffiStartWorkers() se start hote hain
+  // Start parallel workers
+  while (_ffiActive < FFI_CONCURRENCY && _ffiNextIdx < selected.length) {
+    var ni = _ffiNextIdx++;
+    _ffiActive++;
+    processOne(ni);
+  }
+  if (!selected.length) ffiImportDone();
 }
 
 // ── Parse page HTML ──
@@ -15863,9 +15769,10 @@ function ffiSaveReviewed() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
 
   var savedCount = 0, errCount = 0, total = selected.length;
-  // Import pe Playmate auto — checkbox + DL worker resolve (1080p preferred)
-  // Checkbox only; FilmyZilla items always skip Playmate inside runPlaymateThenSave
-  var wantPm = !!(document.getElementById('ffi-playmate-upload') && document.getElementById('ffi-playmate-upload').checked);
+  // Import pe Playmate auto — default ON (checkbox unchecked = off)
+  // HDFun / direct links → Playmate upload → playmateId Firebase mein save
+  var pmCb = document.getElementById('ffi-playmate-upload');
+  var wantPm = !pmCb || !!pmCb.checked; // default true if checkbox missing
 
   // Optional: Playmate URL-upload pehle (direct links only)
   function afterPlaymate(doneList) {
@@ -16009,14 +15916,9 @@ function ffiSaveReviewed() {
       if (item.obj.size720) item.obj.size720 = String(item.obj.size720);
       if (item.obj.size1080) item.obj.size1080 = String(item.obj.size1080);
       if (item.obj.size4k) item.obj.size4k = String(item.obj.size4k);
-      // Update mode: same Firebase key pe overwrite; force/new: naya key
-      var movieKey = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
+      var movieKey = db.ref('movies').push().key;
       var payload = sanitizeMovieForFb(item.obj);
-      if (!(item.updateKey || (item.obj && item.obj._updateKey))) {
-        payload.addedAt = Date.now() + (total - i); // newest first (sirf naya import)
-      } else {
-        payload.addedAt = Date.now(); // update pe top pe laao
-      }
+      payload.addedAt = Date.now() + (total - i); // newest first
       updates['movies/' + movieKey] = payload;
       if (item.link) {
         var mlKey = db.ref('mylinks').push().key;
@@ -16039,7 +15941,7 @@ function ffiSaveReviewed() {
         if (j >= end) { saveBatch(end); return; }
         var item = selected[j];
         applyCategoryDefaults(item.obj);
-        var mk = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
+        var mk = db.ref('movies').push().key;
         var payload = sanitizeMovieForFb(item.obj);
         payload.addedAt = Date.now();
         db.ref('movies/' + mk).set(payload).then(function(){ savedCount++; j++; one(); })
