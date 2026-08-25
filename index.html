@@ -1009,6 +1009,16 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <button class="cf-btn adult-cf" id="cf-philippines" onclick="filterByCat('philippines')">🔞 Philippines</button>
         <button class="cf-btn adult-cf" id="cf-hot_short_hindi" onclick="filterByCat('hot_short_hindi')">🔞 Hot Short Hindi</button>
       </div>
+
+      <div class="card" style="padding:0">
+        <div class="tw">
+          <table>
+            <thead><tr><th><input type="checkbox" id="chk-all" onchange="chkAllChange(this)" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></th><th>Thumb</th><th>Title</th><th>Year</th><th>Category</th><th>Genre</th><th>Rating</th><th>Links</th><th>⬇ Downloads</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="mtbl"></tbody>
+          </table>
+          <div id="tempty" style="text-align:center;padding:40px;color:#444;display:none;">Koi content nahi mila</div>
+        </div>
+      </div>
     </div>
 
     <!-- CATEGORY VIEW -->
