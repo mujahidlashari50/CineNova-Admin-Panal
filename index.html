@@ -4567,23 +4567,62 @@ function autoCategoryFromText(title, language, currentCat) {
   return 'hollywood';
 }
 
+function renderCatTable(list){
+  var tbody=document.getElementById('cattbl');
+  var empty=document.getElementById('catempty');
+  if(!tbody) return;
+  if(!list) list = [];
+  if(!list.length){
+    tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  var html = '';
+  for(var i=0;i<list.length;i++){
+    try { html += buildRow(list[i], true); } catch(e){}
+  }
+  tbody.innerHTML = html;
+}
+
 function showCat(cat){
-  activeCatView=cat;
-  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
-  var catSec=document.getElementById('sec-catview');if(catSec)catSec.classList.add('active');
-  var nav=document.getElementById('nav-cat-'+cat);if(nav)nav.classList.add('active');
-  var labels={english_movies:'🌟 English-Movies',hindi_dubbed:'🇮🇳 Hindi Dubbed',dual_audio:'🔊 Dual Audio',south_hindi:'🌐 South Hindi Dubbed',tamil_telugu:'🎬 Tamil/Telugu',bollywood_hindi:'🎭 Bollywood Hindi',anime_hindi:'🧸 Anime series Hindi Dubbed',webseries_hindi:'📺 Web-Series Hindi Dubbed',kdrama_hindi:'🇰🇷 K-Drama Hindi Dubbed',philippines:'🇵🇭 Philippines Movies',hot_short_hindi:'🔞 Hot Short Movies Hindi dubbed'};
-  document.getElementById('cat-view-title').innerHTML=(labels[cat]||cat)+' <span>Content</span>';
-  document.getElementById('catsrch').value='';
-  renderCatTable(allMovies.filter(function(m){return m.category===cat;}));
+  activeCatView = cat;
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var catSec = document.getElementById('sec-catview');
+  if(catSec) catSec.classList.add('active');
+  var nav = document.getElementById('nav-cat-' + cat);
+  if(nav) nav.classList.add('active');
+  var labels = {
+    english_movies:'🌟 English-Movies', hindi_dubbed:'🇮🇳 Hindi Dubbed', dual_audio:'🔊 Dual Audio',
+    south_hindi:'🌐 South Hindi Dubbed', tamil_telugu:'🎬 Tamil/Telugu', bollywood_hindi:'🎭 Bollywood Hindi',
+    anime_hindi:'🧸 Anime series Hindi Dubbed', webseries_hindi:'📺 Web-Series Hindi Dubbed',
+    kdrama_hindi:'🇰🇷 K-Drama Hindi Dubbed', philippines:'🇵🇭 Philippines Movies',
+    hot_short_hindi:'🔞 Hot Short Movies Hindi dubbed'
+  };
+  var titleEl = document.getElementById('cat-view-title');
+  if(titleEl) titleEl.innerHTML = (labels[cat]||cat) + ' <span>Content</span>';
+  var srch = document.getElementById('catsrch');
+  if(srch) srch.value = '';
+  var list = (typeof getMoviesForCatFilter === 'function')
+    ? getMoviesForCatFilter(cat)
+    : allMovies.filter(function(m){ return (m.category||'').toLowerCase() === String(cat||'').toLowerCase(); });
+  if(typeof renderCatTable === 'function') renderCatTable(list);
 }
 
 function filterCat(){
-  var q=document.getElementById('catsrch').value.toLowerCase().trim();
-  var list=allMovies.filter(function(m){return m.category===activeCatView;});
-  if(q)list=list.filter(function(m){return (m.title||'').toLowerCase().includes(q)||(m.genre||'').toLowerCase().includes(q);});
-  renderCatTable(list);
+  var q = '';
+  var el = document.getElementById('catsrch');
+  if(el) q = (el.value||'').toLowerCase().trim();
+  var list = (typeof getMoviesForCatFilter === 'function')
+    ? getMoviesForCatFilter(activeCatView)
+    : allMovies.filter(function(m){ return (m.category||'') === activeCatView; });
+  if(q){
+    list = list.filter(function(m){
+      return ((m.title||'')+(m.genre||'')+(m.category||'')).toLowerCase().indexOf(q) > -1;
+    });
+  }
+  if(typeof renderCatTable === 'function') renderCatTable(list);
 }
 
 // ═══ LOAD DATA ═══
@@ -4701,17 +4740,17 @@ function renderDash(){
 
 // New category key + legacy aliases (purani Firebase data ke liye)
 var CAT_ALIASES = {
-  english_movies: ['english_movies','hollywood'],
-  hindi_dubbed: ['hindi_dubbed','hollywood_dubbed'],
-  dual_audio: ['dual_audio'],
-  south_hindi: ['south_hindi','south'],
-  tamil_telugu: ['tamil_telugu','tamil','telugu','tollywood'],
-  bollywood_hindi: ['bollywood_hindi','bollywood'],
-  anime_hindi: ['anime_hindi','animation'],
-  webseries_hindi: ['webseries_hindi','webseries'],
-  kdrama_hindi: ['kdrama_hindi','kdrama'],
-  philippines: ['philippines','adult','adult_english','vivamax'],
-  hot_short_hindi: ['hot_short_hindi','short_films','hot_series','adult_hindi']
+  english_movies: ['english_movies','hollywood','english','english movies','english-movies'],
+  hindi_dubbed: ['hindi_dubbed','hollywood_dubbed','hindi dubbed','hindi-dubbed'],
+  dual_audio: ['dual_audio','dual audio','dual-audio'],
+  south_hindi: ['south_hindi','south','south indian','south_indian'],
+  tamil_telugu: ['tamil_telugu','tamil','telugu','tollywood','tamil/telugu'],
+  bollywood_hindi: ['bollywood_hindi','bollywood','bollywood hindi'],
+  anime_hindi: ['anime_hindi','animation','animated','anime'],
+  webseries_hindi: ['webseries_hindi','webseries','web series','web-series','series'],
+  kdrama_hindi: ['kdrama_hindi','kdrama','k-drama','k drama'],
+  philippines: ['philippines','adult','adult_english','vivamax','adult movies'],
+  hot_short_hindi: ['hot_short_hindi','short_films','hot_series','adult_hindi','short films']
 };
 
 function updateCounts(){
