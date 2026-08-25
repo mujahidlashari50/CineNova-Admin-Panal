@@ -995,58 +995,19 @@ tr:hover td{background:rgba(229,9,20,0.04);}
         <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;padding:8px 16px;font-size:0.82rem;" onclick="confirmDeleteSelected()">🗑 Delete</button>
         <button class="btn btn-s" style="padding:8px 16px;font-size:0.82rem;" onclick="deselectAll()">✕ Deselect</button>
       </div>
-      <div class="cat-filter" id="cat-filter-wrap" style="align-items:stretch;flex-direction:column;gap:10px;">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <button class="cf-btn active" id="cf-all" onclick="filterByCat('all')">All</button>
-          <select class="fi cat-dd" id="dd-hollywood" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:160px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">🌟 Hollywood</option>
-            <option value="group:hollywood">— All Hollywood</option>
-            <option value="english_movies">English-Movies</option>
-            <option value="hindi_dubbed">Hindi Dubbed</option>
-            <option value="dual_audio">Dual Audio</option>
-          </select>
-          <select class="fi cat-dd" id="dd-tollywood" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:160px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">🎬 Tollywood</option>
-            <option value="group:tollywood">— All Tollywood</option>
-            <option value="south_hindi">South Hindi Dubbed</option>
-            <option value="tamil_telugu">Tamil/Telugu</option>
-          </select>
-          <select class="fi cat-dd" id="dd-bollywood" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:150px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">🎭 Bollywood</option>
-            <option value="group:bollywood">— All Bollywood</option>
-            <option value="bollywood_hindi">Bollywood Hindi</option>
-          </select>
-          <select class="fi cat-dd" id="dd-animation" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:150px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">🧸 Animated</option>
-            <option value="group:animation">— All Animated</option>
-            <option value="anime_hindi">Anime series Hindi Dubbed</option>
-          </select>
-          <select class="fi cat-dd" id="dd-webseries" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:150px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">📺 Web-Series</option>
-            <option value="group:webseries">— All Web-Series</option>
-            <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
-          </select>
-          <select class="fi cat-dd" id="dd-kdrama" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:150px;padding:7px 12px;font-size:0.78rem;border-radius:20px;">
-            <option value="">🇰🇷 K-Drama</option>
-            <option value="group:kdrama">— All K-Drama</option>
-            <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
-          </select>
-          <select class="fi cat-dd" id="dd-adult" onchange="filterByCat(this.value);resetOtherCatDds(this)" style="width:auto;min-width:160px;padding:7px 12px;font-size:0.78rem;border-radius:20px;border-color:rgba(255,45,85,0.35);">
-            <option value="">🔞 Adult</option>
-            <option value="group:adult">— All Adult</option>
-            <option value="philippines">Philippines Movies</option>
-            <option value="hot_short_hindi">Hot Short Movies Hindi dubbed</option>
-          </select>
-        </div>
-      </div>
-      <div class="card" style="padding:0">
-        <div class="tw">
-          <table>
-            <thead><tr><th><input type="checkbox" id="chk-all" onchange="chkAllChange(this)" style="width:16px;height:16px;accent-color:var(--red);cursor:pointer;"></th><th>Thumb</th><th>Title</th><th>Year</th><th>Category</th><th>Genre</th><th>Rating</th><th>Links</th><th>⬇ Downloads</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="mtbl"></tbody>
-          </table>
-          <div id="tempty" style="text-align:center;padding:40px;color:#444;display:none;">Koi content nahi mila</div>
-        </div>
+      <div class="cat-filter" id="cat-filter-wrap">
+        <button class="cf-btn active" id="cf-all" onclick="filterByCat('all')">All</button>
+        <button class="cf-btn" id="cf-english_movies" onclick="filterByCat('english_movies')">🌟 English-Movies</button>
+        <button class="cf-btn" id="cf-hindi_dubbed" onclick="filterByCat('hindi_dubbed')">🇮🇳 Hindi Dubbed</button>
+        <button class="cf-btn" id="cf-dual_audio" onclick="filterByCat('dual_audio')">🔊 Dual Audio</button>
+        <button class="cf-btn" id="cf-south_hindi" onclick="filterByCat('south_hindi')">🌐 South Hindi Dubbed</button>
+        <button class="cf-btn" id="cf-tamil_telugu" onclick="filterByCat('tamil_telugu')">🎬 Tamil/Telugu</button>
+        <button class="cf-btn" id="cf-bollywood_hindi" onclick="filterByCat('bollywood_hindi')">🎭 Bollywood Hindi</button>
+        <button class="cf-btn" id="cf-anime_hindi" onclick="filterByCat('anime_hindi')">🧸 Anime Hindi Dub</button>
+        <button class="cf-btn" id="cf-webseries_hindi" onclick="filterByCat('webseries_hindi')">📺 Web-Series Hindi</button>
+        <button class="cf-btn" id="cf-kdrama_hindi" onclick="filterByCat('kdrama_hindi')">🇰🇷 K-Drama Hindi</button>
+        <button class="cf-btn adult-cf" id="cf-philippines" onclick="filterByCat('philippines')">🔞 Philippines</button>
+        <button class="cf-btn adult-cf" id="cf-hot_short_hindi" onclick="filterByCat('hot_short_hindi')">🔞 Hot Short Hindi</button>
       </div>
     </div>
 
@@ -4484,7 +4445,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){console.error(e);}try{renderTable(allMovies||[]);}catch(e){console.error('renderTable',e);}}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
+  if(name==='movies'){currentCatFilter='all';_tblPage=1;try{updateCfBtns();}catch(e){}try{renderTable(allMovies||[]);}catch(e){console.error(e);}}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4750,72 +4711,6 @@ function getCatBadge(cat){
   return map[cat]||{cls:'bgy',lbl:cat||'—'};
 }
 
-// ═══ TABLE RENDER ═══
-// All posts ek saath — no pagination
-var _tblLastList = [];
-var CAT_GROUPS = {
-  hollywood: ['english_movies','hindi_dubbed','dual_audio'],
-  tollywood: ['south_hindi','tamil_telugu'],
-  bollywood: ['bollywood_hindi'],
-  animation: ['anime_hindi'],
-  webseries: ['webseries_hindi'],
-  kdrama: ['kdrama_hindi'],
-  adult: ['philippines','hot_short_hindi']
-};
-function renderTable(list){
-  var tbody=document.getElementById('mtbl');var empty=document.getElementById('tempty');
-  if(!tbody) return;
-  if(!list) list = _tblLastList || [];
-  if(!list) list = [];
-  _tblLastList = list;
-  try { var pager = document.getElementById('mtbl-pager'); if(pager) pager.remove(); } catch(e){}
-  if(!list.length){
-    tbody.innerHTML='';
-    if(empty) empty.style.display='block';
-    return;
-  }
-  if(empty) empty.style.display='none';
-  var html = '';
-  try {
-    for(var i=0;i<list.length;i++) {
-      try { html += buildRow(list[i], false); } catch(rowErr) { console.error('row', rowErr); }
-    }
-  } catch(e) { console.error(e); }
-  tbody.innerHTML = html;
-}
-function resetOtherCatDds(activeEl){
-  document.querySelectorAll('.cat-dd').forEach(function(s){
-    if(s !== activeEl) s.value = '';
-  });
-  var allBtn = document.getElementById('cf-all');
-  if(allBtn) allBtn.classList.remove('active');
-}
-function getMoviesForCatFilter(cat){
-  if(!cat || cat==='all') return allMovies.slice();
-  if(String(cat).indexOf('group:')===0){
-    var g = String(cat).slice(6);
-    var keys = CAT_GROUPS[g] || [];
-    return allMovies.filter(function(m){
-      return keys.indexOf((m.category||'').toLowerCase()) > -1;
-    });
-  }
-  return allMovies.filter(function(m){
-    return (m.category||'').toLowerCase()===(cat||'').toLowerCase();
-  });
-}
-function renderCatTable(list){
-  var tbody=document.getElementById('cattbl');var empty=document.getElementById('catempty');
-  if(!list||!list.length){if(tbody)tbody.innerHTML='';if(empty)empty.style.display='block';return;}
-  if(empty) empty.style.display='none';
-  // max 60 rows in category view
-  var slice = list.slice(0, 60);
-  var html = '';
-  for(var i=0;i<slice.length;i++) html += buildRow(slice[i], true);
-  tbody.innerHTML = html;
-  if(list.length > 60){
-    tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;color:#888;padding:12px;">Showing 60 of ' + list.length + ' — search to narrow</td></tr>';
-  }
-}
 function buildRow(m,hideCategory){
   var tu=m.thumbnail||m.poster||'';
   var cb=getCatBadge(m.category);
@@ -4846,58 +4741,110 @@ function buildRow(m,hideCategory){
     +'</div></td></tr>';
 }
 
-// ═══ PUBLISH / UNPUBLISH TOGGLE ═══
-function togglePublish(key, toggleEl) {
-  var isOn = toggleEl.classList.contains('on');
-  var newState = !isOn;
-  db.ref('movies/'+key+'/published').set(newState).then(function(){
-    // Toggle animation
-    if(newState){ toggleEl.classList.add('on'); } else { toggleEl.classList.remove('on'); }
-    // Label update
-    var lbl = document.getElementById('pub-lbl-'+key);
-    if(lbl){ lbl.textContent = newState?'Live':'Off'; lbl.style.color = newState?'var(--green)':'#555'; }
-    // Row opacity
-    var row = document.getElementById('tr-'+key);
-    if(row){ row.style.opacity = newState?'1':'0.5'; }
-    // Toggle title
-    toggleEl.title = newState?'Click to Unpublish':'Click to Publish';
-    toast(newState ? '✅ Movie Published! Website pe dikh rahi hai.' : '⛔ Movie Unpublished! Website se hata di.');
-    // allMovies array update karo
-    var mv = allMovies.find(function(m){ return m.key===key; });
-    if(mv) mv.published = newState;
-  }).catch(function(e){ toast('❌ '+e.message, 1); });
+// ═══ TABLE RENDER (paginated — fast) ═══
+var _tblPage = 1;
+var _tblPageSize = 50;
+var _tblLastList = [];
+var CAT_GROUPS = {
+  hollywood: ['english_movies','hindi_dubbed','dual_audio'],
+  tollywood: ['south_hindi','tamil_telugu'],
+  bollywood: ['bollywood_hindi'],
+  animation: ['anime_hindi'],
+  webseries: ['webseries_hindi'],
+  kdrama: ['kdrama_hindi'],
+  adult: ['philippines','hot_short_hindi']
+};
+function renderTable(list){
+  var tbody=document.getElementById('mtbl');var empty=document.getElementById('tempty');
+  if(!tbody) return;
+  if(!list) list = _tblLastList || [];
+  if(!list) list = [];
+  _tblLastList = list;
+  if(!list.length){
+    tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    var pg0=document.getElementById('mtbl-pager'); if(pg0) pg0.innerHTML='';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  var totalPages = Math.max(1, Math.ceil(list.length / _tblPageSize));
+  if(_tblPage > totalPages) _tblPage = totalPages;
+  if(_tblPage < 1) _tblPage = 1;
+  var start = (_tblPage - 1) * _tblPageSize;
+  var pageItems = list.slice(start, start + _tblPageSize);
+  var html = '';
+  for(var i=0;i<pageItems.length;i++){
+    try { html += buildRow(pageItems[i], false); } catch(e){}
+  }
+  tbody.innerHTML = html;
+  var pager = document.getElementById('mtbl-pager');
+  if(!pager){
+    pager = document.createElement('div');
+    pager.id = 'mtbl-pager';
+    pager.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 8px;';
+    if(tbody.parentNode) tbody.parentNode.appendChild(pager);
+  }
+  var info = '<span style="color:#888;font-size:0.8rem;margin-right:8px;">' + list.length + ' items · page ' + _tblPage + '/' + totalPages + '</span>';
+  var btns = '';
+  btns += '<button class="btn btn-s" onclick="_tblGo(1)" ' + (_tblPage<=1?'disabled':'') + '>First</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage-1) + ')" ' + (_tblPage<=1?'disabled':'') + '>Prev</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage+1) + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Next</button>';
+  btns += '<button class="btn btn-s" onclick="_tblGo(' + totalPages + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Last</button>';
+  pager.innerHTML = info + btns;
+}
+function _tblGo(p){
+  _tblPage = p;
+  renderTable(_tblLastList);
+  try { var sec=document.getElementById('sec-movies'); if(sec) sec.scrollTop=0; } catch(e){}
+}
+function getMoviesForCatFilter(cat){
+  if(!cat || cat==='all') return allMovies.slice();
+  if(String(cat).indexOf('group:')===0){
+    var g = String(cat).slice(6);
+    var keys = CAT_GROUPS[g] || [];
+    return allMovies.filter(function(m){
+      return keys.indexOf((m.category||'').toLowerCase()) > -1;
+    });
+  }
+  return allMovies.filter(function(m){
+    return (m.category||'').toLowerCase()===(cat||'').toLowerCase();
+  });
 }
 
-// ═══ CAT FILTER (dropdown hierarchy) ═══
+// ═══ CAT FILTER (buttons, no dropdown) ═══
 function filterByCat(cat){
   if(!cat) return;
-  currentCatFilter=cat;
+  currentCatFilter = cat;
+  _tblPage = 1;
   updateCfBtns();
   var list = getMoviesForCatFilter(cat);
   renderTable(list);
 }
 function updateCfBtns(){
-  document.querySelectorAll('#cat-filter-wrap .cf-btn').forEach(function(b){b.classList.remove('active');});
-  if(currentCatFilter==='all'){
-    var el=document.getElementById('cf-all');if(el)el.classList.add('active');
-    document.querySelectorAll('.cat-dd').forEach(function(s){ s.value=''; });
+  document.querySelectorAll('#cat-filter-wrap .cf-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('cf-' + currentCatFilter);
+  if(el) el.classList.add('active');
+  else if(currentCatFilter==='all'){
+    var a = document.getElementById('cf-all'); if(a) a.classList.add('active');
   }
 }
-var _filterMTimer=null;
+var _filterMTimer = null;
 function filterM(){
   clearTimeout(_filterMTimer);
-  _filterMTimer=setTimeout(function(){
-    var q=(document.getElementById('srch')||{}).value||'';
-    q=q.toLowerCase().trim();
+  _filterMTimer = setTimeout(function(){
+    var q = (document.getElementById('srch')||{}).value||'';
+    q = q.toLowerCase().trim();
     var list = getMoviesForCatFilter(currentCatFilter||'all');
     if(q){
-      list=list.filter(function(m){
+      list = list.filter(function(m){
         return ((m.title||'')+(m.category||'')+(m.genre||'')).toLowerCase().indexOf(q)>-1;
       });
     }
+    _tblPage = 1;
     renderTable(list);
   }, 200);
 }
+
 
 // ═══ ADD MOVIE ═══
 // ── FILMYFLY / ANY SITE AUTO-FETCH ──
