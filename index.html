@@ -471,6 +471,16 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style id="cv-mtbl-fix">
+#sec-movies .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#sec-movies table{width:100%;min-width:900px;border-collapse:collapse;table-layout:auto}
+#sec-movies th,#sec-movies td{padding:10px 12px;vertical-align:middle;white-space:nowrap}
+#sec-movies td:nth-child(3){white-space:normal;max-width:280px;min-width:160px}
+#sec-movies .tsm{width:48px;height:68px;object-fit:cover;border-radius:4px}
+#mtbl-pager{display:none!important}
+</style>
+
 </head>
 <body>
 
@@ -4455,7 +4465,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';_tblPage=1;try{updateCfBtns();}catch(e){}try{renderTable(allMovies||[]);}catch(e){console.error(e);}}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
+  if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){}try{renderTable(allMovies||[]);}catch(e){console.error(e);}}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4689,16 +4699,33 @@ function renderDash(){
   var en=document.getElementById("s-noposter");if(en)en.innerText=noposter;
 }
 
+// New category key + legacy aliases (purani Firebase data ke liye)
+var CAT_ALIASES = {
+  english_movies: ['english_movies','hollywood'],
+  hindi_dubbed: ['hindi_dubbed','hollywood_dubbed'],
+  dual_audio: ['dual_audio'],
+  south_hindi: ['south_hindi','south'],
+  tamil_telugu: ['tamil_telugu','tamil','telugu','tollywood'],
+  bollywood_hindi: ['bollywood_hindi','bollywood'],
+  anime_hindi: ['anime_hindi','animation'],
+  webseries_hindi: ['webseries_hindi','webseries'],
+  kdrama_hindi: ['kdrama_hindi','kdrama'],
+  philippines: ['philippines','adult','adult_english','vivamax'],
+  hot_short_hindi: ['hot_short_hindi','short_films','hot_series','adult_hindi']
+};
+
 function updateCounts(){
   var t=allMovies.length;
-  document.getElementById('mc').innerText=t;
-  var cnt = {};
-  for(var i=0;i<allMovies.length;i++){
-    var c = allMovies[i].category || '';
-    cnt[c] = (cnt[c]||0)+1;
-  }
-  ['english_movies','hindi_dubbed','dual_audio','south_hindi','tamil_telugu','bollywood_hindi','anime_hindi','webseries_hindi','kdrama_hindi','philippines','hot_short_hindi'].forEach(function(c){
-    var el=document.getElementById('cnt-'+c);if(el)el.innerText=cnt[c]||0;
+  var mc=document.getElementById('mc'); if(mc) mc.innerText=t;
+  var keys = ['english_movies','hindi_dubbed','dual_audio','south_hindi','tamil_telugu','bollywood_hindi','anime_hindi','webseries_hindi','kdrama_hindi','philippines','hot_short_hindi'];
+  keys.forEach(function(c){
+    var aliases = (typeof CAT_ALIASES!=='undefined' && CAT_ALIASES[c]) ? CAT_ALIASES[c] : [c];
+    var n = 0;
+    for(var i=0;i<allMovies.length;i++){
+      var mc2 = (allMovies[i].category||'').toLowerCase();
+      if(aliases.indexOf(mc2)>-1) n++;
+    }
+    var el=document.getElementById('cnt-'+c); if(el) el.innerText=n;
   });
 }
 
@@ -4751,9 +4778,7 @@ function buildRow(m,hideCategory){
     +'</div></td></tr>';
 }
 
-// ═══ TABLE RENDER (paginated — fast) ═══
-var _tblPage = 1;
-var _tblPageSize = 50;
+// ═══ TABLE RENDER — ALL posts, no pagination ═══
 var _tblLastList = [];
 var CAT_GROUPS = {
   hollywood: ['english_movies','hindi_dubbed','dual_audio'],
@@ -4765,59 +4790,50 @@ var CAT_GROUPS = {
   adult: ['philippines','hot_short_hindi']
 };
 function renderTable(list){
-  var tbody=document.getElementById('mtbl');var empty=document.getElementById('tempty');
+  var tbody = document.getElementById('mtbl');
+  var empty = document.getElementById('tempty');
   if(!tbody) return;
   if(!list) list = _tblLastList || [];
   if(!list) list = [];
   _tblLastList = list;
+  // remove old pager if any
+  try {
+    var pager = document.getElementById('mtbl-pager');
+    if(pager) pager.remove();
+  } catch(e){}
   if(!list.length){
-    tbody.innerHTML='';
-    if(empty) empty.style.display='block';
-    var pg0=document.getElementById('mtbl-pager'); if(pg0) pg0.innerHTML='';
+    tbody.innerHTML = '';
+    if(empty) empty.style.display = 'block';
     return;
   }
-  if(empty) empty.style.display='none';
-  var totalPages = Math.max(1, Math.ceil(list.length / _tblPageSize));
-  if(_tblPage > totalPages) _tblPage = totalPages;
-  if(_tblPage < 1) _tblPage = 1;
-  var start = (_tblPage - 1) * _tblPageSize;
-  var pageItems = list.slice(start, start + _tblPageSize);
+  if(empty) empty.style.display = 'none';
+  // Build all rows — batch string for speed
   var html = '';
-  for(var i=0;i<pageItems.length;i++){
-    try { html += buildRow(pageItems[i], false); } catch(e){}
+  var n = list.length;
+  for(var i = 0; i < n; i++){
+    try { html += buildRow(list[i], false); } catch(e){}
   }
   tbody.innerHTML = html;
-  var pager = document.getElementById('mtbl-pager');
-  if(!pager){
-    pager = document.createElement('div');
-    pager.id = 'mtbl-pager';
-    pager.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 8px;';
-    if(tbody.parentNode) tbody.parentNode.appendChild(pager);
-  }
-  var info = '<span style="color:#888;font-size:0.8rem;margin-right:8px;">' + list.length + ' items · page ' + _tblPage + '/' + totalPages + '</span>';
-  var btns = '';
-  btns += '<button class="btn btn-s" onclick="_tblGo(1)" ' + (_tblPage<=1?'disabled':'') + '>First</button>';
-  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage-1) + ')" ' + (_tblPage<=1?'disabled':'') + '>Prev</button>';
-  btns += '<button class="btn btn-s" onclick="_tblGo(' + (_tblPage+1) + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Next</button>';
-  btns += '<button class="btn btn-s" onclick="_tblGo(' + totalPages + ')" ' + (_tblPage>=totalPages?'disabled':'') + '>Last</button>';
-  pager.innerHTML = info + btns;
 }
-function _tblGo(p){
-  _tblPage = p;
-  renderTable(_tblLastList);
-  try { var sec=document.getElementById('sec-movies'); if(sec) sec.scrollTop=0; } catch(e){}
-}
+
 function getMoviesForCatFilter(cat){
   if(!cat || cat==='all') return allMovies.slice();
   if(String(cat).indexOf('group:')===0){
     var g = String(cat).slice(6);
     var keys = CAT_GROUPS[g] || [];
+    var allKeys = [];
+    keys.forEach(function(k){
+      allKeys.push(k);
+      var al = (typeof CAT_ALIASES!=='undefined' && CAT_ALIASES[k]) ? CAT_ALIASES[k] : [k];
+      al.forEach(function(a){ if(allKeys.indexOf(a)<0) allKeys.push(a); });
+    });
     return allMovies.filter(function(m){
-      return keys.indexOf((m.category||'').toLowerCase()) > -1;
+      return allKeys.indexOf((m.category||'').toLowerCase()) > -1;
     });
   }
+  var keys = (typeof CAT_ALIASES!=='undefined' && CAT_ALIASES[cat]) ? CAT_ALIASES[cat] : [cat];
   return allMovies.filter(function(m){
-    return (m.category||'').toLowerCase()===(cat||'').toLowerCase();
+    return keys.indexOf((m.category||'').toLowerCase()) > -1;
   });
 }
 
@@ -4825,7 +4841,7 @@ function getMoviesForCatFilter(cat){
 function filterByCat(cat){
   if(!cat) return;
   currentCatFilter = cat;
-  _tblPage = 1;
+  
   updateCfBtns();
   var list = getMoviesForCatFilter(cat);
   renderTable(list);
@@ -4850,7 +4866,7 @@ function filterM(){
         return ((m.title||'')+(m.category||'')+(m.genre||'')).toLowerCase().indexOf(q)>-1;
       });
     }
-    _tblPage = 1;
+    
     renderTable(list);
   }, 200);
 }
