@@ -4567,22 +4567,78 @@ function autoCategoryFromText(title, language, currentCat) {
   return 'hollywood';
 }
 
-function renderCatTable(list){
+// Admin table page size — 291+ rows ek saath DOM mein mat dalo (freeze)
+var ADMIN_PAGE_SIZE = 40;
+var _catTblPage = 1;
+var _catTblLastList = [];
+var _catTblToken = 0;
+var _tblPage = 1;
+var _suppressMoviesUi = false; // optimistic delete ke dauran full snap re-render skip
+
+function _ensurePager(hostId, page, total, onPageFnName){
+  var host = document.getElementById(hostId);
+  if(!host) return;
+  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+  var id = hostId + '-pager';
+  var pager = document.getElementById(id);
+  if(totalPages <= 1){
+    if(pager) pager.remove();
+    return;
+  }
+  if(!pager){
+    pager = document.createElement('div');
+    pager.id = id;
+    pager.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:14px 0 6px;';
+    host.parentNode.insertBefore(pager, host.nextSibling);
+  }
+  var html = '<button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" '+(page<=1?'disabled':'')+' onclick="'+onPageFnName+'('+(page-1)+')">← Prev</button>';
+  html += '<span style="font-size:0.78rem;color:#888;">Page <b style="color:#fff;">'+page+'</b> / '+totalPages+' · '+total+' posts</span>';
+  html += '<button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" '+(page>=totalPages?'disabled':'')+' onclick="'+onPageFnName+'('+(page+1)+')">Next →</button>';
+  pager.innerHTML = html;
+}
+
+function adminCatGoPage(p){
+  if(p < 1) return;
+  renderCatTable(_catTblLastList, p);
+  try { var t = document.getElementById('cattbl'); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); } catch(e){}
+}
+function adminMoviesGoPage(p){
+  if(p < 1) return;
+  renderTable(_tblLastList, p);
+  try { var t = document.getElementById('mtbl'); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); } catch(e){}
+}
+
+function renderCatTable(list, page){
   var tbody=document.getElementById('cattbl');
   var empty=document.getElementById('catempty');
   if(!tbody) return;
+  if(!list) list = _catTblLastList || [];
   if(!list) list = [];
+  _catTblLastList = list;
+  page = page || 1;
+  _catTblPage = page;
+  var token = ++_catTblToken;
   if(!list.length){
     tbody.innerHTML='';
     if(empty) empty.style.display='block';
+    _ensurePager('cattbl', 1, 0, 'adminCatGoPage');
     return;
   }
   if(empty) empty.style.display='none';
+  var total = list.length;
+  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+  if(page > totalPages) page = totalPages;
+  _catTblPage = page;
+  var start = (page - 1) * ADMIN_PAGE_SIZE;
+  var slice = list.slice(start, start + ADMIN_PAGE_SIZE);
+  tbody.innerHTML = '';
   var html = '';
-  for(var i=0;i<list.length;i++){
-    try { html += buildRow(list[i], true); } catch(e){}
+  for(var i=0;i<slice.length;i++){
+    if(token !== _catTblToken) return;
+    try { html += buildRow(slice[i], true); } catch(e){}
   }
   tbody.innerHTML = html;
+  _ensurePager('cattbl', page, total, 'adminCatGoPage');
 }
 
 function showCat(cat){
@@ -4604,10 +4660,16 @@ function showCat(cat){
   if(titleEl) titleEl.innerHTML = (labels[cat]||cat) + ' <span>Content</span>';
   var srch = document.getElementById('catsrch');
   if(srch) srch.value = '';
-  var list = (typeof getMoviesForCatFilter === 'function')
-    ? getMoviesForCatFilter(cat)
-    : allMovies.filter(function(m){ return (m.category||'').toLowerCase() === String(cat||'').toLowerCase(); });
-  if(typeof renderCatTable === 'function') renderCatTable(list);
+  // Instant skeleton — user ko turant feedback
+  var tbody = document.getElementById('cattbl');
+  if(tbody) tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:28px;color:#666;">⏳ Loading…</td></tr>';
+  // Filter + render next frame (UI pehle paint ho)
+  requestAnimationFrame(function(){
+    var list = (typeof getMoviesForCatFilter === 'function')
+      ? getMoviesForCatFilter(cat)
+      : allMovies.filter(function(m){ return (m.category||'').toLowerCase() === String(cat||'').toLowerCase(); });
+    if(typeof renderCatTable === 'function') renderCatTable(list, 1);
+  });
 }
 
 function filterCat(){
@@ -4622,16 +4684,18 @@ function filterCat(){
       return ((m.title||'')+(m.genre||'')+(m.category||'')).toLowerCase().indexOf(q) > -1;
     });
   }
-  if(typeof renderCatTable === 'function') renderCatTable(list);
+  if(typeof renderCatTable === 'function') renderCatTable(list, 1);
 }
 
 // ═══ LOAD DATA ═══
 function loadAllContent(){
   // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
-  // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
+  // Debounce + suppress during optimistic delete + section-only re-render.
   var _moviesUiTimer = null;
+  var _firstMoviesApplied = false;
   function _applyMoviesSnap(snap, countsSnap){
     if(!snap) return;
+    if(_suppressMoviesUi) return; // local optimistic UI already updated
     var arr = [];
     var counts = (countsSnap && countsSnap.exists()) ? (countsSnap.val() || {}) : null;
     if(snap.exists()){
@@ -4669,30 +4733,36 @@ function loadAllContent(){
           : ((!currentCatFilter || currentCatFilter==='all') ? allMovies : allMovies.filter(function(m){
               return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
             }));
-        renderTable(_lst);
+        renderTable(_lst, _tblPage || 1);
       } catch(e){}
     }
     var catSec = document.getElementById('sec-catview');
     if(catSec && catSec.classList.contains('active') && typeof activeCatView !== 'undefined' && activeCatView){
       try {
-        renderCatTable(allMovies.filter(function(m){ return (m.category||'')===activeCatView; }));
+        var _clst = (typeof getMoviesForCatFilter==='function')
+          ? getMoviesForCatFilter(activeCatView)
+          : allMovies.filter(function(m){ return (m.category||'')===activeCatView; });
+        renderCatTable(_clst, _catTblPage || 1);
       } catch(e){}
     }
     var trendSec = document.getElementById('sec-trending');
     if(trendSec && trendSec.classList.contains('active')){
       try { renderTrendList(allMovies.slice(0,60)); } catch(e){}
     }
-    // PERF: mlAutoFixUnmatched not on every snap
 
     var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
     var lmBadge = document.getElementById('lm-no-link-count');
     if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
+    _firstMoviesApplied = true;
   }
   var _lastMoviesSnap = null;
   var _lastCountsSnap = null;
   function _refreshMoviesUi(){
+    if(_suppressMoviesUi) return;
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 450);
+    // Pehli load: jaldi; baad mein debounce taake bulk ops freeze na karen
+    var delay = _firstMoviesApplied ? 280 : 40;
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, delay);
   }
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
@@ -4748,9 +4818,11 @@ var CAT_ALIASES = {
   bollywood_hindi: ['bollywood_hindi','bollywood','bollywood hindi'],
   anime_hindi: ['anime_hindi','animation','animated','anime'],
   webseries_hindi: ['webseries_hindi','webseries','web series','web-series','series'],
-  kdrama_hindi: ['kdrama_hindi','kdrama','k-drama','k drama'],
-  philippines: ['philippines','adult','adult_english','vivamax','adult movies'],
-  hot_short_hindi: ['hot_short_hindi','short_films','hot_series','adult_hindi','short films']
+  kdrama_hindi: ['kdrama_hindi','kdrama','k-drama','k drama','k-drama hindi dubbed','k drama hindi'],
+  // Panel display names + slugs — exact match for filter counts
+  philippines: ['philippines','philippines movies','philippine movies','philippine'],
+  hot_short_hindi: ['hot_short_hindi','hot short movies hindi dubbed','hot short movies','hot short hindi','short_films','short films'],
+  adult: ['adult','adult movies','adult_english','adult_hindi','vivamax','hot_series']
 };
 
 function updateCounts(){
@@ -4817,7 +4889,7 @@ function buildRow(m,hideCategory){
     +'</div></td></tr>';
 }
 
-// ═══ TABLE RENDER — ALL posts, NO pages, chunked (no freeze) ═══
+// ═══ TABLE RENDER — paginated (40/page) — no freeze on 1000+ rows ═══
 var _tblLastList = [];
 var _tblRenderToken = 0;
 var CAT_GROUPS = {
@@ -4829,43 +4901,37 @@ var CAT_GROUPS = {
   kdrama: ['kdrama_hindi'],
   adult: ['philippines','hot_short_hindi']
 };
-function renderTable(list){
+function renderTable(list, page){
   var tbody = document.getElementById('mtbl');
   var empty = document.getElementById('tempty');
   if(!tbody) return;
   if(!list) list = _tblLastList || [];
   if(!list) list = [];
   _tblLastList = list;
-  try {
-    var pager = document.getElementById('mtbl-pager');
-    if(pager) pager.remove();
-  } catch(e){}
-  // cancel any in-progress chunked render
+  page = page || 1;
+  _tblPage = page;
   var token = ++_tblRenderToken;
   if(!list.length){
     tbody.innerHTML = '';
     if(empty) empty.style.display = 'block';
+    _ensurePager('mtbl', 1, 0, 'adminMoviesGoPage');
     return;
   }
   if(empty) empty.style.display = 'none';
+  var total = list.length;
+  var totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
+  if(page > totalPages) page = totalPages;
+  _tblPage = page;
+  var start = (page - 1) * ADMIN_PAGE_SIZE;
+  var slice = list.slice(start, start + ADMIN_PAGE_SIZE);
   tbody.innerHTML = '';
-  var n = list.length;
-  var CHUNK = 80;
-  var i = 0;
-  function paintChunk(){
-    if(token !== _tblRenderToken) return; // cancelled
-    var html = '';
-    var end = Math.min(i + CHUNK, n);
-    for(; i < end; i++){
-      try { html += buildRow(list[i], false); } catch(e){}
-    }
-    if(html) tbody.insertAdjacentHTML('beforeend', html);
-    if(i < n){
-      if(window.requestAnimationFrame) requestAnimationFrame(paintChunk);
-      else setTimeout(paintChunk, 0);
-    }
+  var html = '';
+  for(var i = 0; i < slice.length; i++){
+    if(token !== _tblRenderToken) return;
+    try { html += buildRow(slice[i], false); } catch(e){}
   }
-  paintChunk();
+  tbody.innerHTML = html;
+  _ensurePager('mtbl', page, total, 'adminMoviesGoPage');
 }
 
 function getMoviesForCatFilter(cat){
@@ -4893,10 +4959,9 @@ function getMoviesForCatFilter(cat){
 function filterByCat(cat){
   if(!cat) return;
   currentCatFilter = cat;
-  
   updateCfBtns();
   var list = getMoviesForCatFilter(cat);
-  renderTable(list);
+  renderTable(list, 1);
 }
 function updateCfBtns(){
   document.querySelectorAll('#cat-filter-wrap .cf-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -4918,9 +4983,8 @@ function filterM(){
         return ((m.title||'')+(m.category||'')+(m.genre||'')).toLowerCase().indexOf(q)>-1;
       });
     }
-    
-    renderTable(list);
-  }, 200);
+    renderTable(list, 1);
+  }, 120);
 }
 
 
@@ -7518,13 +7582,53 @@ function saveEdit(){
   db.ref('movies/'+editKey).update(m).then(function(){toast('✅ Update ho gaya! Movie home page pe top pe aa gayi.');closeEdit();}).catch(function(e){toast('❌ '+e.message,1);});
 }
 
-// ═══ DELETE ═══
+// ═══ DELETE (optimistic UI + single/batch Firebase write) ═══
+function _adminRefreshCurrentView(){
+  try { updateCounts(); } catch(e){}
+  try {
+    var moviesSec = document.getElementById('sec-movies');
+    if(moviesSec && moviesSec.classList.contains('active')){
+      var list = (typeof getMoviesForCatFilter==='function')
+        ? getMoviesForCatFilter(currentCatFilter||'all')
+        : allMovies;
+      renderTable(list, _tblPage||1);
+    }
+  } catch(e){}
+  try {
+    var catSec = document.getElementById('sec-catview');
+    if(catSec && catSec.classList.contains('active') && activeCatView){
+      var cl = (typeof getMoviesForCatFilter==='function')
+        ? getMoviesForCatFilter(activeCatView)
+        : allMovies.filter(function(m){ return (m.category||'')===activeCatView; });
+      renderCatTable(cl, _catTblPage||1);
+    }
+  } catch(e){}
+  try {
+    var st = document.getElementById('st'); if(st) st.innerText = allMovies.length;
+    var mc = document.getElementById('mc'); if(mc) mc.innerText = allMovies.length;
+  } catch(e){}
+}
+
 function confDel(key,title){
   deleteKey=key;
   document.getElementById('cmsg').innerText='"'+title+'" will be permanently deleted.';
   document.getElementById('confirm-modal').classList.add('active');
   document.getElementById('cok').onclick=function(){
-    db.ref('movies/'+deleteKey).remove().then(function(){toast('🗑 Delete ho gayi! Website se bhi hat gayi.');closeConfirm();}).catch(function(e){toast('❌ '+e.message,1);});
+    var k = deleteKey;
+    closeConfirm();
+    // Optimistic: turant list se hatao
+    allMovies = allMovies.filter(function(m){ return m.key !== k; });
+    if(selectedKeys[k]) delete selectedKeys[k];
+    try { updateSelUI(); } catch(e){}
+    _adminRefreshCurrentView();
+    _suppressMoviesUi = true;
+    db.ref('movies/'+k).remove().then(function(){
+      toast('🗑 Delete ho gayi!');
+      setTimeout(function(){ _suppressMoviesUi = false; }, 600);
+    }).catch(function(e){
+      _suppressMoviesUi = false;
+      toast('❌ '+e.message,1);
+    });
   };
 }
 function closeConfirm(){document.getElementById('confirm-modal').classList.remove('active');deleteKey=null;}
@@ -7536,10 +7640,19 @@ function confirmDeleteAll(){
   document.getElementById("cmsg").innerText = "All "+total+" movies will be permanently deleted — including from Firebase!";
   document.getElementById("confirm-modal").classList.add("active");
   document.getElementById("cok").onclick = function(){
+    closeConfirm();
+    allMovies = [];
+    selectedKeys = {};
+    try { updateSelUI(); } catch(e){}
+    _adminRefreshCurrentView();
+    _suppressMoviesUi = true;
     db.ref("movies").remove().then(function(){
       toast("🗑 All "+total+" movies have been deleted!");
-      closeConfirm();
-    }).catch(function(e){ toast("❌ "+e.message, 1); });
+      setTimeout(function(){ _suppressMoviesUi = false; }, 600);
+    }).catch(function(e){
+      _suppressMoviesUi = false;
+      toast("❌ "+e.message, 1);
+    });
   };
 }
 // ═══ END DELETE ALL ═══
@@ -7628,17 +7741,24 @@ function confirmDeleteSelected(){
   document.getElementById('cmsg').innerText = keys.length+' selected movies permanently delete ho jayengi — Firebase se bhi!';
   document.getElementById('confirm-modal').classList.add('active');
   document.getElementById('cok').onclick = function(){
-    var done=0;
-    keys.forEach(function(k){
-      db.ref('movies/'+k).remove().then(function(){
-        done++;
-        if(done===keys.length){
-          toast('🗑 '+done+' movies deleted!');
-          selectedKeys={};
-          updateSelUI();
-          closeConfirm();
-        }
-      }).catch(function(e){ toast('❌ '+e.message,1); });
+    closeConfirm();
+    // Optimistic local remove — UI turant update
+    var keySet = {};
+    keys.forEach(function(k){ keySet[k] = true; });
+    allMovies = allMovies.filter(function(m){ return !keySet[m.key]; });
+    selectedKeys = {};
+    try { updateSelUI(); } catch(e){}
+    _adminRefreshCurrentView();
+    // ONE multi-path write — har key pe alag remove() nahi (wo N baar full tree re-download trigger karta tha)
+    var updates = {};
+    keys.forEach(function(k){ updates['movies/' + k] = null; });
+    _suppressMoviesUi = true;
+    db.ref().update(updates).then(function(){
+      toast('🗑 '+keys.length+' movies deleted!');
+      setTimeout(function(){ _suppressMoviesUi = false; }, 800);
+    }).catch(function(e){
+      _suppressMoviesUi = false;
+      toast('❌ '+e.message, 1);
     });
   };
 }
