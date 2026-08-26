@@ -781,17 +781,19 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div class="fgg"><label>Year</label><input class="fi" id="fy" placeholder="2025" oninput="amAutoGenSeo()"/></div>
           <div class="fgg"><label>IMDb Rating</label><input class="fi" id="fr" placeholder="8.1"/></div>
           <div class="fgg"><label>Category *</label>
-            <select class="fi" id="fc" onchange="onCatChange();amAutoGenSeo();">
+                        <select class="fi" id="fc" onchange="onCatChange();amAutoGenSeo();">
               <option value="">— Select Category —</option>
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option>
             </select>
           </div>
           <div class="fgg full adult-warn" id="adult-warn-add" style="display:none">
@@ -826,8 +828,8 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           <div class="fgg"><label>Language</label><input class="fi" id="fl" placeholder="Hindi / English / Hindi Dubbed" oninput="amAutoGenSeo()"/>
             <div id="fl-lang-chips" style="display:flex;margin-top:8px;gap:6px;flex-wrap:wrap;">
               <span style="font-size:0.68rem;color:#888;width:100%;">Language select karo (Tollywood / Adult / Hollywood ke liye zaroori — filter is pe chalta hai):</span>
-              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='English';var c=document.getElementById('fc');if(c&&(!c.value||c.value==='hollywood'||c.value==='hindi_dubbed'))c.value='hollywood';amAutoGenSeo();">🇬🇧 English</button>
-              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Hindi';var c=document.getElementById('fc');if(c)c.value='bollywood';amAutoGenSeo();">🇮🇳 Hindi</button>
+              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='English';var c=document.getElementById('fc');if(c&&(!c.value||c.value==='hollywood'||c.value==='hindi_dubbed'))c.value='english_movies';amAutoGenSeo();">🇬🇧 English</button>
+              <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Hindi';var c=document.getElementById('fc');if(c)c.value='bollywood_hindi';amAutoGenSeo();">🇮🇳 Hindi</button>
               <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Hindi Dubbed';var c=document.getElementById('fc');if(c)c.value='hindi_dubbed';amAutoGenSeo();">🇮🇳 Hindi Dubbed</button>
               <button type="button" class="btn btn-s" style="padding:5px 12px;font-size:0.75rem;" onclick="document.getElementById('fl').value='Dual Audio';var c=document.getElementById('fc');if(c)c.value='dual_audio';amAutoGenSeo();">🔊 Dual Audio</button>
             </div>
@@ -1072,21 +1074,18 @@ tr:hover td{background:rgba(229,9,20,0.04);}
             <option value="all">All Categories</option>
             <option value="nolinks">⚠️ No Links Only</option>
             <optgroup label="── Main Categories ──">
-            <option value="hollywood">🌟 Hollywood (English)</option>
-            <option value="bollywood">🎭 Bollywood</option>
-            <option value="tollywood">🎬 Tollywood</option>
-            <option value="animation">🧸 Animated</option>
-            <option value="webseries">📺 Web-Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-            <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-            </optgroup>
+                          <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></optgroup>
             <optgroup label="── Genres ──">
             <option value="action">💥 Action</option>
             <option value="adventure">🗺️ Adventure</option>
@@ -1545,29 +1544,33 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div class="fg">
           <div class="fgg"><label>From Category</label>
             <select class="fi" id="be-move-from" onchange="beUpdateMoveCount()">
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-            </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           </div>
           <div class="fgg"><label>To Category</label>
             <select class="fi" id="be-move-to">
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-            </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           </div>
         </div>
         <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
@@ -1582,16 +1585,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <div class="fgg"><label>Change Category</label>
             <select class="fi" id="be-cat">
               <option value="">— No Change —</option>
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-            </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           </div>
           <div class="fgg"><label>Change Genre</label>
             <select class="fi" id="be-genre">
@@ -1615,21 +1620,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;align-items:center;">
         <select class="fi" id="be-filter-cat" onchange="beFilter()" style="width:auto;min-width:160px;">
           <option value="">📁 All Categories</option>
-          <option value="hollywood">🌟 Hollywood (English)</option>
-          <option value="bollywood">🎭 Bollywood</option>
-          <option value="tollywood">🎬 Tollywood</option>
-          <option value="animation">🧸 Animated</option>
-          <option value="webseries">📺 Web-Series</option>
-          <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-          <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-        </select>
+                        <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
         <input class="si" id="be-srch" placeholder="🔍 Movie search karo..." oninput="beFilter()" style="flex:1;min-width:180px;margin:0;"/>
         <button class="btn btn-s" onclick="beSelectFiltered()" style="white-space:nowrap;">☑ Select Filtered</button>
       </div>
@@ -2228,16 +2230,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <label>Category filter</label>
             <select class="fi" id="pm-bulk-cat">
               <option value="all">All categories</option>
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-            </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           </div>
           <div class="fgg">
             <label>Only missing Playmate ID</label>
@@ -2336,7 +2340,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
               <option value="romance">Romance</option>
               <option value="thriller">Thriller</option>
               <option value="sci-fi">Sci-Fi</option>
-              <option value="animation">🧸 Animated</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
               <option value="crime">Crime</option>
               <option value="adventure">Adventure</option>
             </select>
@@ -2453,9 +2457,10 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div style="display:flex;flex-direction:column;gap:4px;">
               <label style="font-size:0.68rem;color:var(--grey);text-transform:uppercase;">Category</label>
               <select class="sm-sort-sel" id="hd-cat">
-                <option value="bollywood">🎭 Bollywood</option>                <option value="hollywood">🌟 Hollywood (English)</option>                <option value="webseries">📺 Web-Series</option>
-                <option value="animation">🧸 Animated</option>
-                <option value="adult">🔞 Adult Movies</option>
+                <option value="bollywood_hindi">Bollywood Hindi</option>                <option value="english_movies">English-Movies</option>                <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+                <option value="anime_hindi">Anime series Hindi Dubbed</option>
+                <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option>
               <option value="short_films">🔞 Adult Short Film</option>
               </select>
             </div>
@@ -3014,16 +3019,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
           <select id="bdf-cat" class="fi" style="width:160px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
             <option value="all">-- All Categories --</option>
-              <option value="hollywood">🌟 Hollywood (English)</option>              <option value="bollywood">🎭 Bollywood</option>              <option value="tollywood">🎬 Tollywood</option>              <option value="animation">🧸 Animated</option>
-              <option value="webseries">📺 Web-Series</option>              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>              <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-          </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           <select id="bdf-filter" class="fi" style="width:200px;padding:9px 12px;font-size:0.83rem;border-color:rgba(168,85,247,0.3);">
             <option value="empty">Only Empty DL Links</option>
             <option value="all">All Movies (update karo)</option>
@@ -3139,12 +3146,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
           <div class="fgg"><label>📂 Category</label>
             <select class="fi" id="nc-cat">
-              <option value="Hollywood">Hollywood</option>
-              <option value="Bollywood">Bollywood</option>
-              <option value="Tollywood">Tollywood</option>
-              <option value="Animation">Animation</option>
-              <option value="Web Series">Web Series</option>
-            </select>
+                            <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
           </div>
           <div class="fgg"><label>📅 Year (Optional)</label><input class="fi" id="nc-year" placeholder="e.g. 2025" maxlength="4" /></div>
         </div>
@@ -3299,25 +3312,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div class="fgg"><label>Year</label><input class="fi" id="tg-m-year" placeholder="2025"/></div>
             <div class="fgg"><label>Category</label>
               <select class="fi" id="tg-m-cat">
-                <option value="hollywood">🌟 Hollywood (English)</option>
-                <option value="bollywood">🎭 Bollywood</option>
-                <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animated</option>
-                <option value="webseries">📺 Web-Series</option>
-                <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-              </select>
+                              <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
             </div>
             <div class="fgg"><label>Genre</label>
               <select class="fi" id="tg-m-genre">
                 <option value="">— None —</option>
                 <option value="action">Action</option><option value="adventure">Adventure</option>
-                <option value="animation">🧸 Animated</option><option value="comedy">Comedy</option>
+                <option value="anime_hindi">Anime series Hindi Dubbed</option><option value="comedy">Comedy</option>
                 <option value="crime">Crime</option><option value="drama">Drama</option>
                 <option value="fantasy">Fantasy</option><option value="horror">Horror</option>
                 <option value="mystery">Mystery</option><option value="romance">Romance</option>
@@ -3348,19 +3360,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div class="fgg"><label>Category</label>
               <select class="fi" id="tg-bulk-cat">
                 <option value="all">🌐 All Categories</option>
-                <option value="hollywood">🌟 Hollywood (English)</option>
-                <option value="bollywood">🎭 Bollywood</option>
-                <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animated</option>
-                <option value="webseries">📺 Web-Series</option>
-                <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-              </select>
+                              <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
             </div>
             <div class="fgg"><label>Filter</label>
               <select class="fi" id="tg-bulk-filter">
@@ -3479,25 +3490,24 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div class="fgg"><label>Year</label><input class="fi" id="dw-m-year" placeholder="2025"/></div>
             <div class="fgg"><label>Category</label>
               <select class="fi" id="dw-m-cat">
-                <option value="hollywood">🌟 Hollywood (English)</option>
-                <option value="bollywood">🎭 Bollywood</option>
-                <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animated</option>
-                <option value="webseries">📺 Web-Series</option>
-                <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-              </select>
+                              <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
             </div>
             <div class="fgg"><label>Genre</label>
               <select class="fi" id="dw-m-genre">
                 <option value="">— None —</option>
                 <option value="action">Action</option><option value="adventure">Adventure</option>
-                <option value="animation">🧸 Animated</option><option value="comedy">Comedy</option>
+                <option value="anime_hindi">Anime series Hindi Dubbed</option><option value="comedy">Comedy</option>
                 <option value="crime">Crime</option><option value="drama">Drama</option>
                 <option value="fantasy">Fantasy</option><option value="horror">Horror</option>
                 <option value="mystery">Mystery</option><option value="romance">Romance</option>
@@ -3529,19 +3539,18 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <div class="fgg"><label>Category</label>
               <select class="fi" id="dw-bulk-cat">
                 <option value="all">🌐 All Categories</option>
-                <option value="hollywood">🌟 Hollywood (English)</option>
-                <option value="bollywood">🎭 Bollywood</option>
-                <option value="tollywood">🎬 Tollywood</option>
-                <option value="animation">🧸 Animated</option>
-                <option value="webseries">📺 Web-Series</option>
-                <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-              </select>
+                              <option value="">— Category select —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option></select>
             </div>
             <div class="fgg"><label>Filter</label>
               <select class="fi" id="dw-bulk-filter">
@@ -3587,23 +3596,20 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div class="fgg"><label>Year</label><input class="fi" id="ey"/></div>
       <div class="fgg"><label>Rating</label><input class="fi" id="er"/></div>
       <div class="fgg"><label>Category</label>
-        <select class="fi" id="ec" onchange="onEditCatChange()">
-          <option value="">— Select —</option>
-          <option value="hollywood">🌟 Hollywood (English)</option>
-          <option value="bollywood">🎭 Bollywood</option>
-          <option value="tollywood">🎬 Tollywood</option>
-          <option value="animation">🧸 Animated</option>
-          <option value="webseries">📺 Web-Series</option>
-              <option value="kdrama">🇰🇷 K-Drama</option>
-              <option value="dual_audio">🔊 Dual Audio</option>
-              <option value="hindi_dubbed">🇮🇳 Hindi Dubbed</option>
-              <option value="south">🎬 South Indian</option>
-              <option value="tamil">Tamil</option>
-              <option value="telugu">Telugu</option>
-              <option value="south_hindi">🌐 South Hindi Dubbed</option>
-          <option value="adult">🔞 Adult Movies</option>
-              <option value="short_films">🔞 Adult Short Film</option>
-        </select>
+                    <select class="fi" id="ec" onchange="onEditCatChange()">
+              <option value="">— Select Category —</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="south_hindi">South Hindi Dubbed</option>
+              <option value="tamil_telugu">Tamil/Telugu</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="anime_hindi">Anime series Hindi Dubbed</option>
+              <option value="webseries_hindi">Web-Series Hindi Dubbed</option>
+              <option value="kdrama_hindi">K-Drama Hindi Dubbed</option>
+              <option value="philippines">🔞 Philippines Movies</option>
+              <option value="hot_short_hindi">🔞 Hot Short Movies Hindi dubbed</option>
+            </select>
       </div>
       <div class="fgg full adult-warn" id="adult-warn-edit" style="display:none">
         🔞 <span><strong>Adult Category:</strong> Sirf 18+ users ko dikhega (Home pe nahi). <strong>Language</strong> se Hindi / English alag rakho — mix mat karo.</span>
@@ -4714,13 +4720,13 @@ function renderDash(){
   var nH=0,nB=0,nT=0,nA=0,nW=0,nK=0,nAd=0,trend=0,feat=0,noposter=0;
   for(var i=0;i<allMovies.length;i++){
     var m=allMovies[i], c=m.category||'';
-    if(c==='hollywood') nH++;
-    else if(c==='bollywood') nB++;
-    else if(c==='tollywood') nT++;
-    else if(c==='animation') nA++;
-    else if(c==='webseries') nW++;
-    else if(c==='kdrama') nK++;
-    else if(c==='adult'||c==='adult_hindi'||c==='adult_english'||c==='hot_series'||c==='vivamax'||c==='short_films') nAd++;
+    if(c==='english_movies'||c==='hindi_dubbed'||c==='dual_audio') nH++;
+    else if(c==='bollywood_hindi') nB++;
+    else if(c==='south_hindi'||c==='tamil_telugu') nT++;
+    else if(c==='anime_hindi') nA++;
+    else if(c==='webseries_hindi') nW++;
+    else if(c==='kdrama_hindi') nK++;
+    else if(c==='philippines'||c==='hot_short_hindi'||c==='adult'||c==='adult_hindi'||c==='adult_english'||c==='hot_series'||c==='vivamax'||c==='short_films') nAd++;
     if(m.trending) trend++;
     if(m.featured) feat++;
     if(typeof pfHasPoster==='function' ? !pfHasPoster(m) : !(m.poster||m.image||m.thumb)) noposter++;
@@ -4965,7 +4971,7 @@ function filmyflyFetch() {
   preview.style.display = 'none';
 
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -5337,7 +5343,7 @@ function katdramaFetch() {
   preview.style.display = 'none';
 
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -5685,7 +5691,7 @@ function bfuScrapeCategory() {
   statusEl.textContent = '⏳ Page fetch ho raha hai...';
   pagesEl.style.display = 'none';
 
-  var workerUrl = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(catUrl);
+  var workerUrl = 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(catUrl);
 
   fetch(workerUrl)
     .then(function(r){ return r.text(); })
@@ -5907,7 +5913,7 @@ function bfuFetchLinksForItem(idx, btn) {
 }
 
 function bfuFetchFileDLLinks(linkmakeUrl, cb) {
-  var worker = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=';
+  var worker = 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=';
 
   // Step 1: LinKMake page fetch karo — filesdl.in/cloud/ link nikalo
   fetch(worker + encodeURIComponent(linkmakeUrl))
@@ -5949,7 +5955,7 @@ function bfuFetchFileDLLinks(linkmakeUrl, cb) {
 }
 
 function bfuFetchFileDLPage(filesdlUrl, cb) {
-  var workerBase = 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=';
+  var workerBase = 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=';
   fetch(workerBase + encodeURIComponent(filesdlUrl))
     .then(function(r){ return r.text(); })
     .then(function(html) {
@@ -5988,7 +5994,7 @@ function parseAllLinksFromHtml(html) {
 
 function bfuFetchSingle(url, cb) {
   var proxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -6769,7 +6775,7 @@ if (!links.length) return null;
 // localStorage key: cinenova_dl_worker  (example: https://dl.cinenova.site ya workers.dev URL)
 function getDlWorkerBase() {
   var u = (localStorage.getItem('cinenova_dl_worker') || '').trim();
-  if (!u) u = 'https://cinenova-fetch.mujahidlashari50.workers.dev';
+  if (!u) u = 'https://cinenova-dl-download.mujahidlashari50.workers.dev';
   return u.replace(/\/$/, '');
 }
 function setDlWorkerBase(url) {
@@ -7113,7 +7119,7 @@ function pmOnShow() {
   var el = document.getElementById('pm-api-key');
   if (el && k) el.value = k;
   var dw = document.getElementById('pm-dl-worker');
-  if (dw) dw.value = localStorage.getItem('cinenova_dl_worker') || 'https://cinenova-fetch.mujahidlashari50.workers.dev';
+  if (dw) dw.value = localStorage.getItem('cinenova_dl_worker') || 'https://cinenova-dl-download.mujahidlashari50.workers.dev';
   var st = document.getElementById('pm-key-status');
   if (st) st.textContent = k ? '✅ Key saved (local)' : '⚠️ API key zaroori hai';
   pmRenderHistory();
@@ -8551,11 +8557,11 @@ function aiImportSelected(){
     var desc = m.overview || '';
     var genreId = m.genre_ids && m.genre_ids[0];
     var genre = genreMap[genreId]||'';
-    var isTV = m.media_type==='tv' || m._src==='webseries';
+    var isTV = m.media_type==='tv' || m._src==='webseries_hindi';
 
     // Category detect
     var cat = srcCatMap[m._src] || langCatMap[m.original_language] || (isTV?'webseries':'hollywood');
-    if(m._src==='animation'||m.genre_ids&&m.genre_ids.indexOf(16)>-1){ cat='animation'; genre='animation'; }
+    if(m._src==='anime_hindi'||m.genre_ids&&m.genre_ids.indexOf(16)>-1){ cat='animation'; genre='animation'; }
 
     var obj = {title:title, year:year, rating:rating, category:cat, genre:genre, description:desc, thumbnail:poster, addedAt:Date.now()};
     // ✅ SEO slug auto-generate
@@ -8795,7 +8801,7 @@ function fetchFileDLLinks(key) {
   }
 
   // ⭐ Worker pehle — guaranteed kaam karega
-  fetch('https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(rawUrl))
+  fetch('https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(rawUrl))
     .then(function(r) { return r.text(); })
     .then(function(html) {
       if (!html || html.length < 100) throw new Error('empty');
@@ -12399,7 +12405,7 @@ function mlExtractFinalLink(html) {
 // 🎬 FILMYFLY FETCH — Single Page + Site
 // ══════════════════════════════════════════
 var _mlFfProxies = [
-  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -12702,7 +12708,7 @@ function mlFfAddSelected() {
 // 🎬 FILMYFLY PAGE → LINKMAKE FETCH
 // ══════════════════════════════════════════
 var _mlFfProxies = [
-  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',     getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
   { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'CorsProxy',      getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } }
@@ -13250,7 +13256,7 @@ function mlShowSubLinks(id, url) {
   // ── Proxies list ──
   var proxies = [
     // ⭐ Apna Worker — pehli priority, 100% kaam karega
-    { name: 'CineNova-Worker', fn: function(u){ return { url: 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
+    { name: 'CineNova-Worker', fn: function(u){ return { url: 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u), parse: function(t){ return t; } }; } },
     // AllOrigins — JSON wrapper, sabse reliable
     { name: 'AllOrigins',   fn: function(u){ return { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(u) + '&charset=utf-8', parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } }; } },
     // AllOrigins raw
@@ -13410,7 +13416,7 @@ function mlFetchCloudDirectModal(id, url) {
   }
 
   var cdProxies = [
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
@@ -13846,7 +13852,7 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
   // Try multiple proxies in sequence
   var fdProxies = [
     // ⭐ Apna Worker — pehli priority
-    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+    { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'AllOrigins', getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
     { name: 'AllOrigins-raw', getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
     { name: 'CorsProxy', getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
@@ -14191,7 +14197,7 @@ var _ffiReviewQueue = []; // { obj, link, size, checked } — Step 3 review ke l
 var TKEY_FFI = typeof TMDB_API !== 'undefined' ? TMDB_API : '';
 
 var _ffiProxies = [
-  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-fetch.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
+  { name: 'CineNova-Worker', getUrl: function(u){ return 'https://cinenova-dl-download.mujahidlashari50.workers.dev/?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'CorsProxy',       getUrl: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins-raw',  getUrl: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, parse: function(t){ return t; } },
   { name: 'AllOrigins',      getUrl: function(u){ return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); }, parse: function(t){ try{ return JSON.parse(t).contents||''; }catch(e){ return ''; } } },
