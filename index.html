@@ -478,7 +478,9 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 #sec-movies th,#sec-movies td{padding:10px 12px;vertical-align:middle;white-space:nowrap}
 #sec-movies td:nth-child(3){white-space:normal;max-width:280px;min-width:160px}
 #sec-movies .tsm{width:48px;height:68px;object-fit:cover;border-radius:4px}
-#mtbl-pager{display:none!important}
+#mtbl-pager{display:flex!important;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:12px 0;margin-top:8px}
+#mtbl-pager .btn{min-width:64px;padding:8px 14px}
+#mtbl-pager .pg-info{font-size:0.78rem;color:#888}
 </style>
 
 </head>
@@ -4692,7 +4694,7 @@ function loadAllContent(){
   var _lastCountsSnap = null;
   function _refreshMoviesUi(){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 450);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 900);
   }
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
@@ -4817,9 +4819,11 @@ function buildRow(m,hideCategory){
     +'</div></td></tr>';
 }
 
-// ═══ TABLE RENDER — ALL posts, NO pages, chunked (no freeze) ═══
+// ═══ TABLE RENDER — PAGINATED (40/page) — 1000+ movies pe hang nahi ═══
 var _tblLastList = [];
 var _tblRenderToken = 0;
+var _tblPage = 1;
+var ADMIN_PAGE_SIZE = 40;
 var CAT_GROUPS = {
   hollywood: ['english_movies','hindi_dubbed','dual_audio'],
   tollywood: ['south_hindi','tamil_telugu'],
@@ -4829,6 +4833,14 @@ var CAT_GROUPS = {
   kdrama: ['kdrama_hindi'],
   adult: ['philippines','hot_short_hindi']
 };
+function tblGoPage(p){
+  _tblPage = Math.max(1, parseInt(p, 10) || 1);
+  renderTable(_tblLastList);
+  try {
+    var tw = document.querySelector('#sec-movies .tw');
+    if(tw) tw.scrollTop = 0;
+  } catch(e){}
+}
 function renderTable(list){
   var tbody = document.getElementById('mtbl');
   var empty = document.getElementById('tempty');
@@ -4836,36 +4848,47 @@ function renderTable(list){
   if(!list) list = _tblLastList || [];
   if(!list) list = [];
   _tblLastList = list;
-  try {
-    var pager = document.getElementById('mtbl-pager');
-    if(pager) pager.remove();
-  } catch(e){}
-  // cancel any in-progress chunked render
   var token = ++_tblRenderToken;
   if(!list.length){
     tbody.innerHTML = '';
     if(empty) empty.style.display = 'block';
+    try {
+      var pg0 = document.getElementById('mtbl-pager');
+      if(pg0) pg0.remove();
+    } catch(e){}
     return;
   }
   if(empty) empty.style.display = 'none';
-  tbody.innerHTML = '';
   var n = list.length;
-  var CHUNK = 80;
-  var i = 0;
-  function paintChunk(){
-    if(token !== _tblRenderToken) return; // cancelled
-    var html = '';
-    var end = Math.min(i + CHUNK, n);
-    for(; i < end; i++){
-      try { html += buildRow(list[i], false); } catch(e){}
-    }
-    if(html) tbody.insertAdjacentHTML('beforeend', html);
-    if(i < n){
-      if(window.requestAnimationFrame) requestAnimationFrame(paintChunk);
-      else setTimeout(paintChunk, 0);
-    }
+  var totalPages = Math.max(1, Math.ceil(n / ADMIN_PAGE_SIZE));
+  if(_tblPage > totalPages) _tblPage = totalPages;
+  if(_tblPage < 1) _tblPage = 1;
+  var start = (_tblPage - 1) * ADMIN_PAGE_SIZE;
+  var end = Math.min(start + ADMIN_PAGE_SIZE, n);
+  var slice = list.slice(start, end);
+  tbody.innerHTML = '';
+  var html = '';
+  for(var i = 0; i < slice.length; i++){
+    if(token !== _tblRenderToken) return;
+    try { html += buildRow(slice[i], false); } catch(e){}
   }
-  paintChunk();
+  tbody.innerHTML = html;
+  // Pager UI
+  try {
+    var old = document.getElementById('mtbl-pager');
+    if(old) old.remove();
+    var wrap = tbody.closest('.tw') || tbody.parentNode;
+    if(wrap && totalPages >= 1){
+      var pager = document.createElement('div');
+      pager.id = 'mtbl-pager';
+      pager.innerHTML =
+        '<button type="button" class="btn btn-s" ' + (_tblPage<=1?'disabled':'') + ' onclick="tblGoPage(' + (_tblPage-1) + ')">◀ Prev</button>'
+        + '<span class="pg-info">Page <b style="color:#fff">' + _tblPage + '</b> / ' + totalPages
+        + ' · showing ' + (start+1) + '–' + end + ' of ' + n + '</span>'
+        + '<button type="button" class="btn btn-s" ' + (_tblPage>=totalPages?'disabled':'') + ' onclick="tblGoPage(' + (_tblPage+1) + ')">Next ▶</button>';
+      wrap.appendChild(pager);
+    }
+  } catch(e){}
 }
 
 function getMoviesForCatFilter(cat){
@@ -4893,7 +4916,7 @@ function getMoviesForCatFilter(cat){
 function filterByCat(cat){
   if(!cat) return;
   currentCatFilter = cat;
-  
+  _tblPage = 1;
   updateCfBtns();
   var list = getMoviesForCatFilter(cat);
   renderTable(list);
