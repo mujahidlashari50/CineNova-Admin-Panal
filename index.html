@@ -2150,8 +2150,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
-            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (ON — ID save)</span>
+            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;"/>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -6519,20 +6519,26 @@ function isObjHdfunSource(obj) {
   ];
   for (var i = 0; i < fields.length; i++) {
     var u = fields[i] ? String(fields[i]) : '';
-    if (/hdfun\.in|downloadxdesi\.com/i.test(u)) return true;
+    if (/hdfun\.in|downloadxdesi\.com|mmshd\.com/i.test(u)) return true;
   }
   return false;
 }
 
-/** Playmate candidates — FilmyZilla never */
-function pickCandidatesForPlaymate(obj) {
-  if (!obj) return [];
-  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj)) return [];
-  var priority = [
-    obj.download1080p, obj.download720p, obj.download4k, obj.download480p,
-    obj.dlSourceUrl, obj.videoSourceUrl, obj.vlcUrl2, obj.vlcUrl, obj.videoUrl,
-    obj.sourcePageUrl, obj.pageUrl
+function isObjMp4Source(obj) {
+  if (!obj) return false;
+  var fields = [
+    obj.dlSourceUrl, obj.videoSourceUrl, obj.sourcePageUrl, obj.pageUrl,
+    obj.download1080p, obj.download720p, obj.download480p, obj.download4k
   ];
+  for (var i = 0; i < fields.length; i++) {
+    var u = fields[i] ? String(fields[i]) : '';
+    if (/mp4moviez/i.test(u)) return true;
+  }
+  return false;
+}
+
+/** URL list se unique https candidates (FilmyZilla skip) */
+function _pmCollectUrls(list) {
   var out = [];
   var seen = {};
   function add(u) {
@@ -6540,23 +6546,73 @@ function pickCandidatesForPlaymate(obj) {
     u = u.trim();
     if (!/^https?:\/\//i.test(u)) return;
     if (/playmate\.to/i.test(u)) return;
-    if (isFilmyzillaAnyUrl(u)) return;
+    if (typeof isFilmyzillaAnyUrl === 'function' && isFilmyzillaAnyUrl(u)) return;
     if (seen[u]) return;
     seen[u] = 1;
     out.push(u);
   }
-  priority.forEach(function(u) { if (isLikelyDirectVideoUrl(u)) add(u); });
-  priority.forEach(function(u) { add(u); });
-  return out.slice(0, 3);
+  (list || []).forEach(function(u) { if (typeof isLikelyDirectVideoUrl === 'function' && isLikelyDirectVideoUrl(u)) add(u); });
+  (list || []).forEach(function(u) { add(u); });
+  return out;
+}
+
+/** Playmate candidates — HDFun + Mp4Moviez OK; pure FilmyZilla skip */
+function pickCandidatesForPlaymate(obj) {
+  if (!obj) return [];
+  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj) && !isObjMp4Source(obj)) return [];
+  var priority = [
+    obj.download1080p, obj.download720p, obj.download4k, obj.download480p,
+    obj.dlSourceUrl, obj.videoSourceUrl, obj.vlcUrl2, obj.vlcUrl, obj.videoUrl,
+    obj.sourcePageUrl, obj.pageUrl
+  ];
+  return _pmCollectUrls(priority).slice(0, 4);
+}
+
+/** Episode-level candidates (web series — har ep alag upload) */
+function pickEpCandidatesForPlaymate(ep) {
+  if (!ep || typeof ep !== 'object') return [];
+  var priority = [
+    ep.dl1080, ep.dl720, ep.dl480,
+    ep.download1080p, ep.download720p, ep.download480p, ep.download4k,
+    ep.videoSourceUrl, ep.dlSourceUrl, ep.videoUrl, ep.url, ep.link, ep.vlcUrl
+  ];
+  return _pmCollectUrls(priority).slice(0, 4);
 }
 
 function pickDirectUrlForPlaymate(obj) {
-  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj)) return '';
+  if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj) && !isObjMp4Source(obj)) return '';
   var list = pickCandidatesForPlaymate(obj);
   for (var i = 0; i < list.length; i++) {
     if (isLikelyDirectVideoUrl(list[i])) return list[i];
   }
   return list[0] || '';
+}
+
+/** Candidates → resolve → Playmate → {playmateId, playmateUrl} ya {error} */
+async function pmUploadFromCandidates(cands, title) {
+  if (!cands || !cands.length) return { error: 'no candidates' };
+  var lastErr = '';
+  for (var ci = 0; ci < cands.length; ci++) {
+    try {
+      var finalUrl = await resolveUrlForPlaymateUpload(cands[ci]);
+      if (!finalUrl) { lastErr = 'resolve fail'; continue; }
+      var r = await uploadUrlToPlaymate(finalUrl, null, title || '');
+      var pid = (r && (r.filecode || r.embedId)) || '';
+      if (!pid && r && r.embedUrl) {
+        try { pid = extractPlaymateIdFromUrl(r.embedUrl) || extractPlaymateIdFromResponse(r); } catch (e) {}
+      }
+      if (r && r.ok && pid) {
+        return {
+          playmateId: String(pid).trim(),
+          playmateUrl: r.embedUrl || ('https://playmate.to/embed/' + pid)
+        };
+      }
+      lastErr = (r && r.error) || 'no filecode';
+    } catch (e) {
+      lastErr = e.message || String(e);
+    }
+  }
+  return { error: lastErr || 'upload fail' };
 }
 
 /** CORS-friendly fetch helper */
@@ -15769,12 +15825,10 @@ function ffiSaveReviewed() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
 
   var savedCount = 0, errCount = 0, total = selected.length;
-  // Import pe Playmate auto — default ON (checkbox unchecked = off)
-  // HDFun / direct links → Playmate upload → playmateId Firebase mein save
+  // Playmate auto — HDFun + Mp4Moviez movies + webseries har episode
   var pmCb = document.getElementById('ffi-playmate-upload');
-  var wantPm = !pmCb || !!pmCb.checked; // default true if checkbox missing
+  var wantPm = !pmCb || !!pmCb.checked;
 
-  // Optional: Playmate URL-upload pehle (direct links only)
   function afterPlaymate(doneList) {
     selected = doneList || selected;
     saveBatch(0);
@@ -15782,65 +15836,82 @@ function ffiSaveReviewed() {
 
   function runPlaymateThenSave() {
     if (!wantPm) { afterPlaymate(selected); return; }
-    if (statusEl) statusEl.textContent = '▶️ Playmate pe upload...';
+    if (statusEl) statusEl.textContent = '▶️ Playmate pe upload (HDFun/Mp4 + episodes)...';
     var i = 0;
-    var pmOk = 0, pmSkip = 0;
+    var pmOk = 0, pmSkip = 0, pmEpOk = 0;
+
     function nextPm() {
       if (i >= selected.length) {
-        if (statusEl) statusEl.textContent = 'Playmate: ' + pmOk + ' ok, ' + pmSkip + ' skip — Firebase save...';
+        if (statusEl) statusEl.textContent = 'Playmate: ' + pmOk + ' movie ok, ' + pmEpOk + ' ep ok, ' + pmSkip + ' skip — Firebase save...';
         afterPlaymate(selected);
         return;
       }
       var item = selected[i++];
-      // FilmyZilla → Playmate auto BAND
-      if (item.obj && isObjFilmyzillaSource(item.obj) && !isObjHdfunSource(item.obj)) {
+      var obj = item.obj;
+      if (!obj) { pmSkip++; nextPm(); return; }
+
+      // Pure FilmyZilla (bina HDFun/Mp4) → skip
+      if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj) && !isObjMp4Source(obj)) {
         pmSkip++;
-        item.obj._playmateSkip = 'filmyzilla';
-        if (statusEl) statusEl.textContent = '▶️ Playmate skip FZ ' + (pmOk + pmSkip) + '/' + selected.length;
+        obj._playmateSkip = 'filmyzilla';
+        if (statusEl) statusEl.textContent = '▶️ Skip FZ ' + (pmOk + pmSkip) + '/' + selected.length;
         nextPm();
         return;
       }
-      var cands = pickCandidatesForPlaymate(item.obj);
-      if (!cands.length) {
-        pmSkip++;
-        item.obj._playmateError = 'No HDFun/direct link';
-        if (statusEl) statusEl.textContent = '▶️ Playmate ' + (pmOk + pmSkip) + '/' + selected.length + ' (skip: no link)';
-        nextPm();
-        return;
-      }
+
       (async function() {
-        var finalUrl = null;
-        var lastErr = '';
-        for (var ci = 0; ci < cands.length; ci++) {
-          try {
-            finalUrl = await resolveUrlForPlaymateUpload(cands[ci]);
-            if (finalUrl) break;
-          } catch (e) {
-            lastErr = e.message || String(e);
+        var title = obj.title || '';
+        var hasEps = obj.episodes && obj.episodes.length > 0;
+
+        // 1) Movie-level (ya single link) upload — HDFun / Mp4Moviez
+        if (!obj.playmateId) {
+          var cands = pickCandidatesForPlaymate(obj);
+          if (cands.length) {
+            if (statusEl) statusEl.textContent = '▶️ Movie ' + (i) + '/' + selected.length + ': ' + title.substring(0, 28);
+            var res = await pmUploadFromCandidates(cands, title);
+            if (res && res.playmateId) {
+              obj.playmateId = res.playmateId;
+              obj.playmateUrl = res.playmateUrl;
+              pmOk++;
+            } else if (!hasEps) {
+              pmSkip++;
+              obj._playmateError = (res && res.error) || 'no link';
+            }
+          } else if (!hasEps) {
+            pmSkip++;
+            obj._playmateError = 'No HDFun/Mp4Moviez link';
           }
         }
-        if (!finalUrl) {
-          pmSkip++;
-          item.obj._playmateError = lastErr || 'Could not resolve direct URL';
-          if (statusEl) statusEl.textContent = '▶️ Playmate ' + (pmOk + pmSkip) + '/' + selected.length + ' (resolve fail)';
-          nextPm();
-          return;
+
+        // 2) Web series — har episode alag Playmate upload
+        if (hasEps) {
+          for (var ei = 0; ei < obj.episodes.length; ei++) {
+            var ep = obj.episodes[ei];
+            if (!ep || ep.playmateId) continue;
+            var epCands = pickEpCandidatesForPlaymate(ep);
+            if (!epCands.length) continue;
+            var epTitle = title + ' S' + (ep.season || '1') + 'E' + (ep.episode || (ei + 1));
+            if (statusEl) statusEl.textContent = '▶️ Ep ' + (ei + 1) + '/' + obj.episodes.length + ' · ' + title.substring(0, 22);
+            var epRes = await pmUploadFromCandidates(epCands, epTitle);
+            if (epRes && epRes.playmateId) {
+              ep.playmateId = epRes.playmateId;
+              ep.playmateUrl = epRes.playmateUrl;
+              pmEpOk++;
+            }
+          }
+          // Agar movie-level ID nahi mili lekin pehla ep mil gaya → movie pe bhi set
+          if (!obj.playmateId && obj.episodes[0] && obj.episodes[0].playmateId) {
+            obj.playmateId = obj.episodes[0].playmateId;
+            obj.playmateUrl = obj.episodes[0].playmateUrl;
+            pmOk++;
+          }
         }
-        if (statusEl) statusEl.textContent = '▶️ Playmate upload ' + (pmOk + pmSkip + 1) + '/' + selected.length + '...';
-        var r = await uploadUrlToPlaymate(finalUrl, null, (item.obj && item.obj.title) || '');
-        if (r.ok) {
-          item.obj.playmateId = r.filecode;
-          item.obj.playmateUrl = r.embedUrl;
-          pmOk++;
-        } else {
-          pmSkip++;
-          item.obj._playmateError = r.error || 'upload fail';
-        }
-        if (statusEl) statusEl.textContent = '▶️ Playmate ' + (pmOk + pmSkip) + '/' + selected.length + ' (ok:' + pmOk + ')';
+
+        if (statusEl) statusEl.textContent = '▶️ Playmate ' + (pmOk + pmSkip) + '/' + selected.length + ' (movies:' + pmOk + ' eps:' + pmEpOk + ')';
         nextPm();
       })().catch(function(e) {
         pmSkip++;
-        item.obj._playmateError = e.message || String(e);
+        obj._playmateError = e.message || String(e);
         nextPm();
       });
     }
@@ -15916,9 +15987,17 @@ function ffiSaveReviewed() {
       if (item.obj.size720) item.obj.size720 = String(item.obj.size720);
       if (item.obj.size1080) item.obj.size1080 = String(item.obj.size1080);
       if (item.obj.size4k) item.obj.size4k = String(item.obj.size4k);
-      var movieKey = db.ref('movies').push().key;
+      var movieKey = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
       var payload = sanitizeMovieForFb(item.obj);
-      payload.addedAt = Date.now() + (total - i); // newest first
+      if (item.obj && item.obj.playmateId) {
+        payload.playmateId = String(item.obj.playmateId).trim();
+        payload.playmateUrl = item.obj.playmateUrl || ('https://playmate.to/embed/' + payload.playmateId);
+      }
+      // Episodes ke playmateId bhi rakho
+      if (item.obj && item.obj.episodes && item.obj.episodes.length) {
+        payload.episodes = item.obj.episodes;
+      }
+      payload.addedAt = Date.now() + (total - i);
       updates['movies/' + movieKey] = payload;
       if (item.link) {
         var mlKey = db.ref('mylinks').push().key;
