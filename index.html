@@ -614,6 +614,8 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ HDFun / Mp4Moviez</div>
+    <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
+    <div class="nav-item" id="nav-pmmatch" onclick="show('pmmatch')" style="color:#60a5fa;">🎯 Playmate Match</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
@@ -2158,11 +2160,53 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
             <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
+          <button onclick="ffiSaveToJsonBucket()" id="ffi-jsonbucket-btn" class="btn" style="background:#059669;color:#fff;">📦 Save Selected to JSON File</button>
           <span id="ffi-save-status" style="font-size:0.8rem;color:var(--grey);"></span>
         </div>
       </div>
     </div>
     <!-- ═══ END FILMYFLY IMPORTER ═══ -->
+
+    <!-- ═══ 📦 JSON EXPORT BUCKET ═══ -->
+    <div class="section" id="sec-jsonexport">
+      <div class="sec-title">📦 JSON <span>Export</span></div>
+      <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#6ee7b7;">
+        Yahan wo movies jama hoti hain jo tumne Importer (Step 3) mein <b>"📦 Save Selected to JSON File"</b> se add ki hon — Firebase par seedha likhi nahi jatin. Jab chaho, <b>Download JSON</b> se ek file milegi jo tum khud Firebase Console → Realtime Database → apne <code style="color:#a7f3d0;">movies</code> node par right-click → <b>Import JSON</b> se upload kar sakti ho.
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <h3 style="margin:0;">Bucket mein: <span id="jb-count" style="color:#34d399;">0</span> movies</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn" style="background:#059669;color:#fff;" onclick="jbDownload()">⬇️ Download JSON</button>
+            <button type="button" class="btn btn-s" style="border-color:rgba(248,113,113,0.4);color:#f87171;" onclick="jbClear()">🗑 Bucket Khali Karo</button>
+          </div>
+        </div>
+        <div id="jb-list" style="display:flex;flex-direction:column;max-height:500px;overflow-y:auto;border:1px solid rgba(255,255,255,0.06);border-radius:8px;"></div>
+      </div>
+    </div>
+    <!-- ═══ END JSON EXPORT BUCKET ═══ -->
+
+    <!-- ═══ 🎯 PLAYMATE MATCH ═══ -->
+    <div class="section" id="sec-pmmatch">
+      <div class="sec-title">🎯 Playmate <span>Match</span></div>
+      <div style="background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#93c5fd;">
+        Playmate account pe jitni bhi videos already uploaded hain unhe fetch karke, panel ki <b>movies</b> list se title se match karta hai. Match sahi ho to select karke <b>playmateId</b> us movie ke Firebase record mein seedha save ho jati hai — dobara upload nahi karni padegi.
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+          <button type="button" class="btn btn-p" onclick="pmmFetchAndMatch()" id="pmm-fetch-btn">🔄 Playmate Files Fetch + Match Karo</button>
+          <span style="font-size:0.78rem;color:var(--grey);" id="pmm-status"></span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="pmm-stats"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-s" style="padding:6px 14px;font-size:0.78rem;" onclick="pmmSelectAll()">✅ Sab Select</button>
+          <button type="button" class="btn btn-s" style="padding:6px 14px;font-size:0.78rem;" onclick="pmmDeselectAll()">❌ Deselect</button>
+          <button type="button" class="btn" style="background:#16a34a;color:#fff;padding:6px 14px;font-size:0.78rem;" onclick="pmmSaveSelected()" id="pmm-save-btn">💾 Selected IDs Save Karo</button>
+        </div>
+        <div id="pmm-list" style="display:flex;flex-direction:column;gap:6px;max-height:600px;overflow-y:auto;"></div>
+      </div>
+    </div>
+    <!-- ═══ END PLAYMATE MATCH ═══ -->
 
     <!-- ═══ PLAYMATE UPLOAD ═══ -->
     <div class="section" id="sec-playmate">
@@ -4505,6 +4549,8 @@ function show(name){
     if(typeof posterFillLoad==='function')posterFillLoad();
   }
   if(name==='ffimport'){document.getElementById('ffi-fetch-status').style.display='none';}
+  if(name==='jsonexport'){try{jbRender();}catch(e){}}
+  if(name==='pmmatch'){try{if(!pmGetKey())document.getElementById('pmm-status').textContent='⚠️ Pehle Playmate section mein API key save karo';}catch(e){}}
 }
 
 
@@ -5923,7 +5969,7 @@ function bfuFetchFileDLLinks(linkmakeUrl, cb) {
 
       // LinKMake page se filesdl cloud URLs nikalo
       var cloudLinks = [];
-      var clRe = /https?:\/\/(?:new1\.)?filesdl\.in\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
+      var clRe = /https?:\/\/[a-zA-Z0-9]*\.?filesdl\.(?:in|top|co)\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
       var cm;
       while ((cm = clRe.exec(html)) !== null) cloudLinks.push(cm[0]);
 
@@ -5935,7 +5981,7 @@ function bfuFetchFileDLLinks(linkmakeUrl, cb) {
 
       // Agar abhi bhi nahi mila - JS variable mein dhundho
       if (!cloudLinks.length) {
-        var jsRe = /["'](https?:\/\/[^"'\s]*filesdl\.in[^"'\s]*)["']/gi, jm;
+        var jsRe = /["'](https?:\/\/[^"'\s]*filesdl\.(?:in|top|co)[^"'\s]*)["']/gi, jm;
         while ((jm = jsRe.exec(html)) !== null) cloudLinks.push(jm[1]);
       }
 
@@ -5971,7 +6017,7 @@ function parseAllLinksFromHtml(html) {
   function isJunk(u) {
     if (/\.(jpg|png|gif|css|js|ico|svg|webp)/i.test(u)) return true;
     if (/policy|privacy|dmca|signup|login|facebook|twitter|instagram/i.test(u)) return true;
-    if (/filesdl\.in\/cloud\//i.test(u)) return true;
+    if (/filesdl\.(?:in|top|co)\/cloud\//i.test(u)) return true;
     return false;
   }
   // Markdown [Label](url)
@@ -7151,6 +7197,194 @@ function pmSaveDlWorker() {
 function pmGetKey() {
   return (document.getElementById('pm-api-key') && document.getElementById('pm-api-key').value.trim())
     || localStorage.getItem('cinenova_playmate_api_key') || '';
+}
+
+// ══════════════ 🎯 PLAYMATE MATCH — uploaded files ko movies se match karo ══════════════
+// Playmate account pe jo bhi files already uploaded hain unhe /file/list se fetch
+// karke, panel ki movies list (allMovies) se title-match karke playmateId
+// wapis us movie ke Firebase record mein save karta hai.
+// NOTE: Playmate ka exact "list files" endpoint publicly documented nahi mila,
+// isliye Doodstream-jaisi API (jis pattern par /account/info aur /upload/url
+// pehle se kaam kar rahe hain) ke standard /file/list format se try karta hai.
+// Agar ye response na de to status message mein saaf error dikhega.
+var _pmmFiles = [];   // [{file_code, title}]
+var _pmmMatches = []; // [{fileCode, fileTitle, movieKey, movieTitle, score, checked}]
+
+function pmmNormTitle(s) {
+  return String(s || '').toLowerCase()
+    .replace(/\b(19|20)\d{2}\b/g, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265|hindi|dubbed|dual\s*audio|full\s*movie|watch\s*online|download|season\s*\d+|s\d{1,2}e\d{1,3})\b/gi, ' ')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\b(the|a|an|of|and)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+function pmmTitleScore(a, b) {
+  a = pmmNormTitle(a); b = pmmNormTitle(b);
+  if (!a || !b) return 0;
+  if (a === b) return 100;
+  if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 88;
+  var at = a.split(' ').filter(Boolean), bt = b.split(' ').filter(Boolean);
+  if (!at.length || !bt.length) return 0;
+  var hit = 0;
+  at.forEach(function(t) { if (bt.indexOf(t) >= 0) hit++; });
+  return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+}
+
+async function pmmFetchAllFiles() {
+  var key = pmGetKey();
+  if (!key) throw new Error('API key missing');
+  var all = [];
+  var page = 1, totalPages = 1;
+  do {
+    var url = PM_API + '/file/list?key=' + encodeURIComponent(key) + '&page=' + page + '&per_page=200';
+    var res = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+    var data = await res.json().catch(function() { return {}; });
+    var result = data.result || data;
+    var files = result.files || result.results || (Array.isArray(result) ? result : []) || [];
+    if (!files.length && page === 1) {
+      throw new Error((data.msg || data.message || ('HTTP ' + res.status)) + ' — /file/list endpoint response check karo');
+    }
+    files.forEach(function(f) {
+      var code = f.file_code || f.filecode || f.code || '';
+      var title = f.title || f.name || '';
+      if (code) all.push({ file_code: code, title: title });
+    });
+    totalPages = result.total_pages || result.totalPages || 1;
+    page++;
+  } while (page <= totalPages && page < 500);
+  return all;
+}
+
+function pmmRenderStats() {
+  var matched = _pmmMatches.filter(function(m) { return m.movieKey; }).length;
+  var unmatched = _pmmMatches.length - matched;
+  var already = _pmmMatches.filter(function(m) { return m.alreadySynced; }).length;
+  document.getElementById('pmm-stats').innerHTML =
+    '<span style="font-size:0.75rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">✅ Matched: ' + matched + '</span>' +
+    '<span style="font-size:0.75rem;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;padding:3px 10px;border-radius:20px;">❌ Unmatched: ' + unmatched + '</span>' +
+    '<span style="font-size:0.75rem;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.3);color:#cbd5e1;padding:3px 10px;border-radius:20px;">↺ Already Synced: ' + already + '</span>';
+}
+
+function pmmRenderList() {
+  var listEl = document.getElementById('pmm-list');
+  if (!listEl) return;
+  var rows = _pmmMatches.filter(function(m) { return m.movieKey && !m.alreadySynced; });
+  if (!rows.length) {
+    listEl.innerHTML = '<div style="color:var(--grey);padding:14px;">Koi naya match nahi mila. Upar "Fetch + Match" dabao.</div>';
+    return;
+  }
+  listEl.innerHTML = rows.map(function(m, idx) {
+    var color = m.score >= 85 ? '#86efac' : (m.score >= 70 ? '#fde68a' : '#fca5a5');
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;cursor:pointer;">' +
+      '<input type="checkbox" data-idx="' + m._idx + '" ' + (m.checked ? 'checked' : '') + ' onchange="pmmToggle(' + m._idx + ', this.checked)" style="width:16px;height:16px;"/>' +
+      '<span style="flex:1;font-size:0.82rem;">' +
+        '<b>' + (m.movieTitle || '').replace(/</g,'&lt;') + '</b>' +
+        '<span style="color:var(--grey);"> ← </span>' +
+        '<span style="color:#93c5fd;">' + (m.fileTitle || '').replace(/</g,'&lt;') + '</span>' +
+      '</span>' +
+      '<span style="font-size:0.72rem;color:' + color + ';white-space:nowrap;">' + m.score + '% match</span>' +
+      '<code style="font-size:0.68rem;color:#666;">' + m.fileCode + '</code>' +
+      '</label>';
+  }).join('');
+}
+
+function pmmToggle(idx, checked) {
+  var m = _pmmMatches.find(function(x) { return x._idx === idx; });
+  if (m) m.checked = checked;
+}
+function pmmSelectAll() {
+  _pmmMatches.forEach(function(m) { if (m.movieKey && !m.alreadySynced) m.checked = true; });
+  pmmRenderList();
+}
+function pmmDeselectAll() {
+  _pmmMatches.forEach(function(m) { m.checked = false; });
+  pmmRenderList();
+}
+
+async function pmmFetchAndMatch() {
+  var statusEl = document.getElementById('pmm-status');
+  var btn = document.getElementById('pmm-fetch-btn');
+  var key = pmGetKey();
+  if (!key) { statusEl.textContent = '❌ Playmate section mein pehle API key save karo'; return; }
+  btn.disabled = true;
+  statusEl.textContent = '⏳ Playmate se files list ho rahi hai...';
+  try {
+    _pmmFiles = await pmmFetchAllFiles();
+    statusEl.textContent = '⏳ ' + _pmmFiles.length + ' files mili — movies se match ho raha hai...';
+
+    // Movies ka normalized-title index (fast exact-lookup ke liye)
+    var byNorm = {};
+    (allMovies || []).forEach(function(m) {
+      var n = pmmNormTitle(m.title);
+      if (n && !byNorm[n]) byNorm[n] = m;
+    });
+    var existingIds = {};
+    (allMovies || []).forEach(function(m) { if (m.playmateId) existingIds[m.playmateId] = m.key; });
+
+    _pmmMatches = [];
+    var idx = 0;
+    _pmmFiles.forEach(function(f) {
+      if (existingIds[f.file_code]) {
+        _pmmMatches.push({ _idx: idx++, fileCode: f.file_code, fileTitle: f.title, movieKey: existingIds[f.file_code], movieTitle: '', score: 100, checked: false, alreadySynced: true });
+        return;
+      }
+      var norm = pmmNormTitle(f.title);
+      var best = byNorm[norm] || null;
+      var bestScore = best ? 100 : 0;
+      if (!best) {
+        (allMovies || []).forEach(function(m) {
+          if (m.playmateId) return; // already has an ID, skip as candidate
+          var sc = pmmTitleScore(f.title, m.title);
+          if (sc > bestScore) { bestScore = sc; best = m; }
+        });
+      }
+      _pmmMatches.push({
+        _idx: idx++,
+        fileCode: f.file_code,
+        fileTitle: f.title,
+        movieKey: (best && bestScore >= 60) ? best.key : null,
+        movieTitle: best ? best.title : '',
+        score: bestScore,
+        checked: !!(best && bestScore >= 85),
+        alreadySynced: false
+      });
+    });
+
+    pmmRenderStats();
+    pmmRenderList();
+    statusEl.textContent = '✅ Match complete — ≥85% wale auto-select hain, baaki review karke select karo';
+  } catch (e) {
+    statusEl.textContent = '❌ ' + (e.message || e);
+  }
+  btn.disabled = false;
+}
+
+function pmmSaveSelected() {
+  var selected = _pmmMatches.filter(function(m) { return m.checked && m.movieKey; });
+  if (!selected.length) { toast('❌ Koi row select nahi!', 1); return; }
+  var btn = document.getElementById('pmm-save-btn');
+  var statusEl = document.getElementById('pmm-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
+  var updates = {};
+  selected.forEach(function(m) {
+    updates['movies/' + m.movieKey + '/playmateId'] = m.fileCode;
+    updates['movies/' + m.movieKey + '/playmateUrl'] = 'https://playmate.to/embed/' + m.fileCode;
+  });
+  db.ref().update(updates).then(function() {
+    if (statusEl) statusEl.textContent = '✅ ' + selected.length + ' movies mein playmateId save ho gayi';
+    toast('✅ ' + selected.length + ' Playmate ID save ho gayi');
+    // Saved rows ko list se hata do
+    var savedKeys = {};
+    selected.forEach(function(m) { savedKeys[m.movieKey] = 1; });
+    _pmmMatches = _pmmMatches.filter(function(m) { return !savedKeys[m.movieKey]; });
+    pmmRenderList();
+    pmmRenderStats();
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Selected IDs Save Karo'; }
+    try { loadAllContent(); } catch (e) {}
+  }).catch(function(err) {
+    if (statusEl) statusEl.textContent = '❌ Save error: ' + err.message;
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Selected IDs Save Karo'; }
+  });
 }
 
 async function pmTestApiKey() {
@@ -13187,7 +13421,7 @@ function mlShowSubLinks(id, url) {
     var q = lnk.quality || lnk._q || detectQuality(lnk.url||'', lnk.label||'');
     var qBadge = q ? '<span style="padding:2px 8px;border-radius:4px;font-size:0.62rem;font-weight:700;background:'+q.bg+';color:'+q.color+';border:1px solid '+q.border+';margin-right:6px;flex-shrink:0;">'+q.tag+'</span>' : '';
     var uid = 'mlsl-' + i + '-' + Math.random().toString(36).substr(2,6);
-    var isFileDL = /filesdl\.in|filesdl\.top/i.test(lnk.url||lnk);
+    var isFileDL = /filesdl\.in|filesdl\.top|filesdl\.co/i.test(lnk.url||lnk);
     var safeLabel = label.replace(/'/g,"\\'");
     var sizeFieldId = 'ml-size-' + uid;
     var fetchBtn = isFileDL
@@ -13765,16 +13999,16 @@ function mlFetchFastDirect(filesdlUrl, uid, linkLabel) {
         var lbl = (allLinks[i].label||'').toLowerCase();
         if (lbl.indexOf('cloud') > -1 && lbl.indexOf('final') > -1) return allLinks[i].url;
       }
-      // 2) URL pattern filesdl.top/cloud/ ya filesdl.in/cloud/ ya /drive/ — sirf yehi domain, HubCloud/SlowCloud/etc exclude
+      // 2) URL pattern filesdl.top/cloud/ ya filesdl.in/cloud/ ya filesdl.co/cloud/ ya /drive/ — sirf yehi domain, HubCloud/SlowCloud/etc exclude
       for (var j=0;j<allLinks.length;j++) {
         var u = allLinks[j].url||'';
-        if (/filesdl\.(top|in)\/(cloud|drive)\//i.test(u) && !/fdownload\.php/i.test(u)) return u;
+        if (/filesdl\.(top|in|co)\/(cloud|drive)\//i.test(u) && !/fdownload\.php/i.test(u)) return u;
       }
     }
     // 3) allLinks mein nahi mila — raw HTML text mein directly regex se dhundo
     // (kabhi kabhi ye link JS variable / button data-attr mein hota hai, anchor tag mein nahi)
     if (html) {
-      var rawRe = /https?:\/\/[a-zA-Z0-9.-]*filesdl\.(?:top|in)\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
+      var rawRe = /https?:\/\/[a-zA-Z0-9.-]*filesdl\.(?:top|in|co)\/(?:cloud|drive)\/[a-zA-Z0-9]+/gi;
       var rm;
       while ((rm = rawRe.exec(html)) !== null) {
         if (!/fdownload\.php/i.test(rm[0])) return rm[0];
@@ -14317,6 +14551,15 @@ function ffiIsRealPostUrl(u, siteUrl) {
   if (/filmyfly|filmy4wap|mkvcinemas/i.test(host) || /filmyfly|filmy4wap/i.test(siteUrl || '')) {
     return /\/page-download\/\d+\/[^\/]+/i.test(u);
   }
+  // filmsone.com — FilmyFly clean-permalink clone: post = /slug.html at
+  // root, category pages = /category-slug/ (no .html, no numeric id)
+  if (/filmsone\.com/i.test(host) || /filmsone\.com/i.test(siteUrl || '')) {
+    var fp = '';
+    try { fp = new URL(u).pathname; } catch (e) { fp = u; }
+    if (!/\.html?$/i.test(fp)) return false; // category/page links don't end in .html
+    if (/^\/page-how-to-download-movie\.html/i.test(fp)) return false;
+    return true;
+  }
   // 9xflix — /m/slug/ not listing pages
   if (/9xflix/i.test(host) || /9xflix/i.test(siteUrl || '')) {
     if (/\/m\/page\/\d+/i.test(u)) return false;
@@ -14446,7 +14689,7 @@ function ffiFetchPosts() {
   function ffiIsAllowedSite(u) {
     var s = String(u || '').toLowerCase();
     if (/filmyzilla|letsporn/i.test(s)) return false;
-    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mmshd\.com|mp4moviez/i.test(s);
+    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mmshd\.com|mp4moviez|filmsone\.com/i.test(s);
   }
 
   // 3 category URLs ek sath
@@ -14527,6 +14770,10 @@ function ffiFetchPosts() {
         // Mp4Moviez: /1/bollywood-movies.html&p=2  (or ?p=2)
         var baseMp = siteUrl.replace(/[&?]p=\d+/gi, '').replace(/[?&]$/, '');
         url = baseMp + (baseMp.indexOf('?') !== -1 || baseMp.indexOf('&') !== -1 ? '&' : (baseMp.indexOf('.html') !== -1 ? '&' : '?')) + 'p=' + pageNum;
+      } else if (/filmsone\.com/i.test(siteUrl)) {
+        // filmsone.com: /page/N/ (with trailing slash) — category base + /page/N/
+        var baseFs = siteUrl.replace(/\/?(\?.*)?$/, '').replace(/\/page\/\d+\/?$/i, '');
+        url = baseFs + '/page/' + pageNum + '/';
       } else if (/filmyfly|filmy4wap|page-category\//i.test(siteUrl)) {
         // FilmyFly: keep path, add ?page=N
         var baseFf = siteUrl.replace(/[?&]page=\d+/gi, '').replace(/[?&]$/, '');
@@ -14600,6 +14847,19 @@ function ffiFetchPosts() {
           var mMp2;
           while ((mMp2 = reMp2.exec(html)) !== null) {
             ffiPushPost(mMp2[0].replace(/&amp;/g, '&'), ffiTitleFromUrl(mMp2[0]), allFound, siteUrl);
+          }
+        }
+
+        // Pattern filmsone.com: flat root-level slug.html post links
+        // (category/page/tag links don't end in .html, so this alone is safe)
+        if (/filmsone\.com/i.test(siteUrl) || /filmsone\.com/i.test(baseHost)) {
+          var reFs = /href=["'](https?:\/\/(?:www\.)?filmsone\.com\/([a-z0-9][a-z0-9\-]{4,})\.html)["']/gi;
+          var mFs;
+          var skipFs = /^page-how-to-download-movie$/i;
+          while ((mFs = reFs.exec(html)) !== null) {
+            var uFs = mFs[1].replace(/&amp;/g, '&');
+            if (skipFs.test(mFs[2])) continue;
+            ffiPushPost(uFs, ffiTitleFromUrl(uFs), allFound, siteUrl);
           }
         }
 
@@ -15845,6 +16105,176 @@ function ffiReviewDeselectAll() {
 }
 
 // Ab yahan se asal Firebase save hota hai — sirf jo checked hain
+// ══════════════ 📦 JSON EXPORT BUCKET — Firebase "Import JSON" ke liye ══════════════
+// Import ki hui movies ko Firebase par seedha likhne ki jagah is bucket mein
+// jama karo (localStorage mein persist). "Download JSON" se ek file milti hai
+// jo Firebase Console mein /movies node par "Import JSON" se manually daali
+// ja sakti hai.
+var _jsonBucket = {};
+try {
+  var _jbRaw = localStorage.getItem('cv_json_export_bucket');
+  if (_jbRaw) _jsonBucket = JSON.parse(_jbRaw) || {};
+} catch (e) { _jsonBucket = {}; }
+
+function jbPersist() {
+  try { localStorage.setItem('cv_json_export_bucket', JSON.stringify(_jsonBucket)); } catch (e) {}
+  try {
+    var navCount = document.getElementById('jb-nav-count');
+    if (navCount) navCount.textContent = Object.keys(_jsonBucket).length;
+  } catch (e) {}
+}
+
+function jbCount() { return Object.keys(_jsonBucket).length; }
+
+function jbRender() {
+  var listEl = document.getElementById('jb-list');
+  var countEl = document.getElementById('jb-count');
+  if (countEl) countEl.textContent = jbCount();
+  var navCount = document.getElementById('jb-nav-count');
+  if (navCount) navCount.textContent = jbCount();
+  if (!listEl) return;
+  var keys = Object.keys(_jsonBucket);
+  if (!keys.length) {
+    listEl.innerHTML = '<div style="color:var(--grey);padding:14px;">Bucket khali hai — Importer ke Step 3 mein "📦 Save Selected to JSON File" dabao.</div>';
+    return;
+  }
+  listEl.innerHTML = keys.map(function(k) {
+    var m = _jsonBucket[k] || {};
+    var title = (m.title || 'Untitled');
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.06);">' +
+      '<span style="font-size:0.85rem;">' + title.replace(/</g, '&lt;') + '</span>' +
+      '<button type="button" class="btn btn-s" style="padding:3px 9px;font-size:0.72rem;color:#f87171;" onclick="jbRemove(\'' + k + '\')">✕</button>' +
+      '</div>';
+  }).join('');
+}
+
+function jbRemove(key) {
+  delete _jsonBucket[key];
+  jbPersist();
+  jbRender();
+}
+
+function jbClear() {
+  if (!confirm('Poora JSON bucket khali kar dein? (Download nahi hui to data chala jayega)')) return;
+  _jsonBucket = {};
+  jbPersist();
+  jbRender();
+  toast('🗑 Bucket khali kar diya');
+}
+
+function jbDownload() {
+  var keys = Object.keys(_jsonBucket);
+  if (!keys.length) { toast('❌ Bucket khali hai!', 1); return; }
+  var blob = new Blob([JSON.stringify(_jsonBucket, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cinenova-movies-import-' + Date.now() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 500);
+  toast('⬇️ ' + keys.length + ' movies ki JSON file download ho gayi — /movies node par Import karo');
+}
+
+function jbSanitizeMovie(obj) {
+  if (!obj || typeof obj !== 'object') return { title: 'Untitled', addedAt: Date.now() };
+  var clean = {};
+  Object.keys(obj).forEach(function(k) {
+    if (k.charAt(0) === '_') return;
+    var v = obj[k];
+    if (v === undefined || typeof v === 'function') return;
+    clean[k] = v;
+  });
+  if (!clean.title || !String(clean.title).trim()) clean.title = 'Untitled';
+  clean.title = String(clean.title).slice(0, 299);
+  if (!clean.addedAt) clean.addedAt = Date.now();
+  return clean;
+}
+
+// Step 3 review-queue ke selected items ko Firebase ki jagah JSON bucket mein daalo
+function ffiSaveToJsonBucket() {
+  var selected = _ffiReviewQueue.filter(function(r) { return r.checked; });
+  if (!selected.length) { toast('❌ Koi movie select nahi!', 1); return; }
+
+  var btn = document.getElementById('ffi-jsonbucket-btn');
+  var statusEl = document.getElementById('ffi-save-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Adding...'; }
+
+  var pmCb = document.getElementById('ffi-playmate-upload');
+  var wantPm = !pmCb || !!pmCb.checked;
+
+  function finishAdd(list) {
+    var added = 0;
+    list.forEach(function(item) {
+      var obj = item.obj;
+      if (!obj) return;
+      try { applyCategoryDefaults(obj); } catch (e) {}
+      if (obj.size480) obj.size480 = String(obj.size480);
+      if (obj.size720) obj.size720 = String(obj.size720);
+      if (obj.size1080) obj.size1080 = String(obj.size1080);
+      if (obj.size4k) obj.size4k = String(obj.size4k);
+      var movieKey = (item.updateKey || obj._updateKey) || (db.ref('movies').push().key);
+      var payload = jbSanitizeMovie(obj);
+      if (obj.playmateId) {
+        payload.playmateId = String(obj.playmateId).trim();
+        payload.playmateUrl = obj.playmateUrl || ('https://playmate.to/embed/' + payload.playmateId);
+      }
+      if (obj.episodes && obj.episodes.length) payload.episodes = obj.episodes;
+      payload.addedAt = payload.addedAt || Date.now();
+      _jsonBucket[movieKey] = payload;
+      added++;
+    });
+    jbPersist();
+    jbRender();
+    _ffiReviewQueue = _ffiReviewQueue.filter(function(r) { return !r.checked; });
+    try { ffiRenderReviewQueue(); } catch (e) {}
+    if (btn) { btn.disabled = false; btn.textContent = '📦 Save Selected to JSON File'; }
+    if (statusEl) statusEl.textContent = added + ' movies JSON bucket mein add ho gayi (total: ' + jbCount() + ')';
+    toast('📦 ' + added + ' movies JSON bucket mein save! JSON Export section se download karo.');
+  }
+
+  if (!wantPm) { finishAdd(selected); return; }
+
+  // Playmate upload pehle (checkbox on ho to) — Firebase-save flow jaisa hi
+  if (statusEl) statusEl.textContent = '▶️ Playmate pe upload (JSON bucket ke liye)...';
+  var i = 0;
+  function nextPm() {
+    if (i >= selected.length) { finishAdd(selected); return; }
+    var item = selected[i++];
+    var obj = item.obj;
+    if (!obj) { nextPm(); return; }
+    if (isObjFilmyzillaSource(obj) && !isObjHdfunSource(obj) && !isObjMp4Source(obj)) { nextPm(); return; }
+    (async function() {
+      var title = obj.title || '';
+      var hasEps = obj.episodes && obj.episodes.length > 0;
+      if (!obj.playmateId) {
+        var cands = pickCandidatesForPlaymate(obj);
+        if (cands.length) {
+          var res = await pmUploadFromCandidates(cands, title);
+          if (res && res.playmateId) { obj.playmateId = res.playmateId; obj.playmateUrl = res.playmateUrl; }
+        }
+      }
+      if (hasEps) {
+        for (var ei = 0; ei < obj.episodes.length; ei++) {
+          var ep = obj.episodes[ei];
+          if (!ep || ep.playmateId) continue;
+          var epCands = pickEpCandidatesForPlaymate(ep);
+          if (!epCands.length) continue;
+          var epTitle = title + ' S' + (ep.season || '1') + 'E' + (ep.episode || (ei + 1));
+          var epRes = await pmUploadFromCandidates(epCands, epTitle);
+          if (epRes && epRes.playmateId) { ep.playmateId = epRes.playmateId; ep.playmateUrl = epRes.playmateUrl; }
+        }
+        if (!obj.playmateId && obj.episodes[0] && obj.episodes[0].playmateId) {
+          obj.playmateId = obj.episodes[0].playmateId;
+          obj.playmateUrl = obj.episodes[0].playmateUrl;
+        }
+      }
+      if (statusEl) statusEl.textContent = '▶️ Playmate ' + i + '/' + selected.length;
+      nextPm();
+    })().catch(function(e) { nextPm(); });
+  }
+  nextPm();
+}
+
 function ffiSaveReviewed() {
   var selected = _ffiReviewQueue.filter(function(r) { return r.checked; });
   if (!selected.length) { toast('❌ Koi movie select nahi!', 1); return; }
@@ -16523,6 +16953,69 @@ function ffiParsePage(html, srcUrl) {
           data.episodes = packList;
         }
       }
+    })();
+  }
+
+  // ═══════════════════════════════════════════════════
+  // filmsone.com (FilmyFly clean-permalink clone) — post page pe
+  // download links seedha filesdl.co/cloud/TOKEN hote hain, koi
+  // linkmake/page-download hop nahi chahiye. Category pages:
+  // filmsone.com/category-slug/  |  Posts: filmsone.com/slug.html
+  // ═══════════════════════════════════════════════════
+  if (/filmsone\.com/i.test(srcUrl || '') || (/filesdl\.(?:co|top|in)\/(?:cloud|drive)\//i.test(html) && /powered by:?\s*<a[^>]*>filmyfly/i.test(html))) {
+    (function filmsoneParse() {
+      // File-Info block — Genre/Duration/Language/Starcast labels, generic
+      // getTextAfterLabel() helper (upar defined) reliably parse karta hai
+      var genre = getTextAfterLabel('Genre:');
+      var language = getTextAfterLabel('Language:');
+      var starcast = getTextAfterLabel('Starcast:');
+      if (genre) data.genre = genre;
+      if (language) data.language = language;
+      if (starcast) data.cast = starcast;
+
+      var desc = meta('og:description') || meta('description');
+      if (desc) { data.description = desc; data.seoDesc = desc; }
+
+      var poster = meta('og:image');
+      if (poster) data.thumbnail = poster;
+
+      var ssM = html.match(/src=["'](https?:\/\/[^"']*\/screenshot\/[^"']+\.(?:jpe?g|png|webp))["']/i);
+      if (ssM) data.screenshots = [ssM[1]];
+
+      // Breadcrumb se category — Home » <Category> » Title
+      var catM = html.match(/>\s*Home\s*<\/a>\s*(?:»|&raquo;|>)\s*<a[^>]*>([^<]+)<\/a>/i);
+      if (catM) data._filmsoneCategory = catM[1].trim();
+
+      // Download links — har quality ka apna filesdl.co/top/in cloud/drive link,
+      // anchor text mein "SIZE {QUALITY}" pattern
+      var linkRe = /<a\b[^>]*href=["'](https?:\/\/[^"']*filesdl\.(?:co|top|in)\/(?:cloud|drive)\/[a-zA-Z0-9]+)["'][^>]*>([\s\S]{0,100}?)<\/a>/gi;
+      var lm;
+      while ((lm = linkRe.exec(html)) !== null) {
+        var href = lm[1];
+        var txt = lm[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        var sizeM = txt.match(/([\d.]+\s*[MG]b)/i);
+        var qualM = txt.match(/(2160p|1080p|720p|480p)/i);
+        var sizeVal = sizeM ? sizeM[1].replace(/\s+/g, '') : '';
+        var qual = qualM ? qualM[1].toLowerCase() : '';
+        if (qual === '2160p') {
+          data.download4k = data.download4k || href;
+          if (sizeVal) data.size4k = data.size4k || sizeVal;
+        } else if (qual === '1080p') {
+          data.download1080p = data.download1080p || href;
+          if (sizeVal) data.size1080 = data.size1080 || sizeVal;
+        } else if (qual === '720p') {
+          data.download720p = data.download720p || href;
+          if (sizeVal) data.size720 = data.size720 || sizeVal;
+        } else if (qual === '480p') {
+          data.download480p = data.download480p || href;
+          if (sizeVal) data.size480 = data.size480 || sizeVal;
+        }
+      }
+
+      // /video route (player) ke liye best-quality wala cloud link
+      data.videoSourceUrl = data.download1080p || data.download720p || data.download4k || data.download480p || '';
+      data.dlSourceUrl = srcUrl;
+      data._ffiSiteType = 'filmsone';
     })();
   }
 
