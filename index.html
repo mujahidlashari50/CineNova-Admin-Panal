@@ -17099,12 +17099,11 @@ function ffiParsePage(html, srcUrl) {
   }
 
   // ═══════════════════════════════════════════════════
-  // filmsone.com (FilmyFly clean-permalink clone) — post page pe
-  // download links seedha filesdl.co/cloud/TOKEN hote hain, koi
-  // linkmake/page-download hop nahi chahiye. Category pages:
-  // filmsone.com/category-slug/  |  Posts: filmsone.com/slug.html
+  // filmsone / filmslb / filmslib (FilmyFly mirrors) — post page pe
+  // download links seedha new1.filesdl.co/cloud/TOKEN
   // ═══════════════════════════════════════════════════
-  if (/filmsone\.com/i.test(srcUrl || '') || (/filesdl\.(?:co|top|in)\/(?:cloud|drive)\//i.test(html) && /powered by:?\s*<a[^>]*>filmyfly/i.test(html))) {
+  if (/filmsone\.com|filmslb\.com|filmslib\.com|filmsfly/i.test(srcUrl || '') ||
+      /filesdl\.(?:co|top|in)\/(?:cloud|drive)\//i.test(html)) {
     (function filmsoneParse() {
       // File-Info block — Genre/Duration/Language/Starcast labels, generic
       // getTextAfterLabel() helper (upar defined) reliably parse karta hai
@@ -17130,7 +17129,7 @@ function ffiParsePage(html, srcUrl) {
 
       // Download links — har quality ka apna filesdl.co/top/in cloud/drive link,
       // anchor text mein "SIZE {QUALITY}" pattern
-      var linkRe = /<a\b[^>]*href=["'](https?:\/\/[^"']*filesdl\.(?:co|top|in)\/(?:cloud|drive)\/[a-zA-Z0-9]+)["'][^>]*>([\s\S]{0,100}?)<\/a>/gi;
+      var linkRe = /<a\b[^>]*href=["'](https?:\/\/[^"']*filesdl\.(?:co|top|in)\/(?:cloud|drive)\/[A-Za-z0-9_\-=+%]+)["'][^>]*>([\s\S]{0,160}?)<\/a>/gi;
       var lm;
       while ((lm = linkRe.exec(html)) !== null) {
         var href = lm[1];
@@ -18708,7 +18707,45 @@ function ffiParsePage(html, srcUrl) {
   }
 
 
-  return data;
+  
+  // ── Universal filesdl cloud (filmslb / filmsone / mirrors) ──
+  if (!data.download480p && !data.download720p && !data.download1080p && !data.download4k) {
+    var uniRe = /<a\b[^>]*href=["'](https?:\/\/[^"']*filesdl\.(?:co|top|in)\/(?:cloud|drive)\/[A-Za-z0-9_\-=+%]+)["'][^>]*>([\s\S]{0,160}?)<\/a>/gi;
+    var um;
+    while ((um = uniRe.exec(html)) !== null) {
+      var hrefU = um[1].replace(/&amp;/g, '&');
+      var txtU = um[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      var sizeU = (txtU.match(/([\d.]+\s*[MG]B)/i) || [])[1] || '';
+      sizeU = sizeU.replace(/\s+/g, '');
+      var qU = ((txtU.match(/(2160p|1080p|720p|480p)/i) || [])[1] || '').toLowerCase();
+      if (qU === '2160p' || /\b4k\b/i.test(txtU)) {
+        data.download4k = data.download4k || hrefU;
+        if (sizeU) data.size4k = data.size4k || sizeU;
+      } else if (qU === '1080p') {
+        data.download1080p = data.download1080p || hrefU;
+        if (sizeU) data.size1080 = data.size1080 || sizeU;
+      } else if (qU === '720p') {
+        data.download720p = data.download720p || hrefU;
+        if (sizeU) data.size720 = data.size720 || sizeU;
+      } else if (qU === '480p') {
+        data.download480p = data.download480p || hrefU;
+        if (sizeU) data.size480 = data.size480 || sizeU;
+      } else if (!data.download720p) {
+        data.download720p = hrefU;
+      } else if (!data.download1080p) {
+        data.download1080p = hrefU;
+      } else if (!data.download480p) {
+        data.download480p = hrefU;
+      }
+    }
+    if (data.download720p || data.download1080p || data.download480p || data.download4k) {
+      data.videoSourceUrl = data.videoSourceUrl || data.download1080p || data.download720p || data.download4k || data.download480p || '';
+      data.dlSourceUrl = data.dlSourceUrl || data.videoSourceUrl || srcUrl;
+      data._ffiSiteType = data._ffiSiteType || 'filesdl-cloud';
+    }
+  }
+
+return data;
 }
 
 // ── TMDB enrich ──
