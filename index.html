@@ -2156,8 +2156,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="ffi-review-list" style="display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto;"></div>
         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#93c5fd;cursor:pointer;margin-right:8px;">
-            <input type="checkbox" id="ffi-playmate-upload" style="width:15px;height:15px;"/>
-            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (sirf HDFun)</span>
+            <input type="checkbox" id="ffi-playmate-upload" checked style="width:15px;height:15px;"/>
+            <span style="font-size:0.78rem;color:#93c5fd;">▶️ Import pe Playmate auto (filesdl / HDFun / Mp4)</span>
           </label>
           <button onclick="ffiSaveReviewed()" id="ffi-save-btn" class="btn" style="background:#16a34a;color:#fff;">💾 Save Selected to Firebase</button>
           <button onclick="ffiSaveToJsonBucket()" id="ffi-jsonbucket-btn" class="btn" style="background:#059669;color:#fff;">📦 Save Selected to JSON File</button>
@@ -6612,6 +6612,37 @@ function isObjMp4Source(obj) {
   return false;
 }
 
+function isObjFilesdlSource(obj) {
+  if (!obj) return false;
+  var fields = [
+    obj.dlSourceUrl, obj.videoSourceUrl, obj.sourcePageUrl, obj.pageUrl,
+    obj.download1080p, obj.download720p, obj.download480p, obj.download4k,
+    obj.videoUrl, obj.vlcUrl, obj.vlcUrl2
+  ];
+  for (var i = 0; i < fields.length; i++) {
+    var u = fields[i] ? String(fields[i]) : '';
+    if (/filesdl\.(top|in|com|co)|filmsone|googleusercontent|video-downloads\.googleusercontent/i.test(u)) return true;
+  }
+  return false;
+}
+
+/** Always store clean embed id (not full URL) */
+function normalizePlaymateIdValue(raw) {
+  if (!raw) return '';
+  var s = String(raw).trim();
+  var m = s.match(/playmate\.to\/(?:embed|e|v|watch)\/([A-Za-z0-9_-]{6,})/i);
+  if (m) return m[1];
+  if (/^[A-Za-z0-9_-]{6,40}$/.test(s) && !/^https?:/i.test(s)) return s;
+  try {
+    if (typeof extractPlaymateIdFromUrl === 'function') {
+      var x = extractPlaymateIdFromUrl(s);
+      if (x) return x;
+    }
+  } catch (e) {}
+  return '';
+}
+
+
 /** URL list se unique https candidates (FilmyZilla skip) */
 function _pmCollectUrls(list) {
   var out = [];
@@ -6677,9 +6708,18 @@ async function pmUploadFromCandidates(cands, title) {
         try { pid = extractPlaymateIdFromUrl(r.embedUrl) || extractPlaymateIdFromResponse(r); } catch (e) {}
       }
       if (r && r.ok && pid) {
+        var cleanId = (typeof normalizePlaymateIdValue === 'function')
+          ? (normalizePlaymateIdValue(pid) || normalizePlaymateIdValue(r.embedUrl || ''))
+          : String(pid).trim();
+        if (!cleanId) cleanId = String(pid).trim();
+        // avoid saving full URL as id
+        if (/^https?:/i.test(cleanId)) {
+          var m2 = cleanId.match(/playmate\.to\/(?:embed|e|v|watch)\/([A-Za-z0-9_-]{6,})/i);
+          cleanId = m2 ? m2[1] : cleanId;
+        }
         return {
-          playmateId: String(pid).trim(),
-          playmateUrl: r.embedUrl || ('https://playmate.to/embed/' + pid)
+          playmateId: cleanId,
+          playmateUrl: 'https://playmate.to/embed/' + cleanId
         };
       }
       lastErr = (r && r.error) || 'no filecode';
@@ -16215,8 +16255,13 @@ function ffiSaveToJsonBucket() {
       var movieKey = (item.updateKey || obj._updateKey) || (db.ref('movies').push().key);
       var payload = jbSanitizeMovie(obj);
       if (obj.playmateId) {
-        payload.playmateId = String(obj.playmateId).trim();
-        payload.playmateUrl = obj.playmateUrl || ('https://playmate.to/embed/' + payload.playmateId);
+        var _jpid = (typeof normalizePlaymateIdValue === 'function')
+          ? normalizePlaymateIdValue(obj.playmateId)
+          : String(obj.playmateId).trim();
+        if (_jpid) {
+          payload.playmateId = _jpid;
+          payload.playmateUrl = 'https://playmate.to/embed/' + _jpid;
+        }
       }
       if (obj.episodes && obj.episodes.length) payload.episodes = obj.episodes;
       payload.addedAt = payload.addedAt || Date.now();
@@ -16428,12 +16473,75 @@ function ffiSaveReviewed() {
   }
   function saveBatch(startIdx) {
     if (startIdx >= total) {
+      // Post-save: missing playmateId → worker /playmate-upload?id=KEY → Firebase update
+      function pmBackfillAfterSave(list, doneCb) {
+        var pmCb2 = document.getElementById('ffi-playmate-upload');
+        if (pmCb2 && !pmCb2.checked) { doneCb(); return; }
+        var pending = [];
+        for (var bi = 0; bi < list.length; bi++) {
+          var it = list[bi];
+          if (!it || !it.obj) continue;
+          var k = it._savedKey || it.updateKey || (it.obj && it.obj._updateKey) || '';
+          if (!k) continue;
+          var hasPm = it.obj.playmateId && String(it.obj.playmateId).trim();
+          if (hasPm) continue;
+          // skip pure filmyzilla without filesdl/hdfun/mp4
+          if (typeof isObjFilmyzillaSource === 'function' && isObjFilmyzillaSource(it.obj) &&
+              !(typeof isObjHdfunSource === 'function' && isObjHdfunSource(it.obj)) &&
+              !(typeof isObjMp4Source === 'function' && isObjMp4Source(it.obj)) &&
+              !(typeof isObjFilesdlSource === 'function' && isObjFilesdlSource(it.obj))) continue;
+          pending.push({ key: k, title: it.obj.title || '', obj: it.obj });
+        }
+        if (!pending.length) { doneCb(); return; }
+        if (statusEl) statusEl.textContent = '▶️ Playmate backfill 0/' + pending.length + '...';
+        var pi = 0, okN = 0;
+        function nextBf() {
+          if (pi >= pending.length) {
+            if (statusEl) statusEl.textContent = 'Playmate backfill: ' + okN + '/' + pending.length + ' ok';
+            doneCb();
+            return;
+          }
+          var cur = pending[pi++];
+          if (statusEl) statusEl.textContent = '▶️ Playmate backfill ' + pi + '/' + pending.length + ': ' + String(cur.title).substring(0, 28);
+          var base = (typeof getDlWorkerBase === 'function') ? getDlWorkerBase() : 'https://download.cinenova.site';
+          var wu = base.replace(/\/$/, '') + '/playmate-upload?id=' + encodeURIComponent(cur.key) + '&q=720p&title=' + encodeURIComponent(cur.title);
+          fetch(wu, { method: 'GET', headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var eid = '';
+              if (data && data.ok) {
+                eid = data.embedId || '';
+                if (!eid && data.filecode) {
+                  eid = (typeof normalizePlaymateIdValue === 'function')
+                    ? normalizePlaymateIdValue(data.filecode)
+                    : String(data.filecode);
+                }
+                if (!eid && data.embedUrl) eid = (typeof normalizePlaymateIdValue === 'function') ? normalizePlaymateIdValue(data.embedUrl) : '';
+              }
+              if (eid && !/^https?:/i.test(eid)) {
+                var emb = 'https://playmate.to/embed/' + eid;
+                cur.obj.playmateId = eid;
+                cur.obj.playmateUrl = emb;
+                okN++;
+                try {
+                  db.ref('movies/' + cur.key).update({ playmateId: eid, playmateUrl: emb });
+                } catch (eU) {}
+              }
+              setTimeout(nextBf, 400);
+            })
+            .catch(function() { setTimeout(nextBf, 400); });
+        }
+        nextBf();
+      }
+
       if (btn) { btn.disabled = false; btn.textContent = '💾 Save Selected to Firebase'; }
-      if (statusEl) statusEl.textContent = savedCount + ' saved, ' + errCount + ' error — refreshing list...';
-      toast('✅ ' + savedCount + ' movies Firebase mein save!');
-      _ffiReviewQueue = _ffiReviewQueue.filter(function(r) { return !r.checked; });
-      try { ffiRenderReviewQueue(); } catch (e) {}
-      ffiRefreshMoviesList();
+      if (statusEl) statusEl.textContent = savedCount + ' saved, ' + errCount + ' error — Playmate check...';
+      pmBackfillAfterSave(selected, function() {
+        toast('✅ ' + savedCount + ' movies Firebase mein save!');
+        _ffiReviewQueue = _ffiReviewQueue.filter(function(r) { return !r.checked; });
+        try { ffiRenderReviewQueue(); } catch (e) {}
+        ffiRefreshMoviesList();
+      });
       return;
     }
     var end = Math.min(startIdx + BATCH, total);
@@ -16447,10 +16555,18 @@ function ffiSaveReviewed() {
       if (item.obj.size1080) item.obj.size1080 = String(item.obj.size1080);
       if (item.obj.size4k) item.obj.size4k = String(item.obj.size4k);
       var movieKey = (item.updateKey || (item.obj && item.obj._updateKey)) || db.ref('movies').push().key;
+      item._savedKey = movieKey;
       var payload = sanitizeMovieForFb(item.obj);
       if (item.obj && item.obj.playmateId) {
-        payload.playmateId = String(item.obj.playmateId).trim();
-        payload.playmateUrl = item.obj.playmateUrl || ('https://playmate.to/embed/' + payload.playmateId);
+        var _pid = (typeof normalizePlaymateIdValue === 'function')
+          ? normalizePlaymateIdValue(item.obj.playmateId)
+          : String(item.obj.playmateId).trim();
+        if (_pid) {
+          payload.playmateId = _pid;
+          payload.playmateUrl = 'https://playmate.to/embed/' + _pid;
+          item.obj.playmateId = _pid;
+          item.obj.playmateUrl = payload.playmateUrl;
+        }
       }
       // Episodes ke playmateId bhi rakho
       if (item.obj && item.obj.episodes && item.obj.episodes.length) {
