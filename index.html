@@ -14587,9 +14587,19 @@ function ffiIsRealPostUrl(u, siteUrl) {
     if (/\/dl\/[a-z0-9][a-z0-9\-]{4,}/i.test(u)) return true;
     return false;
   }
-  // FilmyFly family
-  if (/filmyfly|filmy4wap|mkvcinemas/i.test(host) || /filmyfly|filmy4wap/i.test(siteUrl || '')) {
-    return /\/page-download\/\d+\/[^\/]+/i.test(u);
+  // FilmyFly family — classic /page-download/ID/slug  OR mirror filmslb/filmslib root /slug.html
+  if (/filmyfly|filmy4wap|mkvcinemas|filmslib|filmslb|filmsfly/i.test(host) || /filmyfly|filmy4wap|filmslib|filmslb|filmsfly/i.test(siteUrl || '')) {
+    if (/\/page-download\/\d+\/[^\/]+/i.test(u)) return true;
+    // filmslb.com / filmslib.com clean URLs (same as filmsone)
+    if (/filmslib|filmslb|filmsfly/i.test(host) || /filmslib|filmslb|filmsfly/i.test(siteUrl || '')) {
+      var fp2 = '';
+      try { fp2 = new URL(u).pathname; } catch (e) { fp2 = u; }
+      if (!/\.html?$/i.test(fp2)) return false;
+      if (/^\/(animation-movies|bollywood|hollywood|page-category|category|page|tag|author)\b/i.test(fp2)) return false;
+      if (/^\/[a-z0-9][a-z0-9\-]{8,}\.html?$/i.test(fp2)) return true;
+      return false;
+    }
+    return false;
   }
   // filmsone.com — FilmyFly clean-permalink clone: post = /slug.html at
   // root, category pages = /category-slug/ (no .html, no numeric id)
@@ -14729,7 +14739,8 @@ function ffiFetchPosts() {
   function ffiIsAllowedSite(u) {
     var s = String(u || '').toLowerCase();
     if (/filmyzilla|letsporn/i.test(s)) return false;
-    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mmshd\.com|mp4moviez|filmsone\.com/i.test(s);
+    // FilmyFly mirrors: filmslib.com / filmslb.com / filmsfly
+    return /filmyfly|filmy4wap|filmslib|filmslb|filmsfly|linkmake\.in|hdfun\.in|mmshd\.com|mp4moviez|filmsone\.com/i.test(s);
   }
 
   // 3 category URLs ek sath
@@ -14748,7 +14759,7 @@ function ffiFetchPosts() {
     toast('⏭ Sirf FilmyFly / HDFun / Mp4Moviez / FilmyZilla allowed — ' + blocked.length + ' URL skip', 1);
   }
   if (!siteUrls.length) {
-    toast('❌ Kam az kam 1 FilmyFly / HDFun / Mp4Moviez / FilmyZilla category URL daalo!', 1);
+    toast('❌ Kam az kam 1 FilmyFly/filmslib / HDFun / Mp4Moviez / filmsone category URL daalo!', 1);
     return;
   }
 
@@ -14814,7 +14825,7 @@ function ffiFetchPosts() {
         // filmsone.com: /page/N/ (with trailing slash) — category base + /page/N/
         var baseFs = siteUrl.replace(/\/?(\?.*)?$/, '').replace(/\/page\/\d+\/?$/i, '');
         url = baseFs + '/page/' + pageNum + '/';
-      } else if (/filmyfly|filmy4wap|page-category\//i.test(siteUrl)) {
+      } else if (/filmyfly|filmy4wap|filmslib|filmslb|filmsfly|page-category\//i.test(siteUrl)) {
         // FilmyFly: keep path, add ?page=N
         var baseFf = siteUrl.replace(/[?&]page=\d+/gi, '').replace(/[?&]$/, '');
         url = baseFf + (baseFf.indexOf('?') !== -1 ? '&' : '?') + 'page=' + pageNum;
@@ -14900,6 +14911,21 @@ function ffiFetchPosts() {
             var uFs = mFs[1].replace(/&amp;/g, '&');
             if (skipFs.test(mFs[2])) continue;
             ffiPushPost(uFs, ffiTitleFromUrl(uFs), allFound, siteUrl);
+          }
+        }
+
+        // Pattern filmslb / filmslib / filmsfly — FilmyFly mirrors with /slug.html posts
+        if (/filmslb|filmslib|filmsfly/i.test(siteUrl) || /filmslb|filmslib|filmsfly/i.test(baseHost)) {
+          var reFlb = /href=["']((?:https?:\/\/[^"']*)?\/([a-z0-9][a-z0-9\-]{8,})\.html)["']/gi;
+          var mFlb;
+          var skipFlb = /^(animation-movies|bollywood|hollywood|contact|dmca|privacy|about|login|page-how)/i;
+          while ((mFlb = reFlb.exec(html)) !== null) {
+            var uFlb = mFlb[1].startsWith('http') ? mFlb[1] : baseHost + mFlb[1];
+            uFlb = uFlb.replace(/&amp;/g, '&');
+            if (skipFlb.test(mFlb[2])) continue;
+            // must look like movie post (year or quality keywords help; long slug is enough)
+            if (!/[a-z0-9\-]{12,}/i.test(mFlb[2]) && !/(19|20)\d{2}|movie|download|hindi|dual|season|episode/i.test(mFlb[2])) continue;
+            ffiPushPost(uFlb, ffiTitleFromUrl(uFlb), allFound, siteUrl);
           }
         }
 
