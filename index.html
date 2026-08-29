@@ -15860,6 +15860,13 @@ function ffiStartImport() {
         if (data.size720) obj.size720 = data.size720;
         if (data.size1080) obj.size1080 = data.size1080;
         if (data.size4k) obj.size4k = data.size4k;
+        // ⚡ videoSourceUrl — universal fallback: jo bhi parser (filmsone,
+        // filmslb, etc) ne set kiya usay obj mein copy karo. Pehle sirf
+        // kuch specific sites (HDFun/mmshd/9xflix) ke liye niche special
+        // branches mein set hota tha, filmsone/filmslb jaise naye sources
+        // is se miss ho jate the — worker player ke liye link hi nahi
+        // milta tha.
+        if (data.videoSourceUrl && !obj.videoSourceUrl) obj.videoSourceUrl = data.videoSourceUrl;
 
         // Quality label: sirf available qualities (480p/720p/1080p) — missing mat dikhao
         (function(){
@@ -16756,7 +16763,7 @@ function ffiParsePage(html, srcUrl) {
     var cutAt = snippet.length;
     var brM = snippet.match(/<br\s*\/?>/i);
     if (brM) cutAt = Math.min(cutAt, brM.index);
-    var lblM = snippet.match(/\b(Starcast|Cast|Genre|Quality|Size|IMDB|Director|Release|Format|Screenshots?|Story|Plot|Synopsis)\s*:/i);
+    var lblM = snippet.match(/\b(Starcast|Cast|Genre|Quality|Size|IMDB|Director|Release(?:\s*Date)?|Format|Screenshots?|Story|Plot|Synopsis|Duration|Language|Name|Description|Year|Type|Rating|Country|Network|Status|Episodes?)\s*:/i);
     if (lblM) cutAt = Math.min(cutAt, lblM.index);
     snippet = snippet.substring(0, cutAt);
     return snippet.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/[|]/)[0].trim();
@@ -16973,9 +16980,12 @@ function ffiParsePage(html, srcUrl) {
       var genre = getTextAfterLabel('Genre:');
       var language = getTextAfterLabel('Language:');
       var starcast = getTextAfterLabel('Starcast:');
+      // Safety clamp — kabhi label-detection miss ho jaye to bhi genre
+      // field mein poora paragraph na chala jaye, sirf pehle 5 items
+      if (genre) genre = genre.split(',').slice(0, 5).map(function(s){return s.trim();}).filter(Boolean).join(', ').slice(0, 120);
       if (genre) data.genre = genre;
-      if (language) data.language = language;
-      if (starcast) data.cast = starcast;
+      if (language) data.language = language.slice(0, 60);
+      if (starcast) data.cast = starcast.slice(0, 200);
 
       var desc = meta('og:description') || meta('description');
       if (desc) { data.description = desc; data.seoDesc = desc; }
