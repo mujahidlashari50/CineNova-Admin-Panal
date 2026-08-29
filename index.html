@@ -4846,7 +4846,7 @@ function getCatBadge(cat){
 }
 
 function buildRow(m,hideCategory){
-  var tu=m.thumbnail||m.poster||'';
+  var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=60&h=84&fit=cover&output=jpg':(m.poster||'');
   var cb=getCatBadge(m.category);
   var hasLinks=m.download480p||m.download720p||m.download1080p||m.download4k||m.videoUrl;
   var lbadge=hasLinks?'<span class="badge bg" style="font-size:0.6rem;">✓ Links</span>':'<span class="badge bgy" style="font-size:0.6rem;">No Links</span>';
@@ -14372,7 +14372,7 @@ function mlBarSearch() {
   if (!matches.length) { res.innerHTML = '<div style="font-size:0.75rem;color:#555;padding:6px;">Koi match nahi mila</div>'; return; }
   res.innerHTML = matches.map(function(m){
     return '<div onclick="mlBarSelectMovie(\'' + m.key + '\',\'' + (m.title||'').replace(/'/g,"\\'") + '\')" style="padding:7px 10px;border-radius:6px;cursor:pointer;font-size:0.78rem;display:flex;align-items:center;gap:8px;margin-bottom:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">'
-      + (m.thumbnail ? '<img src="'+m.thumbnail+'" style="width:32px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display=\'none\'" />' : '<div style="width:32px;height:45px;background:#111;border-radius:4px;flex-shrink:0;"></div>')
+      + (m.thumbnail ? '<img src="https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=32&h=45&fit=cover&output=jpg" style="width:32px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display=\'none\'" />' : '<div style="width:32px;height:45px;background:#111;border-radius:4px;flex-shrink:0;"></div>')
       + '<div><div style="color:#f0fdf4;font-weight:600;">' + (m.title||m.key) + '</div>'
       + '<div style="font-size:0.65rem;color:#555;font-family:monospace;">' + m.key + '</div></div>'
       + '</div>';
@@ -18995,7 +18995,7 @@ function bdfRenderQueue() {
     row.style.cssText = 'display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;transition:0.2s;';
     row.innerHTML =
       '<div style="min-width:22px;text-align:center;font-family:\'Bebas Neue\',cursive;font-size:0.95rem;color:#333;">' + (i+1) + '</div>' +
-      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<img src="' + (m.thumbnail?('https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=30&h=42&fit=cover&output=jpg'):'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
       '<div style="flex:1;min-width:0;">' +
         '<div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
         '<div style="font-size:0.67rem;color:#444;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (m.sourceUrl||'') + '</div>' +
@@ -19351,7 +19351,7 @@ function tgBulkRenderQueue() {
   queue.style.display = 'flex';
   queue.innerHTML = _tgBulkMovies.map(function(m, i){
     return '<div id="tg-bulk-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;">' +
-      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<img src="' + (m.thumbnail?('https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=30&h=42&fit=cover&output=jpg'):'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
       '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
       '<div id="tg-bulk-title-' + i + '" style="font-size:0.72rem;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div></div>' +
       '<div id="tg-bulk-status-' + i + '" style="font-size:0.72rem;font-weight:700;white-space:nowrap;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
@@ -19504,7 +19504,7 @@ function msRender() {
 
   tbody.innerHTML = rows.map(function(x) {
     var m = x.movie;
-    var thumb = m.thumbnail ? '<img class="tsm" src="' + m.thumbnail + '" onerror="this.style.display=\'none\'">' : '<div class="nth">🎬</div>';
+    var thumb = m.thumbnail ? '<img class="tsm" src="https://wsrv.nl/?url=' + encodeURIComponent(m.thumbnail) + '&w=60&h=84&fit=cover&output=jpg" onerror="this.style.display=\'none\'">' : '<div class="nth">🎬</div>';
     var issuesHtml = x.issues.length === 0 ? '<span style="color:#22c55e;font-size:0.75rem;">✅ OK</span>' :
       x.issues.map(function(i){ return '<span class="badge" style="background:' + i.color + '22;color:' + i.color + ';margin-right:4px;">' + i.label + '</span>'; }).join('');
     return '<tr><td>' + thumb + '</td>' +
@@ -19772,7 +19772,7 @@ function dwBulkRenderQueue() {
   queue.style.display = 'flex';
   queue.innerHTML = _dwBulkMovies.map(function(m, i){
     return '<div id="dw-bulk-row-' + i + '" style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:9px;padding:10px 13px;">' +
-      '<img src="' + (m.thumbnail||'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
+      '<img src="' + (m.thumbnail?('https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=30&h=42&fit=cover&output=jpg'):'') + '" onerror="this.style.display=\'none\'" style="width:30px;height:42px;object-fit:cover;border-radius:4px;background:#1a1a1a;flex-shrink:0;">' +
       '<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title||'Untitled') + '</div>' +
       '<div id="dw-bulk-title-' + i + '" style="font-size:0.72rem;color:#888;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div></div>' +
       '<div id="dw-bulk-status-' + i + '" style="font-size:0.72rem;font-weight:700;white-space:nowrap;color:#555;flex-shrink:0;">⏳ Wait</div></div>';
