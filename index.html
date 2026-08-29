@@ -15147,6 +15147,27 @@ function ffiStartImport() {
   document.getElementById('ffi-import-btn').disabled = true;
   document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
 
+  // ⚡ Existing titles check — allMovies (live listener) par bharosa
+  // karne ki jagah, batch shuru hone se theek pehle Firebase se ek
+  // GUARANTEED-FRESH read karte hain. Agar listener kisi wajah se
+  // stale/lag ho (naya tab, slow reconnect, waghera) to purani
+  // "Already Exists" na aaye — asli current DB state se hi check ho.
+  document.getElementById('ffi-prog-title').textContent = '🔄 Movie list refresh ho rahi hai...';
+  db.ref('movies').once('value').then(function(freshSnap) {
+    var freshArr = [];
+    if (freshSnap.exists()) {
+      freshSnap.forEach(function(c) {
+        var mv = c.val();
+        if (mv) { mv.key = c.key; freshArr.push(mv); }
+      });
+    }
+    allMovies = freshArr; // panel ke baaki hisson ke liye bhi fresh ho gaya
+    ffiStartImportRun();
+  }).catch(function() {
+    ffiStartImportRun(); // fresh read fail ho to bhi purani list se try karo, ruko nahi
+  });
+
+  function ffiStartImportRun() {
   // Existing titles check
   var existingTitles = {};
   allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
@@ -16000,6 +16021,7 @@ function ffiStartImport() {
     processOne(ni);
   }
   if (!selected.length) ffiImportDone();
+  } // end ffiStartImportRun
 }
 
 // ── Parse page HTML ──
