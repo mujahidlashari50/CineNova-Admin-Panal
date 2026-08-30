@@ -865,9 +865,20 @@ tr:hover td{background:rgba(229,9,20,0.04);}
           </div>
         </div>
       </div>
+      <div class="card"><h3>Video Link</h3>
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <div class="fgg" style="flex:1;"><label>Video URL (YouTube / Google Drive / Direct MP4 / Any Embed)</label>
+            <input class="fi" id="fv" placeholder="https://..." oninput="plyrPreview(this.value,'fv-preview','fv-plyr-inst')"/>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="plyr-preview-label">▶ Live Preview</div>
+          <div class="plyr-preview-wrap" id="fv-preview"></div>
+        </div>
+      </div>
       <div class="card" style="border-color:rgba(59,130,246,0.35);">
-        <h3>▶️ Playmate Embed (Watch Now) — sirf yeh</h3>
-        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:12px;">Live streaming / VLC / trailer / site player <b style="color:#f87171;">band</b>. Sirf <b style="color:#93c5fd;">playmate.to</b> embed se play hoga. ID ya full embed URL daalo.</div>
+        <h3>▶️ Playmate Embed (Watch Now)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:12px;">Play worker isse <b style="color:#93c5fd;">playmate.to</b> iframe pe play karega. Sirf <b>ID</b> ya full embed URL daalo.</div>
         <div class="fgg full">
           <label>Playmate ID / Embed URL</label>
           <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
@@ -875,18 +886,34 @@ tr:hover td{background:rgba(229,9,20,0.04);}
             <input class="fi" id="fplaymate" placeholder="QrWC0dLjCp9i  ya  full URL" style="border-radius:0 7px 7px 0;border-left:none;flex:1;min-width:180px;" oninput="playmatePreview(this.value,'fplaymate-preview')"/>
           </div>
           <div id="fplaymate-preview" style="font-size:0.72rem;color:#60a5fa;margin-top:6px;display:none;"></div>
-          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Example: <code style="color:#93c5fd;">QrWC0dLjCp9i</code> · Import pe auto-upload bhi chal sakta hai</div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Example: <code style="color:#93c5fd;">QrWC0dLjCp9i</code> → player iframe</div>
         </div>
-        <!-- hidden stubs so old JS getElementById na toote -->
-        <input type="hidden" id="fv" value=""/>
-        <input type="hidden" id="fvlc" value=""/>
-        <input type="hidden" id="fvlc2" value=""/>
-        <input type="hidden" id="ftrailer" value=""/>
-        <div id="fv-preview" style="display:none"></div>
-        <div id="fvlc-preview" style="display:none"></div>
-        <div id="fvlc2-preview" style="display:none"></div>
-        <span id="fvlc-preview-url" style="display:none"></span>
-        <span id="fvlc2-preview-url" style="display:none"></span>
+      </div>
+      <div class="card"><h3>📱 MX Player Link (Mobile Player)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:12px;">Mobile pe <strong style="color:#fff;">Watch Now</strong> click karne par <strong style="color:#e50914;">MX Player</strong> automatically open hoga. Sirf PixelDrain File ID dalo — link automatically banega.</div>
+        <div class="fgg full">
+          <label>📲 PixelDrain File ID <span style="color:#555;font-weight:400;">(jaise: 7Ru6uMX7)</span></label>
+          <div style="display:flex;align-items:center;gap:0;">
+            <span style="padding:11px 13px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.85rem;white-space:nowrap;">https://pixeldrain.com/api/file/</span>
+            <input class="fi" id="fvlc" placeholder="7Ru6uMX7" style="border-radius:0 7px 7px 0;border-left:none;" oninput="fvlcPreview(this.value)"/>
+          </div>
+          <div id="fvlc-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="fvlc-preview-url"></span></div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 PixelDrain pe file upload karo → link mein se sirf ID copy karo (last part) → yahan paste karo</div>
+        </div>
+        <div class="fgg full" style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);">
+          <label>🔗 Direct VLC Link <span style="color:#555;font-weight:400;">(Pixeldrain ke bagair — koi bhi direct video link)</span></label>
+          <input class="fi" id="fvlc2" placeholder="https://example.com/video.mp4" oninput="fvlc2Preview(this.value)"/>
+          <div id="fvlc2-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="fvlc2-preview-url"></span></div>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Agar Pixeldrain nahi use karna, ya kisi aur host ka direct link hai, to poora link yahan paste karo — yeh bhi MX Player/VLC mein chalega</div>
+        </div>
+      </div>
+      <div class="card"><h3>🎬 Trailer (Optional)</h3>
+        <div style="color:var(--grey);font-size:0.78rem;margin-bottom:12px;">YouTube trailer ka embed link ya embed code dalo. Jis post mein dalo ga, sirf usi post ke popup mein <strong style="color:#fff;">Watch Trailer</strong> button aayega.</div>
+        <div class="fgg full">
+          <label>YouTube Trailer Link ya Embed Code</label>
+          <input class="fi" id="ftrailer" placeholder="https://www.youtube.com/embed/VIDEO_ID  ya  https://youtu.be/VIDEO_ID"/>
+          <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 YouTube par jao → Share → Embed → src=&quot;...&quot; wali link copy karo</div>
+        </div>
       </div>
       <div class="card" id="ep-movie-card" style="display:none"><h3>📋 Episodes (Web Series)</h3>
         <div style="color:var(--grey);font-size:0.82rem;margin-bottom:14px;">Har episode ka alag link add karo. Season number bhi dalo.</div>
@@ -3197,11 +3224,25 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <!-- Movie Page Link -->
         <div class="fgg" style="margin-bottom:12px;"><label>🔗 Movie Page Link (Fallback)</label><input class="fi" id="nc-link" placeholder="https://yoursite.com/movie-slug" /></div>
 
-        <!-- Player fields removed — Playmate only -->
-        <input type="hidden" id="nc-videourl" value=""/>
-        <input type="hidden" id="nc-pixeldrain" value=""/>
-        <div id="nc-vlc-prev" style="display:none"></div>
-        <span id="nc-vlc-prev-url" style="display:none"></span>
+        <!-- Video URL (Desktop Plyr) -->
+        <div class="fgg" style="margin-bottom:12px;">
+          <label>🖥️ Video URL — Desktop Player (YouTube embed / iframe)</label>
+          <input class="fi" id="nc-videourl" placeholder="https://www.youtube.com/embed/... ya koi bhi embed URL" />
+          <div style="margin-top:5px;font-size:0.7rem;color:#555;">Desktop users ke liye — Watch Now click pe site ka built-in player mein chalega</div>
+        </div>
+
+        <!-- Pixeldrain ID (Mobile MX Player) -->
+        <div class="fgg" style="margin-bottom:12px;">
+          <label>📱 Pixeldrain File ID — Mobile Direct Play (MX Player / VLC)</label>
+          <div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:rgba(13,13,13,0.9);">
+            <span style="padding:11px 13px;background:#111;border-right:1px solid var(--border);color:#555;font-size:0.82rem;white-space:nowrap;flex-shrink:0;">pixeldrain.com/api/file/</span>
+            <input class="fi" id="nc-pixeldrain" placeholder="XXXXXXXX" style="border:none;border-radius:0;background:transparent;flex:1;" oninput="ncUpdateVlcPreview()" />
+          </div>
+          <div id="nc-vlc-prev" style="display:none;margin-top:6px;padding:8px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:6px;font-size:0.71rem;color:#86efac;">
+            ✅ Mobile Direct Link: <span id="nc-vlc-prev-url" style="color:#86efac;word-break:break-all;font-weight:700;"></span>
+            <div style="margin-top:3px;color:#555;">Android pe Watch Now dabane pe MX Player / koi bhi video app mein seedha chalega</div>
+          </div>
+        </div>
 
         <!-- Show Toggle -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
@@ -3664,18 +3705,60 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div class="ss-grid-prev" id="ss-edit-prev-grid"></div>
         <input type="hidden" id="ess"/>
       </div>
-      <!-- Player/stream/trailer removed — sirf Playmate -->
-      <input type="hidden" id="ev" value=""/>
-      <input type="hidden" id="e-videoSourceUrl" value=""/>
-      <input type="hidden" id="evlc" value=""/>
-      <input type="hidden" id="evlc2" value=""/>
-      <input type="hidden" id="etrailer" value=""/>
-      <div id="ev-preview" style="display:none"></div>
-      <div id="evlc-preview" style="display:none"></div>
-      <div id="evlc2-preview" style="display:none"></div>
-      <span id="evlc-preview-url" style="display:none"></span>
-      <span id="evlc2-preview-url" style="display:none"></span>
-      <div id="eplaymate-preview" style="display:none"></div>
+      <div class="fgg full"><label>Video URL</label><input class="fi" id="ev" oninput="plyrPreview(this.value,'ev-preview','ev-plyr-inst')"/>
+        <div style="margin-top:10px;">
+          <div class="plyr-preview-label">▶ Live Preview</div>
+          <div class="plyr-preview-wrap" id="ev-preview"></div>
+        </div>
+      </div>
+      <div class="fgg full" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:12px;margin-top:8px;">
+        <label style="color:#93c5fd;">▶️ Playmate ID / Embed URL</label>
+        <div style="display:flex;align-items:center;gap:0;margin-top:6px;flex-wrap:wrap;">
+          <span style="padding:10px 12px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.8rem;white-space:nowrap;">playmate.to/embed/</span>
+          <input class="fi" id="eplaymate" placeholder="QrWC0dLjCp9i" style="border-radius:0 7px 7px 0;border-left:none;flex:1;min-width:160px;" oninput="playmatePreview(this.value,'eplaymate-preview')"/>
+        </div>
+        <div id="eplaymate-preview" style="font-size:0.72rem;color:#60a5fa;margin-top:6px;display:none;"></div>
+      </div>
+      <div class="fgg full" style="background:rgba(76,29,149,0.06);border:1px solid rgba(196,181,253,0.2);border-radius:8px;padding:12px;">
+        <label style="color:#c4b5fd;">🎬 Video Source URL (Auto-Resolve — My Links se save hoti hai)</label>
+        <input class="fi" id="e-videoSourceUrl" placeholder="https://new6.filesdl.top/cloud/xxxxx"/>
+        <div style="font-size:0.68rem;color:#888;margin-top:5px;">💡 Yeh worker ke <code>/video</code> route ke liye hai — har play pe fresh Cloud Direct link resolve hoti hai, kabhi expire nahi hoti. My Links → "🎬 Video URL" se auto-save hoti hai, ya yahan manually filesdl/cloud page URL paste bhi kar sakte ho.</div>
+      </div>
+      <div class="fgg full" style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:12px;">
+        <label style="color:#86efac;">🔗 DL Source URL (HDFun / FilmyFly movie page — worker resolve)</label>
+        <input class="fi" id="e-dlSourceUrl" placeholder="https://hdfun.in/movie/... ya FilmyFly page URL"/>
+        <div style="font-size:0.68rem;color:#888;margin-top:5px;">💡 Import se aata hai. Worker <code>/get</code> is page se fresh direct link nikalta hai.</div>
+      </div>
+      <div class="fgg full">
+        <label>📄 Source Page URL</label>
+        <input class="fi" id="e-sourcePageUrl" placeholder="Original post URL"/>
+      </div>
+      <div class="fgg"><label>🎬 Director</label><input class="fi" id="e-director" placeholder="Director name"/></div>
+      <div class="fgg"><label>⏱ Duration</label><input class="fi" id="e-duration" placeholder="2h 10m"/></div>
+      <div class="fgg full"><label>👥 Cast (comma separated)</label><input class="fi" id="e-cast" placeholder="Actor1, Actor2, Actor3"/></div>
+      <div class="fgg full"><label>🖼 Backdrop URL</label><input class="fi" id="e-backdrop" placeholder="https://image.tmdb.org/..."/></div>
+      <div class="fgg"><label>⬇ Download Count</label><input class="fi" id="e-downloadCount" type="number" min="0" placeholder="0"/><div style="font-size:0.65rem;color:#888;margin-top:3px;">Worker se auto badhta hai</div></div>
+      <div class="fgg"><label>TMDB ID</label><input class="fi" id="e-tmdbId" placeholder="optional"/></div>
+      <div class="fgg full">
+        <label>📲 PixelDrain File ID <span style="color:#555;font-weight:400;">(jaise: 7Ru6uMX7)</span></label>
+        <div style="display:flex;align-items:center;gap:0;">
+          <span style="padding:11px 13px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.85rem;white-space:nowrap;">https://pixeldrain.com/api/file/</span>
+          <input class="fi" id="evlc" placeholder="7Ru6uMX7" style="border-radius:0 7px 7px 0;border-left:none;" oninput="evlcPreview(this.value)"/>
+        </div>
+        <div id="evlc-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="evlc-preview-url"></span></div>
+        <div style="font-size:0.7rem;color:#555;margin-top:4px;">📱 Mobile Watch Now → MX Player open hoga | Khali chhodo agar nahi lagana</div>
+      </div>
+      <div class="fgg full" style="margin-top:-8px;padding-top:14px;border-top:1px dashed var(--border);">
+        <label>🔗 Direct VLC Link <span style="color:#555;font-weight:400;">(Pixeldrain ke bagair — koi bhi direct video link)</span></label>
+        <input class="fi" id="evlc2" placeholder="https://example.com/video.mp4" oninput="evlc2Preview(this.value)"/>
+        <div id="evlc2-preview" style="font-size:0.72rem;color:#22c55e;margin-top:6px;display:none;">✅ Link: <span id="evlc2-preview-url"></span></div>
+        <div style="font-size:0.7rem;color:#555;margin-top:6px;">💡 Agar Pixeldrain nahi use karna, ya kisi aur host ka direct link hai, to poora link yahan paste karo</div>
+      </div>
+      <div class="fgg full">
+        <label>🎬 Trailer Link (YouTube embed)</label>
+        <input class="fi" id="etrailer" placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
+        <div style="font-size:0.7rem;color:#555;margin-top:4px;">💡 Khali chhodo agar trailer nahi lagana</div>
+      </div>
       <div class="fgg"><label>480p Link</label><input class="fi" id="ed4"/></div>
       <div class="fgg"><label>480p Size</label><input class="fi" id="es4"/></div>
       <div class="fgg"><label>720p Link</label><input class="fi" id="ed7"/></div>
@@ -4625,15 +4708,6 @@ function loadAllContent(){
     arr.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
     allMovies = arr;
     try { updateCounts(); } catch(e){}
-    // ⚡ Bulk import chal rahi ho to table/list ko baar-baar rebuild mat
-    // karo — har save pe poori list dobara render hoti thi jis se posters
-    // baar-baar reload ho ke "blink" karte the. Data (allMovies) fresh hi
-    // rehta hai, UI import khatam hone ke baad ek hi baar refresh hogi.
-    if (typeof _ffiImporting !== 'undefined' && _ffiImporting) {
-      var st2 = document.getElementById('st'); if(st2) st2.innerText = allMovies.length;
-      var mc2 = document.getElementById('mc'); if(mc2) mc2.innerText = allMovies.length;
-      return;
-    }
     var dashSec = document.getElementById('sec-dashboard');
     if(dashSec && dashSec.classList.contains('active')){
       try { renderDash(); } catch(e){}
@@ -4676,10 +4750,6 @@ function loadAllContent(){
     clearTimeout(_moviesUiTimer);
     _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 900);
   }
-  // Bulk import khatam hone ke baad (ffiImportDone se) UI ko force refresh
-  // karne ke liye — _refreshMoviesUi khud local closure mein hai isliye
-  // global handle chahiye
-  window.cvForceMoviesUiRefresh = function(){ try { _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); } catch(e){} };
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
     _refreshMoviesUi();
@@ -6372,7 +6442,7 @@ function addMovie(){
   var eps=ws?collectEpisodes('movie'):null;
   var m={title:title,year:gv('fy'),rating:gv('fr'),category:cat,genre:gv('fg'),
     language:gv('fl'),quality:gv('fq'),size:gv('fsz'),description:gv('fd'),
-    thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:'',videoSourceUrl:'',vlcUrl:'',vlcUrl2:'',trailerUrl:'',playmateId:normalizePlaymateId(gv('fplaymate')),playmateUrl:playmateUrlFromInput(gv('fplaymate')),
+    thumbnail:gv('fth'),screenshots:gv('fss'),videoUrl:toYtEmbed(gv('fv')),playmateId:normalizePlaymateId(gv('fplaymate')),playmateUrl:playmateUrlFromInput(gv('fplaymate')),vlcUrl:gv('fvlc')?'https://pixeldrain.com/api/file/'+gv('fvlc'):'',vlcUrl2:gv('fvlc2'),trailerUrl:toYtEmbed(gv('ftrailer')),
     download480p:gv('fd4'),size480:gv('fs4'),download720p:gv('fd7'),size720:gv('fs7'),
     download1080p:gv('fd10'),size1080:gv('fs10'),download4k:gv('fd4k'),size4k:gv('fs4k'),
     seoTitle:gv('fseoTitle'),seoDesc:gv('fseoDesc'),seoKeywords:gv('fseoKeywords'),seoSlug:gv('fseoSlug'),
@@ -7726,7 +7796,16 @@ function openEdit(key){
         +'<div class="fgg"><label>Season #</label><input class="fi" id="'+id+'_s" value="'+(ep.season||1)+'" type="number" min="1"/></div>'
         +'<div class="fgg"><label>Episode #</label><input class="fi" id="'+id+'_e" value="'+(ep.episode||i+1)+'" type="number" min="1"/></div>'
         +'<div class="fgg full"><label>Title</label><input class="fi" id="'+id+'_t" value="'+(ep.title||'')+'"/></div>'
-        +'<input type="hidden" id="'+id+'_v" value=""/>'+'<input type="hidden" id="'+id+'_pd" value=""/>'
+        +'<div class="fgg full"><label>Video Link (Embed/Stream)</label><input class="fi" id="'+id+'_v" value="'+(ep.videoUrl||'')+'"/></div>'
+        +'<div class="fgg full" style="background:rgba(229,9,20,0.04);border:1px solid rgba(229,9,20,0.18);border-radius:8px;padding:12px;margin-top:4px;">'
+          +'<label style="color:#e50914;">📲 PixelDrain ID (MX Player — Mobile)</label>'
+          +'<div style=\"display:flex;align-items:center;gap:0;margin-top:4px;\">'
+            +'<span style=\"padding:11px 10px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.75rem;white-space:nowrap;\">pixeldrain.com/api/file/</span>'
+            +'<input class=\"fi\" id="'+id+'_pd" placeholder=\"File ID jaise: 7Ru6uMX7\" value="'+existingPdId+'" style=\"border-radius:0 7px 7px 0;border-left:none;\" oninput=\"epPdPreview(this,\''+id+'_pd_prev\')\"/>'
+          +'</div>'
+          +'<div id="'+id+'_pd_prev" style=\"font-size:0.7rem;color:#22c55e;margin-top:5px;'+(existingPdId?'':'display:none;')+'\">✅ Link: <span>'+(existingPdId?'https://pixeldrain.com/api/file/'+existingPdId:'')+'</span></div>'
+          +'<div style=\"font-size:0.68rem;color:#555;margin-top:4px;\">💡 Sirf PixelDrain File ID dalo — mobile pe MX Player se chalega</div>'
+        +'</div>'
         +'<div class="fgg"><label>480p Download</label><input class="fi" id="'+id+'_d4" value="'+(ep.dl480||'')+'"/></div>'
         +'<div class="fgg"><label>480p Size</label><input class="fi" id="'+id+'_s4" value="'+(ep.sz480||'')+'"/></div>'
         +'<div class="fgg"><label>720p Download</label><input class="fi" id="'+id+'_d7" value="'+(ep.dl720||'')+'"/></div>'
@@ -7745,12 +7824,12 @@ function saveEdit(){
   var cat=gv('ec');var ws=cat==='webseries';
   var m={title:gv('et'),year:gv('ey'),rating:gv('er'),category:cat,genre:gv('eg'),
     language:gv('el'),quality:gv('eq'),size:gv('esz'),description:gv('ed'),
-    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:'',videoSourceUrl:'',trailerUrl:'',vlcUrl:'',vlcUrl2:'',
+    thumbnail:gv('eth'),screenshots:gv('ess'),videoUrl:toYtEmbed(gv('ev')),videoSourceUrl:gv('e-videoSourceUrl'),
     dlSourceUrl:gv('e-dlSourceUrl'),sourcePageUrl:gv('e-sourcePageUrl'),
     director:gv('e-director'),duration:gv('e-duration'),cast:gv('e-cast'),backdrop:gv('e-backdrop'),
     downloadCount:(function(){var n=parseInt(gv('e-downloadCount'),10);return isNaN(n)?0:n;})(),
     tmdbId:gv('e-tmdbId')||null,
-    playmateId:normalizePlaymateId(gv('eplaymate')),playmateUrl:playmateUrlFromInput(gv('eplaymate')),vlcUrl:'',vlcUrl2:'',trailerUrl:'',
+    playmateId:normalizePlaymateId(gv('eplaymate')),playmateUrl:playmateUrlFromInput(gv('eplaymate')),vlcUrl:gv('evlc')?'https://pixeldrain.com/api/file/'+gv('evlc'):'',vlcUrl2:gv('evlc2'),trailerUrl:toYtEmbed(gv('etrailer')),
     download480p:gv('ed4'),size480:gv('es4'),download720p:gv('ed7'),size720:gv('es7'),
     download1080p:gv('ed10'),size1080:gv('es10'),download4k:gv('ed4k'),size4k:gv('es4k'),
     seoTitle:gv('eseoTitle'),seoDesc:gv('eseoDesc'),seoKeywords:gv('eseoKeywords'),seoSlug:gv('eseoSlug')};
@@ -7900,8 +7979,17 @@ function addEpBlock(mode){
     +'<div class="fgg"><label>Season #</label><input class="fi" id="'+id+'_s" value="1" type="number" min="1"/></div>'
     +'<div class="fgg"><label>Episode #</label><input class="fi" id="'+id+'_e" value="'+(idx+1)+'" type="number" min="1"/></div>'
     +'<div class="fgg full"><label>Title</label><input class="fi" id="'+id+'_t" placeholder="Episode title..."/></div>'
-    +'<input type="hidden" id="'+id+'_v" value=""/>'+'<input type="hidden" id="'+id+'_pd" value=""/>'
-        +'<div class="fgg"><label>480p Download</label><input class="fi" id="'+id+'_d4" placeholder="https://..."/></div>'
+    +'<div class="fgg full"><label>Video Link (Embed/Stream)</label><input class="fi" id="'+id+'_v" placeholder="https://..."/></div>'
+    +'<div class="fgg full" style="background:rgba(229,9,20,0.04);border:1px solid rgba(229,9,20,0.18);border-radius:8px;padding:12px;margin-top:4px;">'
+      +'<label style="color:#e50914;">📲 PixelDrain ID (MX Player — Mobile)</label>'
+      +'<div style="display:flex;align-items:center;gap:0;margin-top:4px;">'
+        +'<span style="padding:11px 10px;background:#111;border:1px solid var(--border);border-right:none;border-radius:7px 0 0 7px;color:#555;font-size:0.75rem;white-space:nowrap;">pixeldrain.com/api/file/</span>'
+        +'<input class="fi" id="'+id+'_pd" placeholder="File ID jaise: 7Ru6uMX7" style="border-radius:0 7px 7px 0;border-left:none;" oninput="epPdPreview(this,\''+id+'_pd_prev\')"/>'
+      +'</div>'
+      +'<div id="'+id+'_pd_prev" style="font-size:0.7rem;color:#22c55e;margin-top:5px;display:none;">✅ Link: <span></span></div>'
+      +'<div style="font-size:0.68rem;color:#555;margin-top:4px;">💡 Sirf PixelDrain File ID dalo — mobile pe MX Player se chalega</div>'
+    +'</div>'
+    +'<div class="fgg"><label>480p Download</label><input class="fi" id="'+id+'_d4" placeholder="https://..."/></div>'
     +'<div class="fgg"><label>480p Size</label><input class="fi" id="'+id+'_s4" placeholder="200 MB"/></div>'
     +'<div class="fgg"><label>720p Download</label><input class="fi" id="'+id+'_d7" placeholder="https://..."/></div>'
     +'<div class="fgg"><label>720p Size</label><input class="fi" id="'+id+'_s7" placeholder="500 MB"/></div>'
@@ -11586,8 +11674,7 @@ function puClearAll(){
 <script>
 var _plyrInst = {};
 
-function plyrPreview(){return;}
-function plyrPreview_DISABLED(rawUrl, wrapId, instKey){
+function plyrPreview(rawUrl, wrapId, instKey){
   var wrap = document.getElementById(wrapId);
   if(!wrap) return;
 
@@ -15060,35 +15147,9 @@ function ffiStartImport() {
   document.getElementById('ffi-import-btn').disabled = true;
   document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
 
-  // ⚡ Existing titles check — allMovies (live listener) par bharosa
-  // karne ki jagah, batch shuru hone se theek pehle Firebase se ek
-  // GUARANTEED-FRESH read karte hain. Agar listener kisi wajah se
-  // stale/lag ho (naya tab, slow reconnect, waghera) to purani
-  // "Already Exists" na aaye — asli current DB state se hi check ho.
-  document.getElementById('ffi-prog-title').textContent = '🔄 Movie list refresh ho rahi hai...';
-  db.ref('movies').once('value').then(function(freshSnap) {
-    var freshArr = [];
-    if (freshSnap.exists()) {
-      freshSnap.forEach(function(c) {
-        var mv = c.val();
-        if (mv) { mv.key = c.key; freshArr.push(mv); }
-      });
-    }
-    allMovies = freshArr; // panel ke baaki hisson ke liye bhi fresh ho gaya
-    ffiStartImportRun();
-  }).catch(function() {
-    ffiStartImportRun(); // fresh read fail ho to bhi purani list se try karo, ruko nahi
-  });
-
-  function ffiStartImportRun() {
-  // ⚡ Do alag sets — "asli DB duplicate" (Firebase mein pehle se, is run
-  // se pehle) vs "isi batch ke andar dobara mila" (source site ki multiple
-  // category pages pe wahi movie repeat ho rahi ho). Alag dikhane se
-  // confusion khatam ho jaati hai ke masla kahan hai.
-  var dbExistingTitles = {};
-  allMovies.forEach(function(m){ if(m.title) dbExistingTitles[m.title.toLowerCase()] = true; });
-  var existingTitles = dbExistingTitles; // same reference — is run ke dauran isi mein naye titles bhi add honge (self-dup guard)
-  var dbDupCount = 0, selfDupCount = 0;
+  // Existing titles check
+  var existingTitles = {};
+  allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
 
   // Render queue items
   selected.forEach(function(p, i) {
@@ -15122,12 +15183,10 @@ function ffiStartImport() {
     document.getElementById('ffi-import-btn').disabled = false;
     document.getElementById('ffi-import-btn').textContent = '⚡ Import Karo (Selected Posts)';
     document.getElementById('ffi-prog-title').textContent = '✅ Fetch Mukammal!';
-    document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip (' + dbDupCount + ' DB mein pehle se + ' + selfDupCount + ' isi list mein repeat), ' + err + ' error';
+    document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip, ' + err + ' error';
     document.getElementById('ffi-pbar').style.width = '100%';
     toast('✅ ' + ok + ' movies fetch — review karke save karo!');
     ffiRenderReviewQueue();
-    // Import ke dauran table/list UI pause thi — ab ek baar refresh kar do
-    try { if (typeof window.cvForceMoviesUiRefresh === 'function') window.cvForceMoviesUiRefresh(); } catch(e){}
   }
 
   function ffiItemDone() {
@@ -15183,10 +15242,7 @@ function ffiStartImport() {
       // Check duplicate
       if (existingTitles[data.title.toLowerCase()]) {
         skip++;
-        var _wasInDbAlready = dbExistingTitles[data.title.toLowerCase()];
-        if (_wasInDbAlready) { dbDupCount++; } else { selfDupCount++; }
-        var _skipLabel = _wasInDbAlready ? '⚠️ DB mein pehle se' : '⚠️ Isi list mein 2x';
-        if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent=_skipLabel; document.getElementById('ffi-st-'+n).className='bi-status skip'; document.getElementById('ffi-st-'+n).title = _wasInDbAlready ? 'Ye title Firebase mein is import se pehle se maujood hai' : 'Ye title isi selected list mein ek se zyada baar aaya (source site ki category pages overlap kar rahi hain)'; }
+        if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent='⚠️ Already Exists'; document.getElementById('ffi-st-'+n).className='bi-status skip'; }
         ffiItemDone();
         return;
       }
@@ -15944,7 +16000,6 @@ function ffiStartImport() {
     processOne(ni);
   }
   if (!selected.length) ffiImportDone();
-  } // end ffiStartImportRun
 }
 
 // ── Parse page HTML ──
