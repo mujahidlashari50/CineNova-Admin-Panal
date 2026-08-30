@@ -617,6 +617,8 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ HDFun / Mp4Moviez</div>
     <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
     <div class="nav-item" id="nav-pmmatch" onclick="show('pmmatch')" style="color:#60a5fa;">🎯 Playmate Match</div>
+    <div class="nav-item" id="nav-posterfix" onclick="show('posterfix')" style="color:#fb923c;">🖼️ Poster Fix (TMDB)</div>
+    <div class="nav-item" id="nav-homefeature" onclick="show('homefeature')" style="color:#a78bfa;">🏠 Home Page Feature</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-item" id="nav-sourcepages" onclick="show('sourcepages')">🔗 Source Pages</div>
     <div class="nav-item" id="nav-servermovies" onclick="show('servermovies')">🌐 Server Movies <span class="nav-count" id="sm-nav-count" style="background:#22c55e;">NEW</span></div>
@@ -2209,6 +2211,48 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
     <!-- ═══ END PLAYMATE MATCH ═══ -->
+
+    <!-- ═══ 🖼️ POSTER FIX (TMDB BULK) ═══ -->
+    <div class="section" id="sec-posterfix">
+      <div class="sec-title">🖼️ Poster Fix <span>(TMDB)</span></div>
+      <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#fdba74;">
+        Ek category select karo, us category ki <b>saari movies</b> ka poster TMDB se dobara fetch karke update ho jayega (jahan TMDB match mile). Source website (filmslb/hdfun waghera) ka poster overwrite ho jayega.
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+          <select class="fi" id="pf-cat-select" style="max-width:280px;"></select>
+          <button type="button" class="btn btn-p" onclick="pfStartBulkFix()" id="pf-start-btn">🔄 Poster Update Karo</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="pf-stats"></div>
+        <div id="pf-prog-wrap" style="display:none;margin-bottom:14px;">
+          <div style="height:8px;background:#1a1a1a;border-radius:10px;overflow:hidden;">
+            <div id="pf-pbar" style="height:100%;width:0%;background:linear-gradient(90deg,#fb923c,#f97316);transition:width 0.3s;"></div>
+          </div>
+          <div id="pf-prog-text" style="font-size:0.78rem;color:var(--grey);margin-top:6px;"></div>
+        </div>
+        <div id="pf-log" style="display:flex;flex-direction:column;gap:4px;max-height:400px;overflow-y:auto;font-size:0.78rem;"></div>
+      </div>
+    </div>
+    <!-- ═══ END POSTER FIX ═══ -->
+
+    <!-- ═══ 🏠 HOME PAGE FEATURE ═══ -->
+    <div class="section" id="sec-homefeature">
+      <div class="sec-title">🏠 Home Page <span>Feature</span></div>
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#c4b5fd;">
+        Yahan se select ki hui movies homepage ke <b>featured banner</b> (top slideshow) mein properly dikhengi. Search karke movie dhoondo, tick karo, "Featured Banao" dabao.
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="margin:0 0 10px;font-size:0.9rem;">✅ Abhi Featured Hain</h3>
+        <div id="hf-current-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 10px;font-size:0.9rem;">Naye Movies Add Karo</h3>
+        <input class="fi" id="hf-search" placeholder="Movie title search karo..." oninput="hfSearchMovies(this.value)" style="margin-bottom:12px;">
+        <div id="hf-search-results" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;margin-bottom:12px;"></div>
+        <button type="button" class="btn" style="background:#7c3aed;color:#fff;" onclick="hfApplySelected()" id="hf-apply-btn">🏠 Selected Ko Featured Banao</button>
+      </div>
+    </div>
+    <!-- ═══ END HOME PAGE FEATURE ═══ -->
 
     <!-- ═══ PLAYMATE UPLOAD ═══ -->
     <div class="section" id="sec-playmate">
@@ -4553,6 +4597,8 @@ function show(name){
   if(name==='ffimport'){document.getElementById('ffi-fetch-status').style.display='none';}
   if(name==='jsonexport'){try{jbRender();}catch(e){}}
   if(name==='pmmatch'){try{if(!pmGetKey())document.getElementById('pmm-status').textContent='⚠️ Pehle Playmate section mein API key save karo';}catch(e){}}
+  if(name==='posterfix'){try{pfPopulateCatDropdown();}catch(e){}}
+  if(name==='homefeature'){try{hfRenderCurrentFeatured();}catch(e){}}
 }
 
 
@@ -4708,6 +4754,15 @@ function loadAllContent(){
     arr.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
     allMovies = arr;
     try { updateCounts(); } catch(e){}
+    // ⚡ Bulk import chal rahi ho to table/list ko baar-baar rebuild mat
+    // karo — har save pe poori list dobara render hoti thi jis se posters
+    // baar-baar reload ho ke "blink" karte the. Data (allMovies) fresh hi
+    // rehta hai, UI import khatam hone ke baad ek hi baar refresh hogi.
+    if (typeof _ffiImporting !== 'undefined' && _ffiImporting) {
+      var st2 = document.getElementById('st'); if(st2) st2.innerText = allMovies.length;
+      var mc2 = document.getElementById('mc'); if(mc2) mc2.innerText = allMovies.length;
+      return;
+    }
     var dashSec = document.getElementById('sec-dashboard');
     if(dashSec && dashSec.classList.contains('active')){
       try { renderDash(); } catch(e){}
@@ -4750,6 +4805,10 @@ function loadAllContent(){
     clearTimeout(_moviesUiTimer);
     _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 900);
   }
+  // Bulk import khatam hone ke baad (ffiImportDone se) UI ko force refresh
+  // karne ke liye — _refreshMoviesUi khud local closure mein hai isliye
+  // global handle chahiye
+  window.cvForceMoviesUiRefresh = function(){ try { _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); } catch(e){} };
   db.ref('movies').on('value',function(snap){
     _lastMoviesSnap = snap;
     _refreshMoviesUi();
@@ -7390,6 +7449,166 @@ function pmmSaveSelected() {
     if (btn) { btn.disabled = false; btn.textContent = '💾 Selected IDs Save Karo'; }
   });
 }
+
+// ══════════════ 🖼️ POSTER FIX (TMDB BULK) — category-wise poster refresh ══════════════
+var _pfCatKeys = ['english_movies','hindi_dubbed','dual_audio','south_hindi','tamil_telugu','bollywood_hindi','anime_hindi','animation_hindi_dubbed','webseries_hindi','kdrama_hindi','philippines','hot_short_hindi'];
+var _pfCatLabels = {
+  english_movies:'🌟 English Movies', hindi_dubbed:'🇮🇳 Hindi Dubbed', dual_audio:'🔊 Dual Audio',
+  south_hindi:'🌐 South Hindi Dubbed', tamil_telugu:'🎬 Tamil/Telugu', bollywood_hindi:'🎭 Bollywood Hindi',
+  anime_hindi:'🧸 Anime Hindi Dubbed', animation_hindi_dubbed:'🧸 Animation Hindi Dubbed',
+  webseries_hindi:'📺 Web-Series Hindi Dubbed', kdrama_hindi:'🇰🇷 K-Drama Hindi Dubbed',
+  philippines:'🇵🇭 Philippines Movies', hot_short_hindi:'🔞 Hot Short Movies'
+};
+var _pfBusy = false;
+
+function pfPopulateCatDropdown() {
+  var sel = document.getElementById('pf-cat-select');
+  if (!sel) return;
+  var counts = {};
+  (allMovies || []).forEach(function(m) { var c = m.category || ''; counts[c] = (counts[c] || 0) + 1; });
+  sel.innerHTML = _pfCatKeys.map(function(k) {
+    return '<option value="' + k + '">' + (_pfCatLabels[k] || k) + ' (' + (counts[k] || 0) + ')</option>';
+  }).join('');
+}
+
+async function pfStartBulkFix() {
+  if (_pfBusy) { toast('Pehle se chal raha hai!', 1); return; }
+  var cat = (document.getElementById('pf-cat-select') || {}).value;
+  if (!cat) { toast('❌ Category select karo', 1); return; }
+  var list = (allMovies || []).filter(function(m) { return (m.category || '') === cat; });
+  if (!list.length) { toast('❌ Is category mein koi movie nahi!', 1); return; }
+
+  _pfBusy = true;
+  var btn = document.getElementById('pf-start-btn');
+  btn.disabled = true; btn.textContent = '⏳ Chal raha hai...';
+  document.getElementById('pf-prog-wrap').style.display = 'block';
+  var logEl = document.getElementById('pf-log');
+  logEl.innerHTML = '';
+  var done = 0, updated = 0, notFound = 0, failed = 0;
+  var total = list.length;
+
+  function logLine(text, color) {
+    var d = document.createElement('div');
+    d.style.color = color || '#aaa';
+    d.textContent = text;
+    logEl.insertBefore(d, logEl.firstChild);
+  }
+  function updateProg() {
+    var pct = Math.round((done / total) * 100);
+    document.getElementById('pf-pbar').style.width = pct + '%';
+    document.getElementById('pf-prog-text').textContent = done + ' / ' + total + ' — ✅ Updated: ' + updated + ' | ⚠️ TMDB nahi mila: ' + notFound + ' | ❌ Error: ' + failed;
+  }
+
+  for (var i = 0; i < list.length; i++) {
+    var m = list[i];
+    await new Promise(function(resolve) {
+      try {
+        ffiTmdbEnrich(m.title, m.year, function(tmdb) {
+          if (tmdb && tmdb.poster) {
+            db.ref('movies/' + m.key + '/thumbnail').set(tmdb.poster).then(function() {
+              updated++;
+              logLine('✅ ' + m.title, '#4ade80');
+              resolve();
+            }).catch(function() {
+              failed++;
+              logLine('❌ ' + m.title + ' (save fail)', '#f87171');
+              resolve();
+            });
+          } else {
+            notFound++;
+            logLine('⚠️ ' + m.title + ' — TMDB match nahi mila', '#fbbf24');
+            resolve();
+          }
+        });
+      } catch (e) {
+        failed++;
+        resolve();
+      }
+    });
+    done++;
+    updateProg();
+  }
+
+  _pfBusy = false;
+  btn.disabled = false; btn.textContent = '🔄 Poster Update Karo';
+  toast('✅ Poster fix mukammal — ' + updated + ' updated');
+  document.getElementById('pf-stats').innerHTML =
+    '<span style="font-size:0.75rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">✅ Updated: ' + updated + '</span>' +
+    '<span style="font-size:0.75rem;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fde68a;padding:3px 10px;border-radius:20px;">⚠️ Not Found: ' + notFound + '</span>' +
+    '<span style="font-size:0.75rem;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;padding:3px 10px;border-radius:20px;">❌ Error: ' + failed + '</span>';
+}
+
+// ══════════════ 🏠 HOME PAGE FEATURE — movies ko homepage banner ke liye select karo ══════════════
+var _hfSelected = {};
+
+function hfRenderCurrentFeatured() {
+  var wrap = document.getElementById('hf-current-list');
+  if (!wrap) return;
+  var list = (allMovies || []).filter(function(m) { return !!m.featured; });
+  if (!list.length) {
+    wrap.innerHTML = '<div style="color:var(--grey);padding:10px;">Abhi koi movie featured nahi hai.</div>';
+    return;
+  }
+  wrap.innerHTML = list.map(function(m) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;">' +
+      '<span style="font-size:0.85rem;">' + escHtml(m.title || 'Untitled') + '</span>' +
+      '<button type="button" class="btn btn-s" style="padding:4px 10px;font-size:0.72rem;color:#f87171;" onclick="hfRemoveFeatured(\'' + m.key + '\')">✕ Hatao</button>' +
+      '</div>';
+  }).join('');
+}
+
+function hfRemoveFeatured(key) {
+  db.ref('movies/' + key + '/featured').remove().then(function() {
+    toast('🚫 Featured se hata diya');
+    setTimeout(hfRenderCurrentFeatured, 400);
+  }).catch(function(e) { toast('❌ ' + e.message, 1); });
+}
+
+function hfSearchMovies(q) {
+  var wrap = document.getElementById('hf-search-results');
+  if (!wrap) return;
+  q = (q || '').trim().toLowerCase();
+  if (q.length < 2) { wrap.innerHTML = ''; return; }
+  var results = (allMovies || []).filter(function(m) {
+    return (m.title || '').toLowerCase().indexOf(q) >= 0 && !m.featured;
+  }).slice(0, 30);
+  if (!results.length) {
+    wrap.innerHTML = '<div style="color:var(--grey);padding:10px;">Koi match nahi mila.</div>';
+    return;
+  }
+  wrap.innerHTML = results.map(function(m) {
+    var checked = _hfSelected[m.key] ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;cursor:pointer;">' +
+      '<input type="checkbox" ' + checked + ' onchange="hfToggleSelect(\'' + m.key + '\', this.checked)" style="width:16px;height:16px;"/>' +
+      '<span style="flex:1;font-size:0.85rem;">' + escHtml(m.title || 'Untitled') + ' <span style="color:var(--grey);font-size:0.75rem;">(' + (m.year || '') + ' · ' + (m.category || '') + ')</span></span>' +
+      '</label>';
+  }).join('');
+}
+
+function hfToggleSelect(key, checked) {
+  if (checked) { _hfSelected[key] = true; } else { delete _hfSelected[key]; }
+}
+
+function hfApplySelected() {
+  var keys = Object.keys(_hfSelected);
+  if (!keys.length) { toast('❌ Koi movie select nahi!', 1); return; }
+  var btn = document.getElementById('hf-apply-btn');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+  var updates = {};
+  keys.forEach(function(k) { updates['movies/' + k + '/featured'] = true; });
+  db.ref().update(updates).then(function() {
+    toast('🏠 ' + keys.length + ' movies homepage pe featured ho gayi!');
+    _hfSelected = {};
+    document.getElementById('hf-search').value = '';
+    document.getElementById('hf-search-results').innerHTML = '';
+    btn.disabled = false; btn.textContent = '🏠 Selected Ko Featured Banao';
+    setTimeout(hfRenderCurrentFeatured, 400);
+  }).catch(function(e) {
+    toast('❌ ' + e.message, 1);
+    btn.disabled = false; btn.textContent = '🏠 Selected Ko Featured Banao';
+  });
+}
+
 
 async function pmTestApiKey() {
   var key = pmGetKey();
@@ -15147,9 +15366,35 @@ function ffiStartImport() {
   document.getElementById('ffi-import-btn').disabled = true;
   document.getElementById('ffi-import-btn').textContent = '⏳ Importing...';
 
-  // Existing titles check
-  var existingTitles = {};
-  allMovies.forEach(function(m){ if(m.title) existingTitles[m.title.toLowerCase()] = true; });
+  // ⚡ Existing titles check — allMovies (live listener) par bharosa
+  // karne ki jagah, batch shuru hone se theek pehle Firebase se ek
+  // GUARANTEED-FRESH read karte hain. Agar listener kisi wajah se
+  // stale/lag ho (naya tab, slow reconnect, waghera) to purani
+  // "Already Exists" na aaye — asli current DB state se hi check ho.
+  document.getElementById('ffi-prog-title').textContent = '🔄 Movie list refresh ho rahi hai...';
+  db.ref('movies').once('value').then(function(freshSnap) {
+    var freshArr = [];
+    if (freshSnap.exists()) {
+      freshSnap.forEach(function(c) {
+        var mv = c.val();
+        if (mv) { mv.key = c.key; freshArr.push(mv); }
+      });
+    }
+    allMovies = freshArr; // panel ke baaki hisson ke liye bhi fresh ho gaya
+    ffiStartImportRun();
+  }).catch(function() {
+    ffiStartImportRun(); // fresh read fail ho to bhi purani list se try karo, ruko nahi
+  });
+
+  function ffiStartImportRun() {
+  // ⚡ Do alag sets — "asli DB duplicate" (Firebase mein pehle se, is run
+  // se pehle) vs "isi batch ke andar dobara mila" (source site ki multiple
+  // category pages pe wahi movie repeat ho rahi ho). Alag dikhane se
+  // confusion khatam ho jaati hai ke masla kahan hai.
+  var dbExistingTitles = {};
+  allMovies.forEach(function(m){ if(m.title) dbExistingTitles[m.title.toLowerCase()] = true; });
+  var existingTitles = dbExistingTitles; // same reference — is run ke dauran isi mein naye titles bhi add honge (self-dup guard)
+  var dbDupCount = 0, selfDupCount = 0;
 
   // Render queue items
   selected.forEach(function(p, i) {
@@ -15183,10 +15428,12 @@ function ffiStartImport() {
     document.getElementById('ffi-import-btn').disabled = false;
     document.getElementById('ffi-import-btn').textContent = '⚡ Import Karo (Selected Posts)';
     document.getElementById('ffi-prog-title').textContent = '✅ Fetch Mukammal!';
-    document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip, ' + err + ' error';
+    document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip (' + dbDupCount + ' DB mein pehle se + ' + selfDupCount + ' isi list mein repeat), ' + err + ' error';
     document.getElementById('ffi-pbar').style.width = '100%';
     toast('✅ ' + ok + ' movies fetch — review karke save karo!');
     ffiRenderReviewQueue();
+    // Import ke dauran table/list UI pause thi — ab ek baar refresh kar do
+    try { if (typeof window.cvForceMoviesUiRefresh === 'function') window.cvForceMoviesUiRefresh(); } catch(e){}
   }
 
   function ffiItemDone() {
@@ -15242,7 +15489,10 @@ function ffiStartImport() {
       // Check duplicate
       if (existingTitles[data.title.toLowerCase()]) {
         skip++;
-        if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent='⚠️ Already Exists'; document.getElementById('ffi-st-'+n).className='bi-status skip'; }
+        var _wasInDbAlready = dbExistingTitles[data.title.toLowerCase()];
+        if (_wasInDbAlready) { dbDupCount++; } else { selfDupCount++; }
+        var _skipLabel = _wasInDbAlready ? '⚠️ DB mein pehle se' : '⚠️ Isi list mein 2x';
+        if (item) { item.className='bi-item bi-skip'; document.getElementById('ffi-st-'+n).textContent=_skipLabel; document.getElementById('ffi-st-'+n).className='bi-status skip'; document.getElementById('ffi-st-'+n).title = _wasInDbAlready ? 'Ye title Firebase mein is import se pehle se maujood hai' : 'Ye title isi selected list mein ek se zyada baar aaya (source site ki category pages overlap kar rahi hain)'; }
         ffiItemDone();
         return;
       }
@@ -15637,7 +15887,11 @@ function ffiStartImport() {
         if (tmdb) {
           // Proper details: TMDB se title/rating/year/desc/genre/poster/cast/director fill
           // Page links (1080/720/480) primary rehte hain
-          if (tmdb.poster) data.thumbnail = data.thumbnail || tmdb.poster;
+          // Poster: TMDB ko priority — source website (filmslb/hdfun/etc)
+          // se thumbnail nahi chahiye, hamesha TMDB/IMDB wala official
+          // poster use karo. Source site ka thumbnail sirf tab fallback
+          // banta hai jab TMDB mein movie mile hi na.
+          if (tmdb.poster) data.thumbnail = tmdb.poster;
           if (tmdb.rating) data.rating = tmdb.rating;
           if (tmdb.description) data.description = tmdb.description;
           if (tmdb.genre) data.genre = data.genre || tmdb.genre;
@@ -16000,6 +16254,7 @@ function ffiStartImport() {
     processOne(ni);
   }
   if (!selected.length) ffiImportDone();
+  } // end ffiStartImportRun
 }
 
 // ── Parse page HTML ──
