@@ -4886,14 +4886,33 @@ function filterCat(){
 
 // ═══ LOAD DATA ═══
 function loadAllContent(){
-  // PERF: full-tree on('value') har change pe table/DOM rebuild karta tha — 1000+ movies pe panel hang.
-  // Ab data update debounced hai; heavy UI (table) sirf tab jab movies section open ho.
+  // ═══════════════════════════════════════════════════════════
+  // FAST LOAD — 17k+ movies: pehle latest 400, phir background full
+  // Kabhi bhi full-tree on('value') mat lagao — panel hang ho jata hai
+  // ═══════════════════════════════════════════════════════════
+  if (window._cvMoviesBootDone) {
+    // already booted — only force refresh
+    if (typeof window.loadMoviesOnce === 'function') window.loadMoviesOnce(true);
+    return;
+  }
+  window._cvMoviesBootDone = true;
+
   var _moviesUiTimer = null;
-  function _applyMoviesSnap(snap, countsSnap){
+  var _lastMoviesSnap = null;
+  var _lastCountsSnap = null;
+  var _moviesLoadInFlight = false;
+  var _moviesLastLoadAt = 0;
+  var _moviesFullLoaded = false;
+
+  function _applyMoviesSnap(snap, countsSnap, appendMode){
     if(!snap) return;
-    var arr = [];
-    var counts = (countsSnap && countsSnap.exists()) ? (countsSnap.val() || {}) : null;
-    if(snap.exists()){
+    var counts = (countsSnap && countsSnap.exists && countsSnap.exists()) ? (countsSnap.val() || {}) : (countsSnap || null);
+    var arr = appendMode && allMovies && allMovies.length ? allMovies.slice() : [];
+    var seen = {};
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] && arr[i].key) seen[arr[i].key] = 1;
+    }
+    if(snap.exists && snap.exists()){
       snap.forEach(function(c){
         var m = c.val();
         if(!m) return;
@@ -4905,38 +4924,39 @@ function loadAllContent(){
             if(!isNaN(n) && n > (m.downloadCount || 0)) m.downloadCount = n;
           }
         }
-        arr.push(m);
+        if (seen[m.key]) {
+          // update existing
+          for (var j = 0; j < arr.length; j++) {
+            if (arr[j].key === m.key) { arr[j] = m; break; }
+          }
+        } else {
+          arr.push(m);
+          seen[m.key] = 1;
+        }
       });
     }
     arr.sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);});
     allMovies = arr;
     try { updateCounts(); } catch(e){}
-    // ⚡ Bulk import chal rahi ho to table/list ko baar-baar rebuild mat
-    // karo — har save pe poori list dobara render hoti thi jis se posters
-    // baar-baar reload ho ke "blink" karte the. Data (allMovies) fresh hi
-    // rehta hai, UI import khatam hone ke baad ek hi baar refresh hogi.
     if (typeof _ffiImporting !== 'undefined' && _ffiImporting) {
       var st2 = document.getElementById('st'); if(st2) st2.innerText = allMovies.length;
       var mc2 = document.getElementById('mc'); if(mc2) mc2.innerText = allMovies.length;
       return;
     }
+    try {
+      var st = document.getElementById('st'); if(st) st.innerText = allMovies.length;
+      var mc = document.getElementById('mc'); if(mc) mc.innerText = allMovies.length;
+    } catch(e){}
     var dashSec = document.getElementById('sec-dashboard');
     if(dashSec && dashSec.classList.contains('active')){
       try { renderDash(); } catch(e){}
-    } else {
-      try {
-        var st = document.getElementById('st'); if(st) st.innerText = allMovies.length;
-        var mc = document.getElementById('mc'); if(mc) mc.innerText = allMovies.length;
-      } catch(e){}
     }
     var moviesSec = document.getElementById('sec-movies');
     if(moviesSec && moviesSec.classList.contains('active')){
       try {
         var _lst = (typeof getMoviesForCatFilter==='function')
           ? getMoviesForCatFilter(currentCatFilter||'all')
-          : ((!currentCatFilter || currentCatFilter==='all') ? allMovies : allMovies.filter(function(m){
-              return (m.category||'').toLowerCase()===(currentCatFilter||'').toLowerCase();
-            }));
+          : allMovies;
         renderTable(_lst);
       } catch(e){}
     }
@@ -4950,61 +4970,98 @@ function loadAllContent(){
     if(trendSec && trendSec.classList.contains('active')){
       try { renderTrendList(allMovies.slice(0,60)); } catch(e){}
     }
-    // PERF: mlAutoFixUnmatched not on every snap
-
-    var noLinks = allMovies.filter(function(m){ return !m.videoUrl && !m.vlcUrl && !m.download480p && !m.download720p && !m.download1080p && !m.download4k; }).length;
-    var lmBadge = document.getElementById('lm-no-link-count');
-    if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
+    try {
+      var noLinks = 0;
+      for (var ni = 0; ni < allMovies.length; ni++) {
+        var mm = allMovies[ni];
+        if (!mm.videoUrl && !mm.vlcUrl && !mm.download480p && !mm.download720p && !mm.download1080p && !mm.download4k) noLinks++;
+      }
+      var lmBadge = document.getElementById('lm-no-link-count');
+      if(lmBadge){ lmBadge.textContent = noLinks; lmBadge.style.display = noLinks ? '' : 'none'; }
+    } catch(e){}
   }
-  var _lastMoviesSnap = null;
-  var _lastCountsSnap = null;
+
   function _refreshMoviesUi(){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 200);
+    _moviesUiTimer = setTimeout(function(){
+      if (_lastMoviesSnap) _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap, false);
+    }, 150);
   }
-  // Force refresh — full re-download only when asked (import done / manual)
+
   window.cvForceMoviesUiRefresh = function(){
     try { loadMoviesOnce(true); } catch(e){}
   };
-  window.loadMoviesOnce = loadMoviesOnce;
 
-  var _moviesLoadInFlight = false;
-  var _moviesLastLoadAt = 0;
   function loadMoviesOnce(force){
     if(_moviesLoadInFlight) return;
     var now = Date.now();
-    // Avoid hammering Firebase — min 8s between auto reloads
-    if(!force && _moviesLastLoadAt && (now - _moviesLastLoadAt) < 8000) return;
+    if(!force && _moviesLastLoadAt && (now - _moviesLastLoadAt) < 12000) return;
     _moviesLoadInFlight = true;
     try {
       var st = document.getElementById('st');
       if(st && !(allMovies && allMovies.length)) st.innerText = '…';
     } catch(e){}
-    // ⚡ ONE-SHOT load — NOT on('value'). Live full-tree kills panel with 10k+ movies.
-    db.ref('movies').once('value').then(function(snap){
+
+    // STEP 1 — instant UI: latest ~400 movies only
+    var quickRef = db.ref('movies').orderByKey().limitToLast(400);
+    quickRef.once('value').then(function(snap){
       _lastMoviesSnap = snap;
       _moviesLastLoadAt = Date.now();
-      _moviesLoadInFlight = false;
-      _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap);
+      _applyMoviesSnap(snap, _lastCountsSnap, false);
+      try { toast('⚡ ' + (allMovies.length) + ' latest loaded'); } catch(e){}
+
+      // STEP 2 — full catalog in background (does not block UI)
+      if (!_moviesFullLoaded || force) {
+        setTimeout(function(){
+          db.ref('movies').once('value').then(function(fullSnap){
+            _lastMoviesSnap = fullSnap;
+            _moviesFullLoaded = true;
+            _moviesLoadInFlight = false;
+            _moviesLastLoadAt = Date.now();
+            _applyMoviesSnap(fullSnap, _lastCountsSnap, false);
+            try { toast('✅ All ' + allMovies.length + ' movies ready'); } catch(e){}
+          }).catch(function(err){
+            _moviesLoadInFlight = false;
+            try { console.error('full movies load', err); } catch(e){}
+          });
+        }, 500);
+      } else {
+        _moviesLoadInFlight = false;
+      }
     }).catch(function(err){
       _moviesLoadInFlight = false;
-      try { console.error('movies load', err); toast('❌ Movies load fail: '+(err&&err.message?err.message:err), 1); } catch(e){}
+      try {
+        console.error('movies quick load', err);
+        toast('❌ Movies load fail: ' + (err && err.message ? err.message : err), 1);
+      } catch(e){}
+      // fallback: try full once
+      db.ref('movies').once('value').then(function(snap){
+        _lastMoviesSnap = snap;
+        _applyMoviesSnap(snap, null, false);
+      }).catch(function(){});
     });
-    // downloadCounts — also one-shot (not live)
+
+    // downloadCounts one-shot
     try {
       db.ref('downloadCounts').once('value').then(function(snap){
         _lastCountsSnap = snap;
-        if(_lastMoviesSnap) _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap);
+        if(_lastMoviesSnap) _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap, false);
       }).catch(function(){});
     } catch(e){}
   }
+
+  window.loadMoviesOnce = loadMoviesOnce;
+
   // First load after login
   loadMoviesOnce(true);
-  // Soft refresh every 3 min only if tab visible (keeps panel light)
-  setInterval(function(){
-    if(document.hidden) return;
-    loadMoviesOnce(false);
-  }, 180000);
+
+  // Soft refresh every 5 min if tab visible
+  if (!window._cvMoviesInterval) {
+    window._cvMoviesInterval = setInterval(function(){
+      if(document.hidden) return;
+      loadMoviesOnce(false);
+    }, 300000);
+  }
 }
 
 // ═══ DASHBOARD ═══
