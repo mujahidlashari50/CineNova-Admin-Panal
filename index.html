@@ -4720,7 +4720,7 @@ function show(name){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
-  if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){}setTimeout(function(){try{renderTable(allMovies||[]);}catch(e){console.error(e);}},0);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
+  if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){}setTimeout(function(){try{if(!allMovies||!allMovies.length){if(typeof loadMoviesOnce==='function')loadMoviesOnce(true);}renderTable(allMovies||[]);}catch(e){console.error(e);}},0);}if(name==='trending'){try{renderTrendList(allMovies.slice(0,100));}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
   if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
   if(name==='linkmanager'){lmFilter();}
   if(name==='servermovies'){smLoadExisting();}
@@ -4960,23 +4960,51 @@ function loadAllContent(){
   var _lastCountsSnap = null;
   function _refreshMoviesUi(){
     clearTimeout(_moviesUiTimer);
-    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 900);
+    _moviesUiTimer = setTimeout(function(){ _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); }, 200);
   }
-  // Bulk import khatam hone ke baad (ffiImportDone se) UI ko force refresh
-  // karne ke liye — _refreshMoviesUi khud local closure mein hai isliye
-  // global handle chahiye
-  window.cvForceMoviesUiRefresh = function(){ try { _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap); } catch(e){} };
-  db.ref('movies').on('value',function(snap){
-    _lastMoviesSnap = snap;
-    _refreshMoviesUi();
-  });
-  // Public download counters (worker /get se)
-  try {
-    db.ref('downloadCounts').on('value',function(snap){
-      _lastCountsSnap = snap;
-      if(_lastMoviesSnap) _refreshMoviesUi();
+  // Force refresh — full re-download only when asked (import done / manual)
+  window.cvForceMoviesUiRefresh = function(){
+    try { loadMoviesOnce(true); } catch(e){}
+  };
+  window.loadMoviesOnce = loadMoviesOnce;
+
+  var _moviesLoadInFlight = false;
+  var _moviesLastLoadAt = 0;
+  function loadMoviesOnce(force){
+    if(_moviesLoadInFlight) return;
+    var now = Date.now();
+    // Avoid hammering Firebase — min 8s between auto reloads
+    if(!force && _moviesLastLoadAt && (now - _moviesLastLoadAt) < 8000) return;
+    _moviesLoadInFlight = true;
+    try {
+      var st = document.getElementById('st');
+      if(st && !(allMovies && allMovies.length)) st.innerText = '…';
+    } catch(e){}
+    // ⚡ ONE-SHOT load — NOT on('value'). Live full-tree kills panel with 10k+ movies.
+    db.ref('movies').once('value').then(function(snap){
+      _lastMoviesSnap = snap;
+      _moviesLastLoadAt = Date.now();
+      _moviesLoadInFlight = false;
+      _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap);
+    }).catch(function(err){
+      _moviesLoadInFlight = false;
+      try { console.error('movies load', err); toast('❌ Movies load fail: '+(err&&err.message?err.message:err), 1); } catch(e){}
     });
-  } catch(e){}
+    // downloadCounts — also one-shot (not live)
+    try {
+      db.ref('downloadCounts').once('value').then(function(snap){
+        _lastCountsSnap = snap;
+        if(_lastMoviesSnap) _applyMoviesSnap(_lastMoviesSnap, _lastCountsSnap);
+      }).catch(function(){});
+    } catch(e){}
+  }
+  // First load after login
+  loadMoviesOnce(true);
+  // Soft refresh every 3 min only if tab visible (keeps panel light)
+  setInterval(function(){
+    if(document.hidden) return;
+    loadMoviesOnce(false);
+  }, 180000);
 }
 
 // ═══ DASHBOARD ═══
