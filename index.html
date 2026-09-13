@@ -615,7 +615,6 @@ tr:hover td{background:rgba(229,9,20,0.04);}
     <div class="nav-item" id="nav-tmdb" onclick="show('tmdb')">🔍 TMDB Auto Fill</div>
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ HDFun / MMSHD / 9xflix / Bollydaq</div>
-    <div class="nav-item" id="nav-mssearch" onclick="show('mssearch')" style="color:#38bdf8;">🔎 Movie Search (3 sites)</div>
     <div class="nav-item" id="nav-m4hfix" onclick="show('m4hfix')" style="color:#4ade80;">🔧 Mp4→HDFun Links</div>
     <div class="nav-item" id="nav-m4del" onclick="show('m4del')" style="color:#f87171;">🗑 Mp4Moviez Delete</div>
     <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
@@ -2007,7 +2006,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/13/bollywood-movies/1.html');">Bollywood</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/25/hollywood-movies/1.html');">Hollywood</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/3/latest-hollywood-hindi-dubbed-movies/1.html');">Hollywood Hindi</button>
-          <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/5/dual-audio-movies/1.html');toast('HDFun Dual Audio cat ~17 posts; zyada chahiye to Hollywood Hindi use karo');">Dual Audio</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/7/south-indian-hindi-dubbed-movies/1.html');">South / Tollywood</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/35/hindi-web-series/1.html');">Hindi Web Series</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/category/36/hollywood-hindi-dubbed-tv-series/1.html');">Hollywood Series</button>
@@ -2206,39 +2204,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <!-- ═══ END FILMYFLY IMPORTER ═══ -->
 
     <!-- ═══ Mp4Moviez → HDFun LINK FIX ═══ -->
-    <!-- ═══ MOVIE NAME SEARCH — HDFun + MMSHD + 9xflix ═══ -->
-    <div class="section" id="sec-mssearch">
-      <div class="sec-title">🔎 Movie <span>Search</span></div>
-      <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;line-height:1.55;">
-        Movie ka <b>name</b> likho → <b>HDFun + MMSHD + 9xflix</b> teeno pe search → matching posts select karke <b>Import</b> (same flow as category importer).
-      </div>
-      <div class="card" style="margin-bottom:14px;">
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;">
-          <input class="fi" id="ms-q" placeholder="Movie name… e.g. Pushpa, Animal, Pathaan" style="flex:1;min-width:200px;" onkeydown="if(event.key==='Enter')msSearch()"/>
-          <button type="button" class="btn btn-p" id="ms-btn" onclick="msSearch()">🔍 Search</button>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-size:0.82rem;color:#ccc;">
-          <label style="cursor:pointer;"><input type="checkbox" id="ms-hdfun" checked/> HDFun</label>
-          <label style="cursor:pointer;"><input type="checkbox" id="ms-mmshd" checked/> MMSHD</label>
-          <label style="cursor:pointer;"><input type="checkbox" id="ms-9xflix" checked/> 9xflix</label>
-        </div>
-        <div id="ms-status" style="font-size:0.82rem;color:#fbbf24;margin-bottom:10px;">Name likho aur Search dabao.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-          <button type="button" class="btn btn-s" onclick="msSelectAll(true)">☑ Select All</button>
-          <button type="button" class="btn btn-s" onclick="msSelectAll(false)">✕ Deselect</button>
-          <button type="button" class="btn" style="background:#16a34a;color:#fff;" id="ms-import-btn" onclick="msImportSelected()" disabled>⚡ Import Selected</button>
-        </div>
-        <div id="ms-results" style="max-height:420px;overflow-y:auto;"></div>
-      </div>
-      <div class="card" id="ms-prog-card" style="display:none;">
-        <div id="ms-prog-title" style="font-weight:700;margin-bottom:6px;">Import…</div>
-        <div id="ms-prog-sub" style="font-size:0.8rem;color:#888;"></div>
-        <div style="height:6px;background:#222;border-radius:4px;margin-top:10px;overflow:hidden;">
-          <div id="ms-prog-bar" style="height:100%;width:0;background:#38bdf8;transition:width 0.2s;"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="section" id="sec-m4hfix">
       <div class="sec-title">🔧 Mp4Moviez → <span>HDFun Links</span></div>
       <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:0.82rem;color:#86efac;line-height:1.55;">
@@ -4875,208 +4840,6 @@ function m4hIsMp4Source(m) {
   // common mp4moviez host leftovers
   if (/filesdl\.(top|in|com|co)\/(?:cloud|drive)/i.test(blob) && !/hdfun\.in|downloadxdesi|mmshd\.com|9xflix/i.test(blob)) return true;
   return false;
-}
-
-
-
-// ═══════════════════════════════════════════════════════════
-// MOVIE NAME SEARCH — HDFun + MMSHD + 9xflix
-// ═══════════════════════════════════════════════════════════
-var _msResults = [];
-
-function msTitleScore(q, title) {
-  q = String(q || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  title = String(title || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!q || !title) return 0;
-  if (title.indexOf(q) >= 0) return 95;
-  var qt = q.split(' ').filter(function(t){ return t.length > 1; });
-  var tt = title.split(' ').filter(function(t){ return t.length > 1; });
-  if (!qt.length) return 0;
-  var hit = 0;
-  qt.forEach(function(t){ if (tt.indexOf(t) >= 0) hit++; });
-  return Math.round((hit / qt.length) * 100);
-}
-
-function msExtractPosts(html, site, siteUrl) {
-  var out = [];
-  var seen = {};
-  if (!html) return out;
-  function add(url, title) {
-    if (!url) return;
-    url = String(url).replace(/&amp;/g, '&').split('#')[0].split('?')[0].trim();
-    if (!/^https?:\/\//i.test(url)) {
-      try {
-        var base = siteUrl || (site === 'hdfun' ? 'https://hdfun.in' : site === 'mmshd' ? 'https://www.mmshd.com' : 'https://9xflix.spa');
-        url = new URL(url, base).toString().split('#')[0].split('?')[0];
-      } catch (e) { return; }
-    }
-    if (typeof ffiIsRealPostUrl === 'function' && !ffiIsRealPostUrl(url, siteUrl || url)) return;
-    if (seen[url]) return;
-    seen[url] = 1;
-    var t = (title || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    if (!t || t.length < 3) {
-      try {
-        t = decodeURIComponent(url.split('/').filter(Boolean).pop().replace(/\.html$/i, '').replace(/-/g, ' '));
-      } catch (e2) { t = url; }
-    }
-    out.push({ url: url, title: t, site: site, checked: true });
-  }
-
-  if (site === 'hdfun') {
-    var re = /href=["']((?:https?:\/\/(?:www\.)?hdfun\.in)?\/movie\/\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]{0,120}?)<\/a>/gi;
-    var m;
-    while ((m = re.exec(html)) !== null) {
-      add(m[1], m[2]);
-    }
-    var re2 = /href=["']((?:https?:\/\/(?:www\.)?hdfun\.in)?\/movie\/\d+\/[^"'#?]+\.html)["']/gi;
-    while ((m = re2.exec(html)) !== null) add(m[1], '');
-  } else if (site === 'mmshd') {
-    var reM = /href=["']((?:https?:\/\/(?:www\.)?mmshd\.com)?\/dl\/[a-z0-9][a-z0-9\-]{4,}[^"'#?\s]*)["']/gi;
-    var mm;
-    while ((mm = reM.exec(html)) !== null) {
-      var u = mm[1];
-      // skip pure quality token short paths if any
-      add(u, '');
-    }
-  } else if (site === '9xflix') {
-    var re9 = /<h[23][^>]*>\s*<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-    var m9;
-    while ((m9 = re9.exec(html)) !== null) {
-      add(m9[1], m9[2]);
-    }
-    var re9b = /href=["'](https?:\/\/[^"']*9xflix[^"']*\/m\/[a-z0-9][a-z0-9\-]{3,}\/?)["']/gi;
-    while ((m9 = re9b.exec(html)) !== null) {
-      if (/\/m\/(page|tag|category|hindi-movies|web-series|adult|dual-audio|wp-)/i.test(m9[1])) continue;
-      add(m9[1], '');
-    }
-  }
-  return out;
-}
-
-function msSearch() {
-  var q = String((document.getElementById('ms-q') || {}).value || '').trim();
-  if (q.length < 2) { toast('Movie name likho', 1); return; }
-  if (typeof _ffiFetch !== 'function') { toast('Fetch helper missing', 1); return; }
-
-  var sites = [];
-  if ((document.getElementById('ms-hdfun') || {}).checked) {
-    sites.push({ id: 'hdfun', url: 'https://hdfun.in/?s=' + encodeURIComponent(q), label: 'HDFun' });
-  }
-  if ((document.getElementById('ms-mmshd') || {}).checked) {
-    sites.push({ id: 'mmshd', url: 'https://www.mmshd.com/?s=' + encodeURIComponent(q), label: 'MMSHD' });
-  }
-  if ((document.getElementById('ms-9xflix') || {}).checked) {
-    sites.push({ id: '9xflix', url: 'https://9xflix.spa/m/?s=' + encodeURIComponent(q), label: '9xflix' });
-  }
-  if (!sites.length) { toast('Kam az kam 1 site select karo', 1); return; }
-
-  _msResults = [];
-  var btn = document.getElementById('ms-btn');
-  var st = document.getElementById('ms-status');
-  var box = document.getElementById('ms-results');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Searching…'; }
-  if (st) st.textContent = '⏳ ' + sites.length + ' site(s) pe search…';
-  if (box) box.innerHTML = '';
-  document.getElementById('ms-import-btn').disabled = true;
-
-  var done = 0;
-  sites.forEach(function(site) {
-    _ffiFetch(site.url, function(html) {
-      done++;
-      var posts = msExtractPosts(html || '', site.id, site.url);
-      // score filter — keep decent matches
-      posts.forEach(function(p) {
-        p.score = msTitleScore(q, p.title);
-        p.listCat = site.id === 'mmshd' ? 'adult' : '';
-        p.fromUrl = site.url;
-        if (p.score >= 40 || site.id === 'mmshd') {
-          _msResults.push(p);
-        } else if (p.score >= 25) {
-          p.checked = false;
-          _msResults.push(p);
-        }
-      });
-      if (st) st.textContent = '⏳ ' + done + '/' + sites.length + ' — found ' + _msResults.length;
-      if (done >= sites.length) {
-        // dedupe by url
-        var seen = {}, uniq = [];
-        _msResults.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
-        _msResults.forEach(function(p) {
-          if (seen[p.url]) return;
-          seen[p.url] = 1;
-          uniq.push(p);
-        });
-        _msResults = uniq;
-        if (btn) { btn.disabled = false; btn.textContent = '🔍 Search'; }
-        if (st) st.innerHTML = '✅ <b>' + _msResults.length + '</b> posts — "' + q.replace(/</g, '') + '"';
-        msRender();
-        document.getElementById('ms-import-btn').disabled = _msResults.length === 0;
-        toast(_msResults.length + ' posts found');
-      }
-    });
-  });
-}
-
-function msRender() {
-  var box = document.getElementById('ms-results');
-  if (!box) return;
-  if (!_msResults.length) {
-    box.innerHTML = '<div style="color:#666;padding:20px;text-align:center;">Koi post nahi mili</div>';
-    return;
-  }
-  var colors = { hdfun: '#4ade80', mmshd: '#f472b6', '9xflix': '#a78bfa' };
-  box.innerHTML = _msResults.map(function(p, i) {
-    var c = colors[p.site] || '#888';
-    return '<label style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-bottom:1px solid #222;cursor:pointer;">' +
-      '<input type="checkbox" ' + (p.checked ? 'checked' : '') + ' onchange="_msResults[' + i + '].checked=this.checked"/>' +
-      '<div style="flex:1;min-width:0;">' +
-      '<div style="font-size:0.88rem;color:#eee;word-break:break-word;">' + (p.title || p.url).replace(/</g, '') + '</div>' +
-      '<div style="font-size:0.7rem;margin-top:4px;">' +
-      '<span style="color:' + c + ';font-weight:700;">' + p.site + '</span>' +
-      ' · score ' + (p.score || 0) +
-      ' · <a href="' + p.url + '" target="_blank" rel="noopener" style="color:#60a5fa;font-size:0.68rem;">open</a>' +
-      '</div></div></label>';
-  }).join('');
-}
-
-function msSelectAll(on) {
-  _msResults.forEach(function(p) { p.checked = !!on; });
-  msRender();
-}
-
-function msImportSelected() {
-  var sel = _msResults.filter(function(p) { return p.checked; });
-  if (!sel.length) { toast('Koi post select nahi', 1); return; }
-  // Feed into main importer pipeline
-  _ffiPosts = sel.map(function(p) {
-    return {
-      url: p.url,
-      title: p.title,
-      checked: true,
-      listCat: p.listCat || (typeof ffiDetectListCategory === 'function' ? ffiDetectListCategory(p.url) : '') || '',
-      fromUrl: p.fromUrl || p.url
-    };
-  });
-  // Switch to importer section & start
-  try {
-    if (typeof show === 'function') show('ffimport');
-  } catch (e) {}
-  // Ensure posts card visible
-  try {
-    document.getElementById('ffi-posts-card').style.display = 'block';
-    if (typeof ffiRenderPosts === 'function') ffiRenderPosts();
-    var status = document.getElementById('ffi-fetch-status');
-    if (status) {
-      status.style.display = 'block';
-      status.style.color = '#4ade80';
-      status.innerHTML = '✅ Search se <b>' + _ffiPosts.length + '</b> posts — Import dabao';
-    }
-  } catch (e2) {}
-  toast(_ffiPosts.length + ' posts importer mein — Import Karo dabao');
-  // Auto-start import
-  setTimeout(function() {
-    if (typeof ffiStartImport === 'function') ffiStartImport();
-  }, 400);
 }
 
 
@@ -8120,20 +7883,6 @@ function extractPlaymateIdFromResponse(r) {
   return '';
 }
 
-function normalizeGofileId(raw) {
-  if (!raw) return '';
-  var s = String(raw).trim();
-  var m = s.match(/gofile\.io\/(?:d\/|\?c=)([A-Za-z0-9_\-]+)/i);
-  if (m) return m[1];
-  m = s.match(/gofile\.io\/download\/(?:direct\/)?([A-Za-z0-9_\-]+)/i);
-  if (m) return m[1];
-  if (/^[A-Za-z0-9_\-]{5,40}$/.test(s) && !/^https?:/i.test(s)) return s;
-  return '';
-}
-function gofileUrlFromId(id) {
-  id = normalizeGofileId(id);
-  return id ? ('https://gofile.io/d/' + id) : '';
-}
 function normalizePlaymateId(raw) {
   if (!raw) return '';
   var s = String(raw).trim();
@@ -16362,7 +16111,6 @@ function ffiPushPost(url, title, allFound, siteUrl, listCat) {
   if (/^(home|download|server|category|dmca|contact|facebook|twitter|menu|click|here)$/i.test(t)) return;
   if (/^filmyzilla\d*$/i.test(t) || /^9xflix$/i.test(t) || /^hdfun$/i.test(t)) return;
   var lc = listCat || ffiDetectListCategory(siteUrl) || '';
-  if (typeof ffiNormalizePanelCategory === 'function') lc = ffiNormalizePanelCategory(lc);
   _ffiPosts.push({ url: url, title: t, checked: true, listCat: lc, fromUrl: siteUrl || '' });
 }
 
@@ -16382,49 +16130,6 @@ function ffiFillUrl(url) {
   var e0 = document.getElementById('ffi-site-url');
   if (e0) e0.value = url;
   toast('URL 1 overwrite');
-}
-function ffiNormalizePanelCategory(c) {
-  c = String(c || '').toLowerCase().trim().replace(/[\s\-]+/g, '_');
-  if (!c) return '';
-  var map = {
-    bollywood: 'bollywood_hindi',
-    bollywood_hindi: 'bollywood_hindi',
-    hindi_movies: 'bollywood_hindi',
-    south: 'south_hindi',
-    south_hindi: 'south_hindi',
-    south_indian: 'south_hindi',
-    tollywood: 'south_hindi',
-    hollywood: 'english_movies',
-    english: 'english_movies',
-    english_movies: 'english_movies',
-    hollywood_english: 'english_movies',
-    hindi_dubbed: 'hindi_dubbed',
-    hollywood_hindi: 'hindi_dubbed',
-    dual_audio: 'dual_audio',
-    dualaudio: 'dual_audio',
-    webseries: 'webseries_hindi',
-    webseries_hindi: 'webseries_hindi',
-    web_series: 'webseries_hindi',
-    kdrama: 'kdrama_hindi',
-    kdrama_hindi: 'kdrama_hindi',
-    anime: 'anime_hindi',
-    anime_hindi: 'anime_hindi',
-    animation: 'animation_hindi_dubbed',
-    animation_hindi_dubbed: 'animation_hindi_dubbed',
-    adult: 'adult',
-    hot_series: 'hot_series',
-    short_films: 'short_films',
-    philippines: 'philippines',
-    hot_short_hindi: 'hot_short_hindi',
-    tamil: 'tamil_telugu',
-    telugu: 'tamil_telugu',
-    tamil_telugu: 'tamil_telugu',
-    punjabi: 'punjabi',
-    bengali: 'bengali'
-  };
-  if (map[c]) return map[c];
-  // already valid panel key
-  return c;
 }
 function ffiDetectListCategory(siteUrl) {
   var su = String(siteUrl || '').toLowerCase();
@@ -16465,24 +16170,22 @@ function ffiDetectListCategory(siteUrl) {
   if (/category\/103\/|bengali-movies/i.test(su)) return 'bengali';
   if (/category\/36\/|hollywood-hindi-dubbed-tv/i.test(su)) return 'kdrama';
   if (/category\/35\/|hindi-web-series/i.test(su)) return 'webseries';
-  if (/category\/13\/|bollywood-movies|bollywood-full-movies/i.test(su)) return 'bollywood_hindi';
+  if (/category\/13\/|bollywood-movies|bollywood-full-movies/i.test(su)) return 'bollywood';
   if (/category\/215\/|punjabi-movies/i.test(su)) return 'punjabi';
-  if (/category\/7\/|south-indian-hindi-dubbed|south-indian/i.test(su)) return 'south_hindi';
+  if (/category\/7\/|south-indian-hindi-dubbed|south-indian/i.test(su)) return 'south';
   if (/category\/3\/|latest-hollywood-hindi-dubbed|hollywood-hindi-dubbed-movies/i.test(su)) return 'hindi_dubbed';
-  if (/category\/25\/|hollywood-movies/i.test(su)) return 'english_movies';
-  if (/category\/5\/|dual-audio-movies|dual-audio/i.test(su)) return 'dual_audio';
+  if (/category\/25\/|hollywood-movies/i.test(su)) return 'hollywood';
   // Generic fallbacks
   if (/adult-movies|\/adult\/|hot-movies/i.test(su)) return 'adult';
-  if (/k-?drama|korean|c-?drama|katdrama/i.test(su)) return 'kdrama_hindi';
+  if (/k-?drama|korean|c-?drama|katdrama/i.test(su)) return 'kdrama';
   if (/bengali-web-series|bengali.*series/i.test(su)) return 'bengali_series';
   if (/bengali/i.test(su)) return 'bengali';
-  if (/web-series|webseries|tv[\s\-]?series/i.test(su) && !/hot-web-series/i.test(su)) return 'webseries_hindi';
-  if (/bollywood|hindi-movies/i.test(su)) return 'bollywood_hindi';
+  if (/web-series|webseries|tv[\s\-]?series/i.test(su) && !/hot-web-series/i.test(su)) return 'webseries';
+  if (/bollywood|hindi-movies/i.test(su)) return 'bollywood';
   if (/punjabi/i.test(su)) return 'punjabi';
-  if (/\btamil\b/i.test(su)) return 'tamil_telugu'; if (/\btelugu\b/i.test(su)) return 'tamil_telugu'; if (/south-indian\s*hindi|south\s*hindi/i.test(su)) return 'south_hindi'; if (/tollywood/i.test(su)) return 'south_hindi'; if (/south-indian|malayalam|kannada|\bsouth\b/i.test(su)) return 'south_hindi';
-  if (/animation|anime|cartoon/i.test(su)) return 'animation_hindi_dubbed';
-  if (/dual-audio|dual_audio/i.test(su)) return 'dual_audio';
-  if (/hollywood|hindi-dubbed|english-movies/i.test(su)) return 'hindi_dubbed';
+  if (/\btamil\b/i.test(su)) return 'tamil'; if (/\btelugu\b/i.test(su)) return 'telugu'; if (/south-indian\s*hindi|south\s*hindi/i.test(su)) return 'south_hindi'; if (/tollywood/i.test(su)) return 'tollywood'; if (/south-indian|malayalam|kannada|\bsouth\b/i.test(su)) return 'south';
+  if (/animation|anime|cartoon/i.test(su)) return 'animation';
+  if (/hollywood|dual-audio|hindi-dubbed|english-movies/i.test(su)) return 'hindi_dubbed';
   try {
     var defEl = document.getElementById('ffi-default-cat');
     if (defEl && defEl.value) return defEl.value;
@@ -16498,8 +16201,8 @@ function ffiFetchPosts() {
   // Worker-aligned sites: HDFun + MMSHD + 9xflix + Bollydaq (+ legacy)
   function ffiIsAllowedSite(u) {
     var s = String(u || '').toLowerCase();
-    if (/filmyzilla|letsporn|mp4moviez/i.test(s)) return false; // Mp4Moviez permanent ban
-    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mmshd\.com|filmsone\.com|filmslb\.com|filmscr\.com|9xflix|bollydaq\.com/i.test(s);
+    if (/filmyzilla|letsporn/i.test(s)) return false;
+    return /filmyfly|filmy4wap|linkmake\.in|hdfun\.in|mmshd\.com|mp4moviez|filmsone\.com|filmslb\.com|filmscr\.com|9xflix|bollydaq\.com/i.test(s);
   }
 
   // 3 category URLs ek sath
@@ -16539,8 +16242,6 @@ function ffiFetchPosts() {
   var siteUrl = siteUrls[0];
   var currentListCat = ffiDetectListCategory(siteUrl);
   var baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
-  var emptyPagesInARow = 0;
-  var lastFoundCount = 0;
 
 
   function fetchPage(pageNum) {
@@ -16631,25 +16332,12 @@ function ffiFetchPosts() {
             ffiPushPost(uRel, ffiTitleFromUrl(uRel), allFound, siteUrl);
           }
         }
-        // Pattern 1c: MMSHD / HDFun style /dl/slug (post pages) + anchor title
-        var re1c = /href=["']((?:https?:\/\/(?:www\.)?(?:mmshd\.com|hdfun\.in))?\/dl\/[a-z0-9][a-z0-9\-]{3,}[^"'#?\s]*)["']([^>]*)>([\s\S]{0,120}?)<\/a>/gi;
+        // Pattern 1c: MMSHD / HDFun style /dl/slug (post pages)
+        var re1c = /href=["']((https?:\/\/(?:www\.)?(?:mmshd\.com|hdfun\.in))?\/dl\/[a-z0-9][a-z0-9\-]{3,}[^"'#?\s]*)["']/gi;
         while ((m = re1c.exec(html)) !== null) {
-          var ud = m[1].startsWith('http') ? m[1] : (baseHost || 'https://www.mmshd.com') + m[1];
+          var ud = m[1].startsWith('http') ? m[1] : baseHost + m[1];
           ud = ud.replace(/&amp;/g,'&').replace(/\/$/, '');
-          var tDl = (m[3] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-          if (!tDl && m[2]) {
-            var tm = String(m[2]).match(/title=["']([^"']+)["']/i);
-            if (tm) tDl = tm[1].trim();
-          }
-          if (!tDl) tDl = ffiTitleFromUrl(ud);
-          ffiPushPost(ud, tDl, allFound, siteUrl);
-        }
-        // also plain href without requiring </a> text (dedupe via allFound)
-        var re1cPlain = /href=["']((?:https?:\/\/(?:www\.)?(?:mmshd\.com|hdfun\.in))?\/dl\/[a-z0-9][a-z0-9\-]{3,}[^"'#?\s]*)["']/gi;
-        while ((m = re1cPlain.exec(html)) !== null) {
-          var udP = m[1].startsWith('http') ? m[1] : (baseHost || 'https://www.mmshd.com') + m[1];
-          udP = udP.replace(/&amp;/g,'&').replace(/\/$/, '');
-          ffiPushPost(udP, ffiTitleFromUrl(udP), allFound, siteUrl);
+          ffiPushPost(ud, ffiTitleFromUrl(ud), allFound, siteUrl);
         }
         // Pattern 1c2: plain text absolute mmshd/hdfun /dl/ (no quotes edge-case)
         if (/mmshd\.com|hdfun\.in/i.test(siteUrl) || /mmshd\.com|hdfun\.in/i.test(baseHost)) {
@@ -16786,47 +16474,6 @@ function ffiFetchPosts() {
         }
       }
 
-      // Count new posts this page
-      var nowCount = Object.keys(allFound).length;
-      var gained = nowCount - lastFoundCount;
-      lastFoundCount = nowCount;
-      if (pageNum > 1 && gained === 0) {
-        emptyPagesInARow++;
-      } else {
-        emptyPagesInARow = 0;
-      }
-      // Category khatam — 2 empty pages → stop (30 pages waste mat karo)
-      if (emptyPagesInARow >= 2) {
-        try {
-          status.textContent = '✅ Category end (page ' + pageNum + '). Total posts: ' + nowCount + ' — aage pages khali hain.';
-          status.style.color = '#4ade80';
-        } catch (e) {}
-        // jump to next category URL
-        urlIdx++;
-        emptyPagesInARow = 0;
-        lastFoundCount = 0;
-        if (urlIdx < siteUrls.length) {
-          siteUrl = siteUrls[urlIdx];
-          currentListCat = ffiDetectListCategory(siteUrl);
-          baseHost = (siteUrl.match(/^(https?:\/\/[^\/]+)/) || ['',''])[1];
-          setTimeout(function(){ fetchPage(1); }, 150);
-        } else {
-          // finish — _ffiPosts pehle se push ho chuki hain (allFound sirf dedupe)
-          btn.disabled = false; btn.textContent = '🔍 Posts Fetch Karo (1–3 URLs)';
-          var nDone = (_ffiPosts && _ffiPosts.length) ? _ffiPosts.length : 0;
-          if (nDone) {
-            document.getElementById('ffi-posts-card').style.display = 'block';
-            if (typeof ffiRenderPosts === 'function') ffiRenderPosts();
-            status.style.background = 'rgba(34,197,94,0.1)';
-            status.style.color = '#4ade80';
-            status.innerHTML = '✅ <b>' + nDone + '</b> posts — category pages khatam / empty.';
-          } else {
-            status.textContent = '❌ Koi post nahi mila';
-            status.style.color = '#f87171';
-          }
-        }
-        return;
-      }
       if (pageNum < maxPages) {
         setTimeout(function(){ fetchPage(pageNum + 1); }, 120);
       } else {
@@ -16870,12 +16517,7 @@ function ffiFetchPosts() {
 
 function ffiTitleFromUrl(url) {
   try {
-    var path = '';
-    try {
-      path = new URL(url, 'https://www.mmshd.com').pathname;
-    } catch (e0) {
-      path = String(url || '');
-    }
+    var path = new URL(url).pathname;
     // FilmyFly: /page-download/123/title.html  |  HDFun: /movie/123/title.html  |  MMSHD: /dl/slug
     var slug = path
       .replace(/\/page-download\/\d+\//i, '')
@@ -16887,20 +16529,15 @@ function ffiTitleFromUrl(url) {
       .replace(/\//g, ' ')
       .replace(/-/g, ' ')
       .trim();
-    if (!slug || slug.length < 2) return '';
-    return slug.split(' ').filter(Boolean).map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
-  } catch(e) { return ''; }
+    return slug.split(' ').map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
+  } catch(e) { return url; }
 }
 
 function ffiPostDomain(p) {
   try {
-    var u = p.url || p.fromUrl || '';
-    if (!/^https?:\/\//i.test(u) && p.fromUrl && /^https?:\/\//i.test(p.fromUrl)) u = p.fromUrl;
+    var u = p.fromUrl || p.url || '';
     return new URL(u).hostname.replace(/^www\./, '').toLowerCase();
   } catch (e) {
-    try {
-      if (p.fromUrl) return new URL(p.fromUrl).hostname.replace(/^www\./, '').toLowerCase();
-    } catch (e2) {}
     return 'unknown';
   }
 }
@@ -17216,7 +16853,7 @@ function ffiStartImport() {
       }
       var errEl = document.getElementById('ffi-s-err'); if (errEl) errEl.textContent = err;
       ffiItemDone();
-    }, 22000);
+    }, 45000);
 
     function finishItemOk() {
       if (itemFinished) return false;
@@ -18124,60 +17761,8 @@ function ffiStartImport() {
         // ✅ Ab yahan seedha Firebase save NAHI karte — pehle review queue
         // mein daal dete hain. Admin Step 3 mein dekh ke, jo chahiye wo
         // select karke "Save" dabayega, tab jaake Firebase mein jayega.
-        // HARD LOCK: jis category URL se post aayi, wahi panel category
-        var _lcFinal = (p && p.listCat) ? p.listCat : (_ffiListCategory || '');
-        if (typeof ffiNormalizePanelCategory === 'function') _lcFinal = ffiNormalizePanelCategory(_lcFinal);
-        if (_lcFinal) obj.category = _lcFinal;
         applyCategoryDefaults(obj);
-        if (_lcFinal) obj.category = _lcFinal; // defaults ke baad bhi lock
         if (data.size && !obj.size) obj.size = data.size;
-
-        // Gofile — Playmate jaisa ID/URL alag save
-        if (data.gofileId) obj.gofileId = data.gofileId;
-        if (data.gofileUrl) obj.gofileUrl = data.gofileUrl;
-        if (data.gofileLinks && data.gofileLinks.length) obj.gofileLinks = data.gofileLinks;
-        if (data.gofileId && !obj.gofileUrl) obj.gofileUrl = 'https://gofile.io/d/' + data.gofileId;
-
-        // Pixeldrain — alag fields (manual attach / VLC ke liye)
-        if (data.pixeldrainUrl) obj.pixeldrainUrl = data.pixeldrainUrl;
-        if (data.pixeldrainId) {
-          obj.pixeldrainId = data.pixeldrainId;
-          if (!obj.vlcUrl) obj.vlcUrl = 'https://pixeldrain.com/api/file/' + data.pixeldrainId;
-        }
-        if (data.pixeldrainListId) obj.pixeldrainListId = data.pixeldrainListId;
-        if (data.pixeldrainListUrl) obj.pixeldrainListUrl = data.pixeldrainListUrl;
-        if (data.pixeldrainLinks && data.pixeldrainLinks.length) obj.pixeldrainLinks = data.pixeldrainLinks;
-
-        // 9xflix: direct / diggable link na ho to DRAFT (public nahi)
-        var is9xPost = /9xflix/i.test(p.url || '') || /9xflix/i.test(String(obj.sourcePageUrl || ''));
-        if (is9xPost) {
-          var hasQuality = !!(obj.download480p || obj.download720p || obj.download1080p || obj.download4k);
-          var hasEpLink = false;
-          if (obj.episodes && obj.episodes.length) {
-            hasEpLink = obj.episodes.some(function(e) {
-              return !!(e && (e.dl480 || e.dl720 || e.dl1080 || e.download480p || e.download720p || e.download1080p || e.videoSourceUrl));
-            });
-          }
-          var linkBlob = [obj.dlSourceUrl, obj.videoSourceUrl, obj.download720p, obj.download1080p, obj.pixeldrainUrl, obj.gofileUrl, obj.gofileId, data.download_link].join(' ');
-          var diggable = /indishare|indi-share|files\.indi|desilinks|workers\.dev|pixeldrain|gofile|downloadxdesi|r2\.|googleusercontent/i.test(linkBlob) || !!obj.gofileId;
-          var onlyPage = /9xflix/i.test(linkBlob) && !diggable && !hasQuality && !hasEpLink;
-          if (!hasQuality && !hasEpLink && !diggable) {
-            obj.published = false;
-            obj.isDraft = true;
-            obj.status = 'draft';
-            obj.draftReason = '9xflix: no direct/diggable link';
-          } else if (onlyPage) {
-            obj.published = false;
-            obj.isDraft = true;
-            obj.status = 'draft';
-            obj.draftReason = '9xflix: only page URL';
-          } else {
-            obj.published = true;
-            obj.isDraft = false;
-            obj.status = 'published';
-          }
-        }
-
         _ffiReviewQueue.push({ obj: obj, link: data.download_link || '', size: data.size || obj.size || '', checked: true });
         ok++;
         existingTitles[data.title.toLowerCase()] = true;
@@ -21187,66 +20772,6 @@ function ffiParsePage(html, srcUrl) {
         }
       }
     } catch (eSan) {}
-  })();
-
-  // Gofile links/ID extract (Playmate jaisa alag field)
-  (function extractGofileLinks() {
-    try {
-      var gf = [];
-      var reGf = /https?:\/\/(?:[a-z0-9.]+\.)?gofile\.io\/(?:d|\?c=|download\/|file\/)[A-Za-z0-9_\-]+/gi;
-      var mm;
-      while ((mm = reGf.exec(html || '')) !== null) {
-        var u = mm[0];
-        if (gf.indexOf(u) === -1) gf.push(u);
-      }
-      // bare /d/CODE
-      var reD = /gofile\.io\/d\/([A-Za-z0-9_\-]{5,})/gi;
-      while ((mm = reD.exec(html || '')) !== null) {
-        var full = 'https://gofile.io/d/' + mm[1];
-        if (gf.indexOf(full) === -1) gf.push(full);
-      }
-      var reC = /gofile\.io\/\?c=([A-Za-z0-9_\-]{5,})/gi;
-      while ((mm = reC.exec(html || '')) !== null) {
-        var full2 = 'https://gofile.io/d/' + mm[1];
-        if (gf.indexOf(full2) === -1) gf.push(full2);
-      }
-      if (gf.length) {
-        data.gofileLinks = gf;
-        data.gofileUrl = gf[0];
-        var idM = gf[0].match(/gofile\.io\/(?:d\/|\?c=)([A-Za-z0-9_\-]+)/i);
-        if (idM) data.gofileId = idM[1];
-      }
-    } catch (eGf) {}
-  })();
-
-  // Pixeldrain links alag extract (9xflix pages pe aksar hote hain)
-  (function extractPixeldrainLinks() {
-    try {
-      var pd = [];
-      var rePd = /https?:\/\/(?:www\.)?pixeldrain\.com\/(?:u|api\/file|l)\/[A-Za-z0-9_\-]+/gi;
-      var mm;
-      while ((mm = rePd.exec(html || '')) !== null) {
-        var u = mm[0];
-        if (pd.indexOf(u) === -1) pd.push(u);
-      }
-      // text / plain without protocol variants
-      var reId = /pixeldrain\.com\/(?:u|api\/file)\/([A-Za-z0-9_\-]{4,})/gi;
-      while ((mm = reId.exec(html || '')) !== null) {
-        var full = 'https://pixeldrain.com/u/' + mm[1];
-        if (pd.indexOf(full) === -1) pd.push(full);
-      }
-      if (pd.length) {
-        data.pixeldrainLinks = pd;
-        data.pixeldrainUrl = pd[0];
-        var idM = pd[0].match(/pixeldrain\.com\/(?:u|api\/file)\/([A-Za-z0-9_\-]+)/i);
-        if (idM) data.pixeldrainId = idM[1];
-        var listM = pd[0].match(/pixeldrain\.com\/l\/([A-Za-z0-9_\-]+)/i);
-        if (listM) {
-          data.pixeldrainListId = listM[1];
-          data.pixeldrainListUrl = 'https://pixeldrain.com/l/' + listM[1];
-        }
-      }
-    } catch (ePd) {}
   })();
 
   return data;
