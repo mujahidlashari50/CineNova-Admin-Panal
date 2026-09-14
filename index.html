@@ -3201,6 +3201,7 @@ var LOGIN_LOCKOUT_MS   = 15 * 60 * 1000;        // 15 min lockout
 var TFA_SECRET_KEY     = 'cv_2fa_secret';       // TOTP secret (localStorage)
 var TFA_ENABLED_KEY    = 'cv_2fa_enabled';      // '1' if enabled
 
+var PANEL_SCHEMA_VERSION = '2026.09.14-theme-sync';
 var firebaseConfig = {
   apiKey: "AIzaSyACX5MktMm99R2ThEbfrtwrh5ZAzT5tCM0",
   authDomain: "cinenova-8987c.firebaseapp.com",
@@ -4906,6 +4907,7 @@ var _tblRenderToken = 0;
 var _tblPage = 1;
 var ADMIN_PAGE_SIZE = 40;
 var CAT_GROUPS = {
+  /* SYNC with Theme CV_CAT_GROUPS — v2026.09.14 */
   hollywood: ['english_movies','hindi_dubbed','dual_audio'],
   tollywood: ['south_hindi'],
   bollywood: ['bollywood_hindi'],
@@ -8545,18 +8547,36 @@ function toggleFlag(key,field){
 
 // ═══════════════════════════════════════════
 // 🎬 MOVIE OF THE DAY
+function uaToday(){
+  var d = new Date();
+  var y = d.getFullYear();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  return y + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+}
+
 // Firebase path: motd/manualKey, motd/manualDate (yyyy-mm-dd), motd/setAt
 // Agar manualDate === aaj ki date to manual override active, warna automatic
 // (sabse zyada downloadCount wali non-adult movie) apne aap dikhti hai.
 // ═══════════════════════════════════════════
 function motdAutoPick(){
-  var pool=allMovies.filter(function(m){return m.category!=='adult' && (m.downloadCount||0)>0;});
+  var pool=allMovies.filter(function(m){
+    var c=(m.category||'').toLowerCase();
+    if(c==='adult'||c==='philippines'||c==='hot_short_hindi') return false;
+    return true;
+  });
   if(!pool.length) return null;
   pool.sort(function(a,b){return (b.downloadCount||0)-(a.downloadCount||0);});
   return pool[0];
 }
 function motdRenderCurrent(){
   var el=document.getElementById('motd-current');if(!el)return;
+  if(!db){
+    el.innerHTML='<div style="color:#fbbf24;padding:10px;">⏳ Firebase connect ho raha… <button class="btn" onclick="motdRenderCurrent()" style="margin-left:8px;font-size:0.75rem;">Retry</button></div>';
+    setTimeout(function(){ try{motdRenderCurrent();}catch(e){} }, 800);
+    return;
+  }
+  el.innerHTML='<div style="color:#888;padding:8px;">Loading MOTD…</div>';
   db.ref('motd').once('value').then(function(snap){
     var d=snap.val()||{};
     var keys=[];
@@ -8591,7 +8611,12 @@ function motdRenderCurrent(){
         +'<div style="font-weight:700;font-size:0.95rem;">'+(active.title||'Untitled')+'</div>'
         +'<div style="color:var(--grey);font-size:0.75rem;">⬇ '+(active.downloadCount||0)+' downloads</div>'
       +'</div></div>';
-  }).catch(function(){ el.innerHTML='<div style="color:#888;">MOTD load error</div>'; });
+  }).catch(function(err){
+    var msg = (err && err.message) ? err.message : 'unknown';
+    el.innerHTML='<div style="color:#f87171;padding:10px;">MOTD load error: '+msg
+      +'<br><button class="btn" onclick="motdRenderCurrent()" style="margin-top:8px;font-size:0.75rem;">🔄 Retry</button>'
+      +'<div style="font-size:0.72rem;color:#888;margin-top:8px;">Tip: Firebase Rules mein motd path read allow hona chahiye. Automatic mode ke liye movies load hone do.</div></div>';
+  });
 }
 function motdFilter(){
   var q=(document.getElementById('motd-srch')||{}).value||'';
