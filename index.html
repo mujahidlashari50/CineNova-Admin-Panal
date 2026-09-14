@@ -8539,8 +8539,9 @@ function toggleFlag(key,field){
   var cur=!!m[field]; var nw=!cur;
   var updates={};updates['movies/'+key+'/'+field]=nw?true:null;
   db.ref().update(updates).then(function(){
+    m[field]=nw?true:false;
     var tog=document.getElementById((field==='trending'?'tr':'feat')+'-tog-'+key);
-    if(tog){tog.classList.toggle('on',nw);tog.querySelector('.toggle-btn').style.left=nw?'23px':'3px';}
+    if(tog){tog.classList.toggle('on',nw);var btn=tog.querySelector('.toggle-btn');if(btn)btn.style.left=nw?'23px':'3px';}
     toast(nw?'✅ '+field+' ON!':'🚫 '+field+' OFF!');
   }).catch(function(e){toast('❌ '+e.message,1);});
 }
@@ -11804,7 +11805,7 @@ function ffiStartImport() {
         var isAd = /erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+/i.test(tCheck0 + ' ' + (data.genre || ''));
         var isSer = /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck0);
 
-        // Per-post listCat (multi-URL) ya global listCat
+        // Per-post listCat — SOURCE CATEGORY ALWAYS WINS (auto-import / category URL)
         var listCat = p.listCat || _ffiListCategory || '';
         var adultPanelCats = { philippines:1, hot_short_hindi:1, adult:1 };
         if (listCat) {
@@ -11812,13 +11813,9 @@ function ffiStartImport() {
             data.category = (listCat === 'adult')
               ? (/vivamax|tagalog|pinoy|philippines/i.test(tCheck0) ? 'philippines' : 'hot_short_hindi')
               : listCat;
-          } else if (isAd) {
-            data.category = listCat; // skip rule below handles non-adult lists
-          } else if (isKd && listCat !== 'adult') {
-            data.category = 'kdrama';
-          } else if (listCat === 'webseries' || (isSer && (listCat === 'webseries' || listCat === 'kdrama'))) {
-            data.category = (listCat === 'kdrama') ? 'kdrama' : 'webseries';
           } else {
+            // hindi_dubbed / dual_audio / south_hindi / english_movies / bollywood_hindi /
+            // webseries_hindi / kdrama_hindi — EXACT, no title/TMDB override
             data.category = listCat;
           }
         } else if (!data.category) {
@@ -11826,7 +11823,7 @@ function ffiStartImport() {
         }
         if (!data.category) data.category = defaultCat || 'english_movies';
 
-        if (listCat && listCat !== 'adult' && data.category === 'adult' && !isAd) {
+        if (listCat && !adultPanelCats[listCat] && listCat !== 'adult' && data.category === 'adult' && !isAd) {
           data.category = listCat;
         }
 
@@ -11858,9 +11855,13 @@ function ffiStartImport() {
             data.category = 'webseries';
           }
         }
-        // Re-assert kdrama after all list logic
-        if (tmdb && tmdb.isAsianDrama && data.category !== 'adult') data.category = 'kdrama';
-        if (/k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b/i.test(tCheck0) && data.category !== 'adult') data.category = 'kdrama';
+        // Re-assert kdrama ONLY when no listCat (free import). Auto-import keeps listCat.
+        if (!listCat) {
+          if (tmdb && tmdb.isAsianDrama && data.category !== 'adult') data.category = 'kdrama_hindi';
+          if (/k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b/i.test(tCheck0) && data.category !== 'adult') data.category = 'kdrama_hindi';
+        } else if (listCat && listCat !== 'adult' && listCat !== 'philippines' && listCat !== 'hot_short_hindi') {
+          data.category = listCat;
+        }
         // Hollywood listing: skip if clearly bollywood-only without dual/english?
         // Don't over-skip — listCat already set category.
 
@@ -12188,7 +12189,7 @@ function ffiStartImport() {
             var _ak = db.ref('movies').push().key;
             obj.published = true; obj.isDraft = false; obj.status = 'published';
             if (!obj.sourcePageUrl && p && p.url) obj.sourcePageUrl = p.url;
-            if (!obj.category && p && p.listCat) obj.category = p.listCat;
+            if (p && p.listCat) obj.category = p.listCat; // force source category
             db.ref('movies/' + _ak).set(obj).then(function() {
               obj.key = _ak;
               if (typeof allMovies !== 'undefined') {
