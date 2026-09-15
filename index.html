@@ -4369,70 +4369,111 @@ function show(name){
 
 
 // ── Auto category by language / title keywords ──
-// English → hollywood (if western) | Hindi Dubbed → hindi_dubbed | Tamil → tamil | Telugu → telugu
-// South Hindi → south_hindi | South → south | Dual Audio → dual_audio | Adult short → short_films
+// ORDER MATTERS: South (Tamil/Telugu/…) BEFORE Dual Audio — warna
+// "Pushpa Tamil Hindi Dual Audio" galat dual_audio mein chali jati thi.
+// Valid panel keys only: south_hindi, dual_audio, bollywood_hindi, hindi_dubbed,
+// english_movies, webseries_hindi, kdrama_hindi, animation_hindi_dubbed, …
+function isSouthTitleBlob(blob) {
+  blob = String(blob || '').toLowerCase();
+  // clear south languages / regions
+  if (/\b(tamil|telugu|malayalam|kannada|tollywood|kollywood|mollywood|sandalwood)\b/i.test(blob)) return true;
+  if (/\bsouth[\s\-]*indian\b|\bsouth[\s\-]*hindi\b|\bsouth[\s\-]*movies?\b/i.test(blob)) return true;
+  if (/\b(tamil|telugu|malayalam|kannada).{0,30}(hindi|dub|dual)/i.test(blob)) return true;
+  if (/\b(hindi|dub|dual).{0,30}(tamil|telugu|malayalam|kannada)\b/i.test(blob)) return true;
+  return false;
+}
+
 function autoCategoryFromText(title, language, currentCat) {
   var t = String(title || '').toLowerCase();
   var lang = String(language || '').toLowerCase();
   var blob = t + ' ' + lang;
+  var cur = String(currentCat || '').toLowerCase();
 
   // Adult short film
   if (/short\s*film|hot\s*short|adult\s*short/i.test(blob)) return 'short_films';
   // Adult (only if already adult-ish or explicit)
-  if (currentCat === 'adult' || currentCat === 'short_films') {
+  if (cur === 'adult' || cur === 'short_films' || cur === 'hot_short_hindi' || cur === 'philippines') {
     if (/short/i.test(blob)) return 'short_films';
-    return 'adult';
+    if (cur === 'philippines' || /vivamax|tagalog|pinoy/i.test(blob)) return 'philippines';
+    if (cur === 'hot_short_hindi') return 'hot_short_hindi';
+    return cur === 'short_films' ? 'short_films' : 'adult';
   }
   if (/\badult\b|18\+|xxx/i.test(blob) && !/animated|animation/i.test(blob)) return 'adult';
 
-  // Dual Audio
-  if (/dual\s*audio|dual\s*audio/i.test(blob)) return 'dual_audio';
+  // ══ SOUTH FIRST (before Dual Audio) ══
+  // "Xxx Tamil Dual Audio" / "Telugu Hindi Dubbed" → south_hindi (NOT dual_audio)
+  if (isSouthTitleBlob(blob) || cur === 'south_hindi' || cur === 'south' || cur === 'tamil' || cur === 'telugu' || cur === 'tollywood') {
+    return 'south_hindi';
+  }
+  if (/(south|tamil|telugu|malayalam|kannada).{0,25}(hindi\s*dub|dubbed|dual)/i.test(blob)
+      || /(hindi\s*dub|dubbed|dual).{0,25}(south|tamil|telugu|malayalam|kannada)/i.test(blob)
+      || /south\s*hindi|south-indian\s*hindi/i.test(blob)) {
+    return 'south_hindi';
+  }
 
-  // Tamil / Telugu (language first)
-  if (/\btamil\b/i.test(blob)) return 'tamil';
-  if (/\btelugu\b/i.test(blob)) return 'telugu';
-
-  // South Hindi Dubbed
-  if (/(south|tamil|telugu|malayalam|kannada).{0,20}(hindi\s*dub|dubbed)|hindi\s*dub.{0,20}(south|tamil|telugu)/i.test(blob)
-      || /south\s*hindi|south-indian\s*hindi/i.test(blob)) return 'south_hindi';
-
-  // South Indian general
-  if (/\bsouth\b|south\s*indian|malayalam|kannada/i.test(blob)) return 'south';
+  // Dual Audio — Hollywood/foreign multi-audio ONLY (south already handled)
+  if (/dual\s*audio/i.test(blob)) return 'dual_audio';
 
   // K-Drama
-  if (/k-?drama|korean/i.test(blob)) return 'kdrama';
+  if (/k-?drama|korean|c-?drama/i.test(blob) || cur === 'kdrama' || cur === 'kdrama_hindi') return 'kdrama_hindi';
 
   // Web series
-  if (/web\s*series|season\s*\d|complete\s*season/i.test(blob)) return 'webseries';
+  if (/web\s*series|season\s*\d|complete\s*season/i.test(blob) || cur === 'webseries' || cur === 'webseries_hindi') {
+    return 'webseries_hindi';
+  }
 
-  // Animation
-  if (/animat|anime|cartoon/i.test(blob)) return 'animation';
+  // Animation / Anime
+  if (/\banime\b/i.test(blob)) return 'anime_hindi';
+  if (/animat|cartoon/i.test(blob) || cur === 'animation') return 'animation_hindi_dubbed';
 
   // Bollywood (Hindi original)
-  if (/bollywood/i.test(blob)) return 'bollywood';
-
-  // Tollywood
-  if (/tollywood/i.test(blob)) return 'tollywood';
+  if (/bollywood/i.test(blob) || cur === 'bollywood' || cur === 'bollywood_hindi') return 'bollywood_hindi';
 
   // Hindi Dubbed (Hollywood/foreign dubbed — not south)
   if (/hindi\s*dub|hindi-dubbed|\[hindi\]/i.test(blob) || (lang.indexOf('hindi') >= 0 && lang.indexOf('dub') >= 0)) {
     return 'hindi_dubbed';
   }
   if (lang === 'hindi' || lang.indexOf('hindi') === 0) {
-    // pure Hindi without bollywood keyword → bollywood-ish or hindi_dubbed
     if (/hollywood|english\s*movie/i.test(t)) return 'hindi_dubbed';
-    return 'bollywood';
+    return 'bollywood_hindi';
   }
 
   // English
-  if (/english/i.test(lang) || /\benglish\b/i.test(blob)) {
-    if (/tollywood|south/i.test(blob)) return 'tollywood';
-    return 'hollywood';
+  if (/english/i.test(lang) || /\benglish\b/i.test(blob) || cur === 'hollywood' || cur === 'english_movies') {
+    return 'english_movies';
   }
 
-  // keep current if set
-  if (currentCat) return currentCat;
-  return 'hollywood';
+  // keep current if set (normalize aliases)
+  if (cur) {
+    if (cur === 'south' || cur === 'tamil' || cur === 'telugu' || cur === 'tollywood') return 'south_hindi';
+    if (cur === 'bollywood') return 'bollywood_hindi';
+    if (cur === 'hollywood') return 'english_movies';
+    if (cur === 'webseries') return 'webseries_hindi';
+    if (cur === 'kdrama') return 'kdrama_hindi';
+    if (cur === 'animation') return 'animation_hindi_dubbed';
+    return currentCat;
+  }
+  return 'english_movies';
+}
+
+/** Source listCat (HDFun dual-audio page etc.) + title refine — South titles dual_audio se nikaalo */
+function refineImportCategory(listCat, title, language) {
+  var cat = String(listCat || '').toLowerCase();
+  var blob = String(title || '') + ' ' + String(language || '');
+  // Alias normalize
+  if (cat === 'south' || cat === 'tamil' || cat === 'telugu' || cat === 'tollywood') cat = 'south_hindi';
+  if (cat === 'bollywood') cat = 'bollywood_hindi';
+  if (cat === 'hollywood') cat = 'english_movies';
+  if (cat === 'webseries') cat = 'webseries_hindi';
+  if (cat === 'kdrama') cat = 'kdrama_hindi';
+  // HDFun dual-audio category page pe aksar South posts bhi hoti hain
+  if ((cat === 'dual_audio' || cat === 'hindi_dubbed' || !cat) && typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(blob)) {
+    return 'south_hindi';
+  }
+  if (!cat && typeof autoCategoryFromText === 'function') {
+    return autoCategoryFromText(title, language, '');
+  }
+  return cat || listCat || '';
 }
 
 // ═══ CATEGORY TABLE — PAGINATED (40/page) — bade categories (jaise Hindi
@@ -10271,17 +10312,18 @@ var _hdautoMode = false;
 
 // Category pages (homepage multi-page nahi hota)
 var HDAUTO_SCAN_URLS = [
+  // Adult FIRST — taake adult URLs pehle known + sahi category, dual_audio unhe na le
+  { url: 'https://hdfun.in/category/11/adult-movies/1.html', cat: 'philippines' },
+  { url: 'https://hdfun.in/category/33/tagalog-vivamax-movies/1.html', cat: 'philippines' },
+  { url: 'https://hdfun.in/category/62/hot-web-series/1.html', cat: 'hot_short_hindi' },
+  { url: 'https://hdfun.in/category/79/hot-short-films/1.html', cat: 'hot_short_hindi' },
   { url: 'https://hdfun.in/category/3/latest-hollywood-hindi-dubbed-movies/1.html', cat: 'hindi_dubbed' },
   { url: 'https://hdfun.in/category/5/dual-audio-movies/1.html', cat: 'dual_audio' },
   { url: 'https://hdfun.in/category/7/south-indian-hindi-dubbed-movies/1.html', cat: 'south_hindi' },
   { url: 'https://hdfun.in/category/25/hollywood-movies/1.html', cat: 'english_movies' },
   { url: 'https://hdfun.in/category/13/bollywood-movies/1.html', cat: 'bollywood_hindi' },
   { url: 'https://hdfun.in/category/35/hindi-web-series/1.html', cat: 'webseries_hindi' },
-  { url: 'https://hdfun.in/category/36/hollywood-hindi-dubbed-tv-series/1.html', cat: 'kdrama_hindi' },
-  { url: 'https://hdfun.in/category/11/adult-movies/1.html', cat: 'philippines' },
-  { url: 'https://hdfun.in/category/33/tagalog-vivamax-movies/1.html', cat: 'philippines' },
-  { url: 'https://hdfun.in/category/62/hot-web-series/1.html', cat: 'hot_short_hindi' },
-  { url: 'https://hdfun.in/category/79/hot-short-films/1.html', cat: 'hot_short_hindi' }
+  { url: 'https://hdfun.in/category/36/hollywood-hindi-dubbed-tv-series/1.html', cat: 'kdrama_hindi' }
 ];
 
 function hdautoLoadKnown() {
@@ -10492,11 +10534,11 @@ function ffiDetectListCategory(siteUrl) {
   // FilmyZilla category paths
   if (/filmyzilla/i.test(su)) {
     if (/web-series|webseries|tv-shows|kapil/i.test(su)) return 'webseries';
-    if (/south-indian|south|tamil|telugu/i.test(su)) return 'south';
+    if (/south-indian|south|tamil|telugu|malayalam|kannada|tollywood/i.test(su)) return 'south_hindi';
     if (/hollywood-english|english-movies/i.test(su)) return 'hollywood';
     if (/hollywood|hindi-dubbed/i.test(su)) return 'hindi_dubbed';
     if (/punjabi/i.test(su)) return 'punjabi';
-    if (/bollywood|hindi-movie/i.test(su)) return 'bollywood';
+    if (/bollywood|hindi-movie/i.test(su)) return 'bollywood_hindi';
     if (/gujrati|gujarati|marathi/i.test(su)) return 'bollywood';
   }
   // Mp4Moviez category paths (/1/bollywood-movies.html etc.)
@@ -10508,13 +10550,13 @@ function ffiDetectListCategory(siteUrl) {
     if (/\/337\/|anime/i.test(su)) return 'animation';
     if (/\/1\/|bollywood/i.test(su)) return 'bollywood';
     if (/\/3\/|hollywood-hindi/i.test(su)) return 'hindi_dubbed';
-    if (/\/4\/|south-indian/i.test(su)) return 'south';
+    if (/\/4\/|south-indian/i.test(su)) return 'south_hindi';
     if (/\/5\/|hollywood-english/i.test(su)) return 'hollywood';
     if (/\/6\/|punjabi/i.test(su)) return 'punjabi';
-    if (/\/7\/|tamil/i.test(su)) return 'tamil';
-    if (/\/8\/|telugu/i.test(su)) return 'south';
+    if (/\/7\/|tamil/i.test(su)) return 'south_hindi';
+    if (/\/8\/|telugu/i.test(su)) return 'south_hindi';
     if (/\/9\/|bengali/i.test(su)) return 'bengali';
-    if (/\/14\/|kannada|\/15\/|malayalam/i.test(su)) return 'south';
+    if (/\/14\/|kannada|\/15\/|malayalam/i.test(su)) return 'south_hindi';
   }
   // HDFun category IDs / slugs (exact match first)
   if (/category\/11\/|\/adult-movies/i.test(su) && !/hot-web-series|hot-short/i.test(su)) return 'adult';
@@ -11802,10 +11844,12 @@ function ffiStartImport() {
         // Hollywood category se import = hollywood save (tollywood nav bug fix)
         var tCheck0 = (data.title || '') + ' ' + (p.title || '') + ' ' + (p.url || '');
         var isKd = (tmdb && tmdb.isAsianDrama) || /k[\s\-]?drama|korean[\s\-]?drama|c[\s\-]?drama|\bkorean\b/i.test(tCheck0);
-        var isAd = /erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+/i.test(tCheck0 + ' ' + (data.genre || ''));
+        var isAd = /erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+|\+18|uncensored|softcore|hardcore|pinoy\s*bold|tagalog.*bold|bold\s*movie|hot\s*short|fsk\s*18|nsfw/i.test(
+          tCheck0 + ' ' + (data.genre || '') + ' ' + (data.category || '') + ' ' + (p.url || '')
+        ) || /\/category\/(11|33|62|79)\//i.test(p.url || '') || /adult-movies|vivamax|hot-web-series|hot-short/i.test(p.url || '');
         var isSer = /\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series/i.test(tCheck0);
 
-        // Per-post listCat — SOURCE CATEGORY ALWAYS WINS (auto-import / category URL)
+        // Per-post listCat — source wins, LEKIN South title dual_audio se refine
         var listCat = p.listCat || _ffiListCategory || '';
         var adultPanelCats = { philippines:1, hot_short_hindi:1, adult:1 };
         if (listCat) {
@@ -11814,17 +11858,26 @@ function ffiStartImport() {
               ? (/vivamax|tagalog|pinoy|philippines/i.test(tCheck0) ? 'philippines' : 'hot_short_hindi')
               : listCat;
           } else {
-            // hindi_dubbed / dual_audio / south_hindi / english_movies / bollywood_hindi /
-            // webseries_hindi / kdrama_hindi — EXACT, no title/TMDB override
-            data.category = listCat;
+            data.category = (typeof refineImportCategory === 'function')
+              ? (refineImportCategory(listCat, tCheck0, data.language || '') || listCat)
+              : listCat;
           }
         } else if (!data.category) {
-          data.category = defaultCat || 'english_movies';
+          data.category = (typeof autoCategoryFromText === 'function')
+            ? autoCategoryFromText(tCheck0, data.language || '', defaultCat || '')
+            : (defaultCat || 'english_movies');
         }
         if (!data.category) data.category = defaultCat || 'english_movies';
+        // South safety net
+        if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(tCheck0)
+            && (data.category === 'dual_audio' || data.category === 'hindi_dubbed')) {
+          data.category = 'south_hindi';
+        }
 
         if (listCat && !adultPanelCats[listCat] && listCat !== 'adult' && data.category === 'adult' && !isAd) {
-          data.category = listCat;
+          data.category = (typeof refineImportCategory === 'function')
+            ? (refineImportCategory(listCat, tCheck0, data.language || '') || listCat)
+            : listCat;
         }
 
         // ── CATEGORY GUARD: listing se match na kare to SKIP ──
@@ -11837,7 +11890,7 @@ function ffiStartImport() {
         }
         // Extra skip: non-adult list + clearly adult title
         if (listCat && !(typeof adultPanelCats !== 'undefined' && adultPanelCats[listCat]) && listCat !== 'adult') {
-          if (/erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+/i.test((data.title||'')+' '+(data.genre||'')+' '+(p.url||''))) {
+          if (isAd || /erotic|vivamax|atrangii|moodx|\bxxx\b|adult\s*movie|18\+|\+18|uncensored|softcore|nsfw|pinoy\s*bold|hot\s*short|fsk\s*18/i.test((data.title||'')+' '+(data.genre||'')+' '+(p.url||'')) || /\/category\/(11|33|62|79)\//i.test(p.url||'')) {
             skip++;
             if (item) {
               item.className = 'bi-item bi-skip';
@@ -11855,12 +11908,19 @@ function ffiStartImport() {
             data.category = 'webseries';
           }
         }
-        // Re-assert kdrama ONLY when no listCat (free import). Auto-import keeps listCat.
+        // Re-assert kdrama ONLY when no listCat (free import).
+        // listCat pe refine rakho — blind listCat overwrite South fix ko uda deta tha
         if (!listCat) {
           if (tmdb && tmdb.isAsianDrama && data.category !== 'adult') data.category = 'kdrama_hindi';
           if (/k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b/i.test(tCheck0) && data.category !== 'adult') data.category = 'kdrama_hindi';
         } else if (listCat && listCat !== 'adult' && listCat !== 'philippines' && listCat !== 'hot_short_hindi') {
-          data.category = listCat;
+          data.category = (typeof refineImportCategory === 'function')
+            ? (refineImportCategory(listCat, tCheck0, data.language || '') || listCat)
+            : listCat;
+          if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(tCheck0)
+              && (data.category === 'dual_audio' || data.category === 'hindi_dubbed')) {
+            data.category = 'south_hindi';
+          }
         }
         // Hollywood listing: skip if clearly bollywood-only without dual/english?
         // Don't over-skip — listCat already set category.
@@ -11888,28 +11948,44 @@ function ffiStartImport() {
         };
         if (data.year) obj.year = String(data.year);
         if (data.rating) obj.rating = String(data.rating);
-        // Category: data already forced from listing — final lock
+        // Category FINAL LOCK — source listCat wins (no kdrama/adult title override)
         var tCheck = (obj.title || '') + ' ' + (p.title || '') + ' ' + (p.url || '');
         var listCat2 = p.listCat || _ffiListCategory || '';
-        if (listCat2 && listCat2 !== 'adult') {
-          if (data.category === 'kdrama' || (tmdb && tmdb.isAsianDrama)) obj.category = 'kdrama';
-          else if (data.category === 'adult' && /erotic|vivamax|\bxxx\b|adult\s*movie/i.test(tCheck)) obj.category = 'adult';
-          else if (listCat2 === 'webseries') obj.category = 'webseries';
-          else obj.category = listCat2;
+        var adultCats2 = { philippines:1, hot_short_hindi:1, adult:1 };
+        if (listCat2) {
+          if (adultCats2[listCat2]) {
+            obj.category = (listCat2 === 'adult')
+              ? (/vivamax|tagalog|pinoy|philippines/i.test(tCheck) ? 'philippines' : 'hot_short_hindi')
+              : listCat2;
+          } else {
+            // Source listCat + TITLE refine (South dual-audio pe dual_audio na jaye)
+            obj.category = (typeof refineImportCategory === 'function')
+              ? (refineImportCategory(listCat2, tCheck, data.language || obj.language || '') || listCat2)
+              : listCat2;
+          }
         } else if (data.category) {
-          obj.category = data.category;
-        } else if (listCat2) {
-          obj.category = listCat2;
+          obj.category = (typeof refineImportCategory === 'function')
+            ? (refineImportCategory(data.category, tCheck, data.language || '') || data.category)
+            : data.category;
         } else {
-          obj.category = defaultCat || 'english_movies';
+          obj.category = (typeof autoCategoryFromText === 'function')
+            ? autoCategoryFromText(tCheck, data.language || '', defaultCat || '')
+            : (defaultCat || 'english_movies');
         }
         if (!obj.category) obj.category = defaultCat || 'english_movies';
-        // Absolute last: Asian language signals in title/url/genre
-        if (obj.category !== 'adult' && /k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b|chinese\s*drama|japanese\s*drama/i.test(tCheck + ' ' + (data.genre||'') + ' ' + (data.language||''))) {
-          obj.category = 'kdrama';
+        // Final south safety: kabhi dual_audio mein south title na rahe
+        if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(tCheck + ' ' + (data.language||''))
+            && (obj.category === 'dual_audio' || obj.category === 'hindi_dubbed' || obj.category === 'english_movies')) {
+          obj.category = 'south_hindi';
         }
-        if (tmdb && tmdb.isAsianDrama && obj.category !== 'adult') {
-          obj.category = 'kdrama';
+        // kdrama title hint ONLY when no source listCat
+        if (!listCat2) {
+          if (/k[\s\-]?drama|korean|c[\s\-]?drama|\bkorean\b|chinese\s*drama|japanese\s*drama/i.test(tCheck + ' ' + (data.genre||'') + ' ' + (data.language||''))) {
+            obj.category = 'kdrama_hindi';
+          }
+          if (tmdb && tmdb.isAsianDrama && obj.category !== 'adult' && !adultCats2[obj.category]) {
+            obj.category = 'kdrama_hindi';
+          }
         }
 
         if (data.genre) obj.genre = data.genre;
@@ -12189,7 +12265,15 @@ function ffiStartImport() {
             var _ak = db.ref('movies').push().key;
             obj.published = true; obj.isDraft = false; obj.status = 'published';
             if (!obj.sourcePageUrl && p && p.url) obj.sourcePageUrl = p.url;
-            if (p && p.listCat) obj.category = p.listCat; // force source category
+            if (p && p.listCat) {
+              obj.category = p.listCat; // force source category
+              // safety: adult signals on non-adult listCat → philippines
+              var _lc = p.listCat;
+              var _adOk = { philippines:1, hot_short_hindi:1, adult:1 };
+              if (!_adOk[_lc] && /erotic|vivamax|\bxxx\b|adult|18\+|uncensored|nsfw/i.test((obj.title||'')+' '+(p.url||''))) {
+                obj.category = /vivamax|tagalog|pinoy/i.test((obj.title||'')+' '+(p.url||'')) ? 'philippines' : 'hot_short_hindi';
+              }
+            }
             db.ref('movies/' + _ak).set(obj).then(function() {
               obj.key = _ak;
               if (typeof allMovies !== 'undefined') {
