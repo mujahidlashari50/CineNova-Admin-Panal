@@ -1318,11 +1318,25 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <!-- MOVIE OF THE DAY -->
     <div class="section" id="sec-motd">
       <div class="sec-title">🎬 Movie of the <span>Day</span></div>
-      <div style="background:rgba(250,204,21,0.07);border:1px solid rgba(250,204,21,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fde68a;">
-        💡 Automatic: top downloads. Manual: neeche search karke <strong>1–4 movies</strong> add karo — website pe har <strong>10 second</strong> rotate hongi.
+      <div style="background:rgba(250,204,21,0.07);border:1px solid rgba(250,204,21,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fde68a;line-height:1.55;">
+        💡 Manual list: max <strong>20 movies</strong> — website pe rotate. Poster card pe click = add/remove. Search optional.
+        Empty list = automatic (top downloads).
       </div>
       <div id="motd-current" class="card" style="padding:14px;margin-bottom:18px;"></div>
-      <input class="si" id="motd-srch" placeholder="🔍 Manual override ke liye movie search karo..." oninput="motdFilter()" style="width:100%;margin-bottom:14px;"/>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3>🏆 Top movies (click = MOTD add)</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="cf-btn active" id="motd-tab-trend" onclick="motdSetTab('trend')">🔥 Trending</button>
+          <button class="cf-btn" id="motd-tab-dl" onclick="motdSetTab('dl')">⬇ Downloads</button>
+          <button class="cf-btn" id="motd-tab-rate" onclick="motdSetTab('rate')">⭐ Rating</button>
+          <button class="cf-btn" id="motd-tab-new" onclick="motdSetTab('new')">🆕 Newest</button>
+          <button class="btn btn-s" style="padding:6px 10px;font-size:0.75rem;" onclick="motdFillTop(12)">⚡ Add top 12</button>
+        </div>
+        <div id="motd-suggest-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
+      </div>
+
+      <input class="si" id="motd-srch" placeholder="🔍 Search by name (optional)..." oninput="motdFilter()" style="width:100%;margin-bottom:10px;"/>
       <div id="motd-list"></div>
     </div>
 
@@ -1330,11 +1344,16 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-requests">
       <div class="sec-title">📬 Movie <span>Requests</span></div>
       <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#86efac;">
-        💡 Movie requests from users are shown here. Fulfill or delete requests.
+        💡 User requests yahan aati hain. <b>⚡ Import</b> = HDFun search → best match → Auto Import (TMDB + links). Library mein ho to Fulfilled (no duplicate).
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
         <button class="btn btn-s" style="font-size:0.82rem;" onclick="loadRequests()">🔄 Refresh</button>
         <button class="btn" style="background:#7f1d1d;color:#fca5a5;font-size:0.82rem;" onclick="clearAllRequests()">🗑 Sab Clear Karo</button>
+        <span id="req-import-status" style="font-size:0.8rem;color:#86efac;"></span>
+      </div>
+      <div id="req-import-panel" style="display:none;margin-bottom:14px;" class="card">
+        <h3 style="margin-bottom:8px;">⚡ Import preview</h3>
+        <div id="req-import-body" style="font-size:0.82rem;"></div>
       </div>
       <div class="card" style="padding:0;"><div class="tw"><table>
         <thead><tr><th>Movie Name</th><th>User</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
@@ -1422,13 +1441,21 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <!-- DUPLICATE DETECTOR -->
     <div class="section" id="sec-duplicates">
       <div class="sec-title">🔁 Duplicate <span>Detector</span></div>
-      <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fcd34d;">
-        💡 Same title (2–3 baar upload) wali movies pakadta hai. Har group mein <b>1 keep</b>, baaki delete.
-        Title normalize hota hai (year/quality ignore) taake mild-difference bhi match ho.
+      <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fcd34d;line-height:1.55;">
+        💡 Strong detect: <b>same source URL</b> · <b>TMDB id</b> · <b>normalized title</b> · <b>fuzzy name</b> (The Boys vs The Boys Season 1 Full Download).
+        Har group mein <b>1 best KEEP</b>, baaki Trash/delete. Season 1 vs Season 2 alag groups rehte hain.
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;">
         <button class="btn btn-p" onclick="findDuplicates()">🔍 Duplicates Dhundho</button>
-        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;display:none;" id="dup-bulk-btn" onclick="dupDeleteAllExtras()">🗑 Saari Duplicates Delete (1 keep per group)</button>
+        <select class="fi" id="dup-mode" style="width:auto;padding:8px 12px;font-size:0.82rem;">
+          <option value="smart" selected>Smart (URL + title + fuzzy)</option>
+          <option value="strict">Strict title only</option>
+          <option value="url">Source URL only</option>
+        </select>
+        <label style="font-size:0.78rem;color:var(--grey);display:flex;align-items:center;gap:6px;">
+          Fuzzy % <input class="fi" id="dup-fuzzy" type="number" value="78" min="60" max="95" style="width:64px;padding:6px 8px;"/>
+        </label>
+        <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;display:none;" id="dup-bulk-btn" onclick="dupDeleteAllExtras()">🗑 Saari Duplicates → Trash (1 keep)</button>
         <span id="dup-summary" style="font-size:0.8rem;color:var(--grey);"></span>
       </div>
       <div id="dup-results"></div>
@@ -4611,7 +4638,7 @@ function show(name){
   if(name==='playmate'){pmOnShow();}
   if(name==='metascan'){if(typeof msScan==='function')msScan();}
   if(name==='trending'){if(typeof trendRenderAll==='function')trendRenderAll();}
-  if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);}
+  if(name==='motd'){if(typeof motdRenderCurrent==='function')motdRenderCurrent();var ms=document.getElementById('motd-srch');if(ms)ms.value='';if(typeof motdRenderList==='function')motdRenderList([]);if(typeof motdRenderSuggest==='function')motdRenderSuggest();}
   if(name==='requests'){if(typeof loadRequests==='function')loadRequests();}
   if(name==='ratings'){if(typeof loadRatings==='function')loadRatings();}
   if(name==='comments'){if(typeof loadComments==='function')loadComments();}
@@ -9039,6 +9066,32 @@ function motdAutoPick(){
   pool.sort(function(a,b){return (b.downloadCount||0)-(a.downloadCount||0);});
   return pool[0];
 }
+var MOTD_MAX = 20;
+var _motdTab = 'trend';
+var _motdKeysCache = [];
+
+function motdPoster(m) {
+  if (m && m.thumbnail) return 'https://wsrv.nl/?url=' + encodeURIComponent(m.thumbnail) + '&w=200&h=300&fit=cover&output=jpg';
+  if (m && m.poster) return m.poster;
+  return '';
+}
+function motdCardHtml(m, opts) {
+  opts = opts || {};
+  var on = opts.onList || (_motdKeysCache.indexOf(m.key) >= 0);
+  var tu = motdPoster(m);
+  var border = on ? 'border-color:#facc15;box-shadow:0 0 0 2px rgba(250,204,21,0.4);' : 'border-color:var(--border);';
+  var click = opts.remove ? ("motdRemoveKey('" + m.key + "')") : ("motdSet('" + m.key + "')");
+  return '<div onclick="' + click + '" style="cursor:pointer;background:var(--card2);border:2px solid;border-radius:10px;overflow:hidden;' + border + '" title="' + (on ? 'Click = remove' : 'Click = add to MOTD') + '">'
+    + '<div style="position:relative;aspect-ratio:2/3;background:#111;">'
+    + (tu ? '<img src="' + tu + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'"/>' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;color:#333;">🎬</div>')
+    + (on ? '<div style="position:absolute;top:6px;left:6px;background:#facc15;color:#000;font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:4px;">★ ON</div>' : '')
+    + '</div>'
+    + '<div style="padding:7px 8px 9px;">'
+    + '<div style="font-size:0.72rem;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + String(m.title||'Untitled').replace(/</g,'&lt;') + '</div>'
+    + '<div style="font-size:0.62rem;color:#888;margin-top:3px;">' + (m.year||'') + (m.rating ? ' · ⭐' + m.rating : '') + (m.downloadCount ? ' · ⬇' + m.downloadCount : '') + (m.trending ? ' · 🔥' : '') + '</div>'
+    + '</div></div>';
+}
+
 function motdRenderCurrent(){
   var el=document.getElementById('motd-current');if(!el)return;
   if(!db){
@@ -9052,62 +9105,85 @@ function motdRenderCurrent(){
     var keys=[];
     if(Array.isArray(d.manualKeys) && d.manualKeys.length) keys=d.manualKeys.slice();
     else if(d.manualDate===uaToday() && d.manualKey) keys=[d.manualKey];
+    _motdKeysCache = keys.slice();
     var isManual = keys.length>0 && d.manualDate===uaToday();
+    var head = '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;">'
+      + '<div style="font-weight:700;color:#fde68a;">' + (isManual ? '📌 Manual MOTD (' + keys.length + '/' + MOTD_MAX + ')' : '🤖 Automatic (top downloads)') + '</div>'
+      + (isManual ? '<button class="btn btn-s" style="padding:5px 10px;font-size:0.72rem;" onclick="motdClear()">🚫 Clear → Auto</button>' : '')
+      + '</div>';
     if(isManual){
-      var cards=keys.map(function(k){
+      var cards = keys.map(function(k){
         var m=allMovies.find(function(x){return x.key===k;});
-        if(!m) return '<div class="card" style="padding:8px;margin:4px 0;color:#888;">Missing key '+k+' <button class="btn" onclick="motdRemoveKey(\''+k+'\')">Remove</button></div>';
-        var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=50&h=70&fit=cover&output=jpg':'';
-        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #222;">'
-          +(tu?'<img src="'+tu+'" style="width:36px;height:50px;object-fit:cover;border-radius:4px;">':'')
-          +'<div style="flex:1;min-width:0;font-weight:700;font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(m.title||'')+'</div>'
-          +'<button class="btn" onclick="motdRemoveKey(\''+k+'\')" style="background:#333;font-size:0.7rem;">✕</button></div>';
+        if(!m) return '<div class="card" style="padding:8px;color:#888;font-size:0.75rem;">Missing '+k+' <button class="btn" onclick="motdRemoveKey(\''+k+'\')">Remove</button></div>';
+        return motdCardHtml(m, { onList: true, remove: true });
       }).join('');
-      el.innerHTML='<div style="margin-bottom:8px;"><span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">MANUAL ×'+keys.length+'</span> <span style="color:#888;font-size:0.75rem;">Website pe har 10s rotate</span></div>'
-        +cards
-        +'<button class="btn" onclick="motdClear()" style="margin-top:10px;background:#333;">Clear All Manual</button>';
-      return;
+      el.innerHTML = head + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;">' + cards + '</div>';
+    } else {
+      var auto = motdAutoPick();
+      if (!auto) {
+        el.innerHTML = head + '<div style="color:#888;padding:12px;">Koi movie nahi — movies load hone do.</div>';
+      } else {
+        el.innerHTML = head + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;max-width:140px;">' + motdCardHtml(auto, { onList: false }) + '</div>'
+          + '<div style="font-size:0.75rem;color:#888;margin-top:10px;">Neeche se cards select karke manual list banao (max ' + MOTD_MAX + ').</div>';
+      }
     }
-    var active=motdAutoPick();
-    if(!active){
-      el.innerHTML='<div style="text-align:center;color:#444;padding:10px;">Automatic: koi movie qualify nahi (downloads chahiye). Neeche 1–4 movies Set karo.</div>';
-      return;
-    }
-    var tu=active.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(active.thumbnail)+'&w=60&h=84&fit=cover&output=jpg':'';
-    el.innerHTML='<div style="display:flex;align-items:center;gap:14px;">'
-      +(tu?'<img src="'+tu+'" style="width:46px;height:64px;object-fit:cover;border-radius:5px;flex-shrink:0;">':'')
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">Aaj ki Movie of the Day <span style="background:#22c55e;color:#fff;font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;">AUTOMATIC</span></div>'
-        +'<div style="font-weight:700;font-size:0.95rem;">'+(active.title||'Untitled')+'</div>'
-        +'<div style="color:var(--grey);font-size:0.75rem;">⬇ '+(active.downloadCount||0)+' downloads</div>'
-      +'</div></div>';
-  }).catch(function(err){
-    var msg = (err && err.message) ? err.message : 'unknown';
-    el.innerHTML='<div style="color:#f87171;padding:10px;">MOTD load error: '+msg
-      +'<br><button class="btn" onclick="motdRenderCurrent()" style="margin-top:8px;font-size:0.75rem;">🔄 Retry</button>'
-      +'<div style="font-size:0.72rem;color:#888;margin-top:8px;">Tip: Firebase Rules mein motd path read allow hona chahiye. Automatic mode ke liye movies load hone do.</div></div>';
+    try { motdRenderSuggest(); } catch(e){}
+  }).catch(function(e){
+    el.innerHTML='<div style="color:#f87171;padding:10px;">MOTD load fail: '+(e.message||e)+'</div>';
   });
 }
+
+function motdSetTab(tab) {
+  _motdTab = tab || 'trend';
+  ['trend','dl','rate','new'].forEach(function(t){
+    var el = document.getElementById('motd-tab-' + t);
+    if (el) el.classList.toggle('active', t === _motdTab);
+  });
+  motdRenderSuggest();
+}
+function motdPool() {
+  return (allMovies || []).filter(function(m){
+    if (!m || !m.key) return false;
+    var c = (m.category || '').toLowerCase();
+    return c !== 'adult' && c !== 'philippines' && c !== 'hot_short_hindi';
+  });
+}
+function motdRenderSuggest() {
+  var el = document.getElementById('motd-suggest-grid');
+  if (!el) return;
+  var pool = motdPool();
+  var list;
+  if (_motdTab === 'dl') {
+    list = pool.slice().sort(function(a,b){ return (Number(b.downloadCount)||0)-(Number(a.downloadCount)||0); }).slice(0, 36);
+  } else if (_motdTab === 'rate') {
+    list = pool.slice().sort(function(a,b){ return (parseFloat(b.rating)||0)-(parseFloat(a.rating)||0); }).slice(0, 36);
+  } else if (_motdTab === 'new') {
+    list = pool.slice().sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); }).slice(0, 36);
+  } else {
+    // trending first, then score
+    list = pool.slice().sort(function(a,b){
+      var ta = a.trending ? 100 : 0, tb = b.trending ? 100 : 0;
+      if (tb !== ta) return tb - ta;
+      return (Number(b.downloadCount)||0) + (parseFloat(b.rating)||0)*10 - ((Number(a.downloadCount)||0) + (parseFloat(a.rating)||0)*10);
+    }).slice(0, 36);
+  }
+  el.innerHTML = list.map(function(m){ return motdCardHtml(m); }).join('');
+}
+
 function motdFilter(){
   var q=(document.getElementById('motd-srch')||{}).value||'';
   q=q.toLowerCase().trim();
-  var list=q?allMovies.filter(function(m){return(m.title||'').toLowerCase().includes(q);}):[];
+  if(!q){ motdRenderList([]); return; }
+  var list=allMovies.filter(function(m){return (m.title||'').toLowerCase().indexOf(q)!==-1;}).slice(0,40);
   motdRenderList(list);
 }
 function motdRenderList(list){
   var el=document.getElementById('motd-list');if(!el)return;
-  if(!list||!list.length){el.innerHTML='';return;}
-  el.innerHTML=list.slice(0,25).map(function(m){
-    var tu=m.thumbnail?'https://wsrv.nl/?url='+encodeURIComponent(m.thumbnail)+'&w=50&h=70&fit=cover&output=jpg':'';
-    return '<div class="card" style="padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'
-      +(tu?'<img src="'+tu+'" style="width:38px;height:53px;object-fit:cover;border-radius:4px;flex-shrink:0;">':'<div style="width:38px;height:53px;background:#222;border-radius:4px;flex-shrink:0;"></div>')
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(m.title||'Untitled')+'</div>'
-        +'<div style="color:var(--grey);font-size:0.75rem;">'+(m.year||'')+(m.category?' · '+m.category:'')+'</div>'
-      +'</div>'
-      +'<button class="btn" onclick="motdSet(\''+m.key+'\')" style="flex-shrink:0;">✅ Set</button>'
-    +'</div>';
-  }).join('');
+  if(!list || !list.length){ el.innerHTML=''; return; }
+  el.innerHTML = '<div style="font-size:0.75rem;color:#888;margin:6px 0;">Search results</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;">'
+    + list.map(function(m){ return motdCardHtml(m); }).join('')
+    + '</div>';
 }
 function motdSet(key){
   var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
@@ -9116,19 +9192,47 @@ function motdSet(key){
     var keys=[];
     if(Array.isArray(d.manualKeys)) keys=d.manualKeys.slice();
     else if(d.manualKey) keys=[d.manualKey];
-    if(keys.indexOf(key)>=0){ toast('Already MOTD list mein hai'); return; }
-    if(keys.length>=4){ toast('Max 4 movies — pehle ek hatao',1); return; }
+    if(keys.indexOf(key)>=0){
+      // toggle off
+      return motdRemoveKey(key);
+    }
+    if(keys.length>=MOTD_MAX){ toast('Max ' + MOTD_MAX + ' movies — pehle ek hatao',1); return; }
     keys.push(key);
     var updates={};
     updates['motd/manualKeys']=keys;
-    updates['motd/manualKey']=keys[0]; // backward compat
+    updates['motd/manualKey']=keys[0];
     updates['motd/manualDate']=uaToday();
     updates['motd/setAt']=Date.now();
     updates['motd/rotateSec']=10;
     return db.ref().update(updates).then(function(){
-      toast('✅ "'+(m.title||'')+'" MOTD list mein ('+keys.length+'/4)');
-      document.getElementById('motd-srch').value='';
+      toast('✅ MOTD ('+keys.length+'/'+MOTD_MAX+'): '+(m.title||'').substring(0,40));
+      var sr=document.getElementById('motd-srch'); if(sr) sr.value='';
       motdRenderList([]);
+      motdRenderCurrent();
+    });
+  }).catch(function(e){toast('❌ '+e.message,1);});
+}
+function motdFillTop(n){
+  n = n || 12;
+  var pool = motdPool().slice().sort(function(a,b){
+    var ta = a.trending ? 50 : 0, tb = b.trending ? 50 : 0;
+    return (tb + (Number(b.downloadCount)||0)/5 + (parseFloat(b.rating)||0)*3) - (ta + (Number(a.downloadCount)||0)/5 + (parseFloat(a.rating)||0)*3);
+  }).slice(0, n);
+  if(!pool.length){ toast('Pool empty',1); return; }
+  db.ref('motd').once('value').then(function(snap){
+    var d=snap.val()||{};
+    var keys=Array.isArray(d.manualKeys)?d.manualKeys.slice():[];
+    pool.forEach(function(m){
+      if(keys.indexOf(m.key)<0 && keys.length<MOTD_MAX) keys.push(m.key);
+    });
+    var updates={};
+    updates['motd/manualKeys']=keys;
+    updates['motd/manualKey']=keys[0]||null;
+    updates['motd/manualDate']=uaToday();
+    updates['motd/setAt']=Date.now();
+    updates['motd/rotateSec']=10;
+    return db.ref().update(updates).then(function(){
+      toast('⚡ MOTD list: ' + keys.length + '/' + MOTD_MAX);
       motdRenderCurrent();
     });
   }).catch(function(e){toast('❌ '+e.message,1);});
@@ -9166,19 +9270,21 @@ function loadRequests(){
     var el=document.getElementById('req-table');
     var empty=document.getElementById('req-empty');
     var badge=document.getElementById('req-count');
-    if(badge)badge.textContent=reqs.length;
+    var pending = reqs.filter(function(r){ return (r.status||'pending') !== 'fulfilled'; }).length;
+    if(badge)badge.textContent=pending || reqs.length;
     if(!reqs.length){if(el)el.innerHTML='';if(empty)empty.style.display='block';return;}
     if(empty)empty.style.display='none';
     el.innerHTML=reqs.map(function(r){
       var d=new Date(r.createdAt||r.ts||Date.now()).toLocaleDateString('en-GB');
       var st=r.status||'pending';
-      var stBadge=st==='fulfilled'?'<span class="badge bg">✅ Fulfilled</span>':'<span class="badge" style="background:#1f1f1f;color:#f59e0b;">⏳ Pending</span>';
-      return '<tr><td style="font-weight:600;">'+(r.title||'—')+'</td>'
-        +'<td style="color:var(--grey);font-size:0.82rem;">'+(r.name||r.userName||r.userEmail||r.user||'Anonymous')+'</td>'
+      var stBadge=st==='fulfilled'?'<span class="badge bg">✅ Fulfilled</span>':(st==='importing'?'<span class="badge" style="background:#1e3a5f;color:#7dd3fc;">⏳ Importing</span>':'<span class="badge" style="background:#1f1f1f;color:#f59e0b;">⏳ Pending</span>');
+      return '<tr id="req-row-'+r.key+'"><td style="font-weight:600;">'+escHtml(r.title||'—')+(r.year?' <span style="color:#666;font-weight:400;">('+escHtml(String(r.year))+')</span>':'')+'</td>'
+        +'<td style="color:var(--grey);font-size:0.82rem;">'+escHtml(r.name||r.userName||r.userEmail||r.user||'Anonymous')+'</td>'
         +'<td style="color:var(--grey);font-size:0.8rem;">'+d+'</td>'
         +'<td>'+stBadge+'</td>'
-        +'<td><div class="ta">'
-          +(st!=='fulfilled'?'<button class="ib" onclick="fulfillRequest(\''+r.key+'\')" title="Fulfilled mark karo" style="color:var(--green);border-color:var(--green);">✅</button>':'')
+        +'<td><div class="ta" style="flex-wrap:wrap;">'
+          +(st!=='fulfilled'?'<button class="ib" onclick="reqOneClickImport(\''+r.key+'\')" title="HDFun se 1-click import" style="color:#4ade80;border-color:#4ade80;font-size:0.72rem;padding:4px 8px;">⚡ Import</button>':'')
+          +(st!=='fulfilled'?'<button class="ib" onclick="fulfillRequest(\''+r.key+'\')" title="Sirf fulfilled mark" style="color:var(--green);border-color:var(--green);">✅</button>':'')
           +'<button class="ib" onclick="deleteRequest(\''+r.key+'\')" title="Delete">🗑</button>'
         +'</div></td></tr>';
     }).join('');
@@ -9194,6 +9300,227 @@ function clearAllRequests(){
   if(!confirm('Delete all requests?'))return;
   db.ref('requests').remove().then(function(){toast('🗑 All requests cleared!');loadRequests();}).catch(function(e){toast('❌ '+e.message,1);});
 }
+
+// ═══ REQUEST → 1-CLICK HDFUN IMPORT ═══
+var _reqImportBusy = false;
+function reqSetStatus(msg) {
+  var el = document.getElementById('req-import-status');
+  if (el) el.textContent = msg || '';
+}
+function reqShowPanel(html) {
+  var p = document.getElementById('req-import-panel');
+  var b = document.getElementById('req-import-body');
+  if (!p || !b) return;
+  if (!html) { p.style.display = 'none'; b.innerHTML = ''; return; }
+  p.style.display = 'block';
+  b.innerHTML = html;
+}
+function reqNormTitle(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\b(the|a|an|of|and|movie|full|download|watch|online|hindi|dubbed|dual|audio)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+function reqTitleScore(a, b) {
+  a = reqNormTitle(a); b = reqNormTitle(b);
+  if (!a || !b) return 0;
+  if (a === b) return 100;
+  if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 88;
+  var at = a.split(' ').filter(Boolean);
+  var bt = b.split(' ').filter(Boolean);
+  if (!at.length || !bt.length) return 0;
+  var hit = 0;
+  at.forEach(function(t){ if (bt.indexOf(t) >= 0) hit++; });
+  return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+}
+function reqAlreadyInLibrary(title, year) {
+  var n = reqNormTitle(title);
+  var y = String(year || '').replace(/\D/g, '').substring(0, 4);
+  if (!n) return null;
+  for (var i = 0; i < (allMovies || []).length; i++) {
+    var m = allMovies[i];
+    if (!m || !m.title) continue;
+    var sc = reqTitleScore(m.title, title);
+    if (sc < 80) continue;
+    if (y && m.year && String(m.year).indexOf(y) === -1) continue;
+    return m;
+  }
+  return null;
+}
+function reqParseHdfunSearch(html, wantTitle, year) {
+  if (!html) return [];
+  var results = [], seen = {};
+  var re = /href=["']((?:https?:\/\/(?:www\.)?hdfun\.in)?\/movie\/\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]{0,160}?)<\/a>/gi;
+  var m;
+  while ((m = re.exec(html)) !== null) {
+    var href = m[1].replace(/&amp;/g, '&');
+    if (!/^https?:\/\//i.test(href)) href = 'https://hdfun.in' + (href.charAt(0) === '/' ? href : '/' + href);
+    if (seen[href]) continue;
+    seen[href] = 1;
+    var lab = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!lab) {
+      try { lab = decodeURIComponent(new URL(href).pathname.split('/').pop().replace(/\.html$/i, '').replace(/-/g, ' ')); } catch (e) { lab = href; }
+    }
+    var sc = reqTitleScore(wantTitle, lab);
+    if (year && (lab.indexOf(String(year)) >= 0 || href.indexOf(String(year)) >= 0)) sc += 8;
+    results.push({ url: href, title: lab, score: sc });
+  }
+  results.sort(function(a, b){ return b.score - a.score; });
+  return results;
+}
+function reqGuessListCat(title, url) {
+  var blob = String(title || '') + ' ' + String(url || '');
+  if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(blob)) return 'south_hindi';
+  if (/k-?drama|korean|c-?drama/i.test(blob)) return 'kdrama_hindi';
+  if (/web[\s\-]?series|season\s*\d|\bS\d{1,2}\b/i.test(blob)) return 'webseries_hindi';
+  if (/dual\s*audio/i.test(blob)) return 'dual_audio';
+  if (/hindi\s*dub/i.test(blob)) return 'hindi_dubbed';
+  if (/bollywood/i.test(blob)) return 'bollywood_hindi';
+  return 'hindi_dubbed';
+}
+function reqOneClickImport(reqKey) {
+  if (_reqImportBusy) { toast('Pehle wala import chal raha hai', 1); return; }
+  if (typeof _ffiFetch !== 'function' && typeof _mlProxyFetch !== 'function') {
+    toast('Fetch helper nahi mila', 1); return;
+  }
+  db.ref('requests/' + reqKey).once('value', function(snap) {
+    var r = snap.val();
+    if (!r) { toast('Request nahi mili', 1); return; }
+    var title = (r.title || r.movie || '').trim();
+    var year = r.year || '';
+    if (!title || title.length < 2) { toast('Title empty', 1); return; }
+
+    var exist = reqAlreadyInLibrary(title, year);
+    if (exist) {
+      reqShowPanel('<div style="color:#4ade80;">✅ Pehle se library mein: <b>' + escHtml(exist.title) + '</b></div>'
+        + '<div style="margin-top:8px;font-size:0.75rem;color:#888;">Request Fulfilled (duplicate import nahi).</div>');
+      db.ref('requests/' + reqKey).update({ status: 'fulfilled', fulfilledAt: Date.now(), matchedKey: exist.key || null })
+        .then(function(){ toast('✅ Already online — Fulfilled'); loadRequests(); });
+      return;
+    }
+
+    _reqImportBusy = true;
+    reqSetStatus('🔍 HDFun search: ' + title);
+    reqShowPanel('<div>🔍 Searching HDFun for <b>' + escHtml(title) + '</b>…</div>');
+    db.ref('requests/' + reqKey + '/status').set('importing');
+
+    var clean = String(title)
+      .replace(/\b(19|20)\d{2}\b/g, ' ')
+      .replace(/\b(1080p|720p|480p|hindi|dubbed|dual\s*audio|full\s*movie|download|watch\s*online)\b/gi, ' ')
+      .replace(/\s+/g, ' ').trim() || title;
+    var searchUrl = 'https://hdfun.in/?s=' + encodeURIComponent(clean);
+
+    function fetchFn(url, cb) {
+      if (typeof _ffiFetch === 'function') _ffiFetch(url, cb);
+      else _mlProxyFetch(url, cb);
+    }
+
+    fetchFn(searchUrl, function(html) {
+      var results = reqParseHdfunSearch(html, title, year);
+      if (!results.length || results[0].score < 55) {
+        _reqImportBusy = false;
+        reqSetStatus('');
+        reqShowPanel('<div style="color:#f87171;">❌ HDFun pe match nahi mila: <b>' + escHtml(title) + '</b></div>'
+          + '<div style="margin-top:6px;color:#888;font-size:0.75rem;">Manual Auto Import se try karo.</div>');
+        db.ref('requests/' + reqKey + '/status').set('pending');
+        toast('❌ HDFun match nahi', 1);
+        loadRequests();
+        return;
+      }
+
+      var top = results.slice(0, 5);
+      var best = top[0];
+      reqShowPanel(
+        '<div style="margin-bottom:8px;">Best match score <b style="color:#4ade80;">' + best.score + '</b></div>'
+        + top.map(function(x, i) {
+            return '<div style="padding:6px 0;border-bottom:1px solid #1a1a1a;display:flex;gap:8px;align-items:center;">'
+              + '<span style="color:#666;width:28px;">#' + (i+1) + '</span>'
+              + '<div style="flex:1;min-width:0;"><div style="font-weight:600;">' + escHtml(x.title) + '</div>'
+              + '<div style="font-size:0.68rem;color:#555;overflow:hidden;text-overflow:ellipsis;">' + escHtml(x.url) + '</div></div>'
+              + '<span style="color:#86efac;font-size:0.75rem;">' + x.score + '</span>'
+              + (i === 0 ? '<button class="btn btn-p" style="padding:5px 10px;font-size:0.72rem;" onclick="reqConfirmImport(\'' + reqKey + '\',' + i + ')">⚡ Import this</button>' : '')
+              + '</div>';
+          }).join('')
+        + '<div style="margin-top:10px;"><button class="btn btn-p" onclick="reqConfirmImport(\'' + reqKey + '\',0)">⚡ Import best match</button> '
+        + '<button class="btn btn-s" onclick="reqCancelImport(\'' + reqKey + '\')">Cancel</button></div>'
+      );
+      window._reqImportCache = { key: reqKey, title: title, year: year, results: top };
+      _reqImportBusy = false;
+      reqSetStatus('Match mil gaya — Import dabao');
+      loadRequests();
+    });
+  });
+}
+function reqCancelImport(reqKey) {
+  window._reqImportCache = null;
+  reqShowPanel('');
+  reqSetStatus('');
+  if (reqKey) db.ref('requests/' + reqKey + '/status').set('pending').then(loadRequests);
+}
+function reqConfirmImport(reqKey, idx) {
+  var cache = window._reqImportCache;
+  if (!cache || cache.key !== reqKey || !cache.results || !cache.results[idx]) {
+    toast('Cache expire — dubara Import dabao', 1); return;
+  }
+  if (_reqImportBusy || (typeof _ffiImporting !== 'undefined' && _ffiImporting)) {
+    toast('Import already chal raha hai', 1); return;
+  }
+  var pick = cache.results[idx];
+  var listCat = reqGuessListCat(pick.title, pick.url);
+  _reqImportBusy = true;
+  reqSetStatus('⚡ Importing…');
+  reqShowPanel('<div>⚡ Importing <b>' + escHtml(pick.title) + '</b>…</div><div style="font-size:0.75rem;color:#888;margin-top:4px;">Category: ' + escHtml(listCat) + '</div>');
+
+  _ffiPosts = [{ url: pick.url, title: pick.title, checked: true, listCat: listCat, fromUrl: pick.url, fromRequest: reqKey }];
+  try { if (typeof ffiRenderPosts === 'function') ffiRenderPosts(); } catch (e) {}
+  try {
+    var dc = document.getElementById('ffi-default-cat');
+    if (dc && listCat) dc.value = listCat;
+  } catch (e2) {}
+
+  db.ref('requests/' + reqKey).update({ status: 'importing', importUrl: pick.url, importTitle: pick.title });
+
+  try { if (typeof show === 'function') show('autoimport'); } catch (e3) {}
+  try {
+    var sec = document.getElementById('sec-autoimport') || document.getElementById('sec-ffi');
+    if (sec) {
+      document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+      sec.classList.add('active');
+    }
+  } catch (e4) {}
+
+  setTimeout(function() {
+    try {
+      if (typeof ffiStartImport === 'function') ffiStartImport();
+      else { toast('ffiStartImport nahi mila', 1); _reqImportBusy = false; return; }
+    } catch (e5) {
+      toast('❌ ' + e5.message, 1);
+      _reqImportBusy = false;
+      return;
+    }
+    var tries = 0;
+    var timer = setInterval(function() {
+      tries++;
+      var done = (typeof _ffiImporting !== 'undefined' && !_ffiImporting);
+      if (!done && tries < 120) return;
+      clearInterval(timer);
+      _reqImportBusy = false;
+      reqSetStatus('');
+      db.ref('requests/' + reqKey).update({
+        status: 'fulfilled',
+        fulfilledAt: Date.now(),
+        importUrl: pick.url,
+        importTitle: pick.title
+      }).then(function() {
+        toast('✅ Request imported + Fulfilled');
+        reqShowPanel('<div style="color:#4ade80;">✅ Import complete — request Fulfilled.</div>'
+          + '<div style="font-size:0.75rem;color:#888;margin-top:4px;">Review queue / All Content check karo.</div>');
+        loadRequests();
+      });
+    }, 1000);
+  }, 400);
+}
+
 
 // ═══════════════════════════════════════════
 // ⭐ RATINGS
@@ -9420,60 +9747,207 @@ function clearAllContacts(){
 }
 
 // ═══════════════════════════════════════════
-// 🔁 DUPLICATE DETECTOR
+// 🔁 DUPLICATE DETECTOR (STRONG)
 // ═══════════════════════════════════════════
 function dupNormalizeTitle(t) {
-  // Season / S01 KEEP — warna Season 1 aur Season 2 ek group ban jate
   var s = String(t || '').toLowerCase();
   var sea = '';
   var sm = s.match(/\bseason\s*0*(\d{1,2})\b/) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/);
-  if (sm) sea = ' season ' + parseInt(sm[1], 10);
+  if (sm) sea = ' season' + parseInt(sm[1], 10);
   s = s
     .replace(/\(.*?\)/g, ' ')
     .replace(/\[.*?\]/g, ' ')
     .replace(/\b(19|20)\d{2}\b/g, ' ')
-    .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|hdrip|hdtc|hevc|dual\s*audio|hindi\s*dubbed|hindi|english)\b/gi, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|brrip|hdrip|hdtc|hevc|x264|x265|10bit)\b/gi, ' ')
+    .replace(/\b(dual\s*audio|hindi\s*dubbed|english\s*dubbed|org\s*plus|multi\s*audio)\b/gi, ' ')
+    .replace(/\b(full\s*movie\s*download|movie\s*download|watch\s*online|free\s*download|download\s*free)\b/gi, ' ')
+    .replace(/\b(complete\s*anime\s*series|complete\s*series|complete\s*season|all\s*episodes|web\s*series|tv\s*series|anime\s*series)\b/gi, ' ')
+    .replace(/\b(hindi|english|tamil|telugu|malayalam|korean|japanese|chinese)\b/gi, ' ')
+    .replace(/\b(full|movie|download|watch|online|hd|bluray)\b/gi, ' ')
     .replace(/\bseason\s*\d+\b/gi, ' ')
     .replace(/\bs\s*\d{1,2}\b/gi, ' ')
     .replace(/\be\d{1,3}\b/gi, ' ')
+    .replace(/\b(the|a|an|of|and|or|in|on|to|for)\b/g, ' ')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   return (s + sea).trim();
 }
+function dupBaseTokens(t) {
+  return dupNormalizeTitle(t).replace(/\s*season\d+\s*/g, ' ').trim().split(/\s+/).filter(function(w){ return w.length > 1; });
+}
+function dupTokenSim(a, b) {
+  var at = dupBaseTokens(a), bt = dupBaseTokens(b);
+  if (!at.length || !bt.length) return 0;
+  var setB = {};
+  bt.forEach(function(w){ setB[w] = 1; });
+  var hit = 0;
+  at.forEach(function(w){ if (setB[w]) hit++; });
+  return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+}
+function dupSourceUrl(m) {
+  var u = String(m.sourcePageUrl || m.dlSourceUrl || m.pageUrl || m.videoSourceUrl || '').trim().toLowerCase();
+  if (!u) return '';
+  // strip query/hash for stable key
+  try {
+    var x = new URL(u);
+    u = x.origin + x.pathname;
+  } catch (e) {
+    u = u.split('?')[0].split('#')[0];
+  }
+  // normalize hdfun movie id path
+  var hm = u.match(/hdfun\.in\/movie\/(\d+)/i);
+  if (hm) return 'hdfun:' + hm[1];
+  return u.replace(/\/+$/, '');
+}
 function dupScore(m) {
   var s = 0;
   if (m.thumbnail) s += 5;
-  if (m.description) s += 2;
+  if (m.description && String(m.description).length > 40) s += 3;
   if (m.dlSourceUrl || m.videoSourceUrl || m.videoUrl) s += 4;
-  if (m.download1080p || m.download720p) s += 2;
-  if (m.screenshots) s += 1;
+  if (m.download1080p) s += 3;
+  if (m.download720p) s += 2;
+  if (m.download480p) s += 1;
+  if (m.screenshots && m.screenshots.length) s += 1;
   if (m.rating) s += 1;
   if (m.genre) s += 1;
   if (m.seoSlug) s += 1;
+  if (m.tmdbId) s += 2;
+  if (m.cast || m.castList) s += 1;
   if (m.addedAt) s += Math.min(2, Number(m.addedAt) / 1e13);
+  // prefer longer cleaner titles slightly less? keep richer meta
   return s;
 }
 var _dupGroups = [];
+
+function dupUnionFind() {
+  var parent = {};
+  function find(x) {
+    if (parent[x] === undefined) parent[x] = x;
+    if (parent[x] !== x) parent[x] = find(parent[x]);
+    return parent[x];
+  }
+  function union(a, b) {
+    var ra = find(a), rb = find(b);
+    if (ra !== rb) parent[rb] = ra;
+  }
+  return { find: find, union: union, parent: parent };
+}
 
 function findDuplicates() {
   var el = document.getElementById('dup-results');
   if (!el) return;
   var bulkBtn = document.getElementById('dup-bulk-btn');
   var sumEl = document.getElementById('dup-summary');
+  var mode = ((document.getElementById('dup-mode') || {}).value) || 'smart';
+  var fuzzyMin = parseInt((document.getElementById('dup-fuzzy') || {}).value, 10) || 78;
+  if (fuzzyMin < 60) fuzzyMin = 60;
+  if (fuzzyMin > 95) fuzzyMin = 95;
   _dupGroups = [];
 
-  var map = {};
-  allMovies.forEach(function(m) {
-    if (!m || !m.key) return;
-    var norm = dupNormalizeTitle(m.title);
-    if (!norm || norm.length < 2) return;
-    if (!map[norm]) map[norm] = [];
-    map[norm].push(m);
+  var list = (allMovies || []).filter(function(m){ return m && m.key && m.title; });
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:#555;">Movies load nahi hui</div>';
+    return;
+  }
+
+  var uf = dupUnionFind();
+  list.forEach(function(m){ uf.find(m.key); });
+
+  // 1) Same source URL (strongest)
+  if (mode === 'smart' || mode === 'url') {
+    var byUrl = {};
+    list.forEach(function(m) {
+      var u = dupSourceUrl(m);
+      if (!u || u.length < 8) return;
+      if (!byUrl[u]) byUrl[u] = [];
+      byUrl[u].push(m.key);
+    });
+    Object.keys(byUrl).forEach(function(u) {
+      var keys = byUrl[u];
+      if (keys.length < 2) return;
+      for (var i = 1; i < keys.length; i++) uf.union(keys[0], keys[i]);
+    });
+  }
+
+  // 2) Same TMDB id
+  if (mode === 'smart') {
+    var byTmdb = {};
+    list.forEach(function(m) {
+      var id = m.tmdbId ? String(m.tmdbId) : '';
+      if (!id) return;
+      // include media type-ish if year+title conflict rare
+      var k = id + '|' + (m.mediaType || '');
+      if (!byTmdb[k]) byTmdb[k] = [];
+      byTmdb[k].push(m.key);
+    });
+    Object.keys(byTmdb).forEach(function(k) {
+      var keys = byTmdb[k];
+      if (keys.length < 2) return;
+      for (var i = 1; i < keys.length; i++) uf.union(keys[0], keys[i]);
+    });
+  }
+
+  // 3) Exact normalized title (keeps season number)
+  if (mode === 'smart' || mode === 'strict') {
+    var byNorm = {};
+    list.forEach(function(m) {
+      var n = dupNormalizeTitle(m.title);
+      if (!n || n.length < 2) return;
+      if (!byNorm[n]) byNorm[n] = [];
+      byNorm[n].push(m.key);
+    });
+    Object.keys(byNorm).forEach(function(n) {
+      var keys = byNorm[n];
+      if (keys.length < 2) return;
+      for (var i = 1; i < keys.length; i++) uf.union(keys[0], keys[i]);
+    });
+  }
+
+  // 4) Fuzzy: same season bucket + high token overlap (only if not already grouped large)
+  if (mode === 'smart') {
+    // bucket by first significant token + season for O(n) friendliness
+    var buckets = {};
+    list.forEach(function(m) {
+      var n = dupNormalizeTitle(m.title);
+      var sea = '';
+      var sm = n.match(/season(\d+)/);
+      if (sm) sea = sm[1];
+      var tokens = n.replace(/\s*season\d+\s*/g, ' ').trim().split(/\s+/).filter(Boolean);
+      if (tokens.length < 1) return;
+      var bkey = tokens[0] + '|' + sea;
+      if (!buckets[bkey]) buckets[bkey] = [];
+      buckets[bkey].push(m);
+    });
+    Object.keys(buckets).forEach(function(bk) {
+      var arr = buckets[bk];
+      if (arr.length < 2 || arr.length > 80) return; // skip huge buckets
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          var sim = dupTokenSim(arr[i].title, arr[j].title);
+          if (sim >= fuzzyMin) {
+            // season must match (both none or same)
+            var ni = dupNormalizeTitle(arr[i].title);
+            var nj = dupNormalizeTitle(arr[j].title);
+            var si = (ni.match(/season(\d+)/) || [])[1] || '';
+            var sj = (nj.match(/season(\d+)/) || [])[1] || '';
+            if (si === sj) uf.union(arr[i].key, arr[j].key);
+          }
+        }
+      }
+    });
+  }
+
+  // Build groups from union-find
+  var groups = {};
+  list.forEach(function(m) {
+    var root = uf.find(m.key);
+    if (!groups[root]) groups[root] = [];
+    groups[root].push(m);
   });
 
-  Object.keys(map).forEach(function(k) {
-    var arr = map[k];
+  Object.keys(groups).forEach(function(root) {
+    var arr = groups[root];
     if (arr.length < 2) return;
     arr = arr.slice().sort(function(a, b) { return dupScore(b) - dupScore(a); });
     var keep = arr[0];
@@ -9481,20 +9955,23 @@ function findDuplicates() {
       title: keep.title || arr[0].title,
       keepKey: keep.key,
       deleteKeys: arr.slice(1).map(function(x) { return x.key; }),
-      items: arr
+      items: arr,
+      reason: dupGroupReason(arr)
     });
   });
 
+  _dupGroups.sort(function(a, b) { return b.items.length - a.items.length; });
+
   if (!_dupGroups.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--green);">✅ Koi duplicate nahi mila!</div>';
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--green);">✅ Koi duplicate nahi mila!<div style="font-size:0.78rem;color:#666;margin-top:8px;">Mode: ' + mode + ' · Fuzzy ' + fuzzyMin + '% · scanned ' + list.length + ' movies</div></div>';
     if (bulkBtn) bulkBtn.style.display = 'none';
-    if (sumEl) sumEl.textContent = '';
+    if (sumEl) sumEl.textContent = '0 groups · scanned ' + list.length;
     return;
   }
 
   var totalExtra = _dupGroups.reduce(function(n, g) { return n + g.deleteKeys.length; }, 0);
   if (bulkBtn) bulkBtn.style.display = 'inline-flex';
-  if (sumEl) sumEl.textContent = '⚠️ ' + _dupGroups.length + ' groups · ' + totalExtra + ' extra copies';
+  if (sumEl) sumEl.textContent = '⚠️ ' + _dupGroups.length + ' groups · ' + totalExtra + ' extra · scanned ' + list.length;
 
   function esc(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -9503,20 +9980,24 @@ function findDuplicates() {
   el.innerHTML = _dupGroups.map(function(g, gi) {
     return '<div class="card" style="margin-bottom:12px;border-color:rgba(245,158,11,0.35);">'
       + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px;">'
-      + '<div style="font-weight:700;color:#fcd34d;flex:1;">📽 ' + esc(g.title) + ' <span style="color:#888;font-weight:500;">(' + g.items.length + 'x)</span></div>'
-      + '<button class="btn btn-s" style="border-color:rgba(229,9,20,0.5);color:#fca5a5;font-size:0.75rem;padding:6px 12px;" onclick="dupDeleteGroup(' + gi + ')">🗑 Group duplicates delete</button>'
+      + '<div style="font-weight:700;color:#fcd34d;flex:1;">📽 ' + esc(g.title) + ' <span style="color:#888;font-weight:500;">(' + g.items.length + 'x)</span>'
+      + (g.reason ? ' <span style="font-size:0.68rem;color:#a3a3a3;font-weight:400;">· ' + esc(g.reason) + '</span>' : '')
+      + '</div>'
+      + '<button class="btn btn-s" style="border-color:rgba(229,9,20,0.5);color:#fca5a5;font-size:0.75rem;padding:6px 12px;" onclick="dupDeleteGroup(' + gi + ')">🗑 Group extras → Trash</button>'
       + '</div>'
       + g.items.map(function(m) {
           var isKeep = m.key === g.keepKey;
           var tu = m.thumbnail ? ('https://wsrv.nl/?url=' + encodeURIComponent(m.thumbnail) + '&w=40&h=56&fit=cover&output=jpg') : '';
           var when = m.addedAt ? new Date(Number(m.addedAt)).toLocaleString() : '—';
+          var src = dupSourceUrl(m);
           var safeTitle = String(m.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
           return '<div style="display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid #222;background:' + (isKeep ? 'rgba(34,197,94,0.06)' : 'transparent') + ';">'
             + (tu ? '<img src="' + tu + '" style="width:32px;height:46px;object-fit:cover;border-radius:3px;flex-shrink:0;">' : '<div style="width:32px;height:46px;background:#222;border-radius:3px;flex-shrink:0;"></div>')
             + '<div style="flex:1;min-width:0;">'
             + '<div style="font-size:0.84rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(m.title || '') + (isKeep ? ' <span style="color:#4ade80;font-size:0.72rem;">★ KEEP</span>' : '') + '</div>'
-            + '<div style="font-size:0.72rem;color:#666;">' + esc(m.category || '—') + ' · ' + esc(String(m.year || '—')) + ' · ' + esc(m.key) + ' · ' + when + '</div>'
-            + '</div>'
+            + '<div style="font-size:0.72rem;color:#666;">' + esc(m.category || '—') + ' · ' + esc(String(m.year || '—')) + ' · score ' + dupScore(m) + ' · ' + when
+            + (src ? ' · <span style="color:#888;">' + esc(src.substring(0, 40)) + '</span>' : '')
+            + '</div></div>'
             + (isKeep
               ? '<span style="font-size:0.72rem;color:#4ade80;padding:4px 8px;border:1px solid rgba(74,222,128,0.3);border-radius:6px;">Keep</span>'
               : '<button class="ib" onclick="confDel(\'' + m.key + '\',\'' + safeTitle + '\')" style="color:var(--red);border-color:var(--red);">🗑</button>')
@@ -9526,49 +10007,84 @@ function findDuplicates() {
   }).join('');
 }
 
-function dupDeleteGroup(gi) {
-  var g = _dupGroups[gi];
-  if (!g || !g.deleteKeys.length) { toast('Is group mein kuch nahi', 1); return; }
-  if (!confirm('"' + g.title + '" — ' + g.deleteKeys.length + ' duplicate delete?\n(1 copy KEEP)')) return;
-  var keys = g.deleteKeys.slice();
+function dupGroupReason(arr) {
+  var urls = {};
+  var norms = {};
+  var tmdbs = {};
+  arr.forEach(function(m) {
+    var u = dupSourceUrl(m); if (u) urls[u] = (urls[u]||0)+1;
+    var n = dupNormalizeTitle(m.title); if (n) norms[n] = (norms[n]||0)+1;
+    if (m.tmdbId) tmdbs[String(m.tmdbId)] = 1;
+  });
+  var parts = [];
+  var maxUrl = Math.max.apply(null, Object.keys(urls).map(function(k){ return urls[k]; }).concat([0]));
+  if (maxUrl >= 2) parts.push('same URL');
+  if (Object.keys(tmdbs).length === 1 && arr.filter(function(m){return m.tmdbId;}).length >= 2) parts.push('same TMDB');
+  var maxNorm = Math.max.apply(null, Object.keys(norms).map(function(k){ return norms[k]; }).concat([0]));
+  if (maxNorm >= 2) parts.push('same title');
+  else parts.push('fuzzy name');
+  return parts.join(' + ');
+}
+
+function dupSoftDeleteKeys(keys, doneCb) {
   var done = 0, fail = 0;
   function next(i) {
     if (i >= keys.length) {
-      toast('🗑 ' + done + ' deleted' + (fail ? ', ' + fail + ' fail' : ''));
-      findDuplicates();
+      if (doneCb) doneCb(done, fail);
+      try { if (typeof trashUpdateCount === 'function') trashUpdateCount(); } catch(e){}
       return;
     }
-    db.ref('movies/' + keys[i]).remove()
-      .then(function() { done++; next(i + 1); })
-      .catch(function() { fail++; next(i + 1); });
+    var k = keys[i];
+    var m = (allMovies || []).find(function(x){ return x && x.key === k; });
+    if (typeof softDeleteMovie === 'function' && m) {
+      // softDeleteMovie is async without callback — use trash path manually
+      var payload = Object.assign({}, m);
+      delete payload.key;
+      payload.deletedAt = Date.now();
+      try { removeLocalMovie(k); } catch(e){}
+      db.ref('trash/' + k).set(payload).then(function(){
+        return db.ref('movies/' + k).remove();
+      }).then(function(){ done++; next(i+1); })
+        .catch(function(){
+          db.ref('movies/' + k).remove().then(function(){ done++; next(i+1); }).catch(function(){ fail++; next(i+1); });
+        });
+    } else {
+      db.ref('movies/' + k).remove()
+        .then(function(){ try{removeLocalMovie(k);}catch(e){} done++; next(i+1); })
+        .catch(function(){ fail++; next(i+1); });
+    }
   }
   next(0);
+}
+
+function dupDeleteGroup(gi) {
+  var g = _dupGroups[gi];
+  if (!g || !g.deleteKeys.length) { toast('Is group mein kuch nahi', 1); return; }
+  if (!confirm('"' + g.title + '" — ' + g.deleteKeys.length + ' duplicate → Trash?\n(1 copy KEEP)')) return;
+  var keys = g.deleteKeys.slice();
+  dupSoftDeleteKeys(keys, function(done, fail) {
+    toast('♻️ ' + done + ' → Trash' + (fail ? ', ' + fail + ' fail' : ''));
+    findDuplicates();
+  });
 }
 
 function dupDeleteAllExtras() {
   if (!_dupGroups.length) { toast('Pehle Duplicates Dhundho', 1); return; }
   var total = _dupGroups.reduce(function(n, g) { return n + g.deleteKeys.length; }, 0);
   if (!total) { toast('Kuch nahi', 1); return; }
-  if (!confirm('SAARI ' + total + ' duplicate copies delete?\nHar group mein 1 KEEP.\nUndo nahi hoga!')) return;
+  if (!confirm('SAARI ' + total + ' duplicate copies → Trash?\nHar group mein 1 KEEP.')) return;
   var allKeys = [];
   _dupGroups.forEach(function(g) { g.deleteKeys.forEach(function(k) { allKeys.push(k); }); });
-  var done = 0, fail = 0;
   var el = document.getElementById('dup-summary');
-  function next(i) {
-    if (el) el.textContent = 'Deleting ' + Math.min(i + 1, allKeys.length) + '/' + allKeys.length + '...';
-    if (i >= allKeys.length) {
-      toast('✅ ' + done + ' duplicates hata di' + (fail ? ' (' + fail + ' fail)' : ''));
-      findDuplicates();
-      return;
-    }
-    db.ref('movies/' + allKeys[i]).remove()
-      .then(function() { done++; next(i + 1); })
-      .catch(function() { fail++; next(i + 1); });
-  }
-  next(0);
+  if (el) el.textContent = 'Moving to trash 0/' + allKeys.length + '...';
+  dupSoftDeleteKeys(allKeys, function(done, fail) {
+    if (el) el.textContent = 'Done';
+    toast('✅ ' + done + ' duplicates → Trash' + (fail ? ' (' + fail + ' fail)' : ''));
+    findDuplicates();
+  });
 }
 
-// ═══════════════════════════════════════════
+
 // 🖼 POSTER AUTO-FETCH
 // ═══════════════════════════════════════════
 var pfRunning = false;
