@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>CineNova Admin — Master Panel</title>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
@@ -608,6 +608,307 @@ tr:hover td{background:rgba(229,9,20,0.04);}
 .section.active{display:block!important;}
 #mtbl img{width:40px!important;height:56px!important;object-fit:cover;background:#222;}
 #mtbl-pager .btn{min-width:64px;}
+
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE + ANTI-ZOOM + ANTI-OVERFLOW FIX
+   ═══════════════════════════════════════════ */
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  position: relative;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  overscroll-behavior-x: none;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+img, video, iframe, svg, canvas {
+  max-width: 100%;
+  height: auto;
+}
+/* Prevent iOS input zoom (font < 16px triggers zoom) */
+@media (max-width: 768px) {
+  input.fi, input.inp, input.si, input.tfa-inp,
+  select.fi, textarea.fi, textarea,
+  .fi, .inp, .si, .tfa-inp {
+    font-size: 16px !important;
+  }
+}
+/* Tables never blow layout */
+.tw {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  max-width: 100%;
+}
+/* Long URLs / unbroken text */
+td, th, .card, #content {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+/* Fixed chrome safe */
+#topnav {
+  left: 0; right: 0;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+#sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 850;
+  display: none;
+  touch-action: none;
+}
+#sidebar-overlay.show { display: block; }
+
+/* ── MOBILE (≤768px) ── */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden !important; }
+
+  #topnav {
+    height: 56px !important;
+    padding: 0 12px !important;
+    gap: 8px;
+  }
+  #main-panel { padding-top: 56px !important; }
+
+  .logo {
+    font-size: 1.35rem !important;
+    letter-spacing: 1.5px !important;
+    white-space: nowrap;
+  }
+  .logo span { font-size: inherit; }
+
+  #sidebar {
+    transform: translateX(-105%) !important;
+    transition: transform 0.28s ease !important;
+    position: fixed !important;
+    top: 56px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: min(280px, 86vw) !important;
+    max-width: 280px !important;
+    z-index: 920 !important;
+    padding-bottom: 80px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  #sidebar.mob-open {
+    transform: translateX(0) !important;
+  }
+
+  #content {
+    margin-left: 0 !important;
+    padding: 12px 12px 88px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: calc(100vh - 56px);
+  }
+
+  #mob-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(229,9,20,0.12);
+    border: 1px solid rgba(229,9,20,0.35);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  #mob-bottomnav {
+    display: flex !important;
+    position: fixed !important;
+    left: 0; right: 0; bottom: 0;
+    height: 60px;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    background: rgba(8,8,8,0.97);
+    border-top: 1px solid rgba(229,9,20,0.2);
+    z-index: 950;
+    align-items: center;
+    justify-content: space-around;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  #mob-bottomnav button,
+  #mob-bottomnav .mob-nav-item {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 4px;
+    cursor: pointer;
+    font-family: Outfit, sans-serif;
+  }
+  #mob-bottomnav .mob-nav-item.active,
+  #mob-bottomnav button.active {
+    color: #e50914;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .stat-card { padding: 12px 8px !important; }
+  .stat-card .num { font-size: 1.7rem !important; }
+
+  .fg, .settings-2col {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .card {
+    padding: 14px !important;
+    margin-bottom: 14px !important;
+    border-radius: 12px !important;
+  }
+  .sec-title {
+    font-size: 1.35rem !important;
+    margin-bottom: 14px !important;
+  }
+
+  .search-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .si { min-width: 0 !important; width: 100% !important; }
+
+  .cat-filter {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px !important;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    scrollbar-width: none;
+  }
+  .cat-filter::-webkit-scrollbar { display: none; }
+  .cf-btn { flex-shrink: 0; white-space: nowrap; }
+
+  th, td {
+    padding: 8px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  .hide-mob { display: none !important; }
+
+  .form-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .form-actions .btn {
+    width: 100% !important;
+    text-align: center;
+  }
+
+  .login-box {
+    padding: 28px 18px !important;
+    margin: 12px !important;
+    max-width: calc(100% - 24px) !important;
+    border-radius: 14px !important;
+  }
+  .login-logo { font-size: 2.2rem !important; }
+  .tfa-box {
+    margin: 12px !important;
+    padding: 28px 18px !important;
+    max-width: calc(100% - 24px) !important;
+  }
+
+  #edit-modal { padding: 0 !important; }
+  #edit-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 16px 12px 80px !important;
+  }
+  #confirm-box {
+    margin: 12px !important;
+    max-width: calc(100% - 24px) !important;
+    padding: 22px 16px !important;
+  }
+
+  #toast {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 72px !important;
+    text-align: center;
+  }
+
+  #tmdb-results {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .ss-grid-prev {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .ep-block { padding: 12px !important; }
+
+  .img-input-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .upload-btn { width: 100%; justify-content: center; }
+
+  .nav-right { gap: 8px !important; }
+  #logout-btn {
+    padding: 7px 12px !important;
+    font-size: 0.78rem !important;
+  }
+  #admin-profile-pic {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* ── SMALL PHONES (≤400px) ── */
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .stat-card .num { font-size: 1.5rem !important; }
+  .logo { font-size: 1.2rem !important; letter-spacing: 1px !important; }
+  #content { padding: 10px 10px 88px !important; }
+}
+
+/* ── TABLET (769–1024) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  #sidebar { width: 220px !important; }
+  #content {
+    margin-left: 220px !important;
+    padding: 22px 20px 40px !important;
+  }
+  .fg { grid-template-columns: 1fr 1fr !important; }
+  .stats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+  }
+}
+
+/* Desktop: ensure no accidental horizontal scroll */
+@media (min-width: 769px) {
+  html, body { overflow-x: hidden !important; }
+  #content { max-width: 100%; }
+}
+
 </style>
 <!-- Plyr.io -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
@@ -7057,7 +7358,7 @@ function saveEdit(){
     if(m[k]===''||m[k]===undefined) m[k]=null;
   });
   if(!m.title){ toast('❌ Title zaroori hai',1); return; }
-  m.addedAt = Date.now();
+  // addedAt PRESERVE — edit pe date reset mat karo (sorting + Today/Week stats bigad jate the)
   var key = editKey;
   // Optimistic local update (instant UI)
   try { patchLocalMovie(key, m); } catch(e){}
@@ -8075,12 +8376,36 @@ function aiImportSelected(){
     // ✅ SEO slug auto-generate
     var aiSlug=(title+(year?'-'+year:'')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
     if(aiSlug)obj.seoSlug=aiSlug;
+    // TMDB ID from list result
+    if (m.id) obj.tmdbId = m.id;
+    if (m.backdrop_path) obj.backdrop = 'https://image.tmdb.org/t/p/w780' + m.backdrop_path;
 
-    document.getElementById('ai-prog-sub').textContent = '"'+title+'" — HDFun.in se links dhoond rahe hain...';
-    // Mp4Moviez removed — only HDFun
-    aiHdfunFetchLinks(title, year, {}, function(mergedLinks){
-      finalizeSave(mergedLinks || {});
-    });
+    document.getElementById('ai-prog-sub').textContent = '"'+title+'" — TMDB details + HDFun links...';
+
+    // Enrich director / cast / duration / backdrop from TMDB details+credits
+    function afterEnrich(tmdb) {
+      if (tmdb) {
+        if (tmdb.director) obj.director = tmdb.director;
+        if (tmdb.cast) obj.cast = tmdb.cast;
+        if (tmdb.castList && tmdb.castList.length) obj.castList = tmdb.castList;
+        if (tmdb.backdrop) obj.backdrop = tmdb.backdrop;
+        if (tmdb.duration) obj.duration = tmdb.duration;
+        if (tmdb.tmdbId) obj.tmdbId = tmdb.tmdbId;
+        if (tmdb.poster && !obj.thumbnail) obj.thumbnail = tmdb.poster;
+        if (tmdb.rating) obj.rating = tmdb.rating;
+        if (tmdb.description && !obj.description) obj.description = tmdb.description;
+      }
+      document.getElementById('ai-prog-sub').textContent = '"'+title+'" — HDFun.in se links...';
+      aiHdfunFetchLinks(title, year, {}, function(mergedLinks){
+        finalizeSave(mergedLinks || {});
+      });
+    }
+
+    if (typeof ffiTmdbEnrich === 'function') {
+      ffiTmdbEnrich(title, year, afterEnrich);
+    } else {
+      afterEnrich(null);
+    }
 
     function finalizeSave(links){
       Object.keys(links||{}).forEach(function(k){ if(links[k]) obj[k] = links[k]; });
@@ -12124,11 +12449,21 @@ function ffiTitleFromUrl(url) {
       .replace(/-/g, ' ')
       .trim();
     if (!slug || slug.length < 2) return '';
-    // season tokens in slug: season-3, s03, s3
+    // season / episode tokens in slug
     slug = slug.replace(/\bseason[\s\-]*0*(\d{1,2})\b/ig, 'Season $1')
-               .replace(/\bs[\s\-]*0*(\d{1,2})\b(?!\s*e)/ig, 'Season $1');
+               .replace(/\bs[\s\-]*0*(\d{1,2})\b(?![a-z])/ig, 'Season $1')
+               .replace(/\bepisode[\s\-]*0*(\d{1,3})\b/ig, 'Episode $1')
+               .replace(/\bep[\s\-]*0*(\d{1,3})\b/ig, 'Episode $1')
+               .replace(/\be[\s\-]*0*(\d{1,3})\b(?![a-z])/ig, 'Episode $1')
+               .replace(/\bcomplete[\s\-]*series\b/ig, 'Complete Series')
+               .replace(/\bhindi[\s\-]*dubbed\b/ig, 'Hindi Dubbed');
     var title = slug.split(' ').filter(Boolean).map(function(w){
       if (/^Season$/i.test(w)) return 'Season';
+      if (/^Episode$/i.test(w)) return 'Episode';
+      if (/^Complete$/i.test(w)) return 'Complete';
+      if (/^Series$/i.test(w)) return 'Series';
+      if (/^Hindi$/i.test(w)) return 'Hindi';
+      if (/^Dubbed$/i.test(w)) return 'Dubbed';
       if (/^\d+$/.test(w)) return w;
       return w.charAt(0).toUpperCase()+w.slice(1);
     }).join(' ');
@@ -12392,6 +12727,35 @@ function ffiStartImport() {
     }
 
     var p = selected[n];
+    // Race-safe claim: same URL/title only one parallel worker processes
+    (function claimLock() {
+      function _nu(u) {
+        var s = String(u || '').replace(/&amp;/g,'&').trim().toLowerCase();
+        s = s.split('#')[0].split('?')[0].replace(/\/$/,'');
+        s = s.replace(/^https?:\/\/(www\.)?/, '');
+        return s;
+      }
+      if (!window._ffiImportSeen) window._ffiImportSeen = { urls: {}, titles: {} };
+      var u = _nu(p.url);
+      if (u && (window._ffiImportSeen.urls[u] === 'claimed' || window._ffiImportSeen.urls[u] === 'done')) {
+        p._claimSkip = true;
+        p._claimReason = 'batch URL lock';
+        return;
+      }
+      if (u) window._ffiImportSeen.urls[u] = 'claimed'; // claim immediately (not 'done' yet)
+    })();
+    if (p._claimSkip) {
+      var item0 = document.getElementById('ffi-item-' + n);
+      if (item0) {
+        item0.className = 'bi-item bi-skip';
+        var st0 = document.getElementById('ffi-st-'+n);
+        if (st0) { st0.textContent = '⏭ Skip (' + (p._claimReason||'dup') + ')'; st0.className = 'bi-status skip'; }
+      }
+      skip++;
+      var skEl0 = document.getElementById('ffi-s-skip'); if (skEl0) skEl0.textContent = skip;
+      ffiItemDone();
+      return;
+    }
     document.getElementById('ffi-prog-sub').textContent = p.title;
     ffiUpdateProg();
 
@@ -12436,6 +12800,21 @@ function ffiStartImport() {
       // Parse data from page
       var data = ffiParsePage(html, p.url);
       if (!data.title) data.title = p.title;
+      // Prefer title that keeps Season/Episode numbers (series posts)
+      (function preferSeriesTitle() {
+        var a = String(data.title || '');
+        var b = String(p.title || '');
+        var hasEp = function(t) {
+          return /\b(season\s*\d+|s\s*\d+|episode\s*\d+|ep\s*\d+|\be\d{1,3}\b|complete)/i.test(t);
+        };
+        if (b && hasEp(b) && !hasEp(a)) data.title = b;
+        else if (b && hasEp(b) && hasEp(a)) {
+          // If both have ep, pick longer/more specific
+          if (b.length > a.length + 3) data.title = b;
+        }
+        // Clean double spaces
+        if (data.title) data.title = data.title.replace(/\s+/g, ' ').trim();
+      })();
       // 9xflix URL slug cleanup if title still bad
       if (data.title && (/^9xflix$/i.test(data.title) || data.title.length < 2) && p.url) {
         try {
@@ -12447,28 +12826,41 @@ function ffiStartImport() {
       // ── Duplicate / already-exists check (source URL + title+season+year) ──
       (function() {
         function normUrl(u) {
-          return String(u || '').replace(/&amp;/g,'&').replace(/\/$/,'').split('#')[0].split('?')[0].trim().toLowerCase();
+          var s = String(u || '').replace(/&amp;/g,'&').trim().toLowerCase();
+          s = s.split('#')[0].split('?')[0].replace(/\/$/,'');
+          s = s.replace(/^https?:\/\/(www\.)?/, ''); // strip protocol + www
+          s = s.replace(/\/+/g, '/');
+          return s;
         }
         function normTitleKey(t, y) {
           var s = String(t || '').toLowerCase();
-          var sea = '';
+          var sea = '', ep = '';
+          // Capture season + episode BEFORE stripping
           var sm = s.match(/\bseason\s*0*(\d{1,2})\b/) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/);
           if (sm) sea = '|s' + parseInt(sm[1], 10);
+          var em = s.match(/\bepisode\s*0*(\d{1,3})\b/) || s.match(/\bep\s*0*(\d{1,3})\b/) || s.match(/\be\s*0*(\d{1,3})\b(?!\d)/);
+          if (em) ep = '|e' + parseInt(em[1], 10);
+          // Complete pack flag so complete series != episode 1
+          var complete = /\bcomplete\b/i.test(s) ? '|complete' : '';
           s = s
             .replace(/\(.*?\)/g, ' ').replace(/\[.*?\]/g, ' ')
             .replace(/\b(19|20)\d{2}\b/g, ' ')
-            .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|hdrip|hevc|dual\s*audio|hindi\s*dubbed|hindi|english)\b/gi, ' ')
+            .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|hdrip|hevc|dual\s*audio|hindi\s*dubbed|hindi|english|series)\b/gi, ' ')
             .replace(/\bseason\s*\d+\b/gi, ' ').replace(/\bs\s*\d{1,2}\b/gi, ' ')
+            .replace(/\bepisode\s*\d+\b/gi, ' ').replace(/\bep\s*\d+\b/gi, ' ').replace(/\be\s*\d{1,3}\b/gi, ' ')
+            .replace(/\bcomplete\b/gi, ' ')
             .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-          return s + sea + '|' + String(y || '').replace(/\D/g,'').substring(0,4);
+          return s + sea + ep + complete + '|' + String(y || '').replace(/\D/g,'').substring(0,4);
         }
         var srcU = normUrl(p.url);
         var titleKey = normTitleKey(data.title || p.title, data.year);
         var exists = false;
         var reason = '';
         if (!window._ffiImportSeen) window._ffiImportSeen = { urls: {}, titles: {} };
-        if (srcU && window._ffiImportSeen.urls[srcU]) { exists = true; reason = 'batch URL'; }
-        if (!exists && titleKey && titleKey.length > 4 && window._ffiImportSeen.titles[titleKey]) { exists = true; reason = 'batch title'; }
+        // NOTE: urls[srcU] may already be set by processOne claim-lock ('claimed').
+        // Only skip if marked 'done' (another item fully finished this URL) — not mere claim.
+        if (srcU && window._ffiImportSeen.urls[srcU] === 'done') { exists = true; reason = 'batch URL'; }
+        if (!exists && titleKey && titleKey.length > 4 && window._ffiImportSeen.titles[titleKey] === 'done') { exists = true; reason = 'batch title'; }
         if (!exists && (allMovies || []).length) {
           for (var di = 0; di < allMovies.length; di++) {
             var am = allMovies[di];
@@ -12484,8 +12876,8 @@ function ffiStartImport() {
           }
         }
         if (exists) {
-          if (srcU) window._ffiImportSeen.urls[srcU] = 1;
-          if (titleKey) window._ffiImportSeen.titles[titleKey] = 1;
+          if (srcU) window._ffiImportSeen.urls[srcU] = 'done';
+          if (titleKey) window._ffiImportSeen.titles[titleKey] = 'done';
           if (!finishItemOk()) return;
           skip++;
           if (item) {
@@ -12498,8 +12890,8 @@ function ffiStartImport() {
           ffiItemDone();
           return;
         }
-        if (srcU) window._ffiImportSeen.urls[srcU] = 1;
-        if (titleKey) window._ffiImportSeen.titles[titleKey] = 1;
+        if (srcU) window._ffiImportSeen.urls[srcU] = 'done';
+        if (titleKey) window._ffiImportSeen.titles[titleKey] = 'done';
       })();
       if (itemFinished) return;
 
@@ -12912,7 +13304,11 @@ function ffiStartImport() {
             epList.sort(function(a,b){ return (parseInt(a.episode,10)||0)-(parseInt(b.episode,10)||0); });
             if (epList.length) {
               dataObj.episodes = epList;
-              dataObj.category = dataObj.category === 'adult' ? 'adult' : 'webseries';
+              // Keep source category; only default to webseries_hindi if empty/generic
+              if (!dataObj.category || dataObj.category === 'english_movies') {
+                dataObj.category = 'webseries_hindi';
+              }
+              if (dataObj.category === 'adult') dataObj.category = 'adult';
               var e0 = epList[0];
               if (!dataObj.download720p && e0.dl720) dataObj.download720p = e0.dl720;
               if (!dataObj.download1080p && e0.dl1080) dataObj.download1080p = e0.dl1080;
@@ -13037,6 +13433,7 @@ function ffiStartImport() {
           if (tmdb.director && !data.director) data.director = tmdb.director;
           if (tmdb.backdrop) data.backdrop = tmdb.backdrop;
           if (tmdb.tmdbId) data.tmdbId = tmdb.tmdbId;
+          if (tmdb.duration && !data.duration) data.duration = tmdb.duration;
         }
 
         // ── IMDb POSTER (priority over TMDB/site thumbnail) ──
@@ -13081,6 +13478,16 @@ function ffiStartImport() {
         if (listCat && typeof strictImportCategory === 'function') {
           var _sc0 = strictImportCategory(listCat, tCheck0, p.url || '', data.language || '');
           if (_sc0) data.category = _sc0;
+        }
+        // HARD LOCK: source listing category always wins when present
+        if (listCat && listCat !== 'adult') {
+          data.category = listCat;
+          if (typeof refineImportCategory === 'function') {
+            data.category = refineImportCategory(listCat, tCheck0, data.language || '') || listCat;
+          }
+        } else if (listCat === 'adult' || (p && p.listCat === 'adult')) {
+          data.category = data.category && {philippines:1,hot_short_hindi:1,adult:1}[data.category]
+            ? data.category : 'hot_short_hindi';
         }
 
         if (listCat && !adultPanelCats[listCat] && listCat !== 'adult' && data.category === 'adult' && !isAd) {
@@ -13195,6 +13602,20 @@ function ffiStartImport() {
         if (listCat2 && typeof strictImportCategory === 'function') {
           var _sc = strictImportCategory(listCat2, tCheck, p.url || '', data.language || '');
           if (_sc) obj.category = _sc;
+        }
+        // HARD LOCK: panel category = source list category
+        if (listCat2 && listCat2 !== 'adult') {
+          obj.category = (typeof refineImportCategory === 'function')
+            ? (refineImportCategory(listCat2, tCheck, data.language || '') || listCat2)
+            : listCat2;
+        } else if (listCat2 === 'adult') {
+          obj.category = obj.category && {philippines:1,hot_short_hindi:1,adult:1}[obj.category]
+            ? obj.category : 'hot_short_hindi';
+        }
+        if (p && p.listCat && p.listCat !== 'adult') {
+          obj.category = (typeof refineImportCategory === 'function')
+            ? (refineImportCategory(p.listCat, obj.title || tCheck, data.language || '') || p.listCat)
+            : p.listCat;
         }
         // kdrama title hint ONLY when no source listCat
         if (!listCat2) {
@@ -13492,7 +13913,24 @@ function ffiStartImport() {
                 obj.category = /vivamax|tagalog|pinoy/i.test((obj.title||'')+' '+(p.url||'')) ? 'philippines' : 'hot_short_hindi';
               }
             }
-            db.ref('movies/' + _ak).set(obj).then(function() {
+            // Force source category one more time before write
+            if (p && p.listCat) {
+              obj.category = (typeof strictImportCategory === 'function')
+                ? (strictImportCategory(p.listCat, obj.title || '', p.url || '', obj.language || '') || p.listCat)
+                : p.listCat;
+            }
+            obj._autoSaved = true;
+            if (!obj.title || !String(obj.title).trim()) {
+              obj.title = (p && p.title) ? p.title : ('Untitled ' + Date.now());
+            }
+            // Strip client-only flags that can confuse rules / UI
+            var toSave = Object.assign({}, obj);
+            delete toSave._autoSaved;
+            delete toSave._playmateSkip;
+            delete toSave._claimSkip;
+            delete toSave._claimReason;
+            delete toSave._mp4Id;
+            db.ref('movies/' + _ak).set(toSave).then(function() {
               obj.key = _ak;
               if (typeof allMovies !== 'undefined') {
                 allMovies.unshift(obj);
@@ -13503,11 +13941,13 @@ function ffiStartImport() {
               window._ffiBatchKeys.push(_ak);
               var _bc = obj.category || 'unknown';
               window._ffiBatchCats[_bc] = (window._ffiBatchCats[_bc] || 0) + 1;
-              if (typeof hdautoLog === 'function') hdautoLog('✅ Auto-saved: ' + (obj.title || '').substring(0, 55), 'ok');
+              if (typeof hdautoLog === 'function') hdautoLog('✅ Auto-saved [' + _bc + ']: ' + (obj.title || '').substring(0, 50), 'ok');
               var oEl = document.getElementById('hdauto-s-ok');
               if (oEl) oEl.textContent = String((parseInt(oEl.textContent,10)||0) + 1);
-            }).catch(function() {
-              if (typeof hdautoLog === 'function') hdautoLog('❌ Save fail: ' + (obj.title || ''), 'err');
+            }).catch(function(errSave) {
+              var em = (errSave && errSave.message) ? errSave.message : String(errSave || 'unknown');
+              if (typeof hdautoLog === 'function') hdautoLog('❌ Save fail: ' + (obj.title || '') + ' — ' + em, 'err');
+              try { toast('❌ Firebase save fail: ' + em, 1); } catch(eT){}
             });
           } catch (eHd) {}
         }
@@ -13832,8 +14272,17 @@ function ffiSaveToJsonBucket() {
 }
 
 function ffiSaveReviewed() {
-  var selected = _ffiReviewQueue.filter(function(r) { return r.checked; });
-  if (!selected.length) { toast('❌ Koi movie select nahi!', 1); return; }
+  // Skip items already auto-saved by HDFun auto-import (prevents double posts)
+  var selected = _ffiReviewQueue.filter(function(r) {
+    if (!r.checked) return false;
+    if (r.obj && r.obj._autoSaved) return false;
+    if (r.obj && r.obj.key) return false; // already has Firebase key
+    return true;
+  });
+  if (!selected.length) {
+    toast('ℹ️ Save ke liye naya item nahi (already saved / unchecked)', 0);
+    return;
+  }
 
   var btn = document.getElementById('ffi-save-btn');
   var statusEl = document.getElementById('ffi-save-status');
@@ -16687,7 +17136,7 @@ function ffiTmdbEnrich(title, year, cb) {
     .then(function(res){
       var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
       if (year) {
-        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(year); });
+        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(String(year)); });
         if (filtered.length) results = filtered;
       }
       // Prefer TV result if title looks like series
@@ -16708,6 +17157,7 @@ function ffiTmdbEnrich(title, year, cb) {
       var catGuess = '';
       if (isAsianDrama) catGuess = 'kdrama';
       else if (m.media_type === 'tv') catGuess = 'webseries';
+      var mediaType = m.media_type === 'tv' ? 'tv' : 'movie';
       var base = {
         poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
         backdrop: m.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + m.backdrop_path : '',
@@ -16719,31 +17169,54 @@ function ffiTmdbEnrich(title, year, cb) {
         original_language: lang,
         isAsianDrama: isAsianDrama,
         tmdbId: m.id,
-        mediaType: m.media_type || 'movie'
+        mediaType: mediaType
       };
-      // Credits (cast + director) → Firebase save ke liye (theme live TMDB nahi)
-      var credUrl = 'https://api.themoviedb.org/3/' + (m.media_type === 'tv' ? 'tv' : 'movie') + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
-      fetch(credUrl)
-        .then(function(r){ return r.json(); })
-        .then(function(credits) {
-          var castArr = (credits && credits.cast) ? credits.cast.slice(0, 12) : [];
-          base.castList = castArr.map(function(c) {
-            return {
-              name: c.name || '',
-              character: c.character || '',
-              profile_path: c.profile_path || null,
-              photo: c.profile_path ? ('https://image.tmdb.org/t/p/w185' + c.profile_path) : null
-            };
-          }).filter(function(c) { return c.name; });
-          if (base.castList.length) {
-            base.cast = base.castList.map(function(c) { return c.name; }).join(', ');
-          }
-          var crew = (credits && credits.crew) ? credits.crew : [];
-          var dir = crew.filter(function(c) { return /director/i.test(c.job || ''); });
-          if (dir.length) base.director = dir.slice(0, 2).map(function(d) { return d.name; }).join(', ');
-          cb(base);
-        })
-        .catch(function() { cb(base); });
+      // Details (runtime/duration) + Credits (cast + director) parallel — fill Director/Cast/Backdrop/Duration/TMDB ID
+      var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US';
+      var credUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
+      Promise.all([
+        fetch(detailUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; }),
+        fetch(credUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; })
+      ]).then(function(arr) {
+        var detail = arr[0] || {};
+        var credits = arr[1] || {};
+        // Duration / runtime
+        if (detail.runtime && detail.runtime > 0) {
+          var mins = parseInt(detail.runtime, 10);
+          var h = Math.floor(mins / 60);
+          var mm = mins % 60;
+          base.duration = h > 0 ? (h + 'h ' + (mm ? mm + 'm' : '')).trim() : (mins + 'm');
+        } else if (detail.episode_run_time && detail.episode_run_time[0]) {
+          base.duration = detail.episode_run_time[0] + 'm';
+        }
+        // Better poster/backdrop/desc from full detail if available
+        if (detail.poster_path) base.poster = 'https://image.tmdb.org/t/p/w500' + detail.poster_path;
+        if (detail.backdrop_path) base.backdrop = 'https://image.tmdb.org/t/p/w780' + detail.backdrop_path;
+        if (detail.overview) base.description = detail.overview;
+        if (detail.vote_average) base.rating = Number(detail.vote_average).toFixed(1);
+        // Cast
+        var castArr = (credits.cast) ? credits.cast.slice(0, 12) : [];
+        base.castList = castArr.map(function(c) {
+          return {
+            name: c.name || '',
+            character: c.character || '',
+            profile_path: c.profile_path || null,
+            photo: c.profile_path ? ('https://image.tmdb.org/t/p/w185' + c.profile_path) : null
+          };
+        }).filter(function(c) { return c.name; });
+        if (base.castList.length) {
+          base.cast = base.castList.map(function(c) { return c.name; }).join(', ');
+        }
+        // Director (movies) or Creator (TV)
+        var crew = credits.crew || [];
+        var dir = crew.filter(function(c) { return /director/i.test(c.job || ''); });
+        if (dir.length) {
+          base.director = dir.slice(0, 2).map(function(d) { return d.name; }).join(', ');
+        } else if (detail.created_by && detail.created_by.length) {
+          base.director = detail.created_by.slice(0, 2).map(function(d) { return d.name; }).join(', ');
+        }
+        cb(base);
+      }).catch(function() { cb(base); });
     })
     .catch(function(){ cb(null); });
 }
