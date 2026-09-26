@@ -1061,6 +1061,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
     <div class="nav-item" id="nav-pmmatch" onclick="show('pmmatch')" style="color:#60a5fa;">🎯 Playmate Match</div>
     <div class="nav-item" id="nav-posterfix" onclick="show('posterfix')" style="color:#fb923c;">🖼️ Poster Fix (TMDB)</div>
+    <div class="nav-item" id="nav-oneclick" onclick="show('oneclick')" style="color:#fbbf24;">⚡ One-Click Fill (IMDb)</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-section-title">🤖 SEO AI Tools</div>
     <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
@@ -1967,9 +1968,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-seasons">
       <div class="sec-title">📺 Season <span>Manager</span></div>
       <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;line-height:1.55;">
-        Series ko base title se group karta hai.<br>
-        <b>Merge → 1 Complete Post:</b> Alag-alag episode posts (jaise The Boys Ep 1,2,3…) ka links <b>ek Complete Series</b> post mein jod do; baaki posts Trash mein chali jayengi.<br>
-        Missing season number fix bhi yahan se.
+        Series ko base title se group karta hai. Missing season number wali posts highlight. Title mein Season X fix kar sakte ho.
       </div>
       <div class="card">
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
@@ -2650,6 +2649,50 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
     <!-- ═══ END POSTER FIX ═══ -->
+
+    <!-- ═══ ONE-CLICK FILL IMDb + TMDB ═══ -->
+    <div class="section" id="sec-oneclick">
+      <div class="sec-title">⚡ One-Click Fill <span>(IMDb + TMDB)</span></div>
+      <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#fde68a;line-height:1.55;">
+        <b>Ek click</b> se selected movies pe fill hoga:<br>
+        • <b>Poster</b> — IMDb se (asli poster)<br>
+        • <b>Details</b> — TMDB se (director, cast, backdrop, rating, overview, year, tmdbId)<br>
+        Note: IMDb ka free public API nahi; poster IMDb suggestion API se, baaki details TMDB se (official data).
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+          <select class="fi" id="oc-filter" style="max-width:220px;" onchange="ocLoadList()">
+            <option value="missing">⭕ Missing poster / details</option>
+            <option value="no_poster">🖼️ Sirf bina poster</option>
+            <option value="no_details">📝 Sirf bina director/cast</option>
+            <option value="all">📋 Category ki saari</option>
+          </select>
+          <select class="fi" id="oc-cat" style="max-width:220px;" onchange="ocLoadList()">
+            <option value="">— All Categories —</option>
+          </select>
+          <input class="fi" id="oc-search" placeholder="Search title…" style="max-width:200px;" oninput="ocLoadList()"/>
+          <input class="fi" id="oc-limit" type="number" value="30" min="1" max="200" style="width:80px;" title="Max movies"/>
+          <button type="button" class="btn btn-s" onclick="ocLoadList()">🔍 Load</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <button type="button" class="btn btn-s" onclick="ocSelectAll(true)">✅ Select All</button>
+          <button type="button" class="btn btn-s" onclick="ocSelectAll(false)">❌ Deselect</button>
+          <span style="font-size:0.78rem;color:var(--grey);">Selected: <b id="oc-sel-count" style="color:#fff;">0</b></span>
+          <button type="button" class="btn btn-p" id="oc-run-btn" onclick="ocStartFill()" style="background:#f59e0b;margin-left:auto;">⚡ One-Click Fill Selected</button>
+          <button type="button" class="btn btn-s" id="oc-stop-btn" onclick="ocStopFill()" style="display:none;background:#7f1d1d;color:#fff;">⏹ Stop</button>
+        </div>
+        <div id="oc-prog-wrap" style="display:none;margin-bottom:12px;">
+          <div style="height:8px;background:#1a1a1a;border-radius:10px;overflow:hidden;">
+            <div id="oc-pbar" style="height:100%;width:0%;background:linear-gradient(90deg,#fbbf24,#f59e0b);transition:width 0.25s;"></div>
+          </div>
+          <div id="oc-prog-text" style="font-size:0.78rem;color:var(--grey);margin-top:6px;"></div>
+        </div>
+        <div id="oc-stats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+        <div id="oc-list" style="display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;"></div>
+        <div id="oc-log" style="margin-top:12px;max-height:200px;overflow-y:auto;font-size:0.75rem;color:#aaa;"></div>
+      </div>
+    </div>
+    <!-- ═══ END ONE-CLICK FILL ═══ -->
 
     <!-- ═══ PLAYMATE UPLOAD ═══ -->
     <div class="section" id="sec-playmate">
@@ -4961,6 +5004,7 @@ function show(name){
   if(name==='jsonexport'){try{jbRender();}catch(e){}}
   if(name==='pmmatch'){try{if(!pmGetKey())document.getElementById('pmm-status').textContent='⚠️ Pehle Playmate section mein API key save karo';}catch(e){}}
   if(name==='posterfix'){try{pfPopulateCatDropdown();}catch(e){}}
+  if(name==='oneclick'){try{ocInit();}catch(e){}}
   if(name==='hdauto'){
     try {
       var hcb=document.getElementById('hdauto-auto-toggle');
@@ -6876,17 +6920,10 @@ async function pfStartBulkFix() {
     await new Promise(function(resolve) {
       try {
         ffiTmdbEnrich(m.title, m.year, function(tmdb) {
-          // Strict: sirf solid match (galat poster avoid)
-          var okPoster = tmdb && tmdb.poster && tmdb.tmdbId;
-          if (okPoster) {
-            var updates = { thumbnail: tmdb.poster };
-            if (tmdb.backdrop) updates.backdrop = tmdb.backdrop;
-            if (tmdb.tmdbId) updates.tmdbId = tmdb.tmdbId;
-            if (tmdb.director) updates.director = tmdb.director;
-            if (tmdb.cast) updates.cast = tmdb.cast;
-            db.ref('movies/' + m.key).update(updates).then(function() {
+          if (tmdb && tmdb.poster) {
+            db.ref('movies/' + m.key + '/thumbnail').set(tmdb.poster).then(function() {
               updated++;
-              logLine('✅ ' + m.title + ' → TMDB #' + tmdb.tmdbId, '#4ade80');
+              logLine('✅ ' + m.title, '#4ade80');
               resolve();
             }).catch(function() {
               failed++;
@@ -6895,7 +6932,7 @@ async function pfStartBulkFix() {
             });
           } else {
             notFound++;
-            logLine('⚠️ ' + m.title + ' — TMDB match nahi / weak (skip — galat poster nahi)', '#fbbf24');
+            logLine('⚠️ ' + m.title + ' — TMDB match nahi mila', '#fbbf24');
             resolve();
           }
         });
@@ -19079,6 +19116,197 @@ function dlStartScan() {
   next();
 }
 
+
+// ═══ ONE-CLICK FILL (IMDb poster + TMDB details) ═══
+var _ocStop = false;
+var _ocBusy = false;
+
+function ocInit() {
+  var sel = document.getElementById('oc-cat');
+  if (!sel) return;
+  var cats = {};
+  (allMovies || []).forEach(function(m) {
+    var c = (m.category || '').trim();
+    if (c) cats[c] = 1;
+  });
+  var cur = sel.value;
+  var opts = '<option value="">— All Categories —</option>';
+  Object.keys(cats).sort().forEach(function(c) {
+    opts += '<option value="' + String(c).replace(/"/g, '&quot;') + '">' + String(c).replace(/</g, '&lt;') + '</option>';
+  });
+  sel.innerHTML = opts;
+  if (cur) sel.value = cur;
+  ocLoadList();
+}
+
+function ocNeedsFill(m, mode) {
+  if (!m) return false;
+  var noPoster = !m.thumbnail || !String(m.thumbnail).trim();
+  var noDetails = !m.director || !m.cast || !m.tmdbId;
+  if (mode === 'no_poster') return noPoster;
+  if (mode === 'no_details') return noDetails;
+  if (mode === 'missing') return noPoster || noDetails;
+  return true; // all
+}
+
+function ocLoadList() {
+  var mode = (document.getElementById('oc-filter') || {}).value || 'missing';
+  var cat = (document.getElementById('oc-cat') || {}).value || '';
+  var q = ((document.getElementById('oc-search') || {}).value || '').toLowerCase().trim();
+  var limit = parseInt((document.getElementById('oc-limit') || {}).value, 10) || 30;
+  var list = (allMovies || []).filter(function(m) {
+    if (!m || !m.key) return false;
+    if (cat && (m.category || '') !== cat) return false;
+    if (q && String(m.title || '').toLowerCase().indexOf(q) === -1) return false;
+    return ocNeedsFill(m, mode);
+  });
+  // newest first
+  list.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+  list = list.slice(0, limit);
+  var el = document.getElementById('oc-list');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div style="padding:28px;text-align:center;color:#555;">Koi movie nahi mili — filter badlo</div>';
+    ocUpdateSelCount();
+    return;
+  }
+  el.innerHTML = list.map(function(m) {
+    var thumb = m.thumbnail
+      ? '<img src="' + String(m.thumbnail).replace(/"/g, '&quot;') + '" style="width:40px;height:56px;object-fit:cover;border-radius:4px;background:#111;" onerror="this.style.opacity=0.3"/>'
+      : '<div style="width:40px;height:56px;background:#1a1a1a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:#555;">?</div>';
+    var miss = [];
+    if (!m.thumbnail) miss.push('poster');
+    if (!m.director) miss.push('director');
+    if (!m.cast) miss.push('cast');
+    if (!m.tmdbId) miss.push('tmdb');
+    return '<label style="display:flex;gap:10px;align-items:center;padding:8px 10px;background:#111;border:1px solid #1e1e1e;border-radius:8px;cursor:pointer;">'
+      + '<input type="checkbox" class="oc-cb" data-key="' + m.key + '" checked onchange="ocUpdateSelCount()"/>'
+      + thumb
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (typeof escHtml === 'function' ? escHtml(m.title || '') : (m.title || '')) + '</div>'
+      + '<div style="font-size:0.7rem;color:#888;">' + (m.year || '') + (m.category ? ' · ' + m.category : '') + (miss.length ? ' · <span style="color:#fbbf24;">missing: ' + miss.join(', ') + '</span>' : '') + '</div>'
+      + '</div></label>';
+  }).join('');
+  ocUpdateSelCount();
+}
+
+function ocSelectAll(on) {
+  document.querySelectorAll('.oc-cb').forEach(function(cb) { cb.checked = !!on; });
+  ocUpdateSelCount();
+}
+function ocUpdateSelCount() {
+  var n = document.querySelectorAll('.oc-cb:checked').length;
+  var el = document.getElementById('oc-sel-count');
+  if (el) el.textContent = n;
+}
+
+function ocStopFill() { _ocStop = true; }
+
+function ocLog(msg, color) {
+  var el = document.getElementById('oc-log');
+  if (!el) return;
+  var d = document.createElement('div');
+  d.style.color = color || '#aaa';
+  d.textContent = msg;
+  el.insertBefore(d, el.firstChild);
+}
+
+function ocStartFill() {
+  if (_ocBusy) return;
+  var keys = [];
+  document.querySelectorAll('.oc-cb:checked').forEach(function(cb) {
+    keys.push(cb.getAttribute('data-key'));
+  });
+  if (!keys.length) { toast('Pehle movies select karo', 1); return; }
+  if (typeof ffiTmdbEnrich !== 'function') { toast('TMDB function missing', 1); return; }
+
+  _ocBusy = true;
+  _ocStop = false;
+  var btn = document.getElementById('oc-run-btn');
+  var stopBtn = document.getElementById('oc-stop-btn');
+  if (btn) btn.disabled = true;
+  if (stopBtn) stopBtn.style.display = '';
+  var wrap = document.getElementById('oc-prog-wrap');
+  if (wrap) wrap.style.display = 'block';
+  document.getElementById('oc-log').innerHTML = '';
+
+  var done = 0, ok = 0, fail = 0, total = keys.length;
+
+  function updateProg() {
+    var pct = Math.round((done / total) * 100);
+    var bar = document.getElementById('oc-pbar');
+    var txt = document.getElementById('oc-prog-text');
+    if (bar) bar.style.width = pct + '%';
+    if (txt) txt.textContent = done + ' / ' + total + ' — ✅ ' + ok + ' · ❌ ' + fail;
+  }
+
+  function finish() {
+    _ocBusy = false;
+    if (btn) { btn.disabled = false; }
+    if (stopBtn) stopBtn.style.display = 'none';
+    toast('One-Click Fill: ✅ ' + ok + ' · ❌ ' + fail);
+    document.getElementById('oc-stats').innerHTML =
+      '<span style="font-size:0.75rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">✅ ' + ok + '</span>' +
+      '<span style="font-size:0.75rem;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;padding:3px 10px;border-radius:20px;">❌ ' + fail + '</span>';
+    ocLoadList();
+  }
+
+  function next(i) {
+    if (_ocStop || i >= keys.length) { finish(); return; }
+    var key = keys[i];
+    var m = (allMovies || []).find(function(x) { return x && x.key === key; });
+    if (!m) { done++; fail++; updateProg(); next(i + 1); return; }
+
+    // Step 1: IMDb poster (if available)
+    function afterPoster(posterUrl) {
+      // Step 2: TMDB full details
+      ffiTmdbEnrich(m.title, m.year, function(tmdb) {
+        var updates = {};
+        if (posterUrl) updates.thumbnail = posterUrl;
+        else if (tmdb && tmdb.poster) updates.thumbnail = tmdb.poster;
+        if (tmdb) {
+          if (tmdb.backdrop) updates.backdrop = tmdb.backdrop;
+          if (tmdb.tmdbId) updates.tmdbId = tmdb.tmdbId;
+          if (tmdb.director) updates.director = tmdb.director;
+          if (tmdb.cast) updates.cast = tmdb.cast;
+          if (tmdb.overview || tmdb.description) updates.description = tmdb.overview || tmdb.description;
+          if (tmdb.rating || tmdb.vote) updates.rating = tmdb.rating || tmdb.vote;
+          if (tmdb.year && !m.year) updates.year = tmdb.year;
+          if (tmdb.runtime || tmdb.duration) updates.duration = tmdb.runtime || tmdb.duration;
+          if (tmdb.genres) updates.genres = tmdb.genres;
+        }
+        if (!Object.keys(updates).length) {
+          fail++;
+          ocLog('⚠️ ' + m.title + ' — koi data nahi mila', '#fbbf24');
+          done++; updateProg(); next(i + 1);
+          return;
+        }
+        db.ref('movies/' + key).update(updates).then(function() {
+          Object.keys(updates).forEach(function(k) { m[k] = updates[k]; });
+          ok++;
+          ocLog('✅ ' + m.title + (updates.thumbnail ? ' · poster' : '') + (updates.director ? ' · details' : ''), '#4ade80');
+          done++; updateProg(); next(i + 1);
+        }).catch(function(e) {
+          fail++;
+          ocLog('❌ ' + m.title + ' save fail', '#f87171');
+          done++; updateProg(); next(i + 1);
+        });
+      });
+    }
+
+    if (typeof ffiImdbPoster === 'function') {
+      ffiImdbPoster(m.title, m.year, function(imdbPoster) {
+        afterPoster(imdbPoster || null);
+      });
+    } else {
+      afterPoster(null);
+    }
+  }
+
+  next(0);
+}
+
+
 // ── SEASON MANAGER ──
 var _smgrGroups = [];
 function smgrBaseTitle(t) {
@@ -19117,10 +19345,7 @@ function smgrScan() {
   });
   _smgrGroups = Object.keys(map).map(function(b) {
     var items = map[b];
-    var seasons = {};
-    var noSeason = 0;
-    var epPosts = 0;
-    var completePosts = 0;
+    var seasons = {}, noSeason = 0, epPosts = 0, completePosts = 0;
     items.forEach(function(m) {
       var sn = smgrSeasonNum(m.title);
       if (sn == null) noSeason++;
@@ -19150,16 +19375,12 @@ function smgrRender() {
     el.innerHTML = '<div style="padding:28px;text-align:center;color:#555;">Scan dabao ya filter badlo</div>';
     return;
   }
-  el.innerHTML = rows.slice(0, 80).map(function(g, gi) {
+  el.innerHTML = rows.slice(0, 80).map(function(g) {
     var seaKeys = Object.keys(g.seasons).map(Number).sort(function(a,b){return a-b;});
     var seaStr = seaKeys.map(function(s){ return 'S' + s + '(' + g.seasons[s] + ')'; }).join(' · ') || '—';
     var canMerge = g.items.length >= 2 && (g.epPosts >= 1 || g.completePosts >= 1);
     var mergeBtn = canMerge
-      ? '<button class="btn btn-p" style="padding:6px 12px;font-size:0.75rem;margin-left:8px;" onclick="smgrMergeToComplete(' + gi + ')">🔗 Merge → 1 Complete Post</button>'
-      : '';
-    // use filtered index carefully — store base in data attr
-    mergeBtn = canMerge
-      ? '<button class="btn btn-p" style="padding:6px 12px;font-size:0.75rem;margin-left:8px;" onclick="smgrMergeToCompleteByBase(\'' + String(g.base).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">🔗 Merge → 1 Complete Post</button>'
+      ? '<button class="btn btn-p" style="padding:6px 12px;font-size:0.75rem;margin-left:8px;" onclick="smgrMergeToCompleteByBase(\'' + String(g.base).replace(/\\\\/g,'\\\\\\\\').replace(/\'/g,"\\\\'") + '\')">🔗 Merge → 1 Complete Post</button>'
       : '';
     return '<div class="card" style="padding:12px;margin-bottom:10px;border-color:rgba(56,189,248,0.25);">'
       + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;">'
@@ -19197,73 +19418,36 @@ function smgrFixSeason(key) {
     smgrScan();
   }).catch(function(e){ toast('❌ ' + e.message, 1); });
 }
-
-/** Collect best download URLs from a movie object into one episode entry */
 function smgrLinksFromMovie(m, epNum) {
   var ep = {
-    ep: epNum || 1,
-    title: m.title || ('Episode ' + (epNum || 1)),
-    download1080p: m.download1080p || '',
-    download720p: m.download720p || '',
-    download480p: m.download480p || '',
-    download4k: m.download4k || '',
-    size1080: m.size1080 || '',
-    size720: m.size720 || '',
-    size480: m.size480 || '',
-    size4k: m.size4k || '',
-    videoUrl: m.videoUrl || '',
-    playmateId: m.playmateId || '',
-    playmateUrl: m.playmateUrl || '',
-    embedUrl: m.embedUrl || ''
+    ep: epNum || 1, title: m.title || ('Episode ' + (epNum || 1)),
+    download1080p: m.download1080p || '', download720p: m.download720p || '',
+    download480p: m.download480p || '', download4k: m.download4k || '',
+    size1080: m.size1080 || '', size720: m.size720 || '', size480: m.size480 || '', size4k: m.size4k || '',
+    videoUrl: m.videoUrl || '', playmateId: m.playmateId || '', playmateUrl: m.playmateUrl || '', embedUrl: m.embedUrl || ''
   };
-  // If already has episodes array, prefer those
   if (m.episodes && m.episodes.length) {
-    return m.episodes.map(function(e, i) {
-      return Object.assign({}, e, { ep: e.ep || e.episode || (i + 1) });
-    });
+    return m.episodes.map(function(e, i) { return Object.assign({}, e, { ep: e.ep || e.episode || (i + 1) }); });
   }
   return [ep];
 }
-
-/**
- * Merge all episode posts for a series base into ONE Complete Series post.
- * Target = existing "Complete" post, else the post with most episodes[], else first post.
- * Other posts → trash (soft delete).
- */
 function smgrMergeToCompleteByBase(base) {
   var g = (_smgrGroups || []).find(function(x){ return x.base === base; });
-  if (!g || !g.items || g.items.length < 2) {
-    toast('Group nahi mila / kam posts', 1);
-    return;
-  }
-  if (!confirm(
-    '"' + g.base + '" — ' + g.items.length + ' posts\n\n' +
-    'Saari episode posts ka links EK Complete Series post mein merge honge.\\n' +
-    'Baaki alag posts Trash mein chali jayengi.\\n\\nContinue?'
-  )) return;
-
+  if (!g || !g.items || g.items.length < 2) { toast('Group nahi mila / kam posts', 1); return; }
+  if (!confirm('"' + g.base + '" — ' + g.items.length + ' posts\\n\\nSaari episode posts EK Complete Series mein merge.\\nBaaki Trash mein.\\n\\nContinue?')) return;
   var items = g.items.slice();
-  // Prefer complete title as target
   var target = items.find(function(m){ return smgrIsComplete(m.title); });
   if (!target) {
-    // prefer one that already has episodes[]
-    items.sort(function(a,b){
-      var ae = (a.episodes && a.episodes.length) || 0;
-      var be = (b.episodes && b.episodes.length) || 0;
-      return be - ae;
-    });
+    items.sort(function(a,b){ return ((b.episodes&&b.episodes.length)||0) - ((a.episodes&&a.episodes.length)||0); });
     target = items[0];
   }
-
-  var epMap = {}; // epNum -> episode obj
+  var epMap = {};
   items.forEach(function(m) {
     var en = smgrEpNum(m.title);
-    var list = smgrLinksFromMovie(m, en || 1);
-    list.forEach(function(ep) {
+    smgrLinksFromMovie(m, en || 1).forEach(function(ep) {
       var n = parseInt(ep.ep || en || 1, 10) || 1;
       if (!epMap[n]) epMap[n] = ep;
       else {
-        // merge missing links into existing
         var cur = epMap[n];
         ['download1080p','download720p','download480p','download4k','videoUrl','playmateId','playmateUrl','embedUrl'].forEach(function(k){
           if (!cur[k] && ep[k]) cur[k] = ep[k];
@@ -19271,57 +19455,30 @@ function smgrMergeToCompleteByBase(base) {
       }
     });
   });
-
   var episodes = Object.keys(epMap).map(Number).sort(function(a,b){return a-b;}).map(function(n){
-    var e = epMap[n];
-    e.ep = n;
+    var e = epMap[n]; e.ep = n;
     if (!e.title || /^episode/i.test(e.title)) e.title = 'Episode ' + n;
     return e;
   });
-
-  if (!episodes.length) {
-    toast('Koi episode links nahi mile', 1);
-    return;
-  }
-
-  // Build target title
+  if (!episodes.length) { toast('Koi episode links nahi mile', 1); return; }
   var sn = smgrSeasonNum(target.title) || smgrSeasonNum(items[0].title);
   var niceBase = g.base.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
   var newTitle = niceBase + (sn ? (' Season ' + sn) : '') + ' Complete Series';
-
-  var payload = Object.assign({}, target);
-  delete payload.key;
-  payload.title = newTitle;
-  payload.episodes = episodes;
-  payload.category = payload.category || 'webseries_hindi';
-  // Clear single-file quality fields on pack (optional keep as ep1 mirror)
-  if (episodes[0]) {
-    payload.download1080p = episodes[0].download1080p || payload.download1080p || '';
-    payload.download720p = episodes[0].download720p || payload.download720p || '';
-    payload.download480p = episodes[0].download480p || payload.download480p || '';
-  }
-
+  var payload = {
+    title: newTitle, episodes: episodes,
+    download1080p: (episodes[0] && episodes[0].download1080p) || target.download1080p || null,
+    download720p: (episodes[0] && episodes[0].download720p) || target.download720p || null,
+    download480p: (episodes[0] && episodes[0].download480p) || target.download480p || null
+  };
   var others = items.filter(function(m){ return m.key !== target.key; });
-
   toast('Merging ' + episodes.length + ' episodes…');
-  db.ref('movies/' + target.key).update({
-    title: payload.title,
-    episodes: episodes,
-    download1080p: payload.download1080p || null,
-    download720p: payload.download720p || null,
-    download480p: payload.download480p || null
-  }).then(function() {
-    // Soft-delete others → trash
+  db.ref('movies/' + target.key).update(payload).then(function() {
     var i = 0;
     function nextTrash() {
       if (i >= others.length) {
-        toast('✅ Merged: ' + newTitle + ' (' + episodes.length + ' eps). ' + others.length + ' posts → Trash');
-        // refresh local
-        target.title = newTitle;
-        target.episodes = episodes;
-        others.forEach(function(o) {
-          allMovies = (allMovies || []).filter(function(x){ return x.key !== o.key; });
-        });
+        toast('✅ Merged: ' + newTitle + ' (' + episodes.length + ' eps). ' + others.length + ' → Trash');
+        target.title = newTitle; target.episodes = episodes;
+        others.forEach(function(o) { allMovies = (allMovies || []).filter(function(x){ return x.key !== o.key; }); });
         try { if (typeof trashUpdateCount === 'function') trashUpdateCount(); } catch(e){}
         smgrScan();
         return;
@@ -19337,10 +19494,9 @@ function smgrMergeToCompleteByBase(base) {
       }).then(function(){ nextTrash(); }).catch(function(){ nextTrash(); });
     }
     nextTrash();
-  }).catch(function(e) {
-    toast('❌ Merge fail: ' + (e.message || e), 1);
-  });
+  }).catch(function(e) { toast('❌ Merge fail: ' + (e.message || e), 1); });
 }
+
 
 // ── TRASH ──
 var _trashItems = [];
