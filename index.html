@@ -13423,17 +13423,18 @@ function ffiStartImport() {
               data.category = tmdb.category;
             }
           }
-          // Cast / Director / Backdrop → Firebase (theme live TMDB nahi)
+          // Cast / Director / Backdrop / TMDB ID — hamesha TMDB se fill (khali na chhodo)
           if (tmdb.castList && tmdb.castList.length) {
             data.castList = tmdb.castList;
-            if (!data.cast) data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
-          } else if (tmdb.cast && !data.cast) {
+            data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
+          } else if (tmdb.cast) {
             data.cast = tmdb.cast;
           }
-          if (tmdb.director && !data.director) data.director = tmdb.director;
+          if (tmdb.director) data.director = tmdb.director;
           if (tmdb.backdrop) data.backdrop = tmdb.backdrop;
           if (tmdb.tmdbId) data.tmdbId = tmdb.tmdbId;
-          if (tmdb.duration && !data.duration) data.duration = tmdb.duration;
+          if (tmdb.duration) data.duration = tmdb.duration;
+          if (tmdb.poster) data.thumbnail = tmdb.poster;
         }
 
         // ── IMDb POSTER (priority over TMDB/site thumbnail) ──
@@ -17120,67 +17121,105 @@ function ffiTmdbEnrich(title, year, cb) {
   var apiKey = typeof TMDB_API !== 'undefined' ? TMDB_API : (typeof TKEY !== 'undefined' ? TKEY : '');
   if (!apiKey) { cb(null); return; }
   // Clean title for better TMDB match (remove quality/dub/season noise)
-  var clean = String(title || '')
-    .replace(/\b(19|20)\d{2}\b/g, ' ')
-    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
-    .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|complete\s*series|full\s*season)\b/gi, ' ')
-    .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
-    .replace(/\b(download|watch\s*online|hd)\b/gi, ' ')
-    .replace(/[\[\]\(\)\{\}]/g, ' ')
-    .replace(/\s+/g, ' ').trim();
-  if (clean.length < 2) clean = String(title || '').trim();
-  var q = encodeURIComponent(clean);
-  var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
-      if (year) {
-        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(String(year)); });
-        if (filtered.length) results = filtered;
-      }
-      // Prefer TV result if title looks like series
-      var wantTv = /\bS\d{1,2}\b|Season|Series|Drama/i.test(String(title||''));
-      if (wantTv) {
-        var tvFirst = results.filter(function(r){ return r.media_type === 'tv'; });
-        if (tvFirst.length) results = tvFirst.concat(results.filter(function(r){ return r.media_type !== 'tv'; }));
-      }
-      var m = results[0];
-      if (!m) { cb(null); return; }
-      var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
-      var lang = (m.original_language || '').toLowerCase();
-      // Korean / Chinese / Japanese dramas & series
-      var asianLang = (lang === 'ko' || lang === 'zh' || lang === 'ja' || lang === 'th' || lang === 'id');
-      var isAsianDrama = asianLang && (m.media_type === 'tv' || /drama/i.test((m.genre_ids||[]).join(',')));
-      // TV with Asian origin language → treat as kdrama category
-      if (asianLang && m.media_type === 'tv') isAsianDrama = true;
-      var catGuess = '';
-      if (isAsianDrama) catGuess = 'kdrama';
-      else if (m.media_type === 'tv') catGuess = 'webseries';
-      var mediaType = m.media_type === 'tv' ? 'tv' : 'movie';
-      var base = {
-        poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
-        backdrop: m.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + m.backdrop_path : '',
-        rating: m.vote_average ? m.vote_average.toFixed(1) : '',
-        description: m.overview || '',
-        year: (m.release_date || m.first_air_date || '').substring(0,4),
-        genre: genreMap[m.genre_ids && m.genre_ids[0]] || '',
-        category: catGuess,
-        original_language: lang,
-        isAsianDrama: isAsianDrama,
-        tmdbId: m.id,
-        mediaType: mediaType
-      };
-      // Details (runtime/duration) + Credits (cast + director) parallel — fill Director/Cast/Backdrop/Duration/TMDB ID
-      var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US';
-      var credUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
-      Promise.all([
-        fetch(detailUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; }),
-        fetch(credUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; })
-      ]).then(function(arr) {
-        var detail = arr[0] || {};
-        var credits = arr[1] || {};
-        // Duration / runtime
+  var rawTitle = String(title || '');
+  function cleanTitle(t) {
+    return String(t || '')
+      .replace(/\b(19|20)\d{2}\b/g, ' ')
+      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265|hdr|10bit)\b/gi, ' ')
+      .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|complete\s*series|full\s*season|netflix|amazon\s*prime|hotstar|disney\+)\b/gi, ' ')
+      .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
+      .replace(/\b(download|watch\s*online|hdrip|hd|full\s*movie)\b/gi, ' ')
+      .replace(/[\[\]\(\)\{\}]/g, ' ')
+      .replace(/[-_|]+/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+  var clean = cleanTitle(rawTitle);
+  if (clean.length < 2) clean = rawTitle.trim();
+  // Short query = first 4-6 meaningful words (better match noisy page titles)
+  var words = clean.split(/\s+/).filter(function(w){ return w.length > 1; });
+  var shortQ = words.slice(0, 5).join(' ');
+  var yr = year ? String(year).replace(/\D/g, '').substring(0, 4) : '';
+  var wantTv = /\bS\d{1,2}\b|Season|Series|Drama|Episode/i.test(rawTitle);
+
+  function scoreResult(r) {
+    var name = String(r.title || r.name || '').toLowerCase();
+    var qn = clean.toLowerCase();
+    var sc = 0;
+    if (name === qn) sc += 50;
+    else if (name.indexOf(qn) >= 0 || qn.indexOf(name) >= 0) sc += 30;
+    var nt = name.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    var qt = qn.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    var hit = 0;
+    qt.forEach(function(t){ if (nt.indexOf(t) >= 0) hit++; });
+    if (qt.length) sc += Math.round((hit / qt.length) * 40);
+    var rd = (r.release_date || r.first_air_date || '').substring(0, 4);
+    if (yr && rd === yr) sc += 20;
+    if (wantTv && r.media_type === 'tv') sc += 15;
+    if (!wantTv && r.media_type === 'movie') sc += 10;
+    return sc;
+  }
+
+  function pickBest(results) {
+    results = (results || []).filter(function(r){ return r && (r.media_type === 'movie' || r.media_type === 'tv'); });
+    if (!results.length) return null;
+    results.sort(function(a, b){ return scoreResult(b) - scoreResult(a); });
+    return results[0];
+  }
+
+  function searchOnce(query, useYear, next) {
+    var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey
+      + '&query=' + encodeURIComponent(query) + '&language=en-US&page=1';
+    if (useYear && yr) url += '&year=' + yr + '&first_air_date_year=' + yr;
+    fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(res){ next(pickBest(res.results || [])); })
+      .catch(function(){ next(null); });
+  }
+
+  // Try: full clean → short query → without year
+  searchOnce(clean, true, function(m1) {
+    if (m1 && scoreResult(m1) >= 25) return finishMatch(m1);
+    searchOnce(shortQ || clean, true, function(m2) {
+      if (m2 && scoreResult(m2) >= 20) return finishMatch(m2);
+      searchOnce(clean, false, function(m3) {
+        if (m3) return finishMatch(m3);
+        searchOnce(shortQ || clean, false, function(m4) {
+          if (m4) return finishMatch(m4);
+          cb(null);
+        });
+      });
+    });
+  });
+
+  function finishMatch(m) {
+    var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
+    var lang = (m.original_language || '').toLowerCase();
+    var asianLang = (lang === 'ko' || lang === 'zh' || lang === 'ja' || lang === 'th' || lang === 'id');
+    var isAsianDrama = asianLang && (m.media_type === 'tv');
+    var mediaType = m.media_type === 'tv' ? 'tv' : 'movie';
+    var catGuess = isAsianDrama ? 'kdrama_hindi' : (mediaType === 'tv' ? 'webseries' : '');
+    var base = {
+      title: m.title || m.name || '',
+      year: (m.release_date || m.first_air_date || '').substring(0, 4) || yr || '',
+      rating: m.vote_average ? Number(m.vote_average).toFixed(1) : '',
+      description: m.overview || '',
+      poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
+      backdrop: m.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + m.backdrop_path : '',
+      genre: (m.genre_ids && m.genre_ids[0] && genreMap[m.genre_ids[0]]) ? genreMap[m.genre_ids[0]] : '',
+      original_language: lang,
+      category: catGuess,
+      isAsianDrama: isAsianDrama,
+      tmdbId: m.id,
+      mediaType: mediaType
+    };
+    // Single request: details + credits (zyada reliable)
+    var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id
+      + '?api_key=' + apiKey + '&language=en-US&append_to_response=credits';
+    fetch(detailUrl)
+      .then(function(r){ return r.json(); })
+      .then(function(detail) {
+        if (!detail || detail.success === false) { cb(base); return; }
+        var credits = detail.credits || {};
         if (detail.runtime && detail.runtime > 0) {
           var mins = parseInt(detail.runtime, 10);
           var h = Math.floor(mins / 60);
@@ -17189,12 +17228,10 @@ function ffiTmdbEnrich(title, year, cb) {
         } else if (detail.episode_run_time && detail.episode_run_time[0]) {
           base.duration = detail.episode_run_time[0] + 'm';
         }
-        // Better poster/backdrop/desc from full detail if available
         if (detail.poster_path) base.poster = 'https://image.tmdb.org/t/p/w500' + detail.poster_path;
         if (detail.backdrop_path) base.backdrop = 'https://image.tmdb.org/t/p/w780' + detail.backdrop_path;
         if (detail.overview) base.description = detail.overview;
         if (detail.vote_average) base.rating = Number(detail.vote_average).toFixed(1);
-        // Cast
         var castArr = (credits.cast) ? credits.cast.slice(0, 12) : [];
         base.castList = castArr.map(function(c) {
           return {
@@ -17207,7 +17244,6 @@ function ffiTmdbEnrich(title, year, cb) {
         if (base.castList.length) {
           base.cast = base.castList.map(function(c) { return c.name; }).join(', ');
         }
-        // Director (movies) or Creator (TV)
         var crew = credits.crew || [];
         var dir = crew.filter(function(c) { return /director/i.test(c.job || ''); });
         if (dir.length) {
@@ -17216,10 +17252,11 @@ function ffiTmdbEnrich(title, year, cb) {
           base.director = detail.created_by.slice(0, 2).map(function(d) { return d.name; }).join(', ');
         }
         cb(base);
-      }).catch(function() { cb(base); });
-    })
-    .catch(function(){ cb(null); });
+      })
+      .catch(function() { cb(base); });
+  }
 }
+
 // ═══ END FILMYFLY IMPORTER ═══
 
 // ═══════════════════════════════════════════
