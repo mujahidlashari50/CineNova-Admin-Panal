@@ -1967,7 +1967,9 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-seasons">
       <div class="sec-title">📺 Season <span>Manager</span></div>
       <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;line-height:1.55;">
-        Series ko base title se group karta hai. Missing season number wali posts highlight. Title mein Season X fix kar sakte ho.
+        Series ko base title se group karta hai.<br>
+        <b>Merge → 1 Complete Post:</b> Alag-alag episode posts (jaise The Boys Ep 1,2,3…) ka links <b>ek Complete Series</b> post mein jod do; baaki posts Trash mein chali jayengi.<br>
+        Missing season number fix bhi yahan se.
       </div>
       <div class="card">
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
@@ -3668,10 +3670,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <label>📄 Source Page URL</label>
         <input class="fi" id="e-sourcePageUrl" placeholder="Original post URL"/>
       </div>
-      <div class="fgg full" style="margin-bottom:8px;">
-        <button type="button" class="btn btn-p" onclick="fillEditFromTmdb()" style="background:#f59e0b;padding:8px 14px;font-size:0.8rem;">⚡ Fill All Meta (IMDb poster + TMDB details)</button>
-        <span style="font-size:0.72rem;color:#888;margin-left:8px;">Director, Cast, Backdrop, TMDB ID, Poster — ek click</span>
-      </div>
+      <div class="fgg full" style="margin-bottom:6px;"><button type="button" class="btn btn-p" onclick="fillEditFromTmdb()" style="background:#f59e0b;width:100%;padding:10px;font-size:0.85rem;">⚡ Fill Director / Cast / Backdrop / TMDB ID</button></div>
       <div class="fgg"><label>🎬 Director</label><input class="fi" id="e-director" placeholder="Director name"/></div>
       <div class="fgg"><label>⏱ Duration</label><input class="fi" id="e-duration" placeholder="2h 10m"/></div>
       <div class="fgg full"><label>👥 Cast (comma separated)</label><input class="fi" id="e-cast" placeholder="Actor1, Actor2, Actor3"/></div>
@@ -6878,10 +6877,17 @@ async function pfStartBulkFix() {
     await new Promise(function(resolve) {
       try {
         ffiTmdbEnrich(m.title, m.year, function(tmdb) {
-          if (tmdb && tmdb.poster) {
-            db.ref('movies/' + m.key + '/thumbnail').set(tmdb.poster).then(function() {
+          // Strict: sirf solid match (galat poster avoid)
+          var okPoster = tmdb && tmdb.poster && tmdb.tmdbId;
+          if (okPoster) {
+            var updates = { thumbnail: tmdb.poster };
+            if (tmdb.backdrop) updates.backdrop = tmdb.backdrop;
+            if (tmdb.tmdbId) updates.tmdbId = tmdb.tmdbId;
+            if (tmdb.director) updates.director = tmdb.director;
+            if (tmdb.cast) updates.cast = tmdb.cast;
+            db.ref('movies/' + m.key).update(updates).then(function() {
               updated++;
-              logLine('✅ ' + m.title, '#4ade80');
+              logLine('✅ ' + m.title + ' → TMDB #' + tmdb.tmdbId, '#4ade80');
               resolve();
             }).catch(function() {
               failed++;
@@ -6890,7 +6896,7 @@ async function pfStartBulkFix() {
             });
           } else {
             notFound++;
-            logLine('⚠️ ' + m.title + ' — TMDB match nahi mila', '#fbbf24');
+            logLine('⚠️ ' + m.title + ' — TMDB match nahi / weak (skip — galat poster nahi)', '#fbbf24');
             resolve();
           }
         });
@@ -7286,36 +7292,24 @@ function onEditCatChange(){
 }
 
 function fillEditFromTmdb() {
-  var title = (document.getElementById('et') || {}).value || (document.getElementById('ft') || {}).value || '';
-  var year = (document.getElementById('ey') || {}).value || (document.getElementById('fy') || {}).value || '';
+  var title = (document.getElementById('et') || {}).value || '';
+  var year = (document.getElementById('ey') || {}).value || '';
   if (!title) { toast('Pehle title likho', 1); return; }
-  toast('TMDB + IMDb se fill…');
+  toast('TMDB search…');
   function set(id, v) { var el = document.getElementById(id); if (el && v) el.value = v; }
-  function applyForm(tmdb, imdb) {
-    if (!tmdb && !imdb) { toast('Match nahi mila', 1); return; }
-    // Poster: IMDb Amazon pehle
-    if (imdb) set('eth', imdb);
-    else if (tmdb && tmdb.poster) set('eth', tmdb.poster);
-    if (tmdb) {
-      set('e-director', tmdb.director);
-      set('e-cast', tmdb.cast);
-      set('e-backdrop', tmdb.backdrop);
-      set('e-tmdbId', tmdb.tmdbId);
-      set('e-duration', tmdb.duration);
-      set('er', tmdb.rating);
-      set('ey', tmdb.year);
-      set('ed', tmdb.description);
-      if (tmdb.genre) set('eg', tmdb.genre);
+  ffiTmdbEnrich(title, year, function(tmdb) {
+    if (!tmdb) {
+      toast('TMDB match nahi mila — title short karke try (sirf movie name)', 1);
+      return;
     }
-    toast('✅ Director/Cast/Backdrop/TMDB/Poster fill — Save karo');
-  }
-  if (typeof ffiImdbPoster === 'function') {
-    ffiImdbPoster(title, year, function(imdb) {
-      ffiTmdbEnrich(title, year, function(tmdb) { applyForm(tmdb, imdb || ''); });
-    });
-  } else {
-    ffiTmdbEnrich(title, year, function(tmdb) { applyForm(tmdb, ''); });
-  }
+    set('e-director', tmdb.director);
+    set('e-cast', tmdb.cast);
+    set('e-backdrop', tmdb.backdrop);
+    set('e-tmdbId', tmdb.tmdbId);
+    if (tmdb.duration) set('e-duration', tmdb.duration);
+    if (tmdb.poster) set('eth', tmdb.poster);
+    toast('✅ Director / Cast / Backdrop / TMDB ID fill — Save karo');
+  });
 }
 
 function openEdit(key){
@@ -8429,10 +8423,9 @@ function aiImportSelected(){
         if (tmdb.backdrop) obj.backdrop = tmdb.backdrop;
         if (tmdb.duration) obj.duration = tmdb.duration;
         if (tmdb.tmdbId) obj.tmdbId = tmdb.tmdbId;
-        if (tmdb.poster) obj.thumbnail = tmdb.poster;
+        if (tmdb.poster && !obj.thumbnail) obj.thumbnail = tmdb.poster;
         if (tmdb.rating) obj.rating = tmdb.rating;
-        if (tmdb.description) obj.description = tmdb.description;
-        if (tmdb.year) obj.year = tmdb.year;
+        if (tmdb.description && !obj.description) obj.description = tmdb.description;
       }
       document.getElementById('ai-prog-sub').textContent = '"'+title+'" — HDFun.in se links...';
       aiHdfunFetchLinks(title, year, {}, function(mergedLinks){
@@ -13462,20 +13455,17 @@ function ffiStartImport() {
               data.category = tmdb.category;
             }
           }
-          // Cast / Director / Backdrop / TMDB ID — ALWAYS fill (empty boxes fix)
+          // Cast / Director / Backdrop → Firebase (theme live TMDB nahi)
           if (tmdb.castList && tmdb.castList.length) {
             data.castList = tmdb.castList;
-            data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
-          } else if (tmdb.cast) {
+            if (!data.cast) data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
+          } else if (tmdb.cast && !data.cast) {
             data.cast = tmdb.cast;
           }
-          if (tmdb.director) data.director = tmdb.director;
+          if (tmdb.director && !data.director) data.director = tmdb.director;
           if (tmdb.backdrop) data.backdrop = tmdb.backdrop;
           if (tmdb.tmdbId) data.tmdbId = tmdb.tmdbId;
-          if (tmdb.duration) data.duration = tmdb.duration;
-          if (tmdb.rating) data.rating = tmdb.rating;
-          if (tmdb.description) data.description = tmdb.description;
-          if (tmdb.year) data.year = tmdb.year;
+          if (tmdb.duration && !data.duration) data.duration = tmdb.duration;
         }
 
         // ── IMDb POSTER (priority over TMDB/site thumbnail) ──
@@ -13672,19 +13662,10 @@ function ffiStartImport() {
         if (data.genre) obj.genre = data.genre;
         if (data.genres && data.genres.length) obj.genres = data.genres;
         if (data.director) obj.director = data.director;
-        else if (tmdb && tmdb.director) obj.director = tmdb.director;
         if (data.cast) obj.cast = data.cast;
-        else if (tmdb && tmdb.cast) obj.cast = tmdb.cast;
         if (data.castList && data.castList.length) obj.castList = data.castList;
-        else if (tmdb && tmdb.castList && tmdb.castList.length) obj.castList = tmdb.castList;
         if (data.backdrop) obj.backdrop = data.backdrop;
-        else if (tmdb && tmdb.backdrop) obj.backdrop = tmdb.backdrop;
         if (data.tmdbId) obj.tmdbId = data.tmdbId;
-        else if (tmdb && tmdb.tmdbId) obj.tmdbId = tmdb.tmdbId;
-        if (data.duration) obj.duration = data.duration;
-        else if (tmdb && tmdb.duration) obj.duration = tmdb.duration;
-        if (data.rating) obj.rating = data.rating;
-        else if (tmdb && tmdb.rating) obj.rating = tmdb.rating;
         if (data.description) obj.description = String(data.description).substring(0, 600);
         if (data.thumbnail) obj.thumbnail = data.thumbnail;
         if (data.language) obj.language = sanitizeLanguageValue(data.language, data.title, data.category || obj.category);
@@ -17167,132 +17148,149 @@ function ffiImdbPoster(title, year, cb) {
   }
 }
 
-
-/** Apply TMDB (+ optional IMDb poster) onto movie data — no empty meta boxes */
-function cvApplyFullMeta(data, tmdb, imdbPoster) {
-  if (!data) data = {};
-  if (imdbPoster) data.thumbnail = imdbPoster;
-  else if (tmdb && tmdb.poster && !data.thumbnail) data.thumbnail = tmdb.poster;
-  else if (tmdb && tmdb.poster) data.thumbnail = tmdb.poster; // prefer official over source site
-  if (!tmdb) return data;
-  if (tmdb.tmdbId) data.tmdbId = tmdb.tmdbId;
-  if (tmdb.director) data.director = tmdb.director;
-  if (tmdb.cast) data.cast = tmdb.cast;
-  if (tmdb.castList && tmdb.castList.length) data.castList = tmdb.castList;
-  if (tmdb.backdrop) data.backdrop = tmdb.backdrop;
-  if (tmdb.duration) data.duration = tmdb.duration;
-  if (tmdb.rating) data.rating = tmdb.rating;
-  if (tmdb.year) data.year = tmdb.year;
-  if (tmdb.description) data.description = tmdb.description;
-  if (tmdb.genre && !data.genre) data.genre = tmdb.genre;
-  if (tmdb.poster && !data.thumbnail) data.thumbnail = tmdb.poster;
-  return data;
-}
-
 function ffiTmdbEnrich(title, year, cb) {
   var apiKey = typeof TMDB_API !== 'undefined' ? TMDB_API : (typeof TKEY !== 'undefined' ? TKEY : '');
   if (!apiKey) { cb(null); return; }
-  // Clean title for better TMDB match (remove quality/dub/season noise)
-  var clean = String(title || '')
-    .replace(/\b(19|20)\d{2}\b/g, ' ')
-    .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
-    .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|complete\s*series|full\s*season)\b/gi, ' ')
-    .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
-    .replace(/\b(download|watch\s*online|hd)\b/gi, ' ')
-    .replace(/[\[\]\(\)\{\}]/g, ' ')
-    .replace(/\s+/g, ' ').trim();
+
+  function cleanTitle(t) {
+    var s = String(t || '')
+      .replace(/\b(19|20)\d{2}\b/g, ' ')
+      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|blu[\s\-]?ray|hdrip|hevc|x264|x265)\b/gi, ' ')
+      .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|org\s*plus|complete\s*season|complete\s*series|full\s*season|full\s*movie)\b/gi, ' ')
+      .replace(/\b(web\s*series|tv\s*series|complete|season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
+      .replace(/\b(bengali|tamil|telugu|malayalam|kannada|punjabi|marathi|gujarati|hindi|english|korean|japanese|chinese)\b/gi, ' ')
+      .replace(/\b(download|watch\s*online|hdrip|hd)\b/gi, ' ')
+      .replace(/[\[\]\(\)\{\}]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  var clean = cleanTitle(title);
   if (clean.length < 2) clean = String(title || '').trim();
-  var q = encodeURIComponent(clean);
-  var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
-      if (year) {
-        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(String(year)); });
-        if (filtered.length) results = filtered;
+  // First 4 meaningful words only — TMDB "Dahan Bengali Complete..." = 0 results
+  var words = clean.split(/\s+/).filter(function(w) {
+    return w.length >= 2 && !/^(the|a|an|of|and|or|to|in|on|for|part|vol)$/i.test(w);
+  }).slice(0, 4);
+  var query1 = words.join(' ') || clean;
+  var query2 = words.slice(0, 2).join(' ') || query1;
+  var query3 = words[0] || query1;
+
+  var yr = String(year || '').replace(/\D/g, '').substring(0, 4);
+  if (!yr) {
+    var ym = String(title || '').match(/\b((?:19|20)\d{2})\b/);
+    if (ym) yr = ym[1];
+  }
+  var wantTv = /\bS\d{1,2}\b|Season|Series|Episode|Web\s*Series/i.test(String(title || ''));
+
+  function searchQuery(q, next) {
+    var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + encodeURIComponent(q) + '&language=en-US&page=1';
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        var results = (res.results || []).filter(function(r) {
+          return r && (r.media_type === 'movie' || r.media_type === 'tv');
+        });
+        next(results || []);
+      })
+      .catch(function() { next([]); });
+  }
+
+  function pickBest(results) {
+    if (!results || !results.length) return null;
+    var list = results.slice();
+    if (yr) {
+      var yf = list.filter(function(r) {
+        return (r.release_date || r.first_air_date || '').startsWith(yr);
+      });
+      if (yf.length) list = yf;
+    }
+    if (wantTv) {
+      var tv = list.filter(function(r) { return r.media_type === 'tv'; });
+      if (tv.length) list = tv.concat(list.filter(function(r) { return r.media_type !== 'tv'; }));
+    } else {
+      var mov = list.filter(function(r) { return r.media_type === 'movie'; });
+      if (mov.length) list = mov.concat(list.filter(function(r) { return r.media_type !== 'movie'; }));
+    }
+    return list[0] || null;
+  }
+
+  function fetchDetails(m) {
+    if (!m) { cb(null); return; }
+    var mediaType = m.media_type === 'tv' ? 'tv' : 'movie';
+    var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
+    var lang = (m.original_language || '').toLowerCase();
+    var asianLang = (lang === 'ko' || lang === 'zh' || lang === 'ja' || lang === 'th' || lang === 'id' || lang === 'bn');
+    var isAsianDrama = asianLang && (mediaType === 'tv');
+    var catGuess = isAsianDrama ? 'kdrama' : (mediaType === 'tv' ? 'webseries' : '');
+    var base = {
+      poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
+      backdrop: m.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + m.backdrop_path : '',
+      rating: m.vote_average ? Number(m.vote_average).toFixed(1) : '',
+      description: m.overview || '',
+      year: (m.release_date || m.first_air_date || '').substring(0, 4),
+      genre: genreMap[m.genre_ids && m.genre_ids[0]] || '',
+      category: catGuess,
+      original_language: lang,
+      isAsianDrama: isAsianDrama,
+      tmdbId: m.id,
+      mediaType: mediaType
+    };
+    var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US';
+    var credUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
+    Promise.all([
+      fetch(detailUrl).then(function(r) { return r.json(); }).catch(function() { return {}; }),
+      fetch(credUrl).then(function(r) { return r.json(); }).catch(function() { return {}; })
+    ]).then(function(arr) {
+      var detail = arr[0] || {};
+      var credits = arr[1] || {};
+      if (detail.runtime && detail.runtime > 0) {
+        var mins = parseInt(detail.runtime, 10);
+        var h = Math.floor(mins / 60), mm = mins % 60;
+        base.duration = h > 0 ? (h + 'h ' + (mm ? mm + 'm' : '')).trim() : (mins + 'm');
+      } else if (detail.episode_run_time && detail.episode_run_time[0]) {
+        base.duration = detail.episode_run_time[0] + 'm';
       }
-      // Prefer TV result if title looks like series
-      var wantTv = /\bS\d{1,2}\b|Season|Series|Drama/i.test(String(title||''));
-      if (wantTv) {
-        var tvFirst = results.filter(function(r){ return r.media_type === 'tv'; });
-        if (tvFirst.length) results = tvFirst.concat(results.filter(function(r){ return r.media_type !== 'tv'; }));
+      if (detail.poster_path) base.poster = 'https://image.tmdb.org/t/p/w500' + detail.poster_path;
+      if (detail.backdrop_path) base.backdrop = 'https://image.tmdb.org/t/p/w780' + detail.backdrop_path;
+      if (detail.overview) base.description = detail.overview;
+      if (detail.vote_average) base.rating = Number(detail.vote_average).toFixed(1);
+      var castArr = (credits.cast) ? credits.cast.slice(0, 12) : [];
+      base.castList = castArr.map(function(c) {
+        return {
+          name: c.name || '',
+          character: c.character || '',
+          profile_path: c.profile_path || null,
+          photo: c.profile_path ? ('https://image.tmdb.org/t/p/w185' + c.profile_path) : null
+        };
+      }).filter(function(c) { return c.name; });
+      if (base.castList.length) {
+        base.cast = base.castList.map(function(c) { return c.name; }).join(', ');
       }
-      var m = results[0];
-      if (!m) { cb(null); return; }
-      var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
-      var lang = (m.original_language || '').toLowerCase();
-      // Korean / Chinese / Japanese dramas & series
-      var asianLang = (lang === 'ko' || lang === 'zh' || lang === 'ja' || lang === 'th' || lang === 'id');
-      var isAsianDrama = asianLang && (m.media_type === 'tv' || /drama/i.test((m.genre_ids||[]).join(',')));
-      // TV with Asian origin language → treat as kdrama category
-      if (asianLang && m.media_type === 'tv') isAsianDrama = true;
-      var catGuess = '';
-      if (isAsianDrama) catGuess = 'kdrama';
-      else if (m.media_type === 'tv') catGuess = 'webseries';
-      var mediaType = m.media_type === 'tv' ? 'tv' : 'movie';
-      var base = {
-        poster: m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : '',
-        backdrop: m.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + m.backdrop_path : '',
-        rating: m.vote_average ? m.vote_average.toFixed(1) : '',
-        description: m.overview || '',
-        year: (m.release_date || m.first_air_date || '').substring(0,4),
-        genre: genreMap[m.genre_ids && m.genre_ids[0]] || '',
-        category: catGuess,
-        original_language: lang,
-        isAsianDrama: isAsianDrama,
-        tmdbId: m.id,
-        mediaType: mediaType
-      };
-      // Details (runtime/duration) + Credits (cast + director) parallel — fill Director/Cast/Backdrop/Duration/TMDB ID
-      var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US';
-      var credUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
-      Promise.all([
-        fetch(detailUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; }),
-        fetch(credUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; })
-      ]).then(function(arr) {
-        var detail = arr[0] || {};
-        var credits = arr[1] || {};
-        // Duration / runtime
-        if (detail.runtime && detail.runtime > 0) {
-          var mins = parseInt(detail.runtime, 10);
-          var h = Math.floor(mins / 60);
-          var mm = mins % 60;
-          base.duration = h > 0 ? (h + 'h ' + (mm ? mm + 'm' : '')).trim() : (mins + 'm');
-        } else if (detail.episode_run_time && detail.episode_run_time[0]) {
-          base.duration = detail.episode_run_time[0] + 'm';
-        }
-        // Better poster/backdrop/desc from full detail if available
-        if (detail.poster_path) base.poster = 'https://image.tmdb.org/t/p/w500' + detail.poster_path;
-        if (detail.backdrop_path) base.backdrop = 'https://image.tmdb.org/t/p/w780' + detail.backdrop_path;
-        if (detail.overview) base.description = detail.overview;
-        if (detail.vote_average) base.rating = Number(detail.vote_average).toFixed(1);
-        // Cast
-        var castArr = (credits.cast) ? credits.cast.slice(0, 12) : [];
-        base.castList = castArr.map(function(c) {
-          return {
-            name: c.name || '',
-            character: c.character || '',
-            profile_path: c.profile_path || null,
-            photo: c.profile_path ? ('https://image.tmdb.org/t/p/w185' + c.profile_path) : null
-          };
-        }).filter(function(c) { return c.name; });
-        if (base.castList.length) {
-          base.cast = base.castList.map(function(c) { return c.name; }).join(', ');
-        }
-        // Director (movies) or Creator (TV)
-        var crew = credits.crew || [];
-        var dir = crew.filter(function(c) { return /director/i.test(c.job || ''); });
-        if (dir.length) {
-          base.director = dir.slice(0, 2).map(function(d) { return d.name; }).join(', ');
-        } else if (detail.created_by && detail.created_by.length) {
-          base.director = detail.created_by.slice(0, 2).map(function(d) { return d.name; }).join(', ');
-        }
-        cb(base);
-      }).catch(function() { cb(base); });
-    })
-    .catch(function(){ cb(null); });
+      var crew = credits.crew || [];
+      var dir = crew.filter(function(c) { return /director/i.test(c.job || ''); });
+      if (dir.length) {
+        base.director = dir.slice(0, 2).map(function(d) { return d.name; }).join(', ');
+      } else if (detail.created_by && detail.created_by.length) {
+        base.director = detail.created_by.slice(0, 2).map(function(d) { return d.name; }).join(', ');
+      }
+      cb(base);
+    }).catch(function() { cb(base); });
+  }
+
+  // Try short query first (works), then longer
+  searchQuery(query3, function(r1) {
+    var m = pickBest(r1);
+    if (m) { fetchDetails(m); return; }
+    searchQuery(query2, function(r2) {
+      m = pickBest(r2);
+      if (m) { fetchDetails(m); return; }
+      searchQuery(query1, function(r3) {
+        fetchDetails(pickBest(r3));
+      });
+    });
+  });
 }
+
 // ═══ END FILMYFLY IMPORTER ═══
 
 // ═══════════════════════════════════════════
@@ -19150,9 +19148,10 @@ function smgrBaseTitle(t) {
     .toLowerCase()
     .replace(/\bseason\s*\d+\b/gi, ' ')
     .replace(/\bs\s*\d{1,2}\b/gi, ' ')
-    .replace(/\be\d{1,3}\b/gi, ' ')
+    .replace(/\be\s*\d{1,3}\b/gi, ' ')
+    .replace(/\bepisode\s*\d+\b/gi, ' ')
     .replace(/\b(19|20)\d{2}\b/g, ' ')
-    .replace(/\b(1080p|720p|480p|hindi|dubbed|dual\s*audio|english|complete)\b/gi, ' ')
+    .replace(/\b(1080p|720p|480p|hindi|dubbed|dual\s*audio|english|complete|series|full\s*movie|web\s*series|tv\s*series)\b/gi, ' ')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ').trim();
 }
@@ -19161,13 +19160,20 @@ function smgrSeasonNum(t) {
   var m = s.match(/\bseason\s*0*(\d{1,2})\b/i) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/i);
   return m ? parseInt(m[1], 10) : null;
 }
+function smgrEpNum(t) {
+  var s = String(t || '');
+  var m = s.match(/\bepisode\s*0*(\d{1,3})\b/i) || s.match(/\be\s*0*(\d{1,3})\b/i) || s.match(/\bs\d{1,2}\s*e\s*0*(\d{1,3})\b/i);
+  return m ? parseInt(m[1], 10) : null;
+}
+function smgrIsComplete(t) {
+  return /\bcomplete\b/i.test(String(t || '')) && !smgrEpNum(t);
+}
 function smgrScan() {
   var map = {};
   (allMovies || []).forEach(function(m) {
     if (!m || !m.key) return;
     var base = smgrBaseTitle(m.title);
     if (!base || base.length < 2) return;
-    // likely series: has season token OR category web/kdrama OR multiple later
     if (!map[base]) map[base] = [];
     map[base].push(m);
   });
@@ -19175,14 +19181,18 @@ function smgrScan() {
     var items = map[b];
     var seasons = {};
     var noSeason = 0;
+    var epPosts = 0;
+    var completePosts = 0;
     items.forEach(function(m) {
       var sn = smgrSeasonNum(m.title);
       if (sn == null) noSeason++;
       else seasons[sn] = (seasons[sn] || 0) + 1;
+      if (smgrEpNum(m.title) != null) epPosts++;
+      if (smgrIsComplete(m.title)) completePosts++;
     });
-    return { base: b, items: items, seasons: seasons, noSeason: noSeason };
+    return { base: b, items: items, seasons: seasons, noSeason: noSeason, epPosts: epPosts, completePosts: completePosts };
   }).filter(function(g) {
-    return g.items.length > 1 || g.noSeason === 0 && Object.keys(g.seasons).length > 0 || g.items.some(function(m){ return smgrSeasonNum(m.title) != null; });
+    return g.items.length > 1 || g.epPosts > 0 || Object.keys(g.seasons).length > 0;
   }).sort(function(a,b){ return b.items.length - a.items.length; });
   smgrRender();
 }
@@ -19202,19 +19212,33 @@ function smgrRender() {
     el.innerHTML = '<div style="padding:28px;text-align:center;color:#555;">Scan dabao ya filter badlo</div>';
     return;
   }
-  el.innerHTML = rows.slice(0, 80).map(function(g) {
+  el.innerHTML = rows.slice(0, 80).map(function(g, gi) {
     var seaKeys = Object.keys(g.seasons).map(Number).sort(function(a,b){return a-b;});
     var seaStr = seaKeys.map(function(s){ return 'S' + s + '(' + g.seasons[s] + ')'; }).join(' · ') || '—';
+    var canMerge = g.items.length >= 2 && (g.epPosts >= 1 || g.completePosts >= 1);
+    var mergeBtn = canMerge
+      ? '<button class="btn btn-p" style="padding:6px 12px;font-size:0.75rem;margin-left:8px;" onclick="smgrMergeToComplete(' + gi + ')">🔗 Merge → 1 Complete Post</button>'
+      : '';
+    // use filtered index carefully — store base in data attr
+    mergeBtn = canMerge
+      ? '<button class="btn btn-p" style="padding:6px 12px;font-size:0.75rem;margin-left:8px;" onclick="smgrMergeToCompleteByBase(\'' + String(g.base).replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">🔗 Merge → 1 Complete Post</button>'
+      : '';
     return '<div class="card" style="padding:12px;margin-bottom:10px;border-color:rgba(56,189,248,0.25);">'
-      + '<div style="font-weight:700;text-transform:capitalize;margin-bottom:6px;">' + escHtml(g.base) + ' <span style="color:#38bdf8;font-size:0.75rem;">' + g.items.length + ' posts</span></div>'
+      + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;">'
+      + '<div style="font-weight:700;text-transform:capitalize;">' + escHtml(g.base) + ' <span style="color:#38bdf8;font-size:0.75rem;">' + g.items.length + ' posts</span>'
+      + (g.epPosts ? ' <span style="color:#fbbf24;font-size:0.72rem;">· ' + g.epPosts + ' episode posts</span>' : '')
+      + (g.completePosts ? ' <span style="color:#4ade80;font-size:0.72rem;">· ' + g.completePosts + ' complete</span>' : '')
+      + '</div>' + mergeBtn + '</div>'
       + '<div style="font-size:0.75rem;color:#7dd3fc;margin-bottom:8px;">Seasons: ' + seaStr
       + (g.noSeason ? ' · <span style="color:#fbbf24;">' + g.noSeason + ' without season #</span>' : '') + '</div>'
       + g.items.map(function(m) {
           var sn = smgrSeasonNum(m.title);
+          var en = smgrEpNum(m.title);
+          var tag = smgrIsComplete(m.title) ? 'COMPLETE' : (en != null ? ('E' + en) : (sn != null ? ('S' + sn) : '—'));
           return '<div style="display:flex;gap:8px;align-items:center;padding:5px 0;border-top:1px solid #1a1a1a;font-size:0.78rem;">'
             + '<div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(m.title || '') + '</div>'
-            + '<span style="color:#888;font-size:0.7rem;">' + (sn != null ? 'S' + sn : '—') + '</span>'
-            + (sn == null ? '<button class="btn btn-s" style="padding:4px 8px;font-size:0.7rem;" onclick="smgrFixSeason(\'' + m.key + '\')">+ Season</button>' : '')
+            + '<span style="color:#888;font-size:0.7rem;min-width:52px;text-align:right;">' + tag + '</span>'
+            + (sn == null && en == null && !smgrIsComplete(m.title) ? '<button class="btn btn-s" style="padding:4px 8px;font-size:0.7rem;" onclick="smgrFixSeason(\'' + m.key + '\')">+ Season</button>' : '')
             + '</div>';
         }).join('')
       + '</div>';
@@ -19223,7 +19247,7 @@ function smgrRender() {
 function smgrFixSeason(key) {
   var m = (allMovies || []).find(function(x){ return x && x.key === key; });
   if (!m) return;
-  var n = prompt('Season number for:\n' + m.title, '1');
+  var n = prompt('Season number for:\\n' + m.title, '1');
   if (!n) return;
   var num = parseInt(n, 10);
   if (!num || num < 1) { toast('Invalid', 1); return; }
@@ -19234,6 +19258,150 @@ function smgrFixSeason(key) {
     toast('✅ ' + newTitle);
     smgrScan();
   }).catch(function(e){ toast('❌ ' + e.message, 1); });
+}
+
+/** Collect best download URLs from a movie object into one episode entry */
+function smgrLinksFromMovie(m, epNum) {
+  var ep = {
+    ep: epNum || 1,
+    title: m.title || ('Episode ' + (epNum || 1)),
+    download1080p: m.download1080p || '',
+    download720p: m.download720p || '',
+    download480p: m.download480p || '',
+    download4k: m.download4k || '',
+    size1080: m.size1080 || '',
+    size720: m.size720 || '',
+    size480: m.size480 || '',
+    size4k: m.size4k || '',
+    videoUrl: m.videoUrl || '',
+    playmateId: m.playmateId || '',
+    playmateUrl: m.playmateUrl || '',
+    embedUrl: m.embedUrl || ''
+  };
+  // If already has episodes array, prefer those
+  if (m.episodes && m.episodes.length) {
+    return m.episodes.map(function(e, i) {
+      return Object.assign({}, e, { ep: e.ep || e.episode || (i + 1) });
+    });
+  }
+  return [ep];
+}
+
+/**
+ * Merge all episode posts for a series base into ONE Complete Series post.
+ * Target = existing "Complete" post, else the post with most episodes[], else first post.
+ * Other posts → trash (soft delete).
+ */
+function smgrMergeToCompleteByBase(base) {
+  var g = (_smgrGroups || []).find(function(x){ return x.base === base; });
+  if (!g || !g.items || g.items.length < 2) {
+    toast('Group nahi mila / kam posts', 1);
+    return;
+  }
+  if (!confirm(
+    '"' + g.base + '" — ' + g.items.length + ' posts\n\n' +
+    'Saari episode posts ka links EK Complete Series post mein merge honge.\\n' +
+    'Baaki alag posts Trash mein chali jayengi.\\n\\nContinue?'
+  )) return;
+
+  var items = g.items.slice();
+  // Prefer complete title as target
+  var target = items.find(function(m){ return smgrIsComplete(m.title); });
+  if (!target) {
+    // prefer one that already has episodes[]
+    items.sort(function(a,b){
+      var ae = (a.episodes && a.episodes.length) || 0;
+      var be = (b.episodes && b.episodes.length) || 0;
+      return be - ae;
+    });
+    target = items[0];
+  }
+
+  var epMap = {}; // epNum -> episode obj
+  items.forEach(function(m) {
+    var en = smgrEpNum(m.title);
+    var list = smgrLinksFromMovie(m, en || 1);
+    list.forEach(function(ep) {
+      var n = parseInt(ep.ep || en || 1, 10) || 1;
+      if (!epMap[n]) epMap[n] = ep;
+      else {
+        // merge missing links into existing
+        var cur = epMap[n];
+        ['download1080p','download720p','download480p','download4k','videoUrl','playmateId','playmateUrl','embedUrl'].forEach(function(k){
+          if (!cur[k] && ep[k]) cur[k] = ep[k];
+        });
+      }
+    });
+  });
+
+  var episodes = Object.keys(epMap).map(Number).sort(function(a,b){return a-b;}).map(function(n){
+    var e = epMap[n];
+    e.ep = n;
+    if (!e.title || /^episode/i.test(e.title)) e.title = 'Episode ' + n;
+    return e;
+  });
+
+  if (!episodes.length) {
+    toast('Koi episode links nahi mile', 1);
+    return;
+  }
+
+  // Build target title
+  var sn = smgrSeasonNum(target.title) || smgrSeasonNum(items[0].title);
+  var niceBase = g.base.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  var newTitle = niceBase + (sn ? (' Season ' + sn) : '') + ' Complete Series';
+
+  var payload = Object.assign({}, target);
+  delete payload.key;
+  payload.title = newTitle;
+  payload.episodes = episodes;
+  payload.category = payload.category || 'webseries_hindi';
+  // Clear single-file quality fields on pack (optional keep as ep1 mirror)
+  if (episodes[0]) {
+    payload.download1080p = episodes[0].download1080p || payload.download1080p || '';
+    payload.download720p = episodes[0].download720p || payload.download720p || '';
+    payload.download480p = episodes[0].download480p || payload.download480p || '';
+  }
+
+  var others = items.filter(function(m){ return m.key !== target.key; });
+
+  toast('Merging ' + episodes.length + ' episodes…');
+  db.ref('movies/' + target.key).update({
+    title: payload.title,
+    episodes: episodes,
+    download1080p: payload.download1080p || null,
+    download720p: payload.download720p || null,
+    download480p: payload.download480p || null
+  }).then(function() {
+    // Soft-delete others → trash
+    var i = 0;
+    function nextTrash() {
+      if (i >= others.length) {
+        toast('✅ Merged: ' + newTitle + ' (' + episodes.length + ' eps). ' + others.length + ' posts → Trash');
+        // refresh local
+        target.title = newTitle;
+        target.episodes = episodes;
+        others.forEach(function(o) {
+          allMovies = (allMovies || []).filter(function(x){ return x.key !== o.key; });
+        });
+        try { if (typeof trashUpdateCount === 'function') trashUpdateCount(); } catch(e){}
+        smgrScan();
+        return;
+      }
+      var o = others[i++];
+      var trashPayload = Object.assign({}, o);
+      delete trashPayload.key;
+      trashPayload.deletedAt = Date.now();
+      trashPayload.deletedTitle = o.title || '';
+      trashPayload.undoFrom = 'smgr-merge';
+      db.ref('trash/' + o.key).set(trashPayload).then(function() {
+        return db.ref('movies/' + o.key).remove();
+      }).then(function(){ nextTrash(); }).catch(function(){ nextTrash(); });
+    }
+    nextTrash();
+  }).catch(function(e) {
+    toast('❌ Merge fail: ' + (e.message || e), 1);
+  });
 }
 
 // ── TRASH ──
