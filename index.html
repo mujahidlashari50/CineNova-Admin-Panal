@@ -1061,7 +1061,6 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
     <div class="nav-item" id="nav-pmmatch" onclick="show('pmmatch')" style="color:#60a5fa;">🎯 Playmate Match</div>
     <div class="nav-item" id="nav-posterfix" onclick="show('posterfix')" style="color:#fb923c;">🖼️ Poster Fix (TMDB)</div>
-    <div class="nav-item" id="nav-oneclick" onclick="show('oneclick')" style="color:#fbbf24;">⚡ One-Click Fill (IMDb)</div>
     <div class="nav-item" id="nav-playmate" onclick="show('playmate')" style="color:#60a5fa;">▶️ Playmate Upload</div>
     <div class="nav-section-title">🤖 SEO AI Tools</div>
     <div class="nav-item" id="nav-titlegen" onclick="show('titlegen')" style="color:#a855f7;">✨ AI Title/Meta Generator</div>
@@ -2631,7 +2630,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-posterfix">
       <div class="sec-title">🖼️ Poster Fix <span>(TMDB)</span></div>
       <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.28);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#fdba74;">
-        Ek category select karo — <b>pehle IMDb (Amazon)</b> se poster, <b>na mile to TMDB</b>. Sirf strong title match (galat poster nahi). Source site ka poster overwrite hoga.
+        Ek category select karo, us category ki <b>saari movies</b> ka poster TMDB se dobara fetch karke update ho jayega (jahan TMDB match mile). Source website (filmslb/hdfun waghera) ka poster overwrite ho jayega.
       </div>
       <div class="card">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -2649,42 +2648,6 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </div>
     </div>
     <!-- ═══ END POSTER FIX ═══ -->
-
-    <div class="section" id="sec-oneclick">
-      <div class="sec-title">⚡ One-Click Fill <span>(IMDb Amazon → TMDB)</span></div>
-      <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:0.82rem;color:#fde68a;line-height:1.55;">
-        <b>Poster order:</b> 1) <b>IMDb Amazon</b> → 2) <b>TMDB</b> (sirf agar IMDb na mile)<br>
-        Details (director/cast/backdrop) TMDB se. Weak match = skip (galat poster nahi).
-      </div>
-      <div class="card">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-          <select class="fi" id="oc-filter" style="max-width:220px;" onchange="ocLoadList()">
-            <option value="missing">⭕ Missing poster / details</option>
-            <option value="no_poster">🖼️ Bina poster</option>
-            <option value="all">📋 All (filter)</option>
-          </select>
-          <select class="fi" id="oc-cat" style="max-width:200px;" onchange="ocLoadList()"><option value="">All Categories</option></select>
-          <input class="fi" id="oc-search" placeholder="Search…" style="max-width:180px;" oninput="ocLoadList()"/>
-          <input class="fi" id="oc-limit" type="number" value="30" style="width:70px;"/>
-          <button class="btn btn-s" onclick="ocLoadList()">🔍 Load</button>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="btn btn-s" onclick="ocSelectAll(true)">✅ All</button>
-          <button class="btn btn-s" onclick="ocSelectAll(false)">❌ None</button>
-          <span style="font-size:0.78rem;color:#888;">Selected: <b id="oc-sel-count" style="color:#fff;">0</b></span>
-          <button class="btn btn-p" id="oc-run-btn" onclick="ocStartFill()" style="background:#f59e0b;margin-left:auto;">⚡ Fill (IMDb→TMDB)</button>
-          <button class="btn btn-s" id="oc-stop-btn" onclick="ocStopFill()" style="display:none;background:#7f1d1d;color:#fff;">⏹ Stop</button>
-        </div>
-        <div id="oc-prog-wrap" style="display:none;margin-bottom:10px;">
-          <div style="height:8px;background:#1a1a1a;border-radius:10px;overflow:hidden;"><div id="oc-pbar" style="height:100%;width:0%;background:#f59e0b;"></div></div>
-          <div id="oc-prog-text" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
-        </div>
-        <div id="oc-list" style="max-height:420px;overflow-y:auto;"></div>
-        <div id="oc-log" style="margin-top:10px;max-height:160px;overflow-y:auto;font-size:0.72rem;"></div>
-      </div>
-    </div>
-
-
 
     <!-- ═══ PLAYMATE UPLOAD ═══ -->
     <div class="section" id="sec-playmate">
@@ -4996,7 +4959,6 @@ function show(name){
   if(name==='jsonexport'){try{jbRender();}catch(e){}}
   if(name==='pmmatch'){try{if(!pmGetKey())document.getElementById('pmm-status').textContent='⚠️ Pehle Playmate section mein API key save karo';}catch(e){}}
   if(name==='posterfix'){try{pfPopulateCatDropdown();}catch(e){}}
-  if(name==='oneclick'){try{ocInit();}catch(e){}}
   if(name==='hdauto'){
     try {
       var hcb=document.getElementById('hdauto-auto-toggle');
@@ -6911,39 +6873,23 @@ async function pfStartBulkFix() {
     var m = list[i];
     await new Promise(function(resolve) {
       try {
-        // Priority: 1) IMDb Amazon poster  2) TMDB fallback
-        function savePoster(url, src) {
-          if (!url) {
+        ffiTmdbEnrich(m.title, m.year, function(tmdb) {
+          if (tmdb && tmdb.poster) {
+            db.ref('movies/' + m.key + '/thumbnail').set(tmdb.poster).then(function() {
+              updated++;
+              logLine('✅ ' + m.title, '#4ade80');
+              resolve();
+            }).catch(function() {
+              failed++;
+              logLine('❌ ' + m.title + ' (save fail)', '#f87171');
+              resolve();
+            });
+          } else {
             notFound++;
-            logLine('⚠️ ' + m.title + ' — IMDb/TMDB match nahi', '#fbbf24');
+            logLine('⚠️ ' + m.title + ' — TMDB match nahi mila', '#fbbf24');
             resolve();
-            return;
           }
-          var updates = { thumbnail: url };
-          db.ref('movies/' + m.key).update(updates).then(function() {
-            updated++;
-            logLine('✅ ' + m.title + ' (' + src + ')', '#4ade80');
-            resolve();
-          }).catch(function() {
-            failed++;
-            logLine('❌ ' + m.title + ' (save fail)', '#f87171');
-            resolve();
-          });
-        }
-        function tryTmdb() {
-          ffiTmdbEnrich(m.title, m.year, function(tmdb) {
-            if (tmdb && tmdb.poster && tmdb.tmdbId) savePoster(tmdb.poster, 'TMDB');
-            else savePoster('', '');
-          });
-        }
-        if (typeof ffiImdbPoster === 'function') {
-          ffiImdbPoster(m.title, m.year, function(imdbPoster) {
-            if (imdbPoster) savePoster(imdbPoster, 'IMDb/Amazon');
-            else tryTmdb();
-          });
-        } else {
-          tryTmdb();
-        }
+        });
       } catch (e) {
         failed++;
         resolve();
@@ -13478,23 +13424,25 @@ function ffiStartImport() {
             }
           }
           // Cast / Director / Backdrop → Firebase (theme live TMDB nahi)
+          // Always fill empty metadata from TMDB (auto-import missing fields fix)
           if (tmdb.castList && tmdb.castList.length) {
             data.castList = tmdb.castList;
-            if (!data.cast) data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
-          } else if (tmdb.cast && !data.cast) {
+            data.cast = tmdb.cast || tmdb.castList.map(function(c){ return c.name; }).join(', ');
+          } else if (tmdb.cast) {
             data.cast = tmdb.cast;
           }
-          if (tmdb.director && !data.director) data.director = tmdb.director;
+          if (tmdb.director) data.director = tmdb.director;
           if (tmdb.backdrop) data.backdrop = tmdb.backdrop;
           if (tmdb.tmdbId) data.tmdbId = tmdb.tmdbId;
-          if (tmdb.duration && !data.duration) data.duration = tmdb.duration;
+          if (tmdb.duration) data.duration = tmdb.duration;
+          if (tmdb.rating) data.rating = tmdb.rating;
+          if (tmdb.description && (!data.description || data.description.length < 40)) data.description = tmdb.description;
         }
 
         // ── IMDb POSTER (priority over TMDB/site thumbnail) ──
         // User ki demand: poster hamesha asli IMDb.com se aana chahiye,
         // TMDB sirf fallback hai jab IMDb pe match na mile.
         ffiImdbPoster(data.title, data.year, function(imdbPoster) {
-        // 1) IMDb Amazon  2) TMDB  3) jo pehle se site se aaya
         if (imdbPoster) data.thumbnail = imdbPoster;
         else if (tmdb && tmdb.poster) data.thumbnail = tmdb.poster;
 
@@ -17111,14 +17059,23 @@ function ffiImdbPoster(title, year, cb) {
     if (!title || typeof _ffiFetch !== 'function') { cb(''); return; }
     var clean = String(title)
       .replace(/\b(19|20)\d{2}\b/g, ' ')
-      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
-      .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|complete\s*season|full\s*season)\b/gi, ' ')
-      .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+)\b/gi, ' ')
+      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|blu[\s\-]?ray|hevc|x264|x265)\b/gi, ' ')
+      .replace(/\b(hindi\s*dubbed|dual\s*audio|english\s*dubbed|complete\s*season|full\s*season|full\s*movie|series\s*full)\b/gi, ' ')
+      .replace(/\b(season\s*\d+|s\d{1,2}|e\d{1,3}|episode\s*\d+|complete\s*series)\b/gi, ' ')
       .replace(/[\[\]\(\)\{\}]/g, ' ')
       .replace(/\s+/g, ' ').trim();
     if (!clean) clean = title;
     var yr = String(year || '').replace(/\D/g, '').substring(0, 4);
-    var url = 'https://v3.sg.media-imdb.com/suggestion/x/' + encodeURIComponent(clean) + '.json';
+    if (!yr) {
+      var ym = String(title).match(/\b((?:19|20)\d{2})\b/);
+      if (ym) yr = ym[1];
+    }
+    // Short search query — first 5 real words
+    var words = clean.toLowerCase().split(/[^a-z0-9]+/).filter(function(w) {
+      return w.length >= 2 && !/^(the|a|an|of|and|or|to|in|on|for|part)$/.test(w);
+    }).slice(0, 5);
+    var searchQ = words.join(' ') || clean;
+    var url = 'https://v3.sg.media-imdb.com/suggestion/x/' + encodeURIComponent(searchQ) + '.json';
 
     function normTitle(s) {
       return String(s || '').toLowerCase()
@@ -17126,17 +17083,22 @@ function ffiImdbPoster(title, year, cb) {
         .replace(/\b(the|a|an|of|and)\b/g, ' ')
         .replace(/\s+/g, ' ').trim();
     }
-    function titleScore(a, b) {
-      a = normTitle(a); b = normTitle(b);
+    function titleScore(query, candidate) {
+      var a = normTitle(query), b = normTitle(candidate);
       if (!a || !b) return 0;
       if (a === b) return 100;
-      if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 85;
-      var at = a.split(' ').filter(Boolean);
-      var bt = b.split(' ').filter(Boolean);
+      var at = a.split(' ').filter(function(w){ return w.length >= 2; });
+      var bt = b.split(' ').filter(function(w){ return w.length >= 2; });
       if (!at.length || !bt.length) return 0;
+      // First word must align
+      if (at[0] !== bt[0] && bt[0].indexOf(at[0]) !== 0 && at[0].indexOf(bt[0]) !== 0) return 0;
       var hit = 0;
       at.forEach(function(t){ if (bt.indexOf(t) >= 0) hit++; });
-      return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+      var cover = hit / at.length;
+      if (cover < 0.7) return Math.round(cover * 50);
+      var sc = Math.round(cover * 75 + Math.min(hit / bt.length, 1) * 20);
+      if (a.indexOf(b) === 0 || b.indexOf(a) === 0) sc = Math.max(sc, 88);
+      return Math.min(100, sc);
     }
 
     _ffiFetch(url, function(raw) {
@@ -17149,27 +17111,38 @@ function ffiImdbPoster(title, year, cb) {
         else { cb(''); return; }
       }
       var list = (data && data.d) || [];
-      var titles = list.filter(function(x){ return x && x.id && /^tt/i.test(x.id); });
+      var titles = list.filter(function(x) {
+        if (!x || !x.id || !/^tt/i.test(x.id)) return false;
+        var q = String(x.qid || x.q || '').toLowerCase();
+        if (q && /game|podcast|music|video.?game/.test(q)) return false;
+        return true;
+      });
       if (!titles.length) { cb(''); return; }
       var best = null, bestSc = -1;
       titles.forEach(function(t) {
-        var sc = titleScore(clean, t.l || '');
-        if (yr && String(t.y || '') === yr) sc += 15;
+        var sc = titleScore(searchQ, t.l || '');
+        if (yr && t.y) {
+          var dy = Math.abs(parseInt(String(t.y), 10) - parseInt(yr, 10));
+          if (dy === 0) sc += 15;
+          else if (dy === 1) sc += 5;
+          else if (dy > 2) sc -= 20;
+        }
         if (sc > bestSc) { bestSc = sc; best = t; }
       });
-      if (!best || bestSc < 40) { cb(''); return; }
+      // 65+: balance — galat kam, empty kam
+      if (!best || bestSc < 65) { cb(''); return; }
       var img = '';
       if (best.i) {
         if (Array.isArray(best.i)) img = best.i[0] || '';
         else if (best.i.imageUrl) img = best.i.imageUrl;
+        else if (typeof best.i === 'string') img = best.i;
       }
-      // Amazon CDN crop-suffix hata ke poori resolution wali image lo
-      if (img) img = img.replace(/\._V1_[^.]*\.(jpg|jpeg|png)$/i, '._V1_.$1');
+      if (img) {
+        img = String(img).replace(/\._V1_[^.]*\.(jpg|jpeg|png)$/i, '._V1_.$1');
+      }
       cb(img || '');
     });
-  } catch (e) {
-    cb('');
-  }
+  } catch (e) { cb(''); }
 }
 
 function ffiTmdbEnrich(title, year, cb) {
@@ -17185,23 +17158,53 @@ function ffiTmdbEnrich(title, year, cb) {
     .replace(/[\[\]\(\)\{\}]/g, ' ')
     .replace(/\s+/g, ' ').trim();
   if (clean.length < 2) clean = String(title || '').trim();
+  // Year from title if missing (e.g. "The Mummy ... 2008 Hindi Dubbed")
+  var yr = String(year || '').replace(/\D/g, '').substring(0, 4);
+  if (!yr) {
+    var ym = String(title || '').match(/\b((?:19|20)\d{2})\b/);
+    if (ym) yr = ym[1];
+  }
   var q = encodeURIComponent(clean);
   var url = 'https://api.themoviedb.org/3/search/multi?api_key=' + apiKey + '&query=' + q + '&language=en-US&page=1';
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(res){
       var results = (res.results || []).filter(function(r){ return r.media_type === 'movie' || r.media_type === 'tv'; });
-      if (year) {
-        var filtered = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(String(year)); });
-        if (filtered.length) results = filtered;
+      var wantTv = /\bS\d{1,2}\b|Season|Series|Episode/i.test(String(title||''));
+      function _norm(s) {
+        return String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\b(the|a|an|of|and)\b/g, ' ').replace(/\s+/g, ' ').trim();
       }
-      // Prefer TV result if title looks like series
-      var wantTv = /\bS\d{1,2}\b|Season|Series|Drama/i.test(String(title||''));
-      if (wantTv) {
-        var tvFirst = results.filter(function(r){ return r.media_type === 'tv'; });
-        if (tvFirst.length) results = tvFirst.concat(results.filter(function(r){ return r.media_type !== 'tv'; }));
+      function _score(cand) {
+        var a = _norm(clean), b = _norm(cand);
+        if (!a || !b) return 0;
+        if (a === b) return 100;
+        var at = a.split(' ').filter(function(w){ return w.length >= 2; });
+        var bt = b.split(' ').filter(function(w){ return w.length >= 2; });
+        if (!at.length || !bt.length) return 0;
+        if (at[0] !== bt[0] && bt[0].indexOf(at[0]) !== 0 && at[0].indexOf(bt[0]) !== 0) return 15;
+        var hit = 0;
+        at.forEach(function(t){ if (bt.indexOf(t) >= 0) hit++; });
+        return Math.round((hit / at.length) * 100);
       }
-      var m = results[0];
+      var scored = results.map(function(r) {
+        var nm = r.title || r.name || '';
+        var sc = _score(nm);
+        var ry = String(r.release_date || r.first_air_date || '').substring(0, 4);
+        if (yr && ry === yr) sc += 20;
+        else if (yr && ry && Math.abs(parseInt(ry,10) - parseInt(yr,10)) > 2) sc -= 15;
+        if (wantTv && r.media_type === 'tv') sc += 10;
+        if (!wantTv && r.media_type === 'movie') sc += 8;
+        return { r: r, sc: sc };
+      }).sort(function(a,b){ return b.sc - a.sc; });
+      // Accept decent match (50+) so cast/director fill; poster still gated by IMDb first
+      var m = (scored[0] && scored[0].sc >= 50) ? scored[0].r : null;
+      if (!m && results.length) {
+        // last resort: year-matched first result
+        if (yr) {
+          var ymatch = results.filter(function(r){ return (r.release_date||r.first_air_date||'').startsWith(yr); });
+          m = ymatch[0] || null;
+        }
+      }
       if (!m) { cb(null); return; }
       var genreMap = {28:'action',12:'adventure',16:'animation',35:'comedy',80:'crime',18:'drama',10751:'family',14:'fantasy',27:'horror',9648:'mystery',10749:'romance',878:'scifi',53:'thriller',10752:'war'};
       var lang = (m.original_language || '').toLowerCase();
@@ -17228,7 +17231,7 @@ function ffiTmdbEnrich(title, year, cb) {
         mediaType: mediaType
       };
       // Details (runtime/duration) + Credits (cast + director) parallel — fill Director/Cast/Backdrop/Duration/TMDB ID
-      var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US';
+      var detailUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '?api_key=' + apiKey + '&language=en-US&append_to_response=credits';
       var credUrl = 'https://api.themoviedb.org/3/' + mediaType + '/' + m.id + '/credits?api_key=' + apiKey + '&language=en-US';
       Promise.all([
         fetch(detailUrl).then(function(r){ return r.json(); }).catch(function(){ return {}; }),
@@ -19126,96 +19129,6 @@ function dlStartScan() {
   next();
 }
 
-
-// ═══ ONE-CLICK: IMDb Amazon poster FIRST, then TMDB ═══
-var _ocStop=false,_ocBusy=false;
-function ocInit(){
-  var sel=document.getElementById('oc-cat'); if(!sel) return;
-  var cats={}; (allMovies||[]).forEach(function(m){var c=(m.category||'').trim(); if(c) cats[c]=1;});
-  sel.innerHTML='<option value="">All Categories</option>'+Object.keys(cats).sort().map(function(c){return '<option value="'+c.replace(/"/g,'&quot;')+'">'+c.replace(/</g,'&lt;')+'</option>';}).join('');
-  ocLoadList();
-}
-function ocNeedsFill(m,mode){
-  if(!m) return false;
-  var np=!m.thumbnail||!String(m.thumbnail).trim();
-  var nd=!m.director||!m.cast||!m.tmdbId;
-  if(mode==='no_poster') return np;
-  if(mode==='missing') return np||nd;
-  return true;
-}
-function ocLoadList(){
-  var mode=(document.getElementById('oc-filter')||{}).value||'missing';
-  var cat=(document.getElementById('oc-cat')||{}).value||'';
-  var q=((document.getElementById('oc-search')||{}).value||'').toLowerCase().trim();
-  var limit=parseInt((document.getElementById('oc-limit')||{}).value,10)||30;
-  var list=(allMovies||[]).filter(function(m){
-    if(!m||!m.key) return false;
-    if(cat&&(m.category||'')!==cat) return false;
-    if(q&&String(m.title||'').toLowerCase().indexOf(q)<0) return false;
-    return ocNeedsFill(m,mode);
-  }).sort(function(a,b){return (b.addedAt||0)-(a.addedAt||0);}).slice(0,limit);
-  var el=document.getElementById('oc-list'); if(!el) return;
-  if(!list.length){el.innerHTML='<div style="padding:24px;text-align:center;color:#555;">Koi movie nahi</div>'; ocUpdateSelCount(); return;}
-  el.innerHTML=list.map(function(m){
-    var th=m.thumbnail?'<img src="'+String(m.thumbnail).replace(/"/g,'&quot;')+'" style="width:40px;height:56px;object-fit:cover;border-radius:4px;" onerror="this.style.opacity=.3"/>':'<div style="width:40px;height:56px;background:#1a1a1a;border-radius:4px;"></div>';
-    return '<label style="display:flex;gap:10px;align-items:center;padding:8px;background:#111;border:1px solid #1e1e1e;border-radius:8px;margin-bottom:6px;cursor:pointer;"><input type="checkbox" class="oc-cb" data-key="'+m.key+'" checked onchange="ocUpdateSelCount()"/>'+th+'<div style="flex:1;min-width:0;font-size:0.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(typeof escHtml==='function'?escHtml(m.title||''):m.title||'')+'</div></label>';
-  }).join('');
-  ocUpdateSelCount();
-}
-function ocSelectAll(on){document.querySelectorAll('.oc-cb').forEach(function(c){c.checked=!!on;}); ocUpdateSelCount();}
-function ocUpdateSelCount(){var e=document.getElementById('oc-sel-count'); if(e) e.textContent=document.querySelectorAll('.oc-cb:checked').length;}
-function ocStopFill(){_ocStop=true;}
-function ocLog(m,c){var el=document.getElementById('oc-log'); if(!el) return; var d=document.createElement('div'); d.style.color=c||'#aaa'; d.textContent=m; el.insertBefore(d,el.firstChild);}
-function ocStartFill(){
-  if(_ocBusy) return;
-  var keys=[]; document.querySelectorAll('.oc-cb:checked').forEach(function(c){keys.push(c.getAttribute('data-key'));});
-  if(!keys.length){toast('Select movies',1); return;}
-  _ocBusy=true; _ocStop=false;
-  var btn=document.getElementById('oc-run-btn'), stop=document.getElementById('oc-stop-btn');
-  if(btn) btn.disabled=true; if(stop) stop.style.display='';
-  document.getElementById('oc-prog-wrap').style.display='block';
-  document.getElementById('oc-log').innerHTML='';
-  var done=0,ok=0,fail=0,skip=0,total=keys.length;
-  function prog(){var b=document.getElementById('oc-pbar'),t=document.getElementById('oc-prog-text'); if(b) b.style.width=Math.round(done/total*100)+'%'; if(t) t.textContent=done+'/'+total+' ✅'+ok+' ⏭'+skip+' ❌'+fail;}
-  function fin(){_ocBusy=false; if(btn) btn.disabled=false; if(stop) stop.style.display='none'; toast('Done ✅'+ok+' skip'+skip); ocLoadList();}
-  function next(i){
-    if(_ocStop||i>=keys.length){fin(); return;}
-    var key=keys[i], m=(allMovies||[]).find(function(x){return x&&x.key===key;});
-    if(!m){done++; fail++; prog(); next(i+1); return;}
-    // 1) IMDb Amazon  2) TMDB
-    function apply(poster, src, tmdb){
-      var u={};
-      if(poster) u.thumbnail=poster;
-      if(tmdb&&tmdb.tmdbId){
-        if(!u.thumbnail&&tmdb.poster) u.thumbnail=tmdb.poster;
-        if(tmdb.backdrop) u.backdrop=tmdb.backdrop;
-        u.tmdbId=tmdb.tmdbId;
-        if(tmdb.director) u.director=tmdb.director;
-        if(tmdb.cast) u.cast=tmdb.cast;
-        if(tmdb.description||tmdb.overview) u.description=tmdb.description||tmdb.overview;
-        if(tmdb.rating) u.rating=tmdb.rating;
-        if(tmdb.year&&!m.year) u.year=tmdb.year;
-      }
-      if(!Object.keys(u).length){skip++; ocLog('⏭ '+m.title+' — no strong match', '#fbbf24'); done++; prog(); next(i+1); return;}
-      db.ref('movies/'+key).update(u).then(function(){
-        Object.keys(u).forEach(function(k){m[k]=u[k];});
-        ok++; ocLog('✅ '+m.title+' ('+(src||'TMDB')+')', '#4ade80');
-        done++; prog(); next(i+1);
-      }).catch(function(){fail++; done++; prog(); next(i+1);});
-    }
-    function afterImdb(imdbUrl){
-      ffiTmdbEnrich(m.title, m.year, function(tmdb){
-        if(imdbUrl) apply(imdbUrl, 'IMDb/Amazon', tmdb);
-        else if(tmdb&&tmdb.poster&&tmdb.tmdbId) apply(tmdb.poster, 'TMDB', tmdb);
-        else apply('', '', tmdb);
-      });
-    }
-    if(typeof ffiImdbPoster==='function') ffiImdbPoster(m.title, m.year, afterImdb);
-    else afterImdb('');
-  }
-  next(0);
-}
-
 // ── SEASON MANAGER ──
 var _smgrGroups = [];
 function smgrBaseTitle(t) {
@@ -19307,31 +19220,6 @@ function smgrFixSeason(key) {
     toast('✅ ' + newTitle);
     smgrScan();
   }).catch(function(e){ toast('❌ ' + e.message, 1); });
-}
-
-
-function smgrEpNum(t){var m=String(t||'').match(/\bepisode\s*0*(\d+)/i)||String(t||'').match(/\be\s*0*(\d+)/i); return m?parseInt(m[1],10):null;}
-function smgrIsComplete(t){return /\bcomplete\b/i.test(String(t||''))&&!smgrEpNum(t);}
-function smgrMergeToCompleteByBase(base){
-  var g=(_smgrGroups||[]).find(function(x){return x.base===base;});
-  if(!g||g.items.length<2){toast('Group nahi',1);return;}
-  if(!confirm('Merge '+g.items.length+' posts → 1 Complete? Others Trash'))return;
-  var items=g.items.slice();
-  var target=items.find(function(m){return smgrIsComplete(m.title);})||items[0];
-  var epMap={};
-  items.forEach(function(m){
-    var en=smgrEpNum(m.title)||1;
-    if(m.episodes&&m.episodes.length){m.episodes.forEach(function(e,i){var n=e.ep||i+1; if(!epMap[n])epMap[n]=e;});}
-    else if(!epMap[en]) epMap[en]={ep:en,title:m.title,download1080p:m.download1080p||'',download720p:m.download720p||'',download480p:m.download480p||''};
-  });
-  var episodes=Object.keys(epMap).map(Number).sort(function(a,b){return a-b;}).map(function(n){var e=epMap[n];e.ep=n;return e;});
-  var nice=base.replace(/\b\w/g,function(c){return c.toUpperCase();});
-  var title=nice+' Complete Series';
-  var others=items.filter(function(m){return m.key!==target.key;});
-  db.ref('movies/'+target.key).update({title:title,episodes:episodes}).then(function(){
-    var i=0; function n(){ if(i>=others.length){toast('Merged');smgrScan();return;} var o=others[i++]; var t=Object.assign({},o); delete t.key; t.deletedAt=Date.now();
-      db.ref('trash/'+o.key).set(t).then(function(){return db.ref('movies/'+o.key).remove();}).then(n).catch(n); } n();
-  });
 }
 
 // ── TRASH ──
