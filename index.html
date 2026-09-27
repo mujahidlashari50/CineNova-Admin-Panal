@@ -1057,7 +1057,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-autoimport" onclick="show('autoimport')">🤖 Auto Import</div>
     <div class="nav-item" id="nav-ffimport" onclick="show('ffimport')" style="color:#f59e0b;">⚡ HDFun / MMSHD</div>
     <div class="nav-item" id="nav-hdauto" onclick="show('hdauto')" style="color:#4ade80;">🔁 HDFun Auto-Import <span class="nav-count" id="hdauto-nav-count" style="background:#4ade80;">NEW</span></div>
-    <div class="nav-item" id="nav-mssearch" onclick="show('mssearch')" style="color:#38bdf8;">🔎 Movie Search (3 sites)</div>
+    <div class="nav-item" id="nav-mssearch" onclick="show('mssearch')" style="color:#38bdf8;">🔎 Movie Search (HDFun / MMSHD)</div>
     <div class="nav-item" id="nav-jsonexport" onclick="show('jsonexport')" style="color:#34d399;">📦 JSON Export <span id="jb-nav-count" style="background:rgba(52,211,153,0.18);border-radius:10px;padding:1px 7px;font-size:0.7rem;margin-left:4px;">0</span></div>
     <div class="nav-item" id="nav-pmmatch" onclick="show('pmmatch')" style="color:#60a5fa;">🎯 Playmate Match</div>
     <div class="nav-item" id="nav-posterfix" onclick="show('posterfix')" style="color:#fb923c;">🖼️ Poster Fix (TMDB)</div>
@@ -1891,7 +1891,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div class="fg" style="margin-bottom:12px;">
           <div class="fgg"><label>From date</label><input class="fi" type="date" id="bd-from"/></div>
           <div class="fgg"><label>To date</label><input class="fi" type="date" id="bd-to"/></div>
-          <div class="fgg"><label>Source contains</label><input class="fi" id="bd-source" placeholder="hdfun.in / mmshd"/></div>
+          <div class="fgg"><label>Source contains</label><input class="fi" id="bd-source" placeholder="hdfun.in / mmshd.com"/></div>
           <div class="fgg"><label>Category</label>
             <select class="fi" id="bd-cat">
               <option value="all">All</option>
@@ -2285,7 +2285,9 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <!-- Step 1: Site URL -->
       <div class="card">
         <h3>Step 1 — Site / Category URL Daalo</h3>
-        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:10px;">Supported: <b>HDFun.in</b> + <b>MMSHD.com</b> only.</div>
+        <div style="color:var(--grey);font-size:0.82rem;margin-bottom:10px;">Supported: <b>HDFun.in</b> + <b>MMSHD.com</b> only. Baaki sources permanently removed. Web-series + TMDB.</div>
+        
+        <!-- ══ FINAL SOURCE CATEGORY BUTTONS ══ -->
         <div style="margin:8px 0 6px;font-size:0.72rem;color:#4ade80;text-transform:uppercase;letter-spacing:1px;font-weight:700;">HDFun.in</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(74,222,128,0.5);color:#4ade80;" onclick="ffiFillUrl('https://hdfun.in/');">📌 Home</button>
@@ -2308,7 +2310,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(244,114,182,0.5);color:#f472b6;" onclick="ffiFillUrl('https://www.mmshd.com/categoryTags/hindi-web-series');">Hindi Web Series</button>
           <button type="button" class="btn btn-s" style="padding:6px 12px;font-size:0.78rem;border-color:rgba(244,114,182,0.5);color:#f472b6;" onclick="ffiFillUrl('https://www.mmshd.com/categoryTags/full-movie');">Full Movie</button>
         </div>
-        <div style="font-size:0.75rem;color:#888;margin-bottom:12px;">Category button → URL auto fill → Pages select → <b>Posts Fetch</b> → Playmate checkbox ON → Save to Firebase. Poster TMDB se, Playmate ID auto.</div>
+        <div style="font-size:0.75rem;color:#888;margin-bottom:12px;">Category button → URL auto fill → Pages select → <b>Posts Fetch</b> → Playmate checkbox ON → Save to Firebase. <b>Poster = HDFun/MMSHD original</b>; baaki details TMDB se. Playmate ID auto.</div>
 
         <div style="margin-bottom:10px;padding:10px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;font-size:0.8rem;color:#fde68a;">
           ⚡ <b>3 category links</b> ek sath daal sakte ho — har URL apni category detect karegi (Hollywood / Bollywood / Tollywood…).
@@ -2316,7 +2318,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div class="fgg" style="width:100%;">
             <label>Category URL 1</label>
-            <input class="fi" id="ffi-site-url" placeholder="https://filmscr.com/hollywood-hindi-movies/" style="border-color:rgba(245,158,11,0.4);"/>
+            <input class="fi" id="ffi-site-url" placeholder="https://hdfun.in/category/.../1.html" style="border-color:rgba(245,158,11,0.4);"/>
           </div>
           <div class="fgg" style="width:100%;">
             <label>Category URL 2 <span style="color:#888;font-weight:400;">(optional)</span></label>
@@ -2347,10 +2349,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           </div>
           <button onclick="ffiFetchPosts()" id="ffi-fetch-btn" class="btn btn-p" style="height:42px;padding:0 24px;">🔍 Posts Fetch Karo (1–3 URLs)</button>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-          <span style="font-size:0.72rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">hdfun.in ✓</span>
-          <span style="font-size:0.72rem;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);color:#f9a8d4;padding:3px 10px;border-radius:20px;">mmshd.com ✓</span>
-        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;"><span style="font-size:0.72rem;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;padding:3px 10px;border-radius:20px;">hdfun.in ✓</span><span style="font-size:0.72rem;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);color:#f9a8d4;padding:3px 10px;border-radius:20px;">mmshd.com ✓</span></div>
         <div id="ffi-fetch-status" style="margin-top:10px;font-size:0.82rem;display:none;padding:10px 14px;border-radius:8px;"></div>
       </div>
 
@@ -2476,30 +2475,32 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <div style="background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#86efac;line-height:1.6;">
         💡 <b>Full category bulk</b>: HDFun category ki <b>saari pages</b> scan → matching panel category mein import (TMDB + poster + DL links).<br>
         Example: <b>Hollywood Hindi Dubbed</b> → panel <code>hindi_dubbed</code>. Already existing posts skip.<br>
-        Light mode: sirf nayi posts (~15/cycle). Bulk mode: selected categories × max pages, unlimited batch.
+        Ek category pe <b>⚡ Import All Movies</b> = HDFun us category ki <b>saari pages + saari old/new movies</b> import. Checkbox ON ho to sirf nayi; <b>OFF = purani bhi saari</b>.
       </div>
 
       <div class="card" style="margin-bottom:16px;border-color:rgba(74,222,128,0.35);">
-        <h3>📦 Full Category Bulk Import</h3>
+        <h3>📦 Full Category Bulk Import — 1 Click = Saari Movies</h3>
         <div style="font-size:0.78rem;color:var(--grey);margin-bottom:12px;line-height:1.5;">
-          Niche se category select karo → Max pages set karo → <b>Full Import</b>. Har category ki posts usi panel category mein jayengi.
+          Har category pe <b>⚡ Import All</b> dabao → HDFun us category ki <b>saari pages</b> scan karke <b>har movie</b> panel mein auto-save karega (TMDB details + HDFun original poster + DL links).<br>
+          Ya checkbox se multi-select karke neeche <b>Full Import</b> dabao. Already DB mein ho to skip (checkbox ON).
         </div>
-        <div id="hdauto-cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:14px;"></div>
+        <div id="hdauto-cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-bottom:14px;"></div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
           <button type="button" class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" onclick="hdautoSelectAllCats(true)">✅ Sab categories</button>
           <button type="button" class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" onclick="hdautoSelectAllCats(false)">❌ Deselect</button>
           <label style="font-size:0.78rem;color:var(--grey);display:flex;align-items:center;gap:6px;">
             Max pages / category
-            <input class="fi" id="hdauto-max-pages" type="number" value="30" min="1" max="200" style="width:70px;padding:7px 10px;"/>
+            <input class="fi" id="hdauto-max-pages" type="number" value="0" min="0" max="500" style="width:70px;padding:7px 10px;" title="0 = unlimited (saari pages jab tak empty na aaye)"/>
+            <span style="font-size:0.7rem;color:#4ade80;">0 = ALL pages</span>
           </label>
-          <label style="font-size:0.75rem;color:#888;display:flex;align-items:center;gap:6px;">
-            <input type="checkbox" id="hdauto-skip-known" checked/> Skip already-known / DB posts
+          <label style="font-size:0.75rem;color:#fbbf24;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="hdauto-skip-known"/> Sirf nayi posts (OFF = <b>saari old + new</b> import)
           </label>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <button type="button" class="btn" id="hdauto-bulk-btn" onclick="hdautoFullCategoryImport()" style="background:#16a34a;color:#fff;font-weight:700;">⚡ Full Category Import (selected)</button>
+          <button type="button" class="btn" id="hdauto-bulk-btn" onclick="hdautoFullCategoryImport()" style="background:#16a34a;color:#fff;font-weight:700;">⚡ Full Import (selected categories)</button>
           <button type="button" class="btn btn-s" id="hdauto-bulk-stop-btn" onclick="hdautoBulkStop()" style="display:none;border-color:#f87171;color:#f87171;">⏹ Stop</button>
-          <span style="font-size:0.75rem;color:#555;">Empty page aate hi next category pe shift</span>
+          <span style="font-size:0.75rem;color:#555;">HDFun last page tak only · empty / 3×0-new pe stop</span>
         </div>
       </div>
 
@@ -2526,7 +2527,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     </div>
     <!-- ═══ END HDFUN AUTO-IMPORT ═══ -->
 
-    <!-- ═══ MOVIE NAME SEARCH — HDFun + MMSHD + 9xflix ═══ -->
+    <!-- ═══ MOVIE NAME SEARCH — HDFun + MMSHD only ═══ -->
     <div class="section" id="sec-mssearch">
       <div class="sec-title">🔎 Movie <span>Search</span></div>
       <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;line-height:1.55;">
@@ -4418,14 +4419,169 @@ function tmdbFillForm(id, mediaType) {
       el = document.getElementById('fseoKeywords'); if (el) el.value = seoKeywords;
       el = document.getElementById('fseoSlug');  if (el && !el.value) { el.value = autoSlug; var sp=document.getElementById('fseoSlug-preview');if(sp)sp.textContent=autoSlug; }
 
-      toast('✅ Data filled! HDFun se download links dhoonde ja rahe hain...');
-      tmdbHdfunAutoFill(title, year);
+      toast('✅ Data filled! Mp4Moviez se download links dhoonde ja rahe hain...');
+      tmdbMp4moviezAutoFill(title, year);
     })
     .catch(function() { toast('❌ Failed to load data', 1); });
 }
 
+// ═══ TMDB IMPORT → AUTO DOWNLOAD LINKS FROM MP4MOVIEZ ═══
+// Jab TMDB se koi movie/series import hoti hai, uska title Mp4Moviez pe
+// search karke proper title-match wala post dhoondo, phir HD page se
+// 480p/720p/1080p/4K dl.php links nikal ke seedha Add-form ke download
+// fields mein bhar do (fd4/fd7/fd10/fd4k) — bilkul filmyfly/hdfun cross
+// match jaisi logic, bas standalone TMDB flow ke liye.
+function tmdbMp4moviezAutoFill(title, year) {
+  try {
+    if (!title || String(title).trim().length < 2) return;
+    if (typeof _ffiFetch !== 'function') return;
+
+    var clean = String(title)
+      .replace(/\b(19|20)\d{2}\b/g, ' ')
+      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
+      .replace(/[\[\]\(\)\{\}]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    if (!clean) clean = title;
+    var yr = String(year || '').replace(/\D/g, '').substring(0, 4);
+    var q = encodeURIComponent(clean.replace(/\s+/g, ' ').trim());
+    var searchUrl = 'https://www.mp4moviez.mu/search/' + q.replace(/%20/g, '+') + '.html';
+    var slugQ = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    var searchUrl2 = 'https://www.mp4moviez.mu/search/' + slugQ + '.html';
+
+    function normTitle(s) {
+      return String(s || '').toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\b(the|a|an|of|and|movie|full)\b/g, ' ')
+        .replace(/\s+/g, ' ').trim();
+    }
+    function titleScore(a, b) {
+      a = normTitle(a); b = normTitle(b);
+      if (!a || !b) return 0;
+      if (a === b) return 100;
+      if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 85;
+      var at = a.split(' ').filter(Boolean);
+      var bt = b.split(' ').filter(Boolean);
+      if (!at.length || !bt.length) return 0;
+      var hit = 0;
+      at.forEach(function(t){ if (bt.indexOf(t) >= 0) hit++; });
+      return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+    }
+    function parseSearchAndPick(html) {
+      if (!html) return null;
+      var best = null, bestSc = 0;
+      var re = /href=["']((?:https?:\/\/(?:www\.)?mp4moviez[^"']*)?\/c\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]{0,120}?)<\/a>/gi;
+      var m, seen = {};
+      while ((m = re.exec(html)) !== null) {
+        var href = m[1].replace(/&amp;/g, '&');
+        if (!/^https?:\/\//i.test(href)) href = 'https://www.mp4moviez.mu' + (href.charAt(0) === '/' ? href : '/' + href);
+        if (seen[href]) continue;
+        seen[href] = 1;
+        var lab = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!lab) {
+          try { lab = decodeURIComponent(new URL(href).pathname.split('/').pop().replace(/\.html$/i,'').replace(/-/g,' ')); } catch(e) { lab = ''; }
+        }
+        var sc = titleScore(clean, lab);
+        if (yr && (lab.indexOf(yr) >= 0 || href.indexOf(yr) >= 0)) sc += 10;
+        if (sc > bestSc) { bestSc = sc; best = { url: href, title: lab, score: sc }; }
+      }
+      if (!best || bestSc < 70) {
+        var re2 = /href=["']((?:https?:\/\/(?:www\.)?mp4moviez[^"']*)?\/c\d+\/[^"'#?]+\.html)["']/gi;
+        while ((m = re2.exec(html)) !== null) {
+          var href2 = m[1].replace(/&amp;/g, '&');
+          if (!/^https?:\/\//i.test(href2)) href2 = 'https://www.mp4moviez.mu' + (href2.charAt(0) === '/' ? href2 : '/' + href2);
+          if (seen[href2]) continue;
+          seen[href2] = 1;
+          var lab2 = '';
+          try { lab2 = decodeURIComponent(new URL(href2).pathname.split('/').pop().replace(/\.html$/i,'').replace(/-/g,' ')); } catch(e) {}
+          var sc2 = titleScore(clean, lab2);
+          if (yr && href2.indexOf(yr) >= 0) sc2 += 10;
+          if (sc2 > bestSc) { bestSc = sc2; best = { url: href2, title: lab2, score: sc2 }; }
+        }
+      }
+      if (best && bestSc >= 65) return best;
+      return null;
+    }
+
+    function fillFields(matchUrl, onDone) {
+      if (!matchUrl) { toast('⚠️ Mp4Moviez pe "' + title + '" ka match nahi mila — links manually daalein'); if (onDone) onDone(); return; }
+      _ffiFetch(matchUrl, function(postHtml) {
+        if (!postHtml) { toast('⚠️ Mp4Moviez page load nahi hua — links manually daalein'); if (onDone) onDone(); return; }
+        var host = 'https://www.mp4moviez.mu';
+        try { host = new URL(matchUrl).origin; } catch (e) {}
+        var hdM = postHtml.match(/href=["']((?:https?:\/\/[^"']*)?\/[^"'#?]+\-hd\-\d+\.html)["']/i);
+        var hdUrl = '';
+        if (hdM) {
+          hdUrl = hdM[1];
+          if (!/^https?:\/\//i.test(hdUrl)) { try { hdUrl = new URL(hdUrl, host).toString(); } catch(e) { hdUrl = host + hdUrl; } }
+        } else {
+          var idM = matchUrl.match(/\/c(\d+)\//i);
+          if (idM) {
+            try {
+              var pathSlug = new URL(matchUrl).pathname.replace(/^\/c\d+\//i, '').replace(/\.html$/i, '');
+              if (pathSlug) hdUrl = host + '/' + pathSlug + '-hd-' + idM[1] + '.html';
+            } catch (e) {}
+          }
+        }
+        function applyDl(pageHtml, base) {
+          var re = /href\s*=\s*['"]?(dl\.php\?[^"'>\s]+|https?:\/\/[^"'>\s]*dl\.php\?[^"'>\s]+)/gi;
+          var mm, bestQ = {};
+          while ((mm = re.exec(pageHtml)) !== null) {
+            var href = mm[1].replace(/&amp;/g, '&');
+            if (!/^https?:\/\//i.test(href)) { try { href = new URL(href, base || host).toString(); } catch(e) { continue; } }
+            var isJio = /[?&]jio=yes/i.test(href);
+            var qm = href.match(/[?&]q=(\d+)/i);
+            if (!qm) continue;
+            var qn = qm[1];
+            if (!bestQ[qn] || (bestQ[qn].jio && !isJio)) bestQ[qn] = { url: href, jio: isJio };
+          }
+          var filled = [];
+          var fEl;
+          if (bestQ['480'] || bestQ['360']) {
+            fEl = document.getElementById('fd4');
+            if (fEl && !fEl.value) { fEl.value = (bestQ['480'] || bestQ['360']).url; filled.push('480p'); }
+          }
+          if (bestQ['720']) {
+            fEl = document.getElementById('fd7');
+            if (fEl && !fEl.value) { fEl.value = bestQ['720'].url; filled.push('720p'); }
+          }
+          if (bestQ['1080']) {
+            fEl = document.getElementById('fd10');
+            if (fEl && !fEl.value) { fEl.value = bestQ['1080'].url; filled.push('1080p'); }
+          }
+          if (bestQ['2160']) {
+            fEl = document.getElementById('fd4k');
+            if (fEl && !fEl.value) { fEl.value = bestQ['2160'].url; filled.push('4K'); }
+          }
+          if (filled.length) toast('✅ Mp4Moviez se links mil gaye: ' + filled.join(', '));
+          else toast('⚠️ Mp4Moviez page pe download links nahi mile — manually daalein');
+          if (onDone) onDone();
+        }
+        if (hdUrl) {
+          _ffiFetch(hdUrl, function(hdHtml) { applyDl(hdHtml || postHtml, host); });
+        } else {
+          applyDl(postHtml, host);
+        }
+      });
+    }
+
+    _ffiFetch(searchUrl, function(html1) {
+      var pick = parseSearchAndPick(html1);
+      if (pick) { fillFields(pick.url, function(){ tmdbHdfunAutoFill(title, year); }); return; }
+      _ffiFetch(searchUrl2, function(html2) {
+        var pick2 = parseSearchAndPick(html2);
+        fillFields(pick2 ? pick2.url : null, function(){ tmdbHdfunAutoFill(title, year); });
+      });
+    });
+  } catch (e) {
+    toast('❌ Mp4Moviez auto-fill mein error aa gaya');
+    tmdbHdfunAutoFill(title, year);
+  }
+}
+
+
+
 // ═══════════════════════════════════════════════════════════
-// MOVIE NAME SEARCH — HDFun + MMSHD
+// MOVIE NAME SEARCH — HDFun + MMSHD only
 // ═══════════════════════════════════════════════════════════
 var _msResults = [];
 
@@ -4482,6 +4638,17 @@ function msExtractPosts(html, site, siteUrl) {
       var u = mm[1];
       // skip pure quality token short paths if any
       add(u, '');
+    }
+  } else if (site === '9xflix') {
+    var re9 = /<h[23][^>]*>\s*<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    var m9;
+    while ((m9 = re9.exec(html)) !== null) {
+      add(m9[1], m9[2]);
+    }
+    var re9b = /href=["'](https?:\/\/[^"']*9xflix[^"']*\/m\/[a-z0-9][a-z0-9\-]{3,}\/?)["']/gi;
+    while ((m9 = re9b.exec(html)) !== null) {
+      if (/\/m\/(page|tag|category|hindi-movies|web-series|adult|dual-audio|wp-)/i.test(m9[1])) continue;
+      add(m9[1], '');
     }
   }
   return out;
@@ -4555,7 +4722,7 @@ function msRender() {
     box.innerHTML = '<div style="color:#666;padding:20px;text-align:center;">Koi post nahi mili</div>';
     return;
   }
-  var colors = { hdfun: '#4ade80', mmshd: '#f472b6' };
+  var colors = { hdfun: '#4ade80', mmshd: '#f472b6', '9xflix': '#a78bfa' };
   box.innerHTML = _msResults.map(function(p, i) {
     var c = colors[p.site] || '#888';
     return '<label style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-bottom:1px solid #222;cursor:pointer;">' +
@@ -8382,6 +8549,154 @@ function aiHdfunFetchLinks(title, year, existingLinks, cb) {
 }
 
 
+// Har TMDB Auto Import movie ke liye Mp4Moviez pe title-match search karke
+// 480p/720p/1080p links + file sizes nikalta hai, callback(links) return
+// karta hai — links kabhi na milein to bhi callback({}) call hota hai taake
+// import queue ruke nahi.
+function aiMp4moviezFetchLinks(title, year, cb) {
+  try {
+    if (!title || typeof _ffiFetch !== 'function') { cb({}); return; }
+    var clean = String(title)
+      .replace(/\b(19|20)\d{2}\b/g, ' ')
+      .replace(/\b(1080p|720p|480p|2160p|4k|web[\s\-]?dl|webrip|bluray|hdrip|hevc|x264|x265)\b/gi, ' ')
+      .replace(/[\[\]\(\)\{\}]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    if (!clean) clean = title;
+    var yr = String(year || '').replace(/\D/g, '').substring(0, 4);
+    var q = encodeURIComponent(clean.replace(/\s+/g, ' ').trim());
+    var searchUrl = 'https://www.mp4moviez.mu/search/' + q.replace(/%20/g, '+') + '.html';
+    var slugQ = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    var searchUrl2 = 'https://www.mp4moviez.mu/search/' + slugQ + '.html';
+
+    function normTitle(s) {
+      return String(s || '').toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\b(the|a|an|of|and|movie|full)\b/g, ' ')
+        .replace(/\s+/g, ' ').trim();
+    }
+    function titleScore(a, b) {
+      a = normTitle(a); b = normTitle(b);
+      if (!a || !b) return 0;
+      if (a === b) return 100;
+      if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 85;
+      var at = a.split(' ').filter(Boolean);
+      var bt = b.split(' ').filter(Boolean);
+      if (!at.length || !bt.length) return 0;
+      var hit = 0;
+      at.forEach(function(t){ if (bt.indexOf(t) >= 0) hit++; });
+      return Math.round((hit / Math.max(at.length, bt.length)) * 100);
+    }
+    function parseSearchAndPick(html) {
+      if (!html) return null;
+      var best = null, bestSc = 0;
+      var re = /href=["']((?:https?:\/\/(?:www\.)?mp4moviez[^"']*)?\/c\d+\/[^"'#?]+\.html)["'][^>]*>([\s\S]{0,120}?)<\/a>/gi;
+      var m, seen = {};
+      while ((m = re.exec(html)) !== null) {
+        var href = m[1].replace(/&amp;/g, '&');
+        if (!/^https?:\/\//i.test(href)) href = 'https://www.mp4moviez.mu' + (href.charAt(0) === '/' ? href : '/' + href);
+        if (seen[href]) continue;
+        seen[href] = 1;
+        var lab = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!lab) {
+          try { lab = decodeURIComponent(new URL(href).pathname.split('/').pop().replace(/\.html$/i,'').replace(/-/g,' ')); } catch(e) { lab = ''; }
+        }
+        var sc = titleScore(clean, lab);
+        if (yr && (lab.indexOf(yr) >= 0 || href.indexOf(yr) >= 0)) sc += 10;
+        if (sc > bestSc) { bestSc = sc; best = { url: href, title: lab, score: sc }; }
+      }
+      if (!best || bestSc < 70) {
+        var re2 = /href=["']((?:https?:\/\/(?:www\.)?mp4moviez[^"']*)?\/c\d+\/[^"'#?]+\.html)["']/gi;
+        while ((m = re2.exec(html)) !== null) {
+          var href2 = m[1].replace(/&amp;/g, '&');
+          if (!/^https?:\/\//i.test(href2)) href2 = 'https://www.mp4moviez.mu' + (href2.charAt(0) === '/' ? href2 : '/' + href2);
+          if (seen[href2]) continue;
+          seen[href2] = 1;
+          var lab2 = '';
+          try { lab2 = decodeURIComponent(new URL(href2).pathname.split('/').pop().replace(/\.html$/i,'').replace(/-/g,' ')); } catch(e) {}
+          var sc2 = titleScore(clean, lab2);
+          if (yr && href2.indexOf(yr) >= 0) sc2 += 10;
+          if (sc2 > bestSc) { bestSc = sc2; best = { url: href2, title: lab2, score: sc2 }; }
+        }
+      }
+      if (best && bestSc >= 65) return best;
+      return null;
+    }
+
+    function extractFrom(pageHtml, base, host, matchUrl) {
+      var result = {};
+      var re = /href\s*=\s*['"]?(dl\.php\?[^"'>\s]+|https?:\/\/[^"'>\s]*dl\.php\?[^"'>\s]+)/gi;
+      var mm, bestQ = {};
+      while ((mm = re.exec(pageHtml)) !== null) {
+        var href = mm[1].replace(/&amp;/g, '&');
+        if (!/^https?:\/\//i.test(href)) { try { href = new URL(href, base || host).toString(); } catch(e) { continue; } }
+        var isJio = /[?&]jio=yes/i.test(href);
+        var qm = href.match(/[?&]q=(\d+)/i);
+        if (!qm) continue;
+        var qn = qm[1];
+        if (!bestQ[qn] || (bestQ[qn].jio && !isJio)) bestQ[qn] = { url: href, jio: isJio };
+      }
+      if (bestQ['480'] || bestQ['360']) result.download480p = (bestQ['480'] || bestQ['360']).url;
+      if (bestQ['720']) result.download720p = bestQ['720'].url;
+      if (bestQ['1080']) result.download1080p = bestQ['1080'].url;
+      if (bestQ['2160'] && !result.download1080p) result.download1080p = bestQ['2160'].url;
+      // Sizes — [327 Mb] style, right after the quality anchor
+      var sizeRe = /q=(\d+)[^>]*>[\s\S]{0,200}?\[?\s*([\d.]+\s*(?:Mb|Gb|MB|GB))/gi;
+      var sm;
+      while ((sm = sizeRe.exec(pageHtml)) !== null) {
+        var sq = sm[1], ssz = sm[2].toUpperCase().replace(/\s+/g, '');
+        if ((sq === '1080' || sq === '2160') && !result.size1080) result.size1080 = ssz;
+        else if (sq === '720' && !result.size720) result.size720 = ssz;
+        else if ((sq === '480' || sq === '360') && !result.size480) result.size480 = ssz;
+      }
+      var qParts = [];
+      if (result.download1080p) qParts.push('1080p');
+      if (result.download720p) qParts.push('720p');
+      if (result.download480p) qParts.push('480p');
+      if (qParts.length) result.quality = qParts.join(' ');
+      if (matchUrl) result.dlSourceUrl = matchUrl;
+      return result;
+    }
+
+    function finish(matchUrl) {
+      if (!matchUrl) { cb({}); return; }
+      _ffiFetch(matchUrl, function(postHtml) {
+        if (!postHtml) { cb({}); return; }
+        var host = 'https://www.mp4moviez.mu';
+        try { host = new URL(matchUrl).origin; } catch (e) {}
+        var hdM = postHtml.match(/href=["']((?:https?:\/\/[^"']*)?\/[^"'#?]+\-hd\-\d+\.html)["']/i);
+        var hdUrl = '';
+        if (hdM) {
+          hdUrl = hdM[1];
+          if (!/^https?:\/\//i.test(hdUrl)) { try { hdUrl = new URL(hdUrl, host).toString(); } catch(e) { hdUrl = host + hdUrl; } }
+        } else {
+          var idM = matchUrl.match(/\/c(\d+)\//i);
+          if (idM) {
+            try {
+              var pathSlug = new URL(matchUrl).pathname.replace(/^\/c\d+\//i, '').replace(/\.html$/i, '');
+              if (pathSlug) hdUrl = host + '/' + pathSlug + '-hd-' + idM[1] + '.html';
+            } catch (e) {}
+          }
+        }
+        if (hdUrl) {
+          _ffiFetch(hdUrl, function(hdHtml) { cb(extractFrom(hdHtml || postHtml, host, host, matchUrl)); });
+        } else {
+          cb(extractFrom(postHtml, host, host, matchUrl));
+        }
+      });
+    }
+
+    _ffiFetch(searchUrl, function(html1) {
+      var pick = parseSearchAndPick(html1);
+      if (pick) { finish(pick.url); return; }
+      _ffiFetch(searchUrl2, function(html2) {
+        var pick2 = parseSearchAndPick(html2);
+        finish(pick2 ? pick2.url : null);
+      });
+    });
+  } catch (e) {
+    cb({});
+  }
+}
 
   processNext(0);
 }
@@ -11086,6 +11401,9 @@ function _ffiFetch(url, cb) {
 
 // ── Step 1: Fetch post links from site ──
 function ffiIsRealPostUrl(u, siteUrl) {
+  // PERMANENT: only hdfun.in + mmshd.com posts
+  var _chk = String(u||'') + ' ' + String(siteUrl||'');
+  if (!/hdfun\.in|mmshd\.com/i.test(_chk)) return false;
   if (/letsporn\.com|filmyzilla/i.test(String(u||'')) || /letsporn\.com|filmyzilla/i.test(String(siteUrl||''))) return false;
 
   if (!u || typeof u !== 'string') return false;
@@ -11292,15 +11610,64 @@ var HDAUTO_SCAN_URLS = [
 function hdautoPageUrl(baseUrl, pageNum) {
   return String(baseUrl || '').replace(/\/\d+\.html(\?.*)?$/i, '/' + pageNum + '.html');
 }
+/** HDFun category HTML se last page number nikaalo (pagination links) */
+function hdautoDetectMaxPage(html, catUrl) {
+  if (!html) return 0;
+  var maxP = 0;
+  // /category/3/slug/41.html  OR absolute https://hdfun.in/category/...
+  var re = /(?:hdfun\.in)?\/category\/\d+\/[^"'\s<>]+\/(\d+)\.html/gi;
+  var m;
+  while ((m = re.exec(html)) !== null) {
+    var n = parseInt(m[1], 10);
+    if (n > maxP && n < 2000) maxP = n;
+  }
+  // fallback: any .../N.html on same path
+  if (!maxP && catUrl) {
+    try {
+      var pathPart = (catUrl.match(/\/category\/\d+\/[^/]+\//i) || [])[0];
+      if (pathPart) {
+        var re2 = new RegExp(pathPart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\d+)\\.html', 'gi');
+        while ((m = re2.exec(html)) !== null) {
+          var n2 = parseInt(m[1], 10);
+          if (n2 > maxP && n2 < 2000) maxP = n2;
+        }
+      }
+    } catch (e) {}
+  }
+  return maxP;
+}
 function hdautoRenderCatGrid() {
   var grid = document.getElementById('hdauto-cat-grid');
   if (!grid) return;
   grid.innerHTML = HDAUTO_SCAN_URLS.map(function(c, i) {
-    return '<label style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.8rem;">'
+    return '<div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;font-size:0.8rem;">'
+      + '<label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">'
       + '<input type="checkbox" class="hdauto-cat-cb" data-idx="' + i + '" checked style="margin-top:2px;"/>'
       + '<span><b style="color:#fff;">' + (c.label || c.cat) + '</b><br>'
-      + '<span style="color:#4ade80;font-size:0.7rem;">→ panel: ' + c.cat + '</span></span></label>';
+      + '<span style="color:#4ade80;font-size:0.7rem;">→ panel: ' + c.cat + '</span></span></label>'
+      + '<button type="button" class="btn btn-p" style="padding:7px 10px;font-size:0.75rem;width:100%;background:#16a34a;" onclick="event.preventDefault();hdautoImportOneCat(' + i + ')">⚡ Import All (Old + New)</button>'
+      + '</div>';
   }).join('');
+}
+/** One-click: is category ki saari HDFun pages → saari movies (old + new) Firebase */
+function hdautoImportOneCat(idx) {
+  idx = parseInt(idx, 10);
+  if (isNaN(idx) || !HDAUTO_SCAN_URLS[idx]) { toast('Category invalid', 1); return; }
+  document.querySelectorAll('.hdauto-cat-cb').forEach(function(cb) {
+    cb.checked = (parseInt(cb.getAttribute('data-idx'), 10) === idx);
+  });
+  // ALL pages
+  var mp = document.getElementById('hdauto-max-pages');
+  if (mp) mp.value = '0';
+  // Import All = purani + nayi dono — skip OFF
+  var sk = document.getElementById('hdauto-skip-known');
+  if (sk) sk.checked = false;
+  // Known list is scan-memory; clear so old HDFun posts bhi queue mein aayein
+  try {
+    _hdautoKnown = new Set();
+    if (typeof hdautoSaveKnown === 'function') hdautoSaveKnown();
+  } catch (eK) {}
+  hdautoFullCategoryImport();
 }
 function hdautoSelectAllCats(on) {
   document.querySelectorAll('.hdauto-cat-cb').forEach(function(cb){ cb.checked = !!on; });
@@ -11326,11 +11693,13 @@ function hdautoFullCategoryImport() {
   }
   var cats = hdautoGetSelectedCats();
   if (!cats.length) { toast('❌ Kam az kam 1 category select karo', 1); return; }
-  var maxPages = parseInt((document.getElementById('hdauto-max-pages') || {}).value, 10) || 30;
-  if (maxPages < 1) maxPages = 1;
-  if (maxPages > 200) maxPages = 200;
+  var maxPagesRaw = parseInt((document.getElementById('hdauto-max-pages') || {}).value, 10);
+  // 0 or empty = ALL pages (unlimited until 2 empty in a row)
+  var maxPages = (isNaN(maxPagesRaw) || maxPagesRaw <= 0) ? 999 : maxPagesRaw;
+  if (maxPages > 999) maxPages = 999;
   var skipKnown = !!(document.getElementById('hdauto-skip-known') || {}).checked;
-  if (!confirm('Full bulk import?\n\nCategories: ' + cats.length + '\nMax pages each: ' + maxPages + '\n\nHar category ki posts usi panel category mein import hongi.\nPanel open rakho.')) return;
+  var pagesLabel = (maxPagesRaw <= 0 || isNaN(maxPagesRaw)) ? 'ALL (until empty)' : String(maxPages);
+  if (!confirm('Full bulk import?\n\nCategories: ' + cats.length + '\nPages each: ' + pagesLabel + '\n\nHar category ki SAARI movies panel mein auto-save hongi.\nPanel open rakho — Stop se rok sakte ho.')) return;
 
   _hdautoRunning = true;
   _hdautoBulkStop = false;
@@ -11338,7 +11707,13 @@ function hdautoFullCategoryImport() {
   var stopBtn = document.getElementById('hdauto-bulk-stop-btn');
   if (bulkBtn) { bulkBtn.disabled = true; bulkBtn.textContent = '⏳ Scanning pages...'; }
   if (stopBtn) stopBtn.style.display = '';
-  try { hdautoSeedKnownFromDb(); } catch (e) {}
+  // Skip ON → DB URLs known maano (sirf nayi). Skip OFF → known mat bharo, saari old posts bhi aayein.
+  if (skipKnown) {
+    try { hdautoSeedKnownFromDb(); } catch (e) {}
+  } else {
+    try { _hdautoKnown = new Set(); } catch (e2) {}
+    hdautoLog('📦 Mode: ALL posts (old + new) — skip known OFF', 'ok');
+  }
 
   var allNew = [];
   var seen = {};
@@ -11372,28 +11747,32 @@ function hdautoFullCategoryImport() {
           hdautoFinishRun();
           return;
         }
+        // Finish flag: import complete hone pe hdautoFinishRun (timer nahi)
+        window._hdautoAwaitImportDone = true;
+        if (bulkBtn) bulkBtn.textContent = '⏳ Importing ' + allNew.length + ' movies...';
+        hdautoSetStatus('⏳ Importing ' + allNew.length + ' movies — panel open rakho');
         ffiStartImport();
       } catch (e) {
         hdautoLog('❌ ' + (e && e.message ? e.message : e), 'err');
+        window._hdautoAwaitImportDone = false;
         hdautoFinishRun();
-        return;
       }
-      var waitMs = Math.min(1800000, 30000 + allNew.length * 12000);
-      setTimeout(function() {
-        hdautoSetStatus('✅ Bulk cycle done — ' + allNew.length + ' queued/imported');
-        hdautoLog('Bulk cycle finished', 'ok');
-        hdautoFinishRun();
-        try { if (typeof updateCounts === 'function') updateCounts(); } catch (e) {}
-        try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch (e) {}
-      }, waitMs);
     }, 400);
   }
 
-  function scanCatPage(c, pageNum, emptyStreak, doneCat) {
+  function scanCatPage(c, pageNum, emptyStreak, zeroNewStreak, siteMaxPage, doneCat) {
     if (_hdautoBulkStop) { doneCat(); return; }
-    if (pageNum > maxPages) { doneCat(); return; }
+    // Cap: user maxPages OR HDFun real last page (jo chhota ho)
+    var hardCap = maxPages;
+    if (siteMaxPage > 0 && siteMaxPage < hardCap) hardCap = siteMaxPage;
+    if (pageNum > hardCap) {
+      hdautoLog('✅ Last page reached (' + hardCap + ') — ' + (c.label || c.cat), 'ok');
+      doneCat();
+      return;
+    }
     var url = hdautoPageUrl(c.url, pageNum);
-    hdautoSetStatus('🔄 ' + (c.label || c.cat) + ' — page ' + pageNum + '/' + maxPages + ' (' + allNew.length + ' new)');
+    var capLabel = siteMaxPage > 0 ? String(Math.min(maxPages, siteMaxPage)) : String(maxPages);
+    hdautoSetStatus('🔄 ' + (c.label || c.cat) + ' — page ' + pageNum + '/' + capLabel + ' (' + allNew.length + ' new)');
     if (typeof _ffiFetch !== 'function') {
       hdautoLog('❌ _ffiFetch missing', 'err');
       doneCat();
@@ -11405,8 +11784,16 @@ function hdautoFullCategoryImport() {
         hdautoLog('⚠️ Fetch fail page ' + pageNum + ' — ' + (c.label || c.cat), 'err');
         emptyStreak++;
         if (emptyStreak >= 2) { doneCat(); return; }
-        setTimeout(function(){ scanCatPage(c, pageNum + 1, emptyStreak, doneCat); }, 400);
+        setTimeout(function(){ scanCatPage(c, pageNum + 1, emptyStreak, zeroNewStreak, siteMaxPage, doneCat); }, 400);
         return;
+      }
+      // Page 1 pe HDFun pagination se real max page detect
+      if (pageNum === 1) {
+        var detected = hdautoDetectMaxPage(html, c.url);
+        if (detected > 0) {
+          siteMaxPage = detected;
+          hdautoLog('📄 HDFun last page = ' + detected + ' (' + (c.label || c.cat) + ')', 'ok');
+        }
       }
       var links = hdautoExtractFromHtml(html, 'https://hdfun.in');
       totalFound += links.length;
@@ -11424,18 +11811,37 @@ function hdautoFullCategoryImport() {
           checked: true
         });
       });
-      hdautoLog((c.label || c.cat) + ' p' + pageNum + ': ' + links.length + ' links, +' + addedThisPage + ' new');
+      var lim = siteMaxPage > 0 ? Math.min(maxPages, siteMaxPage) : maxPages;
+      hdautoLog((c.label || c.cat) + ' p' + pageNum + '/' + lim + ': ' + links.length + ' links, +' + addedThisPage + ' new');
+      // 0 movie links = category khatam
       if (links.length === 0) {
         emptyStreak++;
-        if (emptyStreak >= 2) {
-          hdautoLog('Empty pages → next: ' + (c.label || c.cat), 'skip');
+        if (emptyStreak >= 1) {
+          hdautoLog('Empty page → category done: ' + (c.label || c.cat), 'skip');
           doneCat();
           return;
         }
       } else {
         emptyStreak = 0;
       }
-      setTimeout(function(){ scanCatPage(c, pageNum + 1, emptyStreak, doneCat); }, 350);
+      // Skip-known ON: 3 pages lagatar 0 new → aage sab purani, stop (newest-first)
+      if (skipKnown && addedThisPage === 0) {
+        zeroNewStreak++;
+        if (zeroNewStreak >= 3 && pageNum >= 3) {
+          hdautoLog('3 pages 0 new (sab already DB) → stop: ' + (c.label || c.cat), 'skip');
+          doneCat();
+          return;
+        }
+      } else {
+        zeroNewStreak = 0;
+      }
+      // site max hit
+      if (siteMaxPage > 0 && pageNum >= siteMaxPage) {
+        hdautoLog('✅ HDFun last page ' + siteMaxPage + ' done', 'ok');
+        doneCat();
+        return;
+      }
+      setTimeout(function(){ scanCatPage(c, pageNum + 1, emptyStreak, zeroNewStreak, siteMaxPage, doneCat); }, 350);
     });
   }
 
@@ -11443,7 +11849,7 @@ function hdautoFullCategoryImport() {
     if (_hdautoBulkStop || catIdx >= cats.length) { finishScan(); return; }
     var c = cats[catIdx++];
     hdautoLog('▶ Category: ' + (c.label || c.cat) + ' → ' + c.cat, 'ok');
-    scanCatPage(c, 1, 0, function() { setTimeout(nextCat, 300); });
+    scanCatPage(c, 1, 0, 0, 0, function() { setTimeout(nextCat, 300); });
   }
 
   hdautoLog('Bulk start: ' + cats.length + ' cats × up to ' + maxPages + ' pages', 'ok');
@@ -11742,9 +12148,10 @@ function ffiFetchPosts() {
   var btn      = document.getElementById('ffi-fetch-btn');
   var maxPages = parseInt((document.getElementById('ffi-pages')||{}).value) || 3;
 
-  // Permanent allow-list: HDFun + MMSHD ONLY. Every other source is blocked here.
+  // PERMANENT: sirf HDFun + MMSHD
   function ffiIsAllowedSite(u) {
     var s = String(u || '').toLowerCase();
+    // PERMANENT: sirf HDFun.in + MMSHD.com
     return /hdfun\.in|mmshd\.com/i.test(s);
   }
 
@@ -12334,17 +12741,25 @@ function ffiStartImport() {
   // Duplicate-title checking removed — every selected post is imported,
   // even if it already exists in Firebase or repeats within this batch.
 
-  // Render queue items
-  selected.forEach(function(p, i) {
-    var item = document.createElement('div');
-    item.className = 'bi-item';
-    item.id = 'ffi-item-' + i;
-    item.innerHTML = '<span class="bi-num">' + (i+1) + '</span>'
-      + '<div class="bi-info"><div class="bi-title" id="ffi-t-'+i+'">' + escHtml(p.title) + '</div>'
-      + '<div class="bi-meta" id="ffi-m-'+i+'">' + escHtml(p.url) + '</div></div>'
-      + '<span class="bi-status wait" id="ffi-st-'+i+'">⏳ Wait</span>';
-    queue.appendChild(item);
-  });
+  // Render queue items — bulk/hdauto pe 200+ DOM rows mobile freeze karte hain
+  var _lightQueue = (typeof _hdautoMode !== 'undefined' && _hdautoMode) || selected.length > 200;
+  if (_lightQueue) {
+    queue.innerHTML = '<div class="bi-item bi-active" id="ffi-item-live"><span class="bi-num">⚡</span>'
+      + '<div class="bi-info"><div class="bi-title" id="ffi-t-live">Bulk import — ' + selected.length + ' posts</div>'
+      + '<div class="bi-meta" id="ffi-m-live">Progress neeche status mein</div></div>'
+      + '<span class="bi-status running" id="ffi-st-live">⏳ Running</span></div>';
+  } else {
+    selected.forEach(function(p, i) {
+      var item = document.createElement('div');
+      item.className = 'bi-item';
+      item.id = 'ffi-item-' + i;
+      item.innerHTML = '<span class="bi-num">' + (i+1) + '</span>'
+        + '<div class="bi-info"><div class="bi-title" id="ffi-t-'+i+'">' + escHtml(p.title) + '</div>'
+        + '<div class="bi-meta" id="ffi-m-'+i+'">' + escHtml(p.url) + '</div></div>'
+        + '<span class="bi-status wait" id="ffi-st-'+i+'">⏳ Wait</span>';
+      queue.appendChild(item);
+    });
+  }
 
   // Parallel import — mobile pe kam concurrency (proxy rate-limit / freeze avoid)
   var _ffiNextIdx = 0;
@@ -12371,10 +12786,22 @@ function ffiStartImport() {
     document.getElementById('ffi-prog-title').textContent = _ffiStopRequested ? '⏹ Stopped' : '✅ Fetch Mukammal!';
     document.getElementById('ffi-prog-sub').textContent = ok + ' ready for review, ' + skip + ' skip, ' + err + ' error';
     document.getElementById('ffi-pbar').style.width = '100%';
-    toast('✅ ' + ok + ' movies fetch — review karke save karo!');
+    if (typeof _hdautoMode !== 'undefined' && _hdautoMode) {
+      toast('✅ HDFun bulk: ' + ok + ' ok, ' + skip + ' skip, ' + err + ' err');
+      try { if (typeof hdautoLog === 'function') hdautoLog('✅ Import done — OK:' + ok + ' Skip:' + skip + ' Err:' + err, 'ok'); } catch(eL){}
+      try { if (typeof hdautoSetStatus === 'function') hdautoSetStatus('✅ Done — ' + ok + ' saved / ' + err + ' fail'); } catch(eS){}
+    } else {
+      toast('✅ ' + ok + ' movies fetch — review karke save karo!');
+    }
     ffiRenderReviewQueue();
-    // Import ke dauran table/list UI pause thi — ab ek baar refresh kar do
     try { if (typeof window.cvForceMoviesUiRefresh === 'function') window.cvForceMoviesUiRefresh(); } catch(e){}
+    // HDFun bulk: ab really finish
+    if (window._hdautoAwaitImportDone) {
+      window._hdautoAwaitImportDone = false;
+      try { if (typeof updateCounts === 'function') updateCounts(); } catch (e) {}
+      try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch (e) {}
+      try { if (typeof hdautoFinishRun === 'function') hdautoFinishRun(); } catch (e) {}
+    }
   }
 
   function ffiItemDone() {
@@ -13077,14 +13504,18 @@ function ffiStartImport() {
 
       ffiTmdbEnrich(data.title, data.year, function(tmdb) {
         var isFz = /filmyzilla\d*\.com/i.test(p.url || '');
+        // Source poster lock: HDFun / MMSHD se import pe ORIGINAL site poster hi rakho.
+        // TMDB/IMDB sirf metadata (title/desc/rating/cast...) fill karein — poster overwrite NA.
+        var _srcPosterLocked = !!(data.thumbnail && /hdfun\.in|mmshd\.com/i.test(String(p.url || '') + ' ' + String(data.dlSourceUrl || data.sourcePageUrl || '')));
+        var _savedSrcPoster = _srcPosterLocked ? data.thumbnail : null;
         if (tmdb) {
-          // Proper details: TMDB se title/rating/year/desc/genre/poster/cast/director fill
+          // Proper details: TMDB se rating/year/desc/genre/cast/director fill
           // Page links (1080/720/480) primary rehte hain
-          // Poster: TMDB ko priority — source website (filmslb/hdfun/etc)
-          // se thumbnail nahi chahiye, hamesha TMDB/IMDB wala official
-          // poster use karo. Source site ka thumbnail sirf tab fallback
-          // banta hai jab TMDB mein movie mile hi na.
-          if (tmdb.poster) data.thumbnail = tmdb.poster;
+          // Poster: HDFun/MMSHD = source site ka original poster (locked).
+          //         Warna TMDB poster only if source poster missing.
+          if (tmdb.poster && !_srcPosterLocked) {
+            if (!data.thumbnail) data.thumbnail = tmdb.poster;
+          }
           if (tmdb.rating) data.rating = tmdb.rating;
           if (tmdb.description) data.description = tmdb.description;
           if (tmdb.genre) data.genre = data.genre || tmdb.genre;
@@ -13121,11 +13552,14 @@ function ffiStartImport() {
           if (tmdb.duration && !data.duration) data.duration = tmdb.duration;
         }
 
-        // ── IMDb POSTER (priority over TMDB/site thumbnail) ──
-        // User ki demand: poster hamesha asli IMDb.com se aana chahiye,
-        // TMDB sirf fallback hai jab IMDb pe match na mile.
+        // ── IMDb POSTER — only if source poster NOT locked (non-HDFun/MMSHD)
+        // HDFun/MMSHD: original site poster preserve. IMDb/TMDB never overwrite.
         ffiImdbPoster(data.title, data.year, function(imdbPoster) {
-        if (imdbPoster) data.thumbnail = imdbPoster;
+        if (imdbPoster && !_srcPosterLocked) {
+          if (!data.thumbnail) data.thumbnail = imdbPoster;
+        }
+        // Restore source poster if something still overwrote it
+        if (_srcPosterLocked && _savedSrcPoster) data.thumbnail = _savedSrcPoster;
 
         // ── CATEGORY FORCE (listing URL / Default Category) ──
         // Hollywood category se import = hollywood save (tollywood nav bug fix)
@@ -13619,7 +14053,11 @@ function ffiStartImport() {
               obj.key = _ak;
               if (typeof allMovies !== 'undefined') {
                 allMovies.unshift(obj);
-                try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch(eR){}
+                // Bulk pe har movie pe full UI refresh mat karo — freeze avoid
+                var _nSaved = (window._ffiBatchKeys && window._ffiBatchKeys.length) || 0;
+                if (_nSaved % 25 === 0) {
+                  try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch(eR){}
+                }
               }
               if (!window._ffiBatchKeys) window._ffiBatchKeys = [];
               if (!window._ffiBatchCats) window._ffiBatchCats = {};
