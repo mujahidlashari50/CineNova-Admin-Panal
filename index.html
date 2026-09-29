@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>CineNova Admin — Master Panel</title>
+<title>CineNova Admin — v2026.09.28 v2026.09.28</title>
 <link href='https://fonts.googleapis.com' rel='preconnect'/>
 <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
 <link href='https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600;700&display=swap' rel='stylesheet'/>
@@ -1076,6 +1076,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-errorlogs" onclick="show('errorlogs')">🐞 Error Logs <span class="nav-count" id="err-count">0</span></div>
     <div class="nav-item" id="nav-reports" onclick="show('reports')">⚠️ Reported Issues <span class="nav-count" id="rpt-count">0</span></div>
     <div class="nav-item" id="nav-contacts" onclick="show('contacts')">📩 Contact Messages <span class="nav-count" id="contact-count">0</span></div>
+    <div class="nav-item" id="nav-protools" onclick="show('protools')" style="color:#fbbf24;">🚀 Pro Tools</div>
     <div class="nav-item" id="nav-duplicates" onclick="show('duplicates')">🔁 Duplicate Detector</div>
     <div class="nav-item" id="nav-titleclean" onclick="show('titleclean')" style="color:#c084fc;">🧹 Title Cleaner</div>
     <div class="nav-item" id="nav-catmove" onclick="show('catmove')" style="color:#2dd4bf;">📁 Category Move</div>
@@ -1090,6 +1091,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
     <div class="nav-item" id="nav-adwatch" onclick="show('adwatch')">🎬 Watch Now Ads</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
+    <div class="nav-item" id="nav-subs" onclick="show('subs')" style="color:#a78bfa;">💎 Subscription</div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
   </div>
 
@@ -1124,6 +1126,7 @@ td, th, .card, #content {
           <button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" onclick="show('bulkdel')">🗑️ Bulk Delete</button>
           <button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" onclick="show('trash')">♻️ Trash</button>
           <button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;" onclick="dashRefreshLive()">🔄 Refresh Stats</button>
+          <button class="btn btn-s" style="padding:7px 12px;font-size:0.78rem;border-color:rgba(251,191,36,0.4);color:#fbbf24;" onclick="show('protools')">🚀 Pro Tools</button>
         </div>
       </div>
       <div class="card"><h3>🕐 Recently Added</h3><div id="recent"></div></div>
@@ -1830,9 +1833,38 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-catmove">
       <div class="sec-title">📁 Category <span>Move</span></div>
       <div style="background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#99f6e4;line-height:1.55;">
-        Galat category wali movies select karke ek click mein sahi category pe shift karo.
+        Galat category wali movies select karke move karo — ya <b>⚡ Auto-Fix</b> se system khud detect karke sahi category mein bhej de (jaise K-Drama mein animation → Animation).
+      </div>
+      <div class="card" style="margin-bottom:14px;border-color:rgba(251,191,36,0.35);">
+        <h3 style="color:#fbbf24;margin:0 0 10px;">⚡ Auto-Fix Wrong Categories</h3>
+        <div style="font-size:0.78rem;color:#a3a3a3;margin-bottom:12px;line-height:1.5;">
+          Title/genre se galat posts dhundta hai (Animation in K-Drama, South in Dual Audio, waghera) aur suggested category mein move karta hai.
+        </div>
+        <div class="fg" style="margin-bottom:10px;">
+          <div class="fgg"><label>Scan scope</label>
+            <select class="fi" id="cm-autofix-from">
+              <option value="all">All categories</option>
+              <option value="kdrama_hindi" selected>K-Drama Hindi (common)</option>
+              <option value="webseries_hindi">Web-Series Hindi</option>
+              <option value="hindi_dubbed">Hindi Dubbed</option>
+              <option value="dual_audio">Dual Audio</option>
+              <option value="english_movies">English-Movies</option>
+              <option value="bollywood_hindi">Bollywood Hindi</option>
+              <option value="south_hindi">South Hindi</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="btn btn-p" style="background:#d97706;color:#fff;" onclick="cmAutoFixScan()">🔍 Scan Mismatches</button>
+          <button class="btn btn-s" onclick="cmAutoFixSelectAll(true)">✅ Select all</button>
+          <button class="btn btn-s" onclick="cmAutoFixSelectAll(false)">❌ Deselect</button>
+          <button class="btn" style="background:#16a34a;color:#fff;font-weight:700;" onclick="cmAutoFixApply()">⚡ Fix Selected (auto-move)</button>
+          <span id="cm-autofix-summary" style="font-size:0.8rem;color:#fbbf24;"></span>
+        </div>
+        <div id="cm-autofix-list" style="max-height:320px;overflow-y:auto;"></div>
       </div>
       <div class="card">
+        <h3 style="margin:0 0 10px;">📁 Manual Move</h3>
         <div class="fg" style="margin-bottom:12px;">
           <div class="fgg"><label>From category</label>
             <select class="fi" id="cm-from" onchange="cmScan()">
@@ -2000,6 +2032,247 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
         <div id="trash-list"></div>
       </div>
     </div>
+
+
+<!-- ═══ PRO TOOLS ═══ -->
+<div class="section" id="sec-protools">
+  <div class="sec-title">🚀 Pro <span>Tools</span></div>
+  <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:0.84rem;color:#fde68a;line-height:1.65;">
+    <b style="color:#fff;font-size:0.95rem;">Yeh section fixing ke liye hai — simple guide:</b><br><br>
+    <b>1) 📋 Missing Fields</b> — jin movies mein poster / link / year / description nahi, unki list<br>
+    &nbsp;&nbsp;→ Type select karo → <b>Scan</b> → jo dikhe uspe <b>Edit</b><br><br>
+    <b>2) ✏️ Bulk Edit</b> — bohot movies ki category / language ek saath change<br>
+    &nbsp;&nbsp;→ Load → select → field + value → <b>Apply</b><br><br>
+    <b>3) 🔗 Source URL Duplicates</b> — same HDFun link 2 baar save ho gayi ho<br>
+    &nbsp;&nbsp;→ <b>Scan</b> → <b>Extras → Trash</b> (nayi wali rehti hai, purani extra delete)<br><br>
+    <b>4) ⏯ Resume</b> — import beech mein ruk gaya ho to wahan se continue<br><br>
+    <b>5) ⏰ Schedule</b> — panel open rakho to har X hours nayi HDFun posts auto scan<br><br>
+    <b>6) 📈 Analytics</b> — top downloads / zero download / drafts count<br><br>
+    <span style="color:#fbbf24;">⚠️ Duplicate movies import pe auto-block hain (same source URL / same title).</span><br>
+    <span style="color:#a3a3a3;">Galat category ke liye: sidebar → <b>📁 Category Move → Auto-Fix</b></span>
+  </div>
+
+  <!-- Missing Fields -->
+  <div class="card" style="margin-bottom:14px;">
+    <h3>📋 1) Adhoori Movies (Missing Data)</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">Poster, download link, year, ya description missing ho to yahan list milegi. Scan → Edit se theek karo.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <select class="fi" id="mf-type" style="width:auto;min-width:160px;">
+        <option value="noposter">🖼 No Poster</option>
+        <option value="nolink">🔗 No DL Links</option>
+        <option value="noyear">📅 No Year</option>
+        <option value="nodesc">📝 Thin Desc (&lt;50)</option>
+        <option value="nocat">📁 Empty Category</option>
+        <option value="nosource">🌐 No Source URL</option>
+      </select>
+      <select class="fi" id="mf-cat" style="width:auto;min-width:140px;">
+        <option value="all">All categories</option>
+        <option value="english_movies">English</option>
+        <option value="hindi_dubbed">Hindi Dubbed</option>
+        <option value="dual_audio">Dual Audio</option>
+        <option value="south_hindi">South</option>
+        <option value="bollywood_hindi">Bollywood</option>
+        <option value="webseries_hindi">Web Series</option>
+        <option value="kdrama_hindi">K-Drama</option>
+        <option value="animation_hindi_dubbed">Animation</option>
+        <option value="anime_hindi">Anime</option>
+        <option value="philippines">Philippines</option>
+        <option value="hot_short_hindi">Hot Short</option>
+      </select>
+      <button class="btn btn-p" onclick="mfScan()">🔍 Scan</button>
+      <button class="btn btn-s" onclick="mfExportCsv()">⬇ CSV</button>
+      <span id="mf-summary" style="font-size:0.8rem;color:#fbbf24;"></span>
+    </div>
+    <div id="mf-list" style="max-height:280px;overflow-y:auto;"></div>
+  </div>
+
+  <!-- Bulk Edit -->
+  <div class="card" style="margin-bottom:14px;">
+    <h3>✏️ 2) Bohot Movies Ek Saath Edit</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">Example: 20 movies select karke sab ki category “Bollywood” kar do, ya language “Hindi”.</div>
+    <div class="fg" style="margin-bottom:10px;">
+      <div class="fgg"><label>From category</label>
+        <select class="fi" id="be-from" onchange="beScan()">
+          <option value="all">All</option>
+          <option value="english_movies">English</option>
+          <option value="hindi_dubbed">Hindi Dubbed</option>
+          <option value="dual_audio">Dual Audio</option>
+          <option value="south_hindi">South</option>
+          <option value="bollywood_hindi">Bollywood</option>
+          <option value="webseries_hindi">Web Series</option>
+          <option value="kdrama_hindi">K-Drama</option>
+          <option value="animation_hindi_dubbed">Animation</option>
+          <option value="anime_hindi">Anime</option>
+          <option value="philippines">Philippines</option>
+          <option value="hot_short_hindi">Hot Short</option>
+        </select>
+      </div>
+      <div class="fgg"><label>Search</label>
+        <input class="fi" id="be-q" placeholder="title filter…" oninput="beScan()"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-s" onclick="beScan()">🔍 Load</button>
+      <button class="btn btn-s" onclick="beSelectAll(true)">✅ All</button>
+      <button class="btn btn-s" onclick="beSelectAll(false)">❌ None</button>
+      <select class="fi" id="be-field" style="width:auto;">
+        <option value="category">Category</option>
+        <option value="language">Language</option>
+        <option value="published">Published (true/false)</option>
+        <option value="trending">Trending (true/false)</option>
+        <option value="featured">Featured (true/false)</option>
+      </select>
+      <input class="fi" id="be-value" placeholder="new value" style="width:160px;"/>
+      <button class="btn" style="background:#16a34a;color:#fff;" onclick="beApply()">⚡ Apply to Selected</button>
+      <span id="be-summary" style="font-size:0.8rem;color:#888;"></span>
+    </div>
+    <div id="be-list" style="max-height:240px;overflow-y:auto;"></div>
+  </div>
+
+  <!-- Source URL Duplicates -->
+  <div class="card" style="margin-bottom:14px;">
+    <h3>🔗 Source URL Duplicates</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">Agar ek hi HDFun page 2–3 baar save ho gayi ho — Scan karo, phir Extras Trash mein bhejo (1 copy rehti hai).</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-p" onclick="sudScan()">🔍 Scan Source Duplicates</button>
+      <button class="btn" style="background:#7f1d1d;color:#fca5a5;" onclick="sudTrashExtras()">🗑 Extras → Trash</button>
+      <span id="sud-summary" style="font-size:0.8rem;color:#f87171;"></span>
+    </div>
+    <div id="sud-list" style="max-height:240px;overflow-y:auto;"></div>
+  </div>
+
+  <!-- Import Resume + Schedule -->
+  <div class="card" style="margin-bottom:14px;">
+    <h3>⏯ Import Resume &amp; Schedule</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">Import adhoora ruk gaya? Resume dabao. Har X hours nayi posts chahiye? Schedule ON karo (tab open rehna zaroori).</div>
+    <div id="ir-status" style="font-size:0.82rem;color:#a3a3a3;margin-bottom:10px;">No saved import progress.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-p" onclick="irResume()">▶ Resume Last Import</button>
+      <button class="btn btn-s" onclick="irClear()">🗑 Clear Progress</button>
+      <button class="btn btn-s" onclick="irRefreshStatus()">🔄 Status</button>
+    </div>
+    <div style="border-top:1px solid #222;padding-top:12px;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#e5e5e5;margin-bottom:8px;">
+        <input type="checkbox" id="hd-sched-on"/> Enable daily HDFun “new only” scan (panel must stay open / tab awake)
+      </label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <label style="font-size:0.78rem;color:#888;">Every (hours)</label>
+        <input class="fi" id="hd-sched-hours" type="number" value="6" min="1" max="48" style="width:70px;"/>
+        <button class="btn btn-s" onclick="hdSchedSave()">💾 Save Schedule</button>
+        <button class="btn btn-s" onclick="hdSchedRunNow()">⚡ Run Now (new only)</button>
+        <span id="hd-sched-next" style="font-size:0.75rem;color:#888;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics -->
+  <div class="card">
+    <h3>📈 Quick Analytics</h3>
+    <div class="stats-grid" style="margin-bottom:10px;">
+      <div class="stat-card"><div class="num" id="an-topdl" style="font-size:1.4rem;">—</div><div class="lbl">Top Download Title</div></div>
+      <div class="stat-card"><div class="num" id="an-zerodl" style="font-size:1.6rem;color:#fb923c;">0</div><div class="lbl">Zero Downloads</div></div>
+      <div class="stat-card"><div class="num" id="an-draft" style="font-size:1.6rem;color:#f87171;">0</div><div class="lbl">Drafts</div></div>
+      <div class="stat-card"><div class="num" id="an-srcdup" style="font-size:1.6rem;color:#a78bfa;">0</div><div class="lbl">Source URL Dup Groups</div></div>
+    </div>
+    <button class="btn btn-s" onclick="anRefresh()">🔄 Refresh Analytics</button>
+    <div id="an-top-list" style="margin-top:10px;font-size:0.8rem;color:#a3a3a3;"></div>
+  </div>
+</div>
+
+
+<!-- ═══ SUBSCRIPTION ═══ -->
+<div class="section" id="sec-subs">
+  <div class="sec-title">💎 <span>Subscription</span></div>
+  <div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.35);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:0.84rem;color:#ddd6fe;line-height:1.65;">
+    <b style="color:#fff;">Users ko Watch / Download ke liye paid plan chahiye.</b><br>
+    1) Neeche plans + payment info save karo<br>
+    2) Site pe user Google login karke plan choose karega / payment request bhejega<br>
+    3) Payment milne pe yahan se <b>Activate</b> karo (ya auto agar payment gateway lagaya)<br>
+    4) Theme pe download/watch tabhi chalega jab subscription <b>active</b> ho
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <h3>⚙️ Subscription Settings</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#e5e5e5;">
+        <input type="checkbox" id="sub-enabled"/> Subscription system ON
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#e5e5e5;">
+        <input type="checkbox" id="sub-req-dl" checked/> Download ke liye zaroori
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#e5e5e5;">
+        <input type="checkbox" id="sub-req-watch" checked/> Watch Now ke liye zaroori
+      </label>
+    </div>
+    <div class="fg" style="margin-bottom:10px;">
+      <div class="fgg full"><label>Payment instructions (JazzCash / EasyPaisa / Bank — site pe dikhega)</label>
+        <textarea class="fi" id="sub-pay-note" rows="3" placeholder="JazzCash: 03XX-XXXXXXX (Name)&#10;EasyPaisa: 03XX-XXXXXXX&#10;Payment ke baad screenshot bhejein / request submit karein"></textarea>
+      </div>
+      <div class="fgg"><label>Support WhatsApp / Telegram link (optional)</label>
+        <input class="fi" id="sub-support" placeholder="https://wa.me/92xxxxxxxxxx"/>
+      </div>
+    </div>
+    <h3 style="margin-top:8px;">📦 Plans (PKR)</h3>
+    <div class="fg">
+      <div class="fgg"><label>Weekly — Price</label><input class="fi" id="sub-p-week-price" type="number" value="99"/></div>
+      <div class="fgg"><label>Days</label><input class="fi" id="sub-p-week-days" type="number" value="7"/></div>
+      <div class="fgg"><label>Label</label><input class="fi" id="sub-p-week-label" value="1 Week"/></div>
+    </div>
+    <div class="fg">
+      <div class="fgg"><label>Monthly — Price</label><input class="fi" id="sub-p-month-price" type="number" value="249"/></div>
+      <div class="fgg"><label>Days</label><input class="fi" id="sub-p-month-days" type="number" value="30"/></div>
+      <div class="fgg"><label>Label</label><input class="fi" id="sub-p-month-label" value="1 Month"/></div>
+    </div>
+    <div class="fg">
+      <div class="fgg"><label>Yearly — Price</label><input class="fi" id="sub-p-year-price" type="number" value="1499"/></div>
+      <div class="fgg"><label>Days</label><input class="fi" id="sub-p-year-days" type="number" value="365"/></div>
+      <div class="fgg"><label>Label</label><input class="fi" id="sub-p-year-label" value="1 Year"/></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-p" onclick="subSaveSettings()">💾 Save Settings &amp; Plans</button>
+      <button class="btn btn-s" onclick="subLoadSettings()">🔄 Reload</button>
+      <span id="sub-settings-status" style="font-size:0.8rem;color:#a78bfa;"></span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <h3>📩 Payment Requests</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">User ne site se request bheji — payment verify karke Activate dabao.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-p" onclick="subLoadRequests()">🔍 Load Requests</button>
+      <select class="fi" id="sub-req-filter" style="width:auto;" onchange="subLoadRequests()">
+        <option value="pending">Pending</option>
+        <option value="all">All</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <span id="sub-req-summary" style="font-size:0.8rem;color:#fbbf24;"></span>
+    </div>
+    <div id="sub-req-list" style="max-height:360px;overflow-y:auto;"></div>
+  </div>
+
+  <div class="card">
+    <h3>👤 Manual Activate / Check User</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">User ka Firebase Auth UID ya email se plan activate / revoke.</div>
+    <div class="fg">
+      <div class="fgg"><label>User UID</label><input class="fi" id="sub-uid" placeholder="Firebase Auth UID"/></div>
+      <div class="fgg"><label>Email (optional note)</label><input class="fi" id="sub-email" placeholder="user@gmail.com"/></div>
+      <div class="fgg"><label>Plan</label>
+        <select class="fi" id="sub-plan">
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn" style="background:#16a34a;color:#fff;" onclick="subActivateManual()">✅ Activate Plan</button>
+      <button class="btn btn-s" onclick="subLookupUser()">🔍 Lookup</button>
+      <button class="btn" style="background:#7f1d1d;color:#fca5a5;" onclick="subRevokeManual()">🚫 Revoke</button>
+    </div>
+    <div id="sub-user-info" style="margin-top:12px;font-size:0.82rem;color:#a3a3a3;"></div>
+  </div>
+</div>
 
 <div class="section" id="sec-settings">
       <div class="sec-title">⚙️ <span>Settings</span></div>
@@ -4893,14 +5166,14 @@ function show(name){
   var sec=document.getElementById('sec-'+name);if(sec)sec.classList.add('active');
   var nav=document.getElementById('nav-'+name);if(nav)nav.classList.add('active');
   if(name==='movies'){currentCatFilter='all';try{updateCfBtns();}catch(e){}setTimeout(function(){try{renderTable(allMovies||[]);}catch(e){console.error(e);}},0);}if(name==='trending'){try{trendRenderAll();}catch(e){}}if(name==='motd'){try{motdRenderCurrent();}catch(e){}}if(name==='tmdbseo'){try{tmdbSeoPreviewStats();}catch(e){}}
-  if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}
+  if(name==='settings'){document.getElementById('sys-total').innerText=allMovies.length; tfaRenderSettings();}if(name==='protools'){try{irRefreshStatus();anRefresh();hdSchedUi();}catch(e){}}if(name==='subs'){try{subLoadSettings();subLoadRequests();}catch(e){}}
   if(name==='bulkdel'){try{bdScan();}catch(e){}}
   if(name==='imphistory'){try{ihRefresh();}catch(e){}}
   if(name==='deadlinks'){try{dlOnShow();}catch(e){}}
   if(name==='seasons'){try{smgrScan();}catch(e){}}
   if(name==='trash'){try{trashLoad();}catch(e){}}
   if(name==='titleclean'){try{tcScan();}catch(e){}}
-  if(name==='catmove'){try{cmScan();}catch(e){}}
+  if(name==='catmove'){try{cmScan();}catch(e){} try{var af=document.getElementById('cm-autofix-list'); if(af&&!af.innerHTML){/* idle */} }catch(e2){}}
   if(name==='dashboard'){try{dashRefreshLive();}catch(e){}}
 
   if(name==='linkmanager'){lmFilter();}
@@ -4959,67 +5232,59 @@ function isSouthTitleBlob(blob) {
 function autoCategoryFromText(title, language, currentCat) {
   var t = String(title || '').toLowerCase();
   var lang = String(language || '').toLowerCase();
+  var genre = '';
   var blob = t + ' ' + lang;
-  var cur = String(currentCat || '').toLowerCase();
+  var cur = String(currentCat || '').toLowerCase().replace(/[\s\-]+/g, '_');
+  if (typeof ffiNormalizePanelCategory === 'function') cur = ffiNormalizePanelCategory(cur) || cur;
 
-  // Adult short film
-  if (/short\s*film|hot\s*short|adult\s*short/i.test(blob)) return 'short_films';
-  // Adult (only if already adult-ish or explicit)
-  if (cur === 'adult' || cur === 'short_films' || cur === 'hot_short_hindi' || cur === 'philippines') {
-    if (/short/i.test(blob)) return 'short_films';
-    if (cur === 'philippines' || /vivamax|tagalog|pinoy/i.test(blob)) return 'philippines';
-    if (cur === 'hot_short_hindi') return 'hot_short_hindi';
-    return cur === 'short_films' ? 'short_films' : 'adult';
+  // ═══ CONTENT SIGNALS FIRST (current cat se pehle — galat category fix ke liye) ═══
+  // Animation / Anime — HIGHEST (kdrama/webseries mein galti se padey hue)
+  if (/\banime\b|naruto|one\s*piece|dragon\s*ball|demon\s*slayer|jujutsu|attack\s*on\s*titan|bleach|boruto/i.test(blob)) {
+    return 'anime_hindi';
   }
-  if (/\badult\b|18\+|xxx/i.test(blob) && !/animated|animation/i.test(blob)) return 'adult';
+  if (/\banimat(ed|ion)\b|\bcartoon\b|\bcgi\s*anim|pixar|dreamworks|disney\s*anim|toy\s*story|frozen|moana|encanto|zootopia|inside\s*out|finding\s*nemo|despicable|minions|shrek|kung\s*fu\s*panda|how\s*to\s*train\s*your\s*dragon|spider[\-\s]?man\s*into\s*the\s*spider|spider[\-\s]?verse/i.test(blob)) {
+    return 'animation_hindi_dubbed';
+  }
 
-  // ══ SOUTH FIRST (before Dual Audio) ══
-  // "Xxx Tamil Dual Audio" / "Telugu Hindi Dubbed" → south_hindi (NOT dual_audio)
-  if (isSouthTitleBlob(blob) || cur === 'south_hindi' || cur === 'south' || cur === 'tamil' || cur === 'telugu' || cur === 'tollywood') {
-    return 'south_hindi';
-  }
+  // Adult family (only strong signals)
+  if (/vivamax|tagalog|pinoy\s*(bold|sexy)|philippines/i.test(blob)) return 'philippines';
+  if (/hot\s*short|short\s*film.*hot|adult\s*short|ullu\s*short/i.test(blob)) return 'hot_short_hindi';
+
+  // South
+  if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(blob)) return 'south_hindi';
   if (/(south|tamil|telugu|malayalam|kannada).{0,25}(hindi\s*dub|dubbed|dual)/i.test(blob)
       || /(hindi\s*dub|dubbed|dual).{0,25}(south|tamil|telugu|malayalam|kannada)/i.test(blob)
-      || /south\s*hindi|south-indian\s*hindi/i.test(blob)) {
+      || /south\s*hindi|south-indian\s*hindi|tollywood/i.test(blob)) {
     return 'south_hindi';
   }
 
-  // ══ K-DRAMA (before Dual Audio) ══
-  // "Squid Game K-Drama Hindi Dubbed Dual Audio" galat dual_audio mein
-  // chali jati thi kyunke "dual audio" pehle check ho raha tha — ab
-  // K-Drama pehle check hota hai, jaisa South ke liye pehle se hai.
-  if (/k-?drama|korean|c-?drama/i.test(blob) || cur === 'kdrama' || cur === 'kdrama_hindi') return 'kdrama_hindi';
+  // K-Drama — only real Korean/Asian drama signals (NOT just current cat)
+  if (/\bk[\-\s]?drama\b|\bkorean\b|\bc[\-\s]?drama\b|\bjapanese\s*drama|netflix\s*korea|\bk\s*series\b/i.test(blob)) {
+    return 'kdrama_hindi';
+  }
 
-  // Dual Audio — Hollywood/foreign multi-audio ONLY (south & k-drama already handled)
-  if (/dual\s*audio/i.test(blob)) return 'dual_audio';
+  // Dual Audio (after south & kdrama)
+  if (/dual\s*audio/i.test(blob) && !/bollywood/i.test(blob)) return 'dual_audio';
 
-  // Web series
-  if (/web\s*series|season\s*\d|complete\s*season/i.test(blob) || cur === 'webseries' || cur === 'webseries_hindi') {
+  // Web series / TV seasons
+  if (/web\s*series|\bseason\s*\d|complete\s*season|\bS\d{1,2}\s*E\d|episodes?\s*wise/i.test(blob)) {
+    if (/\bkorean\b|\bk[\-\s]?drama\b/i.test(blob)) return 'kdrama_hindi';
     return 'webseries_hindi';
   }
 
-  // Animation / Anime
-  if (/\banime\b/i.test(blob)) return 'anime_hindi';
-  if (/animat|cartoon/i.test(blob) || cur === 'animation') return 'animation_hindi_dubbed';
+  // Bollywood
+  if (/bollywood/i.test(blob)) return 'bollywood_hindi';
 
-  // Bollywood (Hindi original)
-  if (/bollywood/i.test(blob) || cur === 'bollywood' || cur === 'bollywood_hindi') return 'bollywood_hindi';
-
-  // Hindi Dubbed (Hollywood/foreign dubbed — not south)
-  if (/hindi\s*dub|hindi-dubbed|\[hindi\]/i.test(blob) || (lang.indexOf('hindi') >= 0 && lang.indexOf('dub') >= 0)) {
+  // Hindi Dubbed Hollywood
+  if (/hindi\s*dub|hindi-dubbed|\[hindi\]/i.test(blob) || (lang.indexOf('hindi') >= 0 && /dub/i.test(lang))) {
     return 'hindi_dubbed';
-  }
-  if (lang === 'hindi' || lang.indexOf('hindi') === 0) {
-    if (/hollywood|english\s*movie/i.test(t)) return 'hindi_dubbed';
-    return 'bollywood_hindi';
   }
 
   // English
-  if (/english/i.test(lang) || /\benglish\b/i.test(blob) || cur === 'hollywood' || cur === 'english_movies') {
-    return 'english_movies';
-  }
+  if (/\benglish\b/i.test(lang) && !/hindi/i.test(lang)) return 'english_movies';
+  if (/\benglish\s*movie/i.test(blob)) return 'english_movies';
 
-  // keep current if set (normalize aliases)
+  // ═══ No strong signal → keep current (normalized) ═══
   if (cur) {
     if (cur === 'south' || cur === 'tamil' || cur === 'telugu' || cur === 'tollywood') return 'south_hindi';
     if (cur === 'bollywood') return 'bollywood_hindi';
@@ -5027,9 +5292,53 @@ function autoCategoryFromText(title, language, currentCat) {
     if (cur === 'webseries') return 'webseries_hindi';
     if (cur === 'kdrama') return 'kdrama_hindi';
     if (cur === 'animation') return 'animation_hindi_dubbed';
-    return currentCat;
+    if (cur === 'adult' || cur === 'vivamax' || cur === 'short_films' || cur === 'hot_series') return 'philippines';
+    return cur;
   }
   return 'english_movies';
+}
+
+/** Suggest correct category if movie is in wrong place. Returns null if OK. */
+function suggestCorrectCategory(m) {
+  if (!m) return null;
+  var cur = String(m.category || '').toLowerCase().replace(/[\s\-]+/g, '_');
+  if (typeof ffiNormalizePanelCategory === 'function') cur = ffiNormalizePanelCategory(cur) || cur;
+  var blob = [m.title, m.language, m.genre, m.quality, m.seoTitle].filter(Boolean).join(' ');
+  var suggested = autoCategoryFromText(m.title || '', m.language || '', '');
+  // Stronger: also check genre field
+  var g = String(m.genre || '').toLowerCase();
+  if (/\banimation\b|\banime\b|\bcartoon\b/i.test(g)) {
+    suggested = /\banime\b/i.test(blob + ' ' + g) ? 'anime_hindi' : 'animation_hindi_dubbed';
+  }
+  if (!suggested || suggested === cur) return null;
+  // Only move when confidence is high (content signal matched, not just fallback)
+  var t = String(m.title || '').toLowerCase();
+  var high = false;
+  if (suggested === 'animation_hindi_dubbed' || suggested === 'anime_hindi') {
+    high = /\banimat|\banime\b|\bcartoon\b|pixar|dreamworks|disney|toy\s*story|frozen|spider.?verse|minions|shrek|kung\s*fu\s*panda/i.test(blob)
+      || /\banimation\b|\banime\b/i.test(g);
+  } else if (suggested === 'south_hindi') {
+    high = typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(blob);
+  } else if (suggested === 'kdrama_hindi') {
+    high = /\bk[\-\s]?drama\b|\bkorean\b|\bc[\-\s]?drama\b/i.test(blob);
+  } else if (suggested === 'bollywood_hindi') {
+    high = /bollywood/i.test(blob);
+  } else if (suggested === 'dual_audio') {
+    high = /dual\s*audio/i.test(blob);
+  } else if (suggested === 'webseries_hindi') {
+    high = /web\s*series|\bseason\s*\d|\bS\d{1,2}/i.test(blob);
+  } else if (suggested === 'hindi_dubbed') {
+    high = /hindi\s*dub/i.test(blob) && cur !== 'south_hindi' && cur !== 'bollywood_hindi';
+  } else if (suggested === 'philippines' || suggested === 'hot_short_hindi') {
+    high = /vivamax|tagalog|hot\s*short|adult\s*short/i.test(blob);
+  }
+  if (!high) return null;
+  // Don't move adult out unless clear non-adult animation
+  var adultCur = {philippines:1, hot_short_hindi:1, adult:1, vivamax:1, short_films:1, hot_series:1};
+  if (adultCur[cur] && suggested !== 'philippines' && suggested !== 'hot_short_hindi') {
+    if (suggested !== 'animation_hindi_dubbed' && suggested !== 'anime_hindi') return null;
+  }
+  return suggested;
 }
 
 /** STRICT: source listCat wins. Sirf dual_audio pe South title refine allowed. */
@@ -5045,14 +5354,16 @@ function refineImportCategory(listCat, title, language) {
   if (cat === 'kdrama') cat = 'kdrama_hindi';
   if (cat === 'animation' || cat === 'anime') cat = 'animation_hindi_dubbed';
 
-  // STRICT RULE: jab source category set ho (HDFun category page / auto-import)
-  // to category LOCK — kdrama/tmdb/title se override NAHI
+  // STRICT LOCK: source category set ho to kabhi override NA — TMDB/title se nahi
   if (cat) {
-    // ONLY dual_audio listing pe South titles ko south_hindi mein bhejo
+    // Sirf dual_audio listing + clear South title → south_hindi
     if (cat === 'dual_audio' && typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(blob)) {
       return 'south_hindi';
     }
-    // hindi_dubbed / english / bollywood / webseries / kdrama — as-is LOCK
+    // Normalize aliases to panel keys
+    if (typeof ffiNormalizePanelCategory === 'function') {
+      cat = ffiNormalizePanelCategory(cat) || cat;
+    }
     return cat;
   }
 
@@ -5362,6 +5673,11 @@ function loadAllContent() {
   } catch (e) {}
 
   window.cvForceMoviesUiRefresh = function() {
+    // Import ke dauran force reload mat karo — list pehle se update ho rahi hai
+    if (typeof _ffiImporting !== 'undefined' && _ffiImporting) {
+      try { if (typeof updateCounts === 'function') updateCounts(); } catch (e) {}
+      return;
+    }
     _moviesLoadStarted = false;
     _moviesLoading = false;
     allMovies = [];
@@ -5420,6 +5736,15 @@ var CAT_ALIASES = {
 
 // ═══ FAST LOCAL UI (no full 17k reload) ═══
 function refreshMoviesUiFast() {
+  // Import chal raha ho to table re-render skip (sirf counts)
+  if (typeof _ffiImporting !== 'undefined' && _ffiImporting) {
+    try { updateCounts(); } catch (e0) {}
+    try {
+      var st0 = document.getElementById('st'); if (st0) st0.innerText = (allMovies || []).length;
+      var mc0 = document.getElementById('mc'); if (mc0) mc0.innerText = (allMovies || []).length;
+    } catch (e1) {}
+    return;
+  }
   try { updateCounts(); } catch (e) {}
   try {
     var moviesSec = document.getElementById('sec-movies');
@@ -7281,6 +7606,7 @@ function fillEditFromTmdb() {
   });
 }
 
+function editMovie(key){ return openEdit(key); }
 function openEdit(key){
   var m=allMovies.find(function(x){return x.key===key;});if(!m)return;
   editKey=key;
@@ -11565,11 +11891,15 @@ function ffiNormalizePanelCategory(c) {
     anime_hindi: 'anime_hindi',
     animation: 'animation_hindi_dubbed',
     animation_hindi_dubbed: 'animation_hindi_dubbed',
-    adult: 'adult',
-    hot_series: 'hot_series',
-    short_films: 'short_films',
+    adult: 'philippines',
+    adult_movies: 'philippines',
+    vivamax: 'philippines',
+    hot_series: 'hot_short_hindi',
+    short_films: 'hot_short_hindi',
     philippines: 'philippines',
     hot_short_hindi: 'hot_short_hindi',
+    bengali: 'bollywood_hindi',
+    bengali_series: 'webseries_hindi',
     tamil: 'south_hindi',
     telugu: 'south_hindi',
     tamil_telugu: 'south_hindi',
@@ -11604,7 +11934,7 @@ var HDAUTO_SCAN_URLS = [
   { url: 'https://hdfun.in/category/25/hollywood-movies/1.html', cat: 'english_movies', label: '🌟 Hollywood English' },
   { url: 'https://hdfun.in/category/13/bollywood-movies/1.html', cat: 'bollywood_hindi', label: '🎭 Bollywood' },
   { url: 'https://hdfun.in/category/35/hindi-web-series/1.html', cat: 'webseries_hindi', label: '📺 Hindi Web Series' },
-  { url: 'https://hdfun.in/category/36/hollywood-hindi-dubbed-tv-series/1.html', cat: 'kdrama_hindi', label: '📺 Hollywood Hindi Series' }
+  { url: 'https://hdfun.in/category/36/hollywood-hindi-dubbed-tv-series/1.html', cat: 'webseries_hindi', label: '📺 Hollywood Hindi Series' }
 ];
 
 function hdautoPageUrl(baseUrl, pageNum) {
@@ -12082,63 +12412,41 @@ function hdautoToggleAuto(cb) {
 function ffiDetectListCategory(siteUrl) {
   var su = String(siteUrl || '').toLowerCase();
   if (!su) return '';
-  // FilmyZilla category paths
-  if (/filmyzilla/i.test(su)) {
-    if (/web-series|webseries|tv-shows|kapil/i.test(su)) return 'webseries';
-    if (/south-indian|south|tamil|telugu|malayalam|kannada|tollywood/i.test(su)) return 'south_hindi';
-    if (/hollywood-english|english-movies/i.test(su)) return 'hollywood';
-    if (/hollywood|hindi-dubbed/i.test(su)) return 'hindi_dubbed';
-    if (/punjabi/i.test(su)) return 'punjabi';
-    if (/bollywood|hindi-movie/i.test(su)) return 'bollywood_hindi';
-    if (/gujrati|gujarati|marathi/i.test(su)) return 'bollywood';
+  // ═══ HDFUN exact category IDs → panel slugs (SOURCE OF TRUTH) ═══
+  if (/hdfun\.in|\/category\/\d+\//i.test(su)) {
+    if (/\/category\/11\/|adult-movies/i.test(su) && !/hot-web|hot-short/i.test(su)) return 'philippines';
+    if (/\/category\/33\/|vivamax|tagalog/i.test(su)) return 'philippines';
+    if (/\/category\/62\/|hot-web-series/i.test(su)) return 'hot_short_hindi';
+    if (/\/category\/79\/|hot-short-films/i.test(su)) return 'hot_short_hindi';
+    if (/\/category\/3\/|latest-hollywood-hindi-dubbed|hollywood-hindi-dubbed-movies/i.test(su)) return 'hindi_dubbed';
+    if (/\/category\/5\/|dual-audio/i.test(su)) return 'dual_audio';
+    if (/\/category\/7\/|south-indian/i.test(su)) return 'south_hindi';
+    if (/\/category\/25\/|hollywood-movies/i.test(su) && !/hindi/i.test(su)) return 'english_movies';
+    if (/\/category\/13\/|bollywood/i.test(su)) return 'bollywood_hindi';
+    if (/\/category\/35\/|hindi-web-series/i.test(su)) return 'webseries_hindi';
+    // Hollywood Hindi TV / series → web series (NOT kdrama)
+    if (/\/category\/36\/|hollywood-hindi-dubbed-tv/i.test(su)) return 'webseries_hindi';
+    if (/\/category\/103\/|bengali-movies/i.test(su)) return 'bollywood_hindi';
+    if (/\/category\/302\/|bengali-web/i.test(su)) return 'webseries_hindi';
+    if (/\/category\/215\/|punjabi/i.test(su)) return 'bollywood_hindi';
   }
-  // Mp4Moviez category paths (/1/bollywood-movies.html etc.)
-  if (/mp4moviez/i.test(su)) {
-    if (/\/88\/|hot-web-series|ullu/i.test(su)) return 'hot_series';
-    if (/\/63\/|short-films/i.test(su)) return 'short_films';
-    if (/\/13\/|tv-series|hindi-web|web-series/i.test(su)) return 'webseries';
-    if (/\/72\/|\/76\/|\/93\/|hollywood.*series|tv-shows/i.test(su)) return 'webseries';
-    if (/\/337\/|anime/i.test(su)) return 'animation';
-    if (/\/1\/|bollywood/i.test(su)) return 'bollywood';
-    if (/\/3\/|hollywood-hindi/i.test(su)) return 'hindi_dubbed';
-    if (/\/4\/|south-indian/i.test(su)) return 'south_hindi';
-    if (/\/5\/|hollywood-english/i.test(su)) return 'hollywood';
-    if (/\/6\/|punjabi/i.test(su)) return 'punjabi';
-    if (/\/7\/|tamil/i.test(su)) return 'south_hindi';
-    if (/\/8\/|telugu/i.test(su)) return 'south_hindi';
-    if (/\/9\/|bengali/i.test(su)) return 'bengali';
-    if (/\/14\/|kannada|\/15\/|malayalam/i.test(su)) return 'south_hindi';
-  }
-  // HDFun category IDs / slugs (exact match first)
-  if (/category\/11\/|\/adult-movies/i.test(su) && !/hot-web-series|hot-short/i.test(su)) return 'adult';
-  if (/category\/79\/|hot-short-films/i.test(su)) return 'short_films';
-  if (/category\/62\/|hot-web-series/i.test(su)) return 'hot_series';
-  if (/category\/33\/|vivamax|tagalog/i.test(su)) return 'vivamax';
-  if (/category\/302\/|bengali-web-series/i.test(su)) return 'bengali_series';
-  if (/category\/103\/|bengali-movies/i.test(su)) return 'bengali';
-  if (/category\/36\/|hollywood-hindi-dubbed-tv/i.test(su)) return 'kdrama';
-  if (/category\/35\/|hindi-web-series/i.test(su)) return 'webseries';
-  if (/category\/13\/|bollywood-movies|bollywood-full-movies/i.test(su)) return 'bollywood_hindi';
-  if (/category\/215\/|punjabi-movies/i.test(su)) return 'punjabi';
-  if (/category\/7\/|south-indian-hindi-dubbed|south-indian/i.test(su)) return 'south_hindi';
-  if (/category\/3\/|latest-hollywood-hindi-dubbed|hollywood-hindi-dubbed-movies/i.test(su)) return 'hindi_dubbed';
-  if (/category\/25\/|hollywood-movies/i.test(su)) return 'english_movies';
-  if (/category\/5\/|dual-audio-movies|dual-audio/i.test(su)) return 'dual_audio';
-  // Generic fallbacks
-  if (/adult-movies|\/adult\/|hot-movies/i.test(su)) return 'adult';
-  if (/k-?drama|korean|c-?drama|katdrama/i.test(su)) return 'kdrama_hindi';
-  if (/bengali-web-series|bengali.*series/i.test(su)) return 'bengali_series';
-  if (/bengali/i.test(su)) return 'bengali';
-  if (/web-series|webseries|tv[\s\-]?series/i.test(su) && !/hot-web-series/i.test(su)) return 'webseries_hindi';
-  if (/bollywood|hindi-movies/i.test(su)) return 'bollywood_hindi';
-  if (/punjabi/i.test(su)) return 'punjabi';
-  if (/\btamil\b/i.test(su)) return 'south_hindi'; if (/\btelugu\b/i.test(su)) return 'south_hindi'; if (/south-indian\s*hindi|south\s*hindi/i.test(su)) return 'south_hindi'; if (/tollywood/i.test(su)) return 'south_hindi'; if (/south-indian|malayalam|kannada|\bsouth\b/i.test(su)) return 'south_hindi';
-  if (/animation|anime|cartoon/i.test(su)) return 'animation_hindi_dubbed';
-  if (/dual-audio|dual_audio/i.test(su)) return 'dual_audio';
-  if (/hollywood|hindi-dubbed|english-movies/i.test(su)) return 'hindi_dubbed';
+  if (/mmshd\.com/i.test(su)) return 'philippines';
+  // Generic URL keywords (only if no numeric cat matched)
+  if (/adult-movies|\/adult\/|hot-movies|vivamax|tagalog/i.test(su)) return 'philippines';
+  if (/hot-web-series|hot-short/i.test(su)) return 'hot_short_hindi';
+  if (/south-indian|tollywood|\btamil\b|\btelugu\b/i.test(su)) return 'south_hindi';
+  if (/dual-audio/i.test(su)) return 'dual_audio';
+  if (/bollywood/i.test(su)) return 'bollywood_hindi';
+  if (/hindi-web-series|web-series|webseries|tv[\s\-]?series/i.test(su)) return 'webseries_hindi';
+  if (/hollywood-hindi|hindi-dubbed/i.test(su)) return 'hindi_dubbed';
+  if (/hollywood-movies|english-movies/i.test(su)) return 'english_movies';
+  if (/animation|anime/i.test(su)) return 'animation_hindi_dubbed';
   try {
     var defEl = document.getElementById('ffi-default-cat');
-    if (defEl && defEl.value) return defEl.value;
+    if (defEl && defEl.value) {
+      return (typeof ffiNormalizePanelCategory === 'function')
+        ? (ffiNormalizePanelCategory(defEl.value) || defEl.value) : defEl.value;
+    }
   } catch (e) {}
   return '';
 }
@@ -12714,6 +13022,8 @@ function ffiStartImport() {
 
   _ffiImporting = true;
   window._ffiImportSeen = { urls: {}, titles: {} };
+  window._ffiDbUrlSet = null;
+  window._ffiDbUrlSetSize = -1;
   window._ffiBatchKeys = [];
   window._ffiBatchCats = {};
   _ffiReviewQueue = [];
@@ -12775,10 +13085,29 @@ function ffiStartImport() {
     document.getElementById('ffi-s-ok').textContent = ok;
     document.getElementById('ffi-s-skip').textContent = skip;
     document.getElementById('ffi-s-err').textContent = err;
+    // Resume checkpoint every 5 items
+    if (_ffiDone % 5 === 0 || _ffiDone === selected.length) {
+      try {
+        var remaining = [];
+        for (var ri = _ffiNextIdx; ri < selected.length; ri++) {
+          remaining.push({ url: selected[ri].url, title: selected[ri].title, listCat: selected[ri].listCat || '', checked: true });
+        }
+        if (remaining.length) {
+          localStorage.setItem('cinenova_import_resume', JSON.stringify({
+            at: Date.now(), ok: ok, skip: skip, err: err, total: selected.length, done: _ffiDone,
+            hdauto: !!(typeof _hdautoMode !== 'undefined' && _hdautoMode),
+            posts: remaining.slice(0, 800)
+          }));
+        } else {
+          localStorage.removeItem('cinenova_import_resume');
+        }
+      } catch (eIr) {}
+    }
   }
 
   function ffiImportDone() {
     _ffiImporting = false;
+    try { localStorage.removeItem('cinenova_import_resume'); } catch (eClr) {}
     document.getElementById('ffi-import-btn').disabled = false;
     document.getElementById('ffi-import-btn').textContent = '⚡ Import Karo (Selected Posts)';
     var sb = document.getElementById('ffi-import-stop-btn');
@@ -12794,14 +13123,25 @@ function ffiStartImport() {
       toast('✅ ' + ok + ' movies fetch — review karke save karo!');
     }
     ffiRenderReviewQueue();
-    try { if (typeof window.cvForceMoviesUiRefresh === 'function') window.cvForceMoviesUiRefresh(); } catch(e){}
+    // Import ke baad FULL reload NAHI — allMovies pehle se unshift ho chuki hain
+    // cvForceMoviesUiRefresh() 17k dubara load karta tha → freeze + lag
+    try { if (typeof updateCounts === 'function') updateCounts(); } catch (e) {}
+    try {
+      var st = document.getElementById('st'); if (st) st.innerText = (allMovies || []).length;
+      var mc = document.getElementById('mc'); if (mc) mc.innerText = (allMovies || []).length;
+    } catch (e2) {}
     // HDFun bulk: ab really finish
     if (window._hdautoAwaitImportDone) {
       window._hdautoAwaitImportDone = false;
-      try { if (typeof updateCounts === 'function') updateCounts(); } catch (e) {}
-      try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch (e) {}
       try { if (typeof hdautoFinishRun === 'function') hdautoFinishRun(); } catch (e) {}
     }
+    // Optional: sirf Movies tab open ho to light redraw (full Firebase reload nahi)
+    try {
+      var moviesSec = document.getElementById('sec-movies');
+      if (moviesSec && moviesSec.classList.contains('active') && typeof refreshMoviesUiFast === 'function') {
+        refreshMoviesUiFast();
+      }
+    } catch (e3) {}
   }
 
   function ffiItemDone() {
@@ -12854,7 +13194,25 @@ function ffiStartImport() {
         p._claimReason = 'batch URL lock';
         return;
       }
-      if (u) window._ffiImportSeen.urls[u] = 'claimed'; // claim immediately (not 'done' yet)
+      // DB source URL index (fast) — duplicate post upload block
+      if (u && typeof allMovies !== 'undefined' && allMovies && allMovies.length) {
+        if (!window._ffiDbUrlSet || window._ffiDbUrlSetSize !== allMovies.length) {
+          window._ffiDbUrlSet = {};
+          for (var di0 = 0; di0 < allMovies.length; di0++) {
+            var am0 = allMovies[di0];
+            if (!am0) continue;
+            var au0 = _nu(am0.sourcePageUrl || am0.dlSourceUrl || am0.pageUrl || am0.videoSourceUrl || '');
+            if (au0) window._ffiDbUrlSet[au0] = 1;
+          }
+          window._ffiDbUrlSetSize = allMovies.length;
+        }
+        if (window._ffiDbUrlSet[u]) {
+          p._claimSkip = true;
+          p._claimReason = 'already in DB';
+          return;
+        }
+      }
+      if (u) window._ffiImportSeen.urls[u] = 'claimed';
     })();
     if (p._claimSkip) {
       var item0 = document.getElementById('ffi-item-' + n);
@@ -13637,11 +13995,9 @@ function ffiStartImport() {
             return;
           }
         }
-        if (listCat === 'webseries' && data.category !== 'kdrama' && data.category !== 'adult') {
-          if (!/\bS\d{1,2}\b|Season\s*\d|Web[\s\-]?Series|TV[\s\-]?Series|Episodes?/i.test(tCheck0) &&
-              !/series/i.test(data.genre || '')) {
-            data.category = 'webseries';
-          }
+        // webseries_hindi listCat stays locked — do not reclassify single movies
+        if (listCat === 'webseries' || listCat === 'webseries_hindi') {
+          data.category = 'webseries_hindi';
         }
         // Re-assert kdrama ONLY when no listCat (free import).
         // listCat pe refine rakho — blind listCat overwrite South fix ko uda deta tha
@@ -13652,8 +14008,9 @@ function ffiStartImport() {
           data.category = (typeof refineImportCategory === 'function')
             ? (refineImportCategory(listCat, tCheck0, data.language || '') || listCat)
             : listCat;
+          // ONLY dual_audio may refine to south — hindi_dubbed source LOCKED
           if (typeof isSouthTitleBlob === 'function' && isSouthTitleBlob(tCheck0)
-              && (data.category === 'dual_audio' || data.category === 'hindi_dubbed')) {
+              && data.category === 'dual_audio') {
             data.category = 'south_hindi';
           }
         }
@@ -13803,8 +14160,12 @@ function ffiStartImport() {
               if (ep.playmateUrl) e.playmateUrl = ep.playmateUrl;
               return e;
             });
-            if (obj.category !== 'adult' && obj.category !== 'kdrama' && obj.category !== 'hot_series') {
-              obj.category = 'webseries';
+            // Series pack: keep source listCat; only default to webseries_hindi if empty
+            if (!obj.category || obj.category === 'webseries' || obj.category === 'kdrama') {
+              var _sc = (p && p.listCat) ? p.listCat : (_ffiListCategory || 'webseries_hindi');
+              if (typeof ffiNormalizePanelCategory === 'function') _sc = ffiNormalizePanelCategory(_sc) || _sc;
+              if (_sc && _sc !== 'adult') obj.category = _sc;
+              else if (!obj.category) obj.category = 'webseries_hindi';
             }
           } else {
             // Single movie — related fake EP mat save
@@ -13905,7 +14266,7 @@ function ffiStartImport() {
               obj.dlSourceUrl = p.url;
             }
             if (/mmshd\.com/i.test(p.url||'') || /mmshd\.com/i.test(data.download_link)) {
-              if (!obj.category) obj.category = 'adult';
+              if (!obj.category) obj.category = 'philippines';
             }
           }
         } else if (p.url && /filmyzilla/i.test(p.url)) {
@@ -13926,7 +14287,7 @@ function ffiStartImport() {
               obj.download1080p = p.url;
             }
           }
-          if (/mmshd\.com/i.test(p.url) && !obj.category) obj.category = 'adult';
+          if (/mmshd\.com/i.test(p.url) && !obj.category) obj.category = 'philippines';
         } else if (p.url && /9xflix/i.test(p.url)) {
           obj.dlSourceUrl = p.url;
           obj.videoSourceUrl = p.url;
@@ -13962,12 +14323,22 @@ function ffiStartImport() {
         // ✅ Ab yahan seedha Firebase save NAHI karte — pehle review queue
         // mein daal dete hain. Admin Step 3 mein dekh ke, jo chahiye wo
         // select karke "Save" dabayega, tab jaake Firebase mein jayega.
-        // HARD LOCK: jis category URL se post aayi, wahi panel category
+        // ═══ ABSOLUTE CATEGORY LOCK (source listCat wins — glat category impossible) ═══
         var _lcFinal = (p && p.listCat) ? p.listCat : (_ffiListCategory || '');
-        if (typeof ffiNormalizePanelCategory === 'function') _lcFinal = ffiNormalizePanelCategory(_lcFinal);
+        if (!_lcFinal && p && p.fromUrl) _lcFinal = (typeof ffiDetectListCategory === 'function') ? ffiDetectListCategory(p.fromUrl) : '';
+        if (!_lcFinal && p && p.url) _lcFinal = (typeof ffiDetectListCategory === 'function') ? ffiDetectListCategory(p.url) : '';
+        if (typeof strictImportCategory === 'function' && _lcFinal) {
+          _lcFinal = strictImportCategory(_lcFinal, data.title || p.title || '', p.url || '', data.language || '') || _lcFinal;
+        }
+        if (typeof ffiNormalizePanelCategory === 'function') _lcFinal = ffiNormalizePanelCategory(_lcFinal) || _lcFinal;
         if (_lcFinal) obj.category = _lcFinal;
         applyCategoryDefaults(obj);
-        if (_lcFinal) obj.category = _lcFinal; // defaults ke baad bhi lock
+        // defaults ke baad bhi FORCE source category (kabhi mat chhedo)
+        if (_lcFinal) obj.category = _lcFinal;
+        // last safety: never leave invalid/empty when source known
+        if (_lcFinal && (!obj.category || obj.category === 'hollywood' || obj.category === 'webseries' || obj.category === 'kdrama' || obj.category === 'adult' || obj.category === 'bollywood')) {
+          obj.category = _lcFinal;
+        }
         if (data.size && !obj.size) obj.size = data.size;
 
         // Gofile — Playmate jaisa ID/URL alag save
@@ -14034,10 +14405,15 @@ function ffiStartImport() {
             }
             // Force source category one more time before write
             if (p && p.listCat) {
-              obj.category = (typeof strictImportCategory === 'function')
+              var _ac = (typeof strictImportCategory === 'function')
                 ? (strictImportCategory(p.listCat, obj.title || '', p.url || '', obj.language || '') || p.listCat)
                 : p.listCat;
+              if (typeof ffiNormalizePanelCategory === 'function') _ac = ffiNormalizePanelCategory(_ac) || _ac;
+              obj.category = _ac;
             }
+            // Absolute: listCat never lost
+            if (p && p.listCat) obj.category = (typeof ffiNormalizePanelCategory === 'function')
+              ? (ffiNormalizePanelCategory(p.listCat) || p.listCat) : p.listCat;
             obj._autoSaved = true;
             if (!obj.title || !String(obj.title).trim()) {
               obj.title = (p && p.title) ? p.title : ('Untitled ' + Date.now());
@@ -14052,12 +14428,18 @@ function ffiStartImport() {
             db.ref('movies/' + _ak).set(toSave).then(function() {
               obj.key = _ak;
               if (typeof allMovies !== 'undefined') {
+                // Local array mein add — UI table reload MAT karo (import ke dauran)
                 allMovies.unshift(obj);
-                // Bulk pe har movie pe full UI refresh mat karo — freeze avoid
-                var _nSaved = (window._ffiBatchKeys && window._ffiBatchKeys.length) || 0;
-                if (_nSaved % 25 === 0) {
-                  try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch(eR){}
-                }
+                try {
+                  if (window._ffiDbUrlSet && p && p.url) {
+                    var _su = String(p.url||'').replace(/&amp;/g,'&').trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/$/,'').replace(/^https?:\/\/(www\.)?/,'');
+                    if (_su) window._ffiDbUrlSet[_su] = 1;
+                  }
+                } catch(eSet) {}
+                try {
+                  var st = document.getElementById('st'); if (st) st.innerText = allMovies.length;
+                  var mc = document.getElementById('mc'); if (mc) mc.innerText = allMovies.length;
+                } catch (eCnt) {}
               }
               if (!window._ffiBatchKeys) window._ffiBatchKeys = [];
               if (!window._ffiBatchCats) window._ffiBatchCats = {};
@@ -14759,8 +15141,8 @@ function applyCategoryDefaults(obj) {
   var cat = (obj.category || '').toLowerCase();
   var title = (obj.title || '') + ' ' + (obj.quality || '') + ' ' + (obj.language || '');
 
-  // Category fallback
-  if (!obj.category) obj.category = 'hollywood';
+  // Category fallback — never use bare 'hollywood' (invalid panel key)
+  if (!obj.category) obj.category = 'english_movies';
 
   // Language — garbage JS scrape hatao
   if (obj.language && isGarbageLanguage(obj.language)) {
@@ -18898,6 +19280,83 @@ function cmApply() {
   next(0);
 }
 
+// ═══ AUTO-FIX wrong categories ═══
+var _cmAutoFixItems = [];
+function cmAutoFixScan() {
+  var scope = (document.getElementById('cm-autofix-from') || {}).value || 'all';
+  _cmAutoFixItems = [];
+  (allMovies || []).forEach(function(m) {
+    if (!m || !m.key) return;
+    var cur = String(m.category || '');
+    if (scope !== 'all' && cur !== scope) return;
+    var sug = (typeof suggestCorrectCategory === 'function') ? suggestCorrectCategory(m) : null;
+    if (!sug || sug === cur) return;
+    _cmAutoFixItems.push({ m: m, from: cur, to: sug, checked: true });
+  });
+  _cmAutoFixItems.sort(function(a, b) {
+    if (a.to !== b.to) return a.to < b.to ? -1 : 1;
+    return (b.m.addedAt || 0) - (a.m.addedAt || 0);
+  });
+  cmAutoFixRender();
+  var sum = document.getElementById('cm-autofix-summary');
+  if (sum) sum.textContent = _cmAutoFixItems.length ? (_cmAutoFixItems.length + ' mismatches found') : '✅ Koi mismatch nahi';
+  if (!_cmAutoFixItems.length) toast('✅ Is scope mein galat category nahi mili');
+  else toast('🔍 ' + _cmAutoFixItems.length + ' galat category posts mili');
+}
+function cmAutoFixRender() {
+  var el = document.getElementById('cm-autofix-list');
+  var sum = document.getElementById('cm-autofix-summary');
+  if (!el) return;
+  var n = _cmAutoFixItems.filter(function(x){ return x.checked; }).length;
+  if (sum) sum.textContent = _cmAutoFixItems.length + ' found · ' + n + ' selected';
+  if (!_cmAutoFixItems.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:0.82rem;">Scan karke mismatches dekho</div>';
+    return;
+  }
+  el.innerHTML = _cmAutoFixItems.slice(0, 400).map(function(x, i) {
+    var m = x.m;
+    return '<label style="display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid #1a1a1a;cursor:pointer;font-size:0.8rem;">'
+      + '<input type="checkbox" ' + (x.checked?'checked':'') + ' onchange="_cmAutoFixItems['+i+'].checked=this.checked;cmAutoFixRender()"/>'
+      + '<div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">' + escHtml(m.title||'') + '</div>'
+      + '<span style="font-size:0.68rem;color:#f87171;flex-shrink:0;">' + escHtml(x.from||'—') + '</span>'
+      + '<span style="color:#666;flex-shrink:0;">→</span>'
+      + '<span style="font-size:0.68rem;color:#4ade80;flex-shrink:0;font-weight:700;">' + escHtml(x.to) + '</span>'
+      + '</label>';
+  }).join('') + (_cmAutoFixItems.length > 400 ? '<div style="padding:8px;color:#666;font-size:0.75rem;">… +' + (_cmAutoFixItems.length-400) + ' more</div>' : '');
+}
+function cmAutoFixSelectAll(on) {
+  _cmAutoFixItems.forEach(function(x){ x.checked = !!on; });
+  cmAutoFixRender();
+}
+function cmAutoFixApply() {
+  var list = _cmAutoFixItems.filter(function(x){ return x.checked && x.to; });
+  if (!list.length) { toast('Kuch select nahi', 1); return; }
+  // summary by target
+  var byTo = {};
+  list.forEach(function(x){ byTo[x.to] = (byTo[x.to]||0)+1; });
+  var msg = list.length + ' posts auto-move?\n\n' + Object.keys(byTo).map(function(k){ return '→ ' + k + ': ' + byTo[k]; }).join('\n');
+  if (!confirm(msg)) return;
+  var done = 0, fail = 0;
+  function next(i) {
+    if (i >= list.length) {
+      toast('⚡ ' + done + ' fixed' + (fail ? ', ' + fail + ' fail' : ''));
+      try { if (typeof updateCounts === 'function') updateCounts(); } catch(e){}
+      try { if (typeof refreshMoviesUiFast === 'function') refreshMoviesUiFast(); } catch(e){}
+      cmAutoFixScan();
+      return;
+    }
+    var x = list[i];
+    db.ref('movies/' + x.m.key + '/category').set(x.to)
+      .then(function() {
+        x.m.category = x.to;
+        done++;
+        next(i + 1);
+      })
+      .catch(function() { fail++; next(i + 1); });
+  }
+  next(0);
+}
+
 // ── DASHBOARD LIVE STATS ──
 function dashRefreshLive() {
   var list = allMovies || [];
@@ -19586,6 +20045,543 @@ function trashPurgeOld() {
   }
   next(0);
 }
+
+
+// ═══════════════════════════════════════════════════
+// 🚀 PRO TOOLS — missing fields, bulk edit, source dups,
+//    import resume, scheduled scan, analytics
+// ═══════════════════════════════════════════════════
+var _mfItems = [];
+var _beItems = [];
+var _sudGroups = [];
+
+function mfNormUrl(u) {
+  var s = String(u || '').replace(/&amp;/g,'&').trim().toLowerCase();
+  s = s.split('#')[0].split('?')[0].replace(/\/$/,'');
+  s = s.replace(/^https?:\/\/(www\.)?/, '');
+  return s;
+}
+function mfHasLink(m) {
+  return !!(m.download480p || m.download720p || m.download1080p || m.download4k || m.dlSourceUrl || m.videoSourceUrl ||
+    (m.episodes && m.episodes.length && m.episodes.some(function(e){ return e && (e.dl480||e.dl720||e.dl1080||e.download720p||e.videoSourceUrl); })));
+}
+function mfHasPoster(m) {
+  return !!(m.thumbnail || m.poster || m.image || m.thumb || m.cover);
+}
+function mfScan() {
+  var type = (document.getElementById('mf-type') || {}).value || 'noposter';
+  var cat = (document.getElementById('mf-cat') || {}).value || 'all';
+  _mfItems = [];
+  (allMovies || []).forEach(function(m) {
+    if (!m || !m.key) return;
+    if (cat !== 'all' && String(m.category || '') !== cat) return;
+    var hit = false;
+    if (type === 'noposter') hit = !mfHasPoster(m);
+    else if (type === 'nolink') hit = !mfHasLink(m);
+    else if (type === 'noyear') hit = !String(m.year || '').replace(/\D/g,'').substring(0,4);
+    else if (type === 'nodesc') hit = String(m.description || m.overview || '').trim().length < 50;
+    else if (type === 'nocat') hit = !String(m.category || '').trim();
+    else if (type === 'nosource') hit = !mfNormUrl(m.sourcePageUrl || m.dlSourceUrl || '');
+    if (hit) _mfItems.push(m);
+  });
+  _mfItems.sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+  var el = document.getElementById('mf-list');
+  var sum = document.getElementById('mf-summary');
+  if (sum) sum.textContent = _mfItems.length + ' found';
+  if (!el) return;
+  if (!_mfItems.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:#555;">Kuch nahi mila</div>'; return; }
+  el.innerHTML = _mfItems.slice(0, 200).map(function(m) {
+    return '<div style="display:flex;gap:8px;align-items:center;padding:7px 8px;border-bottom:1px solid #1a1a1a;font-size:0.8rem;">'
+      + '<div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;">' + escHtml(m.title||'') + '</div>'
+      + '<span style="font-size:0.68rem;color:#888;">' + escHtml(m.category||'—') + '</span>'
+      + '<button class="btn btn-s" style="padding:3px 8px;font-size:0.7rem;" onclick="openEdit(\'' + m.key + '\')">Edit</button>'
+      + '</div>';
+  }).join('') + (_mfItems.length > 200 ? '<div style="padding:8px;color:#666;font-size:0.75rem;">… +' + (_mfItems.length-200) + '</div>' : '');
+  toast('📋 ' + _mfItems.length + ' missing-field items');
+}
+function mfExportCsv() {
+  if (!_mfItems.length) { toast('Pehle scan karo', 1); return; }
+  var rows = ['title,category,year,key,source'];
+  _mfItems.forEach(function(m) {
+    rows.push([JSON.stringify(m.title||''), m.category||'', m.year||'', m.key||'', JSON.stringify(m.sourcePageUrl||'')].join(','));
+  });
+  var blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cinenova-missing-fields.csv';
+  a.click();
+}
+
+function beScan() {
+  var from = (document.getElementById('be-from') || {}).value || 'all';
+  var q = ((document.getElementById('be-q') || {}).value || '').trim().toLowerCase();
+  _beItems = [];
+  (allMovies || []).forEach(function(m) {
+    if (!m || !m.key) return;
+    if (from !== 'all' && String(m.category||'') !== from) return;
+    if (q && String(m.title||'').toLowerCase().indexOf(q) < 0) return;
+    _beItems.push({ m: m, checked: false });
+  });
+  beRender();
+}
+function beRender() {
+  var el = document.getElementById('be-list');
+  var sum = document.getElementById('be-summary');
+  var n = _beItems.filter(function(x){ return x.checked; }).length;
+  if (sum) sum.textContent = _beItems.length + ' · ' + n + ' selected';
+  if (!el) return;
+  if (!_beItems.length) { el.innerHTML = '<div style="padding:14px;text-align:center;color:#555;">Empty</div>'; return; }
+  el.innerHTML = _beItems.slice(0, 250).map(function(x, i) {
+    return '<label style="display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid #1a1a1a;font-size:0.78rem;cursor:pointer;">'
+      + '<input type="checkbox" ' + (x.checked?'checked':'') + ' onchange="_beItems['+i+'].checked=this.checked;beRender()"/>'
+      + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(x.m.title||'') + '</span>'
+      + '<span style="color:#666;font-size:0.68rem;">' + escHtml(x.m.category||'') + '</span></label>';
+  }).join('');
+}
+function beSelectAll(on) { _beItems.forEach(function(x){ x.checked = !!on; }); beRender(); }
+function beApply() {
+  var field = (document.getElementById('be-field') || {}).value;
+  var val = ((document.getElementById('be-value') || {}).value || '').trim();
+  if (!field) return;
+  var list = _beItems.filter(function(x){ return x.checked; });
+  if (!list.length) { toast('Select movies', 1); return; }
+  var writeVal = val;
+  if (field === 'published' || field === 'trending' || field === 'featured') {
+    writeVal = /^(1|true|yes|on)$/i.test(val);
+  }
+  if (field === 'category' && typeof ffiNormalizePanelCategory === 'function') {
+    writeVal = ffiNormalizePanelCategory(val) || val;
+  }
+  if (!confirm(list.length + ' movies → ' + field + ' = ' + writeVal + '?')) return;
+  var done = 0, fail = 0;
+  function next(i) {
+    if (i >= list.length) {
+      toast('✏️ ' + done + ' updated' + (fail ? ', ' + fail + ' fail' : ''));
+      try { updateCounts(); } catch(e){}
+      beScan();
+      return;
+    }
+    var m = list[i].m;
+    var patch = {};
+    patch[field] = writeVal;
+    db.ref('movies/' + m.key).update(patch).then(function() {
+      m[field] = writeVal;
+      done++;
+      next(i + 1);
+    }).catch(function(){ fail++; next(i+1); });
+  }
+  next(0);
+}
+
+function sudScan() {
+  var map = {};
+  (allMovies || []).forEach(function(m) {
+    if (!m || !m.key) return;
+    var u = mfNormUrl(m.sourcePageUrl || m.dlSourceUrl || '');
+    if (!u || u.length < 12) return;
+    if (!map[u]) map[u] = [];
+    map[u].push(m);
+  });
+  _sudGroups = [];
+  Object.keys(map).forEach(function(u) {
+    if (map[u].length < 2) return;
+    map[u].sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+    _sudGroups.push({ url: u, items: map[u] });
+  });
+  _sudGroups.sort(function(a,b){ return b.items.length - a.items.length; });
+  var el = document.getElementById('sud-list');
+  var sum = document.getElementById('sud-summary');
+  var extra = 0;
+  _sudGroups.forEach(function(g){ extra += g.items.length - 1; });
+  if (sum) sum.textContent = _sudGroups.length + ' groups · ' + extra + ' extras';
+  if (!el) return;
+  if (!_sudGroups.length) { el.innerHTML = '<div style="padding:14px;text-align:center;color:#555;">✅ No source URL duplicates</div>'; return; }
+  el.innerHTML = _sudGroups.slice(0, 80).map(function(g) {
+    return '<div style="padding:8px;border-bottom:1px solid #1a1a1a;font-size:0.78rem;">'
+      + '<div style="color:#f87171;font-weight:700;">' + g.items.length + '× same URL</div>'
+      + '<div style="color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.7rem;">' + escHtml(g.url) + '</div>'
+      + g.items.map(function(m, i) {
+        return '<div style="padding-left:8px;color:' + (i===0?'#4ade80':'#aaa') + ';">' + (i===0?'KEEP ':'EXTRA ') + escHtml((m.title||'').substring(0,60)) + '</div>';
+      }).join('')
+      + '</div>';
+  }).join('');
+  toast('🔗 ' + _sudGroups.length + ' duplicate source groups');
+}
+function sudTrashExtras() {
+  if (!_sudGroups.length) { toast('Pehle scan', 1); return; }
+  var extras = [];
+  _sudGroups.forEach(function(g) {
+    g.items.slice(1).forEach(function(m){ extras.push(m); });
+  });
+  if (!extras.length) return;
+  if (!confirm(extras.length + ' extras → Trash? (newest KEEP)')) return;
+  var done = 0;
+  function next(i) {
+    if (i >= extras.length) {
+      toast('🗑 ' + done + ' → trash');
+      try { if (typeof removeLocalMovie === 'function') extras.forEach(function(m){ removeLocalMovie(m.key); }); } catch(e){}
+      sudScan();
+      return;
+    }
+    var m = extras[i];
+    var copy = Object.assign({}, m, { deletedAt: Date.now(), deletedReason: 'source-url-dup' });
+    db.ref('trash/' + m.key).set(copy).then(function() {
+      return db.ref('movies/' + m.key).remove();
+    }).then(function() {
+      done++;
+      allMovies = (allMovies || []).filter(function(x){ return x.key !== m.key; });
+      next(i + 1);
+    }).catch(function(){ next(i+1); });
+  }
+  next(0);
+}
+
+function irRefreshStatus() {
+  var el = document.getElementById('ir-status');
+  if (!el) return;
+  try {
+    var raw = localStorage.getItem('cinenova_import_resume');
+    if (!raw) { el.textContent = '✅ No saved import progress.'; return; }
+    var d = JSON.parse(raw);
+    var age = Math.round((Date.now() - (d.at || 0)) / 60000);
+    el.innerHTML = '⏯ Saved progress: <b>' + (d.done||0) + '/' + (d.total||0) + '</b> done · remaining <b>' + ((d.posts||[]).length) + '</b> · ' + age + ' min ago'
+      + (d.hdauto ? ' · HDFun bulk' : '');
+  } catch (e) {
+    el.textContent = 'Corrupt resume data — Clear karo.';
+  }
+}
+function irClear() {
+  localStorage.removeItem('cinenova_import_resume');
+  irRefreshStatus();
+  toast('Progress cleared');
+}
+function irResume() {
+  try {
+    var raw = localStorage.getItem('cinenova_import_resume');
+    if (!raw) { toast('Koi saved progress nahi', 1); return; }
+    var d = JSON.parse(raw);
+    if (!d.posts || !d.posts.length) { toast('Remaining empty', 1); irClear(); return; }
+    if (typeof _ffiImporting !== 'undefined' && _ffiImporting) { toast('Import already running', 1); return; }
+    if (!confirm('Resume ' + d.posts.length + ' remaining posts?')) return;
+    _ffiPosts = d.posts.map(function(p) {
+      return { url: p.url, title: p.title, listCat: p.listCat || '', checked: true, fromUrl: p.url };
+    });
+    if (d.hdauto) _hdautoMode = true;
+    show('srcfix');
+    setTimeout(function() {
+      if (typeof ffiStartImport === 'function') ffiStartImport();
+    }, 400);
+  } catch (e) {
+    toast('Resume fail: ' + e.message, 1);
+  }
+}
+
+function hdSchedSave() {
+  var on = !!(document.getElementById('hd-sched-on') || {}).checked;
+  var hrs = parseInt((document.getElementById('hd-sched-hours') || {}).value, 10) || 6;
+  localStorage.setItem('cinenova_hd_sched', JSON.stringify({ on: on, hours: hrs, lastRun: 0 }));
+  toast('Schedule saved');
+  hdSchedUi();
+  hdSchedArm();
+}
+function hdSchedUi() {
+  try {
+    var d = JSON.parse(localStorage.getItem('cinenova_hd_sched') || '{}');
+    var on = document.getElementById('hd-sched-on');
+    var hrs = document.getElementById('hd-sched-hours');
+    var nx = document.getElementById('hd-sched-next');
+    if (on) on.checked = !!d.on;
+    if (hrs && d.hours) hrs.value = d.hours;
+    if (nx) {
+      if (!d.on) nx.textContent = 'Off';
+      else {
+        var next = (d.lastRun || 0) + (d.hours || 6) * 3600000;
+        var mins = Math.max(0, Math.round((next - Date.now()) / 60000));
+        nx.textContent = 'Next in ~' + mins + ' min (panel open)';
+      }
+    }
+  } catch (e) {}
+}
+var _hdSchedTimer = null;
+function hdSchedArm() {
+  if (_hdSchedTimer) clearInterval(_hdSchedTimer);
+  _hdSchedTimer = setInterval(function() {
+    try {
+      var d = JSON.parse(localStorage.getItem('cinenova_hd_sched') || '{}');
+      if (!d.on) return;
+      var gap = (d.hours || 6) * 3600000;
+      if (Date.now() - (d.lastRun || 0) < gap) return;
+      if (typeof _ffiImporting !== 'undefined' && _ffiImporting) return;
+      if (typeof _hdautoRunning !== 'undefined' && _hdautoRunning) return;
+      d.lastRun = Date.now();
+      localStorage.setItem('cinenova_hd_sched', JSON.stringify(d));
+      hdSchedRunNow(true);
+    } catch (e) {}
+  }, 60000);
+}
+function hdSchedRunNow(silent) {
+  try {
+    // New-only: skip known ON, all categories
+    var sk = document.getElementById('hdauto-skip-known');
+    if (sk) sk.checked = true;
+    document.querySelectorAll('.hdauto-cat-cb').forEach(function(cb){ cb.checked = true; });
+    var mp = document.getElementById('hdauto-max-pages');
+    if (mp) mp.value = '3'; // light new-only scan first pages
+    if (!silent && !confirm('HDFun new-only scan (all cats, skip known, max 3 pages each)?')) return;
+    try {
+      var d = JSON.parse(localStorage.getItem('cinenova_hd_sched') || '{}');
+      d.lastRun = Date.now();
+      localStorage.setItem('cinenova_hd_sched', JSON.stringify(d));
+    } catch (e2) {}
+    show('srcfix');
+    setTimeout(function() {
+      if (typeof hdautoFullCategoryImport === 'function') hdautoFullCategoryImport();
+    }, 500);
+  } catch (e) {
+    toast('Schedule run fail: ' + e.message, 1);
+  }
+}
+
+function anRefresh() {
+  var list = allMovies || [];
+  var zero = 0, draft = 0;
+  var top = null, topN = -1;
+  var urlMap = {};
+  list.forEach(function(m) {
+    if (!m) return;
+    var dc = Number(m.downloadCount || m.downloads || 0);
+    if (dc <= 0) zero++;
+    if (m.isDraft || m.published === false || m.status === 'draft') draft++;
+    if (dc > topN) { topN = dc; top = m; }
+    var u = mfNormUrl(m.sourcePageUrl || m.dlSourceUrl || '');
+    if (u) urlMap[u] = (urlMap[u] || 0) + 1;
+  });
+  var dupG = 0;
+  Object.keys(urlMap).forEach(function(u){ if (urlMap[u] > 1) dupG++; });
+  var el = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+  el('an-topdl', top ? String(top.title || '').substring(0, 28) : '—');
+  el('an-zerodl', zero);
+  el('an-draft', draft);
+  el('an-srcdup', dupG);
+  var ranked = list.slice().filter(function(m){ return Number(m.downloadCount||m.downloads||0) > 0; })
+    .sort(function(a,b){ return Number(b.downloadCount||b.downloads||0) - Number(a.downloadCount||a.downloads||0); })
+    .slice(0, 8);
+  var box = document.getElementById('an-top-list');
+  if (box) {
+    box.innerHTML = ranked.length
+      ? '<b style="color:#e5e5e5;">Top downloads</b><br>' + ranked.map(function(m,i){
+          return (i+1) + '. ' + escHtml((m.title||'').substring(0,40)) + ' — <span style="color:#4ade80;">' + (m.downloadCount||m.downloads||0) + '</span>';
+        }).join('<br>')
+      : '<span style="color:#555;">Download counts abhi available nahi / zero</span>';
+  }
+}
+
+// Arm schedule on load
+try {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function(){ try { hdSchedArm(); hdSchedUi(); irRefreshStatus(); } catch(e){} }, 4000);
+  });
+} catch(e){}
+
+
+
+// ═══════════════════════════════════════════════════
+// 💎 SUBSCRIPTION — plans, requests, activate/revoke
+// Firebase: settings/subscription , users/{uid}/subscription , subRequests/{id}
+// ═══════════════════════════════════════════════════
+function subDefaultSettings() {
+  return {
+    enabled: false,
+    requireForDownload: true,
+    requireForWatch: true,
+    paymentNote: '',
+    supportLink: '',
+    plans: {
+      weekly:  { price: 99,   days: 7,   label: '1 Week' },
+      monthly: { price: 249,  days: 30,  label: '1 Month' },
+      yearly:  { price: 1499, days: 365, label: '1 Year' }
+    },
+    updatedAt: Date.now()
+  };
+}
+function subLoadSettings() {
+  if (!db) return;
+  db.ref('settings/subscription').once('value').then(function(snap) {
+    var s = snap.val() || subDefaultSettings();
+    var en = document.getElementById('sub-enabled');
+    var rd = document.getElementById('sub-req-dl');
+    var rw = document.getElementById('sub-req-watch');
+    if (en) en.checked = !!s.enabled;
+    if (rd) rd.checked = s.requireForDownload !== false;
+    if (rw) rw.checked = s.requireForWatch !== false;
+    var pn = document.getElementById('sub-pay-note'); if (pn) pn.value = s.paymentNote || '';
+    var su = document.getElementById('sub-support'); if (su) su.value = s.supportLink || '';
+    var p = s.plans || {};
+    var set = function(id, v) { var e = document.getElementById(id); if (e) e.value = v; };
+    set('sub-p-week-price', (p.weekly && p.weekly.price) || 99);
+    set('sub-p-week-days', (p.weekly && p.weekly.days) || 7);
+    set('sub-p-week-label', (p.weekly && p.weekly.label) || '1 Week');
+    set('sub-p-month-price', (p.monthly && p.monthly.price) || 249);
+    set('sub-p-month-days', (p.monthly && p.monthly.days) || 30);
+    set('sub-p-month-label', (p.monthly && p.monthly.label) || '1 Month');
+    set('sub-p-year-price', (p.yearly && p.yearly.price) || 1499);
+    set('sub-p-year-days', (p.yearly && p.yearly.days) || 365);
+    set('sub-p-year-label', (p.yearly && p.yearly.label) || '1 Year');
+    var st = document.getElementById('sub-settings-status');
+    if (st) st.textContent = s.enabled ? '🟢 System ON' : '⚪ System OFF';
+  }).catch(function(e){ toast('Load fail: ' + e.message, 1); });
+}
+function subSaveSettings() {
+  if (!db) { toast('Firebase nahi', 1); return; }
+  var s = {
+    enabled: !!(document.getElementById('sub-enabled') || {}).checked,
+    requireForDownload: !!(document.getElementById('sub-req-dl') || {}).checked,
+    requireForWatch: !!(document.getElementById('sub-req-watch') || {}).checked,
+    paymentNote: ((document.getElementById('sub-pay-note') || {}).value || '').trim(),
+    supportLink: ((document.getElementById('sub-support') || {}).value || '').trim(),
+    plans: {
+      weekly: {
+        price: parseInt((document.getElementById('sub-p-week-price')||{}).value,10)||99,
+        days: parseInt((document.getElementById('sub-p-week-days')||{}).value,10)||7,
+        label: ((document.getElementById('sub-p-week-label')||{}).value||'1 Week').trim()
+      },
+      monthly: {
+        price: parseInt((document.getElementById('sub-p-month-price')||{}).value,10)||249,
+        days: parseInt((document.getElementById('sub-p-month-days')||{}).value,10)||30,
+        label: ((document.getElementById('sub-p-month-label')||{}).value||'1 Month').trim()
+      },
+      yearly: {
+        price: parseInt((document.getElementById('sub-p-year-price')||{}).value,10)||1499,
+        days: parseInt((document.getElementById('sub-p-year-days')||{}).value,10)||365,
+        label: ((document.getElementById('sub-p-year-label')||{}).value||'1 Year').trim()
+      }
+    },
+    updatedAt: Date.now()
+  };
+  db.ref('settings/subscription').set(s).then(function() {
+    toast('💎 Subscription settings saved');
+    var st = document.getElementById('sub-settings-status');
+    if (st) st.textContent = s.enabled ? '🟢 System ON' : '⚪ System OFF';
+  }).catch(function(e){ toast('Save fail: ' + e.message, 1); });
+}
+function subActivateUid(uid, planKey, email, requestId) {
+  if (!db || !uid) return Promise.reject(new Error('uid missing'));
+  return db.ref('settings/subscription/plans/' + planKey).once('value').then(function(ps) {
+    var plan = ps.val();
+    if (!plan) {
+      // fallback from form
+      var daysMap = { weekly: 7, monthly: 30, yearly: 365 };
+      plan = { days: daysMap[planKey] || 30, label: planKey, price: 0 };
+    }
+    var days = parseInt(plan.days, 10) || 30;
+    var now = Date.now();
+    var sub = {
+      status: 'active',
+      plan: planKey,
+      planLabel: plan.label || planKey,
+      price: plan.price || 0,
+      startedAt: now,
+      expiresAt: now + days * 86400000,
+      email: email || '',
+      activatedBy: 'admin',
+      activatedAt: now
+    };
+    var updates = {};
+    updates['users/' + uid + '/subscription'] = sub;
+    if (requestId) {
+      updates['subRequests/' + requestId + '/status'] = 'approved';
+      updates['subRequests/' + requestId + '/approvedAt'] = now;
+    }
+    return db.ref().update(updates).then(function(){ return sub; });
+  });
+}
+function subActivateManual() {
+  var uid = ((document.getElementById('sub-uid')||{}).value||'').trim();
+  var email = ((document.getElementById('sub-email')||{}).value||'').trim();
+  var plan = ((document.getElementById('sub-plan')||{}).value)||'monthly';
+  if (!uid) { toast('UID likho', 1); return; }
+  if (!confirm('Activate ' + plan + ' for ' + uid + '?')) return;
+  subActivateUid(uid, plan, email, null).then(function(sub) {
+    toast('✅ Active till ' + new Date(sub.expiresAt).toLocaleDateString());
+    subLookupUser();
+  }).catch(function(e){ toast('Fail: ' + e.message, 1); });
+}
+function subRevokeManual() {
+  var uid = ((document.getElementById('sub-uid')||{}).value||'').trim();
+  if (!uid) { toast('UID likho', 1); return; }
+  if (!confirm('Revoke subscription for ' + uid + '?')) return;
+  db.ref('users/' + uid + '/subscription').update({
+    status: 'revoked',
+    revokedAt: Date.now()
+  }).then(function(){ toast('🚫 Revoked'); subLookupUser(); })
+    .catch(function(e){ toast(e.message, 1); });
+}
+function subLookupUser() {
+  var uid = ((document.getElementById('sub-uid')||{}).value||'').trim();
+  var box = document.getElementById('sub-user-info');
+  if (!uid || !box) return;
+  db.ref('users/' + uid).once('value').then(function(snap) {
+    var u = snap.val();
+    if (!u) { box.innerHTML = '❌ User node nahi mila (pehli baar login ke baad banta hai)'; return; }
+    var s = u.subscription || {};
+    var exp = s.expiresAt ? new Date(s.expiresAt).toLocaleString() : '—';
+    var active = s.status === 'active' && s.expiresAt > Date.now();
+    box.innerHTML = '<div style="padding:10px;background:#111;border-radius:8px;border:1px solid #222;">'
+      + '<div>Email: <b>' + escHtml(u.email || s.email || '—') + '</b></div>'
+      + '<div>Status: <b style="color:' + (active?'#4ade80':'#f87171') + '">' + (active?'ACTIVE':'INACTIVE') + '</b> (' + escHtml(s.status||'none') + ')</div>'
+      + '<div>Plan: ' + escHtml(s.planLabel || s.plan || '—') + '</div>'
+      + '<div>Expires: ' + exp + '</div></div>';
+  });
+}
+function subLoadRequests() {
+  if (!db) return;
+  var filter = ((document.getElementById('sub-req-filter')||{}).value)||'pending';
+  db.ref('subRequests').limitToLast(100).once('value').then(function(snap) {
+    var rows = [];
+    snap.forEach(function(ch) {
+      var r = ch.val() || {};
+      r._key = ch.key;
+      if (filter !== 'all' && (r.status || 'pending') !== filter) return;
+      rows.push(r);
+    });
+    rows.reverse();
+    var el = document.getElementById('sub-req-list');
+    var sum = document.getElementById('sub-req-summary');
+    if (sum) sum.textContent = rows.length + ' requests';
+    if (!el) return;
+    if (!rows.length) { el.innerHTML = '<div style="padding:16px;text-align:center;color:#555;">Koi request nahi</div>'; return; }
+    el.innerHTML = rows.map(function(r) {
+      var st = r.status || 'pending';
+      var col = st === 'approved' ? '#4ade80' : (st === 'rejected' ? '#f87171' : '#fbbf24');
+      return '<div style="padding:10px;border-bottom:1px solid #1a1a1a;font-size:0.8rem;">'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+        + '<div><b>' + escHtml(r.email || r.uid || '') + '</b><br><span style="color:#888;font-size:0.72rem;">' + escHtml(r.uid||'') + '</span></div>'
+        + '<span style="color:' + col + ';font-weight:700;">' + st.toUpperCase() + '</span></div>'
+        + '<div style="margin-top:4px;color:#a3a3a3;">Plan: <b>' + escHtml(r.plan||'') + '</b> · ' + escHtml(r.note||'') + '</div>'
+        + (r.createdAt ? '<div style="font-size:0.7rem;color:#555;">' + new Date(r.createdAt).toLocaleString() + '</div>' : '')
+        + (st === 'pending' ? '<div style="margin-top:8px;display:flex;gap:6px;">'
+          + '<button class="btn" style="background:#16a34a;color:#fff;padding:4px 10px;font-size:0.75rem;" onclick="subApproveReq(\'' + r._key + '\',\'' + escJs(r.uid||'') + '\',\'' + escJs(r.plan||'monthly') + '\',\'' + escJs(r.email||'') + '\')">✅ Approve</button>'
+          + '<button class="btn btn-s" style="padding:4px 10px;font-size:0.75rem;" onclick="subRejectReq(\'' + r._key + '\')">❌ Reject</button></div>' : '')
+        + '</div>';
+    }).join('');
+  });
+}
+function subApproveReq(reqId, uid, plan, email) {
+  if (!uid) { toast('UID missing', 1); return; }
+  if (!confirm('Approve ' + plan + ' for this user?')) return;
+  subActivateUid(uid, plan || 'monthly', email, reqId).then(function() {
+    toast('✅ Approved & activated');
+    subLoadRequests();
+  }).catch(function(e){ toast(e.message, 1); });
+}
+function subRejectReq(reqId) {
+  db.ref('subRequests/' + reqId).update({ status: 'rejected', rejectedAt: Date.now() })
+    .then(function(){ toast('Rejected'); subLoadRequests(); });
+}
+function escJs(s) {
+  return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+
 
 // Init trash count on load
 try {
