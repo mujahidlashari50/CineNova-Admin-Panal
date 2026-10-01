@@ -1069,6 +1069,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-tmdbseo" onclick="show('tmdbseo')" style="color:#34d399;">🎬 TMDB SEO Descriptions</div>
     <div class="nav-section-title">Features</div>
     <div class="nav-item" id="nav-trending" onclick="show('trending')">🔥 Trending Manager</div>
+    <div class="nav-item" id="nav-comingsoon" onclick="show('comingsoon');csInit();" style="color:#38bdf8;">🎬 Coming Soon <span class="nav-count" id="cs-nav-count" style="background:#38bdf8;">0</span></div>
     <div class="nav-item" id="nav-motd" onclick="show('motd')" style="color:#facc15;">🎬 Movie of the Day</div>
     <div class="nav-item" id="nav-requests" onclick="show('requests')">📬 Movie Requests <span class="nav-count" id="req-count">0</span></div>
     <div class="nav-item" id="nav-ratings" onclick="show('ratings')">⭐ Ratings</div>
@@ -1642,6 +1643,35 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
 
       <input class="si" id="motd-srch" placeholder="🔍 Search by name (optional)..." oninput="motdFilter()" style="width:100%;margin-bottom:10px;"/>
       <div id="motd-list"></div>
+    </div>
+
+
+    <!-- COMING SOON (TMDB upcoming → site Home trailer row) -->
+    <div class="section" id="sec-comingsoon">
+      <div class="sec-title">🎬 Coming <span>Soon</span></div>
+      <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#7dd3fc;line-height:1.55;">
+        💡 <strong>TMDB se aane wali / new movies</strong> (library nahi). Card pe click = website Home pe show. User poster pe click → <strong>sirf trailer</strong> (TMDB YouTube).
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;">
+        <input class="si" id="cs-srch" placeholder="🔍 Search upcoming..." oninput="csRender()" style="flex:1;min-width:140px;"/>
+        <select class="si" id="cs-region" onchange="csLoadTmdb()" style="min-width:120px;">
+          <option value="ALL">All regions</option>
+          <option value="US">Hollywood (US)</option>
+          <option value="IN">India</option>
+          <option value="HI">Hindi</option>
+          <option value="TE">Telugu</option>
+          <option value="TA">Tamil</option>
+        </select>
+        <button class="btn btn-s" type="button" onclick="csLoadTmdb()">↻ Sync TMDB</button>
+        <span id="cs-status" style="font-size:0.78rem;color:#86efac;"></span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="cf-btn active" id="cs-tab-all" type="button" onclick="csSetTab('all')">🆕 TMDB Upcoming</button>
+        <button class="cf-btn" id="cs-tab-live" type="button" onclick="csSetTab('live')">✅ On Site (<span id="cs-live-n">0</span>)</button>
+        <button class="btn btn-s" type="button" onclick="csCacheAllTrailers()" style="margin-left:auto;">⚡ Cache trailers (fast play)</button>
+      </div>
+      <div id="cs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
+      <div id="cs-live" style="display:none;"></div>
     </div>
 
     <!-- MOVIE REQUESTS -->
@@ -20592,5 +20622,319 @@ try {
 
 
 </script>
+
+<script>
+/* ══ Coming Soon Manager — TMDB Upcoming ══ */
+var _csMovies = [];
+var _csLive = {};
+var _csTab = 'all';
+var _csBusy = {};
+var CS_TMDB = (typeof TMDB_API !== 'undefined' && TMDB_API) ? TMDB_API : 'b28ca4fbe7f15cd17c1df4869ac2d236';
+var CS_IMG = 'https://image.tmdb.org/t/p/w342';
+
+function csSt(msg, ok) {
+  var el = document.getElementById('cs-status');
+  if (!el) return;
+  el.style.color = ok === false ? '#f87171' : '#86efac';
+  el.textContent = msg || '';
+}
+function csIsOn(k) {
+  return !!(_csLive[k] && _csLive[k].enabled !== false && _csLive[k].hidden !== true);
+}
+function csKey(tmdbId) { return 'tmdb_' + tmdbId; }
+
+function csInit() {
+  if (!window.db) { csSt('DB not ready', false); return; }
+  csLoadLive(function() { csLoadTmdb(); });
+}
+
+function csLoadLive(cb) {
+  db.ref('comingSoon').once('value').then(function(snap) {
+    _csLive = {};
+    if (snap && snap.exists()) {
+      snap.forEach(function(ch) {
+        var v = ch.val() || {};
+        v._key = ch.key;
+        _csLive[ch.key] = v;
+      });
+    }
+    var n = Object.keys(_csLive).filter(csIsOn).length;
+    var nav = document.getElementById('cs-nav-count');
+    if (nav) nav.textContent = n;
+    var ln = document.getElementById('cs-live-n');
+    if (ln) ln.textContent = n;
+    if (cb) cb();
+  }).catch(function(e) {
+    csSt('Live load fail: ' + e.message, false);
+    if (cb) cb();
+  });
+}
+
+function csLoad() { csLoadTmdb(); }
+
+function csLoadTmdb() {
+  csSt('TMDB upcoming load...');
+  var region = ((document.getElementById('cs-region') || {}).value || 'ALL');
+  var today = new Date().toISOString().slice(0, 10);
+  var future = new Date(Date.now() + 120 * 86400000).toISOString().slice(0, 10);
+  var urls = [];
+  if (region === 'US' || region === 'ALL') {
+    urls.push('https://api.themoviedb.org/3/movie/upcoming?api_key=' + CS_TMDB + '&language=en-US&region=US&page=1');
+    urls.push('https://api.themoviedb.org/3/movie/upcoming?api_key=' + CS_TMDB + '&language=en-US&region=US&page=2');
+  }
+  if (region === 'IN' || region === 'ALL') {
+    urls.push('https://api.themoviedb.org/3/movie/upcoming?api_key=' + CS_TMDB + '&language=en-US&region=IN&page=1');
+    urls.push('https://api.themoviedb.org/3/movie/upcoming?api_key=' + CS_TMDB + '&language=hi-IN&region=IN&page=1');
+  }
+  if (region === 'HI' || region === 'ALL') {
+    urls.push('https://api.themoviedb.org/3/discover/movie?api_key=' + CS_TMDB + '&with_original_language=hi&sort_by=primary_release_date.asc&primary_release_date.gte=' + today + '&primary_release_date.lte=' + future + '&page=1');
+  }
+  if (region === 'TE' || region === 'ALL') {
+    urls.push('https://api.themoviedb.org/3/discover/movie?api_key=' + CS_TMDB + '&with_original_language=te&sort_by=primary_release_date.asc&primary_release_date.gte=' + today + '&primary_release_date.lte=' + future + '&page=1');
+  }
+  if (region === 'TA' || region === 'ALL') {
+    urls.push('https://api.themoviedb.org/3/discover/movie?api_key=' + CS_TMDB + '&with_original_language=ta&sort_by=primary_release_date.asc&primary_release_date.gte=' + today + '&primary_release_date.lte=' + future + '&page=1');
+  }
+  if (!urls.length) {
+    urls.push('https://api.themoviedb.org/3/movie/upcoming?api_key=' + CS_TMDB + '&language=en-US&page=1');
+  }
+
+  Promise.all(urls.map(function(u) {
+    return fetch(u).then(function(r) { return r.json(); }).catch(function() { return { results: [] }; });
+  })).then(function(arr) {
+    var seen = {};
+    var list = [];
+    arr.forEach(function(data) {
+      (data.results || []).forEach(function(m) {
+        if (!m || !m.id || seen[m.id]) return;
+        if (!m.poster_path) return;
+        seen[m.id] = 1;
+        list.push({
+          tmdbId: m.id,
+          _key: csKey(m.id),
+          title: m.title || m.original_title || 'Untitled',
+          thumbnail: CS_IMG + m.poster_path,
+          poster: CS_IMG + m.poster_path,
+          releaseDate: m.release_date || '',
+          year: (m.release_date || '').substring(0, 4),
+          overview: m.overview || '',
+          category: (m.original_language || '').toUpperCase() || 'Upcoming',
+          lang: m.original_language || ''
+        });
+      });
+    });
+    list.sort(function(a, b) {
+      return String(a.releaseDate || '9999').localeCompare(String(b.releaseDate || '9999'));
+    });
+    _csMovies = list;
+    csSt(list.length + ' upcoming from TMDB · tap = site ON/OFF', true);
+    csRender();
+  }).catch(function(e) {
+    csSt('TMDB error: ' + (e && e.message ? e.message : e), false);
+  });
+}
+
+function csSetTab(t) {
+  _csTab = t;
+  var a = document.getElementById('cs-tab-all');
+  var b = document.getElementById('cs-tab-live');
+  if (a) a.classList.toggle('active', t === 'all');
+  if (b) b.classList.toggle('active', t === 'live');
+  var g = document.getElementById('cs-grid');
+  var l = document.getElementById('cs-live');
+  if (g) g.style.display = t === 'all' ? 'grid' : 'none';
+  if (l) l.style.display = t === 'live' ? 'block' : 'none';
+  csRender();
+}
+
+function csFiltered() {
+  var q = ((document.getElementById('cs-srch') || {}).value || '').toLowerCase().trim();
+  return _csMovies.filter(function(m) {
+    if (q && String(m.title || '').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+}
+
+function csRender() {
+  if (_csTab === 'live') { csRenderLive(); return; }
+  var grid = document.getElementById('cs-grid');
+  if (!grid) return;
+  var list = csFiltered();
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#666;padding:30px;">No upcoming movies — Sync TMDB try karo</div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(m) {
+    var on = csIsOn(m._key);
+    html += '<div class="cs-card" data-k="' + m._key + '" style="background:#14141a;border:2px solid ' + (on ? '#46d369' : '#2a2a2a') + ';border-radius:12px;overflow:hidden;cursor:pointer;position:relative;">' +
+      (on ? '<span style="position:absolute;top:6px;left:6px;background:#46d369;color:#0a0a0a;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:5px;z-index:2;">ON</span>' : '') +
+      '<span style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:' + (on ? '#46d369' : 'rgba(0,0,0,0.6)') + ';border:2px solid ' + (on ? '#46d369' : '#555') + ';display:flex;align-items:center;justify-content:center;font-size:0.65rem;z-index:2;color:#0a0a0a;">' + (on ? '✓' : '') + '</span>' +
+      '<img src="' + m.thumbnail + '" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:#111;"/>' +
+      '<div style="padding:7px 8px 9px;"><div class="cs-t" style="font-size:0.72rem;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em;"></div>' +
+      '<div class="cs-c" style="font-size:0.6rem;color:#38bdf8;margin-top:3px;"></div></div></div>';
+  });
+  grid.innerHTML = html;
+  list.forEach(function(m, i) {
+    var card = grid.children[i];
+    if (!card) return;
+    card.querySelector('.cs-t').textContent = m.title || '';
+    card.querySelector('.cs-c').textContent = (m.releaseDate || 'TBA') + (m.lang ? ' · ' + m.lang.toUpperCase() : '');
+    card.onclick = function() { csToggle(m); };
+  });
+}
+
+function csToggle(m) {
+  if (!m || !m._key || _csBusy[m._key]) return;
+  _csBusy[m._key] = true;
+  if (csIsOn(m._key)) {
+    db.ref('comingSoon/' + m._key).remove().then(function() {
+      delete _csLive[m._key];
+      _csBusy[m._key] = false;
+      csSt('OFF: ' + m.title, true);
+      csUpdateCounts();
+      csRender();
+    }).catch(function(e) {
+      _csBusy[m._key] = false;
+      csSt('Fail: ' + e.message, false);
+    });
+  } else {
+    var data = {
+      title: m.title || '',
+      thumbnail: m.thumbnail || '',
+      poster: m.poster || m.thumbnail || '',
+      category: m.category || 'Upcoming',
+      year: m.year || '',
+      releaseDate: m.releaseDate || '',
+      tmdbId: m.tmdbId || '',
+      mediaType: 'movie',
+      trailerUrl: '',
+      trailerKey: '',
+      overview: m.overview || '',
+      enabled: true,
+      order: Object.keys(_csLive).length,
+      addedAt: Date.now()
+    };
+    // Save first, then cache trailer key (fast play on site)
+    db.ref('comingSoon/' + m._key).set(data).then(function() {
+      _csLive[m._key] = data;
+      _csLive[m._key]._key = m._key;
+      _csBusy[m._key] = false;
+      csSt('ON site: ' + m.title + ' — trailer cache...', true);
+      csUpdateCounts();
+      csRender();
+      var tid = m.tmdbId;
+      if (!tid) return;
+      fetch('https://api.themoviedb.org/3/movie/' + tid + '/videos?api_key=' + CS_TMDB + '&language=en-US')
+        .then(function(r) { return r.json(); })
+        .then(function(vid) {
+          var list = (vid && vid.results) || [];
+          var tr = list.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; })
+            || list.find(function(v) { return v.site === 'YouTube'; });
+          if (!tr || !tr.key) {
+            csSt('ON: ' + m.title + ' (trailer later)', true);
+            return;
+          }
+          var patch = {
+            trailerKey: tr.key,
+            trailerUrl: 'https://www.youtube.com/embed/' + tr.key + '?autoplay=1&rel=0'
+          };
+          return db.ref('comingSoon/' + m._key).update(patch).then(function() {
+            if (_csLive[m._key]) {
+              _csLive[m._key].trailerKey = patch.trailerKey;
+              _csLive[m._key].trailerUrl = patch.trailerUrl;
+            }
+            csSt('ON: ' + m.title + ' ✓ trailer ready', true);
+          });
+        })
+        .catch(function() { csSt('ON: ' + m.title, true); });
+    }).catch(function(e) {
+      _csBusy[m._key] = false;
+      csSt('Save fail: ' + e.message, false);
+    });
+  }
+}
+
+function csUpdateCounts() {
+  var n = Object.keys(_csLive).filter(csIsOn).length;
+  var nav = document.getElementById('cs-nav-count');
+  if (nav) nav.textContent = n;
+  var ln = document.getElementById('cs-live-n');
+  if (ln) ln.textContent = n;
+}
+
+function csRenderLive() {
+  var box = document.getElementById('cs-live');
+  if (!box) return;
+  var keys = Object.keys(_csLive).filter(csIsOn);
+  keys.sort(function(a, b) {
+    return String(_csLive[a].releaseDate || '').localeCompare(String(_csLive[b].releaseDate || ''));
+  });
+  if (!keys.length) {
+    box.innerHTML = '<div style="text-align:center;color:#666;padding:30px;">Koi movie ON nahi — TMDB Upcoming se card tap karo.</div>';
+    return;
+  }
+  box.innerHTML = keys.map(function(k) {
+    var m = _csLive[k];
+    return '<div style="display:flex;gap:10px;align-items:center;padding:10px;border:1px solid #222;border-radius:12px;margin-bottom:8px;background:#14141a;">' +
+      (m.thumbnail ? '<img src="' + String(m.thumbnail).replace(/"/g, '') + '" style="width:48px;height:72px;object-fit:cover;border-radius:6px;"/>' : '') +
+      '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.85rem;" class="cs-lt"></div>' +
+      '<div style="font-size:0.7rem;color:#38bdf8;">' + (m.releaseDate || '') + ' · TMDB ' + (m.tmdbId || '') + '</div></div>' +
+      '<button type="button" class="btn btn-s cs-off" style="background:#333;">OFF</button></div>';
+  }).join('');
+  keys.forEach(function(k, i) {
+    var row = box.children[i];
+    if (!row) return;
+    row.querySelector('.cs-lt').textContent = _csLive[k].title || k;
+    row.querySelector('.cs-off').onclick = function() {
+      csToggle({
+        _key: k,
+        title: _csLive[k].title,
+        tmdbId: _csLive[k].tmdbId,
+        thumbnail: _csLive[k].thumbnail,
+        releaseDate: _csLive[k].releaseDate
+      });
+    };
+  });
+}
+
+function csCacheAllTrailers() {
+  var keys = Object.keys(_csLive).filter(csIsOn);
+  if (!keys.length) { csSt('Pehle movies ON karo', false); return; }
+  csSt('Caching trailers 0/' + keys.length + '...');
+  var i = 0, ok = 0;
+  function next() {
+    if (i >= keys.length) {
+      csSt('Trailers ready: ' + ok + '/' + keys.length + ' — site pe instant play', true);
+      return;
+    }
+    var k = keys[i++];
+    var m = _csLive[k];
+    if (m.trailerKey || m.trailerUrl) { ok++; csSt('Caching ' + i + '/' + keys.length); next(); return; }
+    var tid = m.tmdbId || (String(k).indexOf('tmdb_') === 0 ? k.replace('tmdb_', '') : '');
+    if (!tid) { next(); return; }
+    fetch('https://api.themoviedb.org/3/movie/' + tid + '/videos?api_key=' + CS_TMDB + '&language=en-US')
+      .then(function(r) { return r.json(); })
+      .then(function(vid) {
+        var list = (vid && vid.results) || [];
+        var tr = list.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; })
+          || list.find(function(v) { return v.site === 'YouTube'; });
+        if (!tr || !tr.key) { next(); return; }
+        var patch = { trailerKey: tr.key, trailerUrl: 'https://www.youtube.com/embed/' + tr.key + '?autoplay=1&rel=0' };
+        return db.ref('comingSoon/' + k).update(patch).then(function() {
+          _csLive[k].trailerKey = patch.trailerKey;
+          _csLive[k].trailerUrl = patch.trailerUrl;
+          ok++;
+          csSt('Caching ' + i + '/' + keys.length);
+          next();
+        });
+      })
+      .catch(function() { next(); });
+  }
+  next();
+}
+
+</script>
+
 </body>
 </html>
