@@ -1776,8 +1776,8 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
     <div class="section" id="sec-duplicates">
       <div class="sec-title">🔁 Duplicate <span>Detector</span></div>
       <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#fcd34d;line-height:1.55;">
-        💡 Strong detect: <b>same source URL</b> · <b>TMDB id</b> · <b>normalized title</b> · <b>fuzzy name</b> (The Boys vs The Boys Season 1 Full Download).
-        Har group mein <b>1 best KEEP</b>, baaki Trash/delete. Season 1 vs Season 2 alag groups rehte hain.
+        💡 Sirf <b>asli doubles</b>: same HDFun URL, ya <b>same title + same year</b> (Season/Episode match).
+        Alag movies (My Girl ≠ My Giraffe ≠ Wedding 1997≠2016) group nahi hongi. S1≠S2, Ep1≠Ep5. Har group: 1 KEEP.
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;">
         <button class="btn btn-p" onclick="findDuplicates()">🔍 Duplicates Dhundho</button>
@@ -1787,7 +1787,7 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
           <option value="url">Source URL only</option>
         </select>
         <label style="font-size:0.78rem;color:var(--grey);display:flex;align-items:center;gap:6px;">
-          Fuzzy % <input class="fi" id="dup-fuzzy" type="number" value="78" min="60" max="95" style="width:64px;padding:6px 8px;"/>
+          Fuzzy % <input class="fi" id="dup-fuzzy" type="number" value="90" min="85" max="99" style="width:64px;padding:6px 8px;"/>
         </label>
         <button class="btn" style="background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;display:none;" id="dup-bulk-btn" onclick="dupDeleteAllExtras()">🗑 Saari Duplicates → Trash (1 keep)</button>
         <span id="dup-summary" style="font-size:0.8rem;color:var(--grey);"></span>
@@ -10455,42 +10455,149 @@ function clearAllContacts(){
 // ═══════════════════════════════════════════
 // 🔁 DUPLICATE DETECTOR (STRONG)
 // ═══════════════════════════════════════════
-function dupNormalizeTitle(t) {
-  var s = String(t || '').toLowerCase();
-  var sea = '';
-  var sm = s.match(/\bseason\s*0*(\d{1,2})\b/) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/);
-  if (sm) sea = ' season' + parseInt(sm[1], 10);
+function dupExtractSeasonEp(m) {
+  var t = String((m && m.title) || m || '');
+  var extra = '';
+  if (m && typeof m === 'object') {
+    extra = ' ' + String(m.seoTitle || '') + ' ' + String(m.category || '');
+  }
+  var full = (t + extra).toLowerCase();
+  var season = null, episode = null;
+  var se = full.match(/\bs\s*0*(\d{1,2})\s*e\s*0*(\d{1,3})\b/);
+  if (se) {
+    season = parseInt(se[1], 10);
+    episode = parseInt(se[2], 10);
+  }
+  if (season === null) {
+    var sm = full.match(/\bseason\s*0*(\d{1,2})\b/) || full.match(/\bs\s*0*(\d{1,2})\b(?!\s*e)/);
+    if (sm) season = parseInt(sm[1], 10);
+  }
+  if (episode === null) {
+    var em = full.match(/\b(?:episode|ep)\s*0*(\d{1,3})\b/) || full.match(/\be\s*0*(\d{1,3})\b/);
+    if (em) episode = parseInt(em[1], 10);
+  }
+  if (m && typeof m === 'object') {
+    if (m.season != null && String(m.season).trim() !== '' && !isNaN(Number(m.season))) {
+      season = parseInt(m.season, 10);
+    }
+    if (m.episode != null && String(m.episode).trim() !== '' && !isNaN(Number(m.episode))) {
+      episode = parseInt(m.episode, 10);
+    }
+  }
+  var isComplete = /\b(complete\s*season|complete\s*series|all\s*episodes|season\s*pack|full\s*season|batch)\b/i.test(full);
+  return { season: season, episode: episode, isComplete: isComplete };
+}
+
+function dupYear(m) {
+  if (!m) return '';
+  var y = String(m.year || '').trim();
+  var ym = y.match(/\b((?:19|20)\d{2})\b/);
+  if (ym) return ym[1];
+  var t = String(m.title || '');
+  var tm = t.match(/\b((?:19|20)\d{2})\b/);
+  return tm ? tm[1] : '';
+}
+
+/** True only if same series/movie unit — never merge different seasons, episodes, or years */
+function dupCanMerge(a, b) {
+  if (!a || !b) return false;
+  var ea = dupExtractSeasonEp(a);
+  var eb = dupExtractSeasonEp(b);
+  if (ea.season != null && eb.season != null && ea.season !== eb.season) return false;
+  if (ea.episode != null && eb.episode != null && ea.episode !== eb.episode) return false;
+  if (ea.isComplete !== eb.isComplete) {
+    if (ea.episode != null || eb.episode != null) return false;
+    if (ea.season != null && eb.season != null) return false;
+  }
+  if ((ea.episode != null) !== (eb.episode != null)) {
+    if (ea.season != null || eb.season != null) return false;
+  }
+  if ((ea.season != null) !== (eb.season != null)) return false;
+  // Year must match when both known (2016 ≠ 1997 ≠ 1991)
+  var ya = dupYear(a), yb = dupYear(b);
+  if (ya && yb && ya !== yb) return false;
+  return true;
+}
+
+/** Core title words only — strip junk, keep meaningful words */
+function dupCoreTitle(m) {
+  var raw = (typeof m === 'object' && m) ? String(m.title || '') : String(m || '');
+  var s = raw.toLowerCase();
   s = s
     .replace(/\(.*?\)/g, ' ')
     .replace(/\[.*?\]/g, ' ')
     .replace(/\b(19|20)\d{2}\b/g, ' ')
     .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|brrip|hdrip|hdtc|hevc|x264|x265|10bit)\b/gi, ' ')
-    .replace(/\b(dual\s*audio|hindi\s*dubbed|english\s*dubbed|org\s*plus|multi\s*audio)\b/gi, ' ')
-    .replace(/\b(full\s*movie\s*download|movie\s*download|watch\s*online|free\s*download|download\s*free)\b/gi, ' ')
-    .replace(/\b(complete\s*anime\s*series|complete\s*series|complete\s*season|all\s*episodes|web\s*series|tv\s*series|anime\s*series)\b/gi, ' ')
-    .replace(/\b(hindi|english|tamil|telugu|malayalam|korean|japanese|chinese)\b/gi, ' ')
-    .replace(/\b(full|movie|download|watch|online|hd|bluray)\b/gi, ' ')
+    .replace(/\b(dual\s*audio|hindi\s*dubbed|english\s*dubbed|org\s*plus|multi\s*audio|hq\s*dubbed|tagalog|vivamax|tbonx|philippine)\b/gi, ' ')
+    .replace(/\b(full\s*movie\s*download|movie\s*download|full\s*movie|watch\s*online|free\s*download|download\s*free)\b/gi, ' ')
+    .replace(/\b(complete\s*anime\s*series|complete\s*series|complete\s*season|all\s*episodes|web\s*series|tv\s*series|anime\s*series|season\s*pack|batch)\b/gi, ' ')
+    .replace(/\b(hindi|english|tamil|telugu|malayalam|korean|japanese|chinese|dubbed)\b/gi, ' ')
+    .replace(/\b(full|movie|download|watch|online|hd|bluray|free)\b/gi, ' ')
     .replace(/\bseason\s*\d+\b/gi, ' ')
+    .replace(/\bs\s*\d{1,2}\s*e\s*\d{1,3}\b/gi, ' ')
     .replace(/\bs\s*\d{1,2}\b/gi, ' ')
-    .replace(/\be\d{1,3}\b/gi, ' ')
-    .replace(/\b(the|a|an|of|and|or|in|on|to|for)\b/g, ' ')
+    .replace(/\b(?:episode|ep)\s*\d{1,3}\b/gi, ' ')
+    .replace(/\be\s*\d{1,3}\b/gi, ' ')
+    .replace(/\b18\+?\b/g, ' ')
+    .replace(/\b(the|a|an|of|and|or|in|on|to|for|my|with|who|has|a)\b/g, ' ')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  return (s + sea).trim();
+  return s;
 }
+
+function dupNormalizeTitle(t) {
+  var meta = (typeof t === 'object' && t) ? t : null;
+  var se = dupExtractSeasonEp(meta || t);
+  var core = dupCoreTitle(meta || t);
+  var y = meta ? dupYear(meta) : '';
+  // Key = core + year + season + episode — different years never same key
+  var s = core;
+  if (y) s += ' y' + y;
+  if (se.season != null) s += ' season' + se.season;
+  if (se.episode != null) s += ' ep' + se.episode;
+  if (se.isComplete) s += ' complete';
+  return s.trim();
+}
+
 function dupBaseTokens(t) {
-  return dupNormalizeTitle(t).replace(/\s*season\d+\s*/g, ' ').trim().split(/\s+/).filter(function(w){ return w.length > 1; });
+  var core = dupCoreTitle(t);
+  return core.split(/\s+/).filter(function(w) { return w.length > 2; }); // min 3 letters
 }
+
 function dupTokenSim(a, b) {
   var at = dupBaseTokens(a), bt = dupBaseTokens(b);
   if (!at.length || !bt.length) return 0;
+  // Require enough meaningful words — "my" alone must not match everything
+  if (at.length < 2 && bt.length < 2) {
+    // single long word titles: only 100 if exact
+    return (at[0] && bt[0] && at[0] === bt[0]) ? 100 : 0;
+  }
   var setB = {};
-  bt.forEach(function(w){ setB[w] = 1; });
+  bt.forEach(function(w) { setB[w] = 1; });
   var hit = 0;
-  at.forEach(function(w){ if (setB[w]) hit++; });
+  at.forEach(function(w) { if (setB[w]) hit++; });
+  // Need at least 2 shared tokens for a real match (unless both are 1-token exact)
+  if (hit < 2 && !(at.length === 1 && bt.length === 1 && at[0] === bt[0])) return 0;
   return Math.round((hit / Math.max(at.length, bt.length)) * 100);
 }
+
+/** Strict: fuzzy only when cores are almost the same movie name */
+function dupIsStrongFuzzyMatch(a, b, fuzzyMin) {
+  if (!dupCanMerge(a, b)) return false;
+  var ca = dupCoreTitle(a), cb = dupCoreTitle(b);
+  if (!ca || !cb) return false;
+  if (ca === cb) return true;
+  // identical without spaces
+  if (ca.replace(/\s+/g, '') === cb.replace(/\s+/g, '')) return true;
+  var sim = dupTokenSim(a, b);
+  if (sim < (fuzzyMin || 90)) return false;
+  // Both cores must share majority of words
+  var at = dupBaseTokens(a), bt = dupBaseTokens(b);
+  if (Math.min(at.length, bt.length) < 2) return sim >= 100;
+  return true;
+}
+
 function dupSourceUrl(m) {
   var u = String(m.sourcePageUrl || m.dlSourceUrl || m.pageUrl || m.videoSourceUrl || '').trim().toLowerCase();
   if (!u) return '';
@@ -10546,9 +10653,9 @@ function findDuplicates() {
   var bulkBtn = document.getElementById('dup-bulk-btn');
   var sumEl = document.getElementById('dup-summary');
   var mode = ((document.getElementById('dup-mode') || {}).value) || 'smart';
-  var fuzzyMin = parseInt((document.getElementById('dup-fuzzy') || {}).value, 10) || 78;
-  if (fuzzyMin < 60) fuzzyMin = 60;
-  if (fuzzyMin > 95) fuzzyMin = 95;
+  var fuzzyMin = parseInt((document.getElementById('dup-fuzzy') || {}).value, 10) || 90;
+  if (fuzzyMin < 85) fuzzyMin = 85;
+  if (fuzzyMin > 99) fuzzyMin = 99;
   _dupGroups = [];
 
   var list = (allMovies || []).filter(function(m){ return m && m.key && m.title; });
@@ -10576,29 +10683,35 @@ function findDuplicates() {
     });
   }
 
-  // 2) Same TMDB id
+  // 2) Same TMDB id — ONLY if same season + same episode (never merge S1 with S2)
   if (mode === 'smart') {
     var byTmdb = {};
+    var byKey = {};
+    list.forEach(function(m) { byKey[m.key] = m; });
     list.forEach(function(m) {
       var id = m.tmdbId ? String(m.tmdbId) : '';
       if (!id) return;
-      // include media type-ish if year+title conflict rare
-      var k = id + '|' + (m.mediaType || '');
+      var se = dupExtractSeasonEp(m);
+      var k = id + '|s' + (se.season != null ? se.season : 'x') + '|e' + (se.episode != null ? se.episode : 'x') + '|' + (se.isComplete ? 'c' : 'n');
       if (!byTmdb[k]) byTmdb[k] = [];
       byTmdb[k].push(m.key);
     });
     Object.keys(byTmdb).forEach(function(k) {
       var keys = byTmdb[k];
       if (keys.length < 2) return;
-      for (var i = 1; i < keys.length; i++) uf.union(keys[0], keys[i]);
+      for (var i = 1; i < keys.length; i++) {
+        if (dupCanMerge(byKey[keys[0]], byKey[keys[i]])) uf.union(keys[0], keys[i]);
+      }
     });
   }
 
-  // 3) Exact normalized title (keeps season number)
+  // 3) Exact normalized title (includes season + episode in key)
   if (mode === 'smart' || mode === 'strict') {
     var byNorm = {};
+    var byKey2 = {};
+    list.forEach(function(m) { byKey2[m.key] = m; });
     list.forEach(function(m) {
-      var n = dupNormalizeTitle(m.title);
+      var n = dupNormalizeTitle(m);
       if (!n || n.length < 2) return;
       if (!byNorm[n]) byNorm[n] = [];
       byNorm[n].push(m.key);
@@ -10606,38 +10719,32 @@ function findDuplicates() {
     Object.keys(byNorm).forEach(function(n) {
       var keys = byNorm[n];
       if (keys.length < 2) return;
-      for (var i = 1; i < keys.length; i++) uf.union(keys[0], keys[i]);
+      for (var i = 1; i < keys.length; i++) {
+        if (dupCanMerge(byKey2[keys[0]], byKey2[keys[i]])) uf.union(keys[0], keys[i]);
+      }
     });
   }
 
-  // 4) Fuzzy: same season bucket + high token overlap (only if not already grouped large)
+  // 4) Fuzzy — STRICT: same year, 2+ shared words, high similarity only
   if (mode === 'smart') {
-    // bucket by first significant token + season for O(n) friendliness
     var buckets = {};
     list.forEach(function(m) {
-      var n = dupNormalizeTitle(m.title);
-      var sea = '';
-      var sm = n.match(/season(\d+)/);
-      if (sm) sea = sm[1];
-      var tokens = n.replace(/\s*season\d+\s*/g, ' ').trim().split(/\s+/).filter(Boolean);
-      if (tokens.length < 1) return;
-      var bkey = tokens[0] + '|' + sea;
+      var tokens = dupBaseTokens(m);
+      if (tokens.length < 2) return; // too weak to fuzzy ("my", "18", etc.)
+      var se = dupExtractSeasonEp(m);
+      var y = dupYear(m) || 'x';
+      // Bucket by first TWO significant tokens + year + season + ep
+      var bkey = tokens.slice(0, 2).join('_') + '|y' + y + '|s' + (se.season != null ? se.season : 'x') + '|e' + (se.episode != null ? se.episode : 'x');
       if (!buckets[bkey]) buckets[bkey] = [];
       buckets[bkey].push(m);
     });
     Object.keys(buckets).forEach(function(bk) {
       var arr = buckets[bk];
-      if (arr.length < 2 || arr.length > 80) return; // skip huge buckets
+      if (arr.length < 2 || arr.length > 40) return;
       for (var i = 0; i < arr.length; i++) {
         for (var j = i + 1; j < arr.length; j++) {
-          var sim = dupTokenSim(arr[i].title, arr[j].title);
-          if (sim >= fuzzyMin) {
-            // season must match (both none or same)
-            var ni = dupNormalizeTitle(arr[i].title);
-            var nj = dupNormalizeTitle(arr[j].title);
-            var si = (ni.match(/season(\d+)/) || [])[1] || '';
-            var sj = (nj.match(/season(\d+)/) || [])[1] || '';
-            if (si === sj) uf.union(arr[i].key, arr[j].key);
+          if (dupIsStrongFuzzyMatch(arr[i], arr[j], fuzzyMin)) {
+            uf.union(arr[i].key, arr[j].key);
           }
         }
       }
@@ -10656,13 +10763,21 @@ function findDuplicates() {
     var arr = groups[root];
     if (arr.length < 2) return;
     arr = arr.slice().sort(function(a, b) { return dupScore(b) - dupScore(a); });
+    // Split transitively-wrong groups: only keep items that match KEEP
     var keep = arr[0];
+    var matched = [keep];
+    for (var i = 1; i < arr.length; i++) {
+      if (dupCanMerge(keep, arr[i]) && (dupNormalizeTitle(keep) === dupNormalizeTitle(arr[i]) || dupIsStrongFuzzyMatch(keep, arr[i], fuzzyMin) || (dupSourceUrl(keep) && dupSourceUrl(keep) === dupSourceUrl(arr[i])))) {
+        matched.push(arr[i]);
+      }
+    }
+    if (matched.length < 2) return;
     _dupGroups.push({
-      title: keep.title || arr[0].title,
+      title: keep.title || matched[0].title,
       keepKey: keep.key,
-      deleteKeys: arr.slice(1).map(function(x) { return x.key; }),
-      items: arr,
-      reason: dupGroupReason(arr)
+      deleteKeys: matched.slice(1).map(function(x) { return x.key; }),
+      items: matched,
+      reason: dupGroupReason(matched)
     });
   });
 
@@ -11691,6 +11806,59 @@ function wdWaitDb(cb) {
 // ⚡ FILMYFLY IMPORTER
 // ═══════════════════════════════════════════
 var _ffiPosts = [];       // { url, title, checked }
+
+/** Shared import-dedupe keys — HDFun double posts (different IDs, same movie) */
+function ffiNormImportUrl(u) {
+  var s = String(u || '').replace(/&amp;/g, '&').trim().toLowerCase();
+  s = s.split('#')[0].split('?')[0].replace(/\/$/, '');
+  var hm = s.match(/hdfun\.in\/movie\/(\d+)/i) || s.match(/\/movie\/(\d+)/);
+  if (hm) return 'hdfun:' + hm[1];
+  s = s.replace(/^https?:\/\/(www\.)?/, '');
+  return s;
+}
+function ffiNormImportTitleKey(t, y, m) {
+  var s = String(t || '').toLowerCase();
+  var sea = '', ep = '', complete = '';
+  var sm = s.match(/\bseason\s*0*(\d{1,2})\b/) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/);
+  if (sm) sea = '|s' + parseInt(sm[1], 10);
+  var em = s.match(/\bepisode\s*0*(\d{1,3})\b/) || s.match(/\bep\s*0*(\d{1,3})\b/) || s.match(/\be\s*0*(\d{1,3})\b/);
+  if (em) ep = '|e' + parseInt(em[1], 10);
+  if (/\bcomplete\b/i.test(s)) complete = '|complete';
+  if (m && m.season != null && String(m.season).trim() !== '') sea = '|s' + parseInt(m.season, 10);
+  if (m && m.episode != null && String(m.episode).trim() !== '') ep = '|e' + parseInt(m.episode, 10);
+  var year = String(y || '').replace(/\D/g, '').substring(0, 4);
+  if (!year) {
+    var ym = String(t || '').match(/\b((?:19|20)\d{2})\b/);
+    if (ym) year = ym[1];
+  }
+  s = s
+    .replace(/\(.*?\)/g, ' ').replace(/\[.*?\]/g, ' ')
+    .replace(/\b(19|20)\d{2}\b/g, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|hdrip|hevc|dual\s*audio|hindi\s*dubbed|english\s*dubbed|hindi|english|series|full\s*movie|movie\s*download|download)\b/gi, ' ')
+    .replace(/\bseason\s*\d+\b/gi, ' ').replace(/\bs\s*\d{1,2}\b/gi, ' ')
+    .replace(/\bepisode\s*\d+\b/gi, ' ').replace(/\bep\s*\d+\b/gi, ' ').replace(/\be\s*\d{1,3}\b/gi, ' ')
+    .replace(/\bcomplete\b/gi, ' ')
+    .replace(/\b(the|a|an|of|and|or|my|with)\b/g, ' ')
+    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  // core must have real words
+  if (s.length < 4) return '';
+  return s + sea + ep + complete + '|' + year;
+}
+function ffiSeedImportSeenFromDb() {
+  if (!window._ffiImportSeen) window._ffiImportSeen = { urls: {}, titles: {} };
+  var list = allMovies || [];
+  for (var i = 0; i < list.length; i++) {
+    var am = list[i];
+    if (!am) continue;
+    var u = ffiNormImportUrl(am.sourcePageUrl || am.dlSourceUrl || am.pageUrl || am.videoSourceUrl || '');
+    if (u) window._ffiImportSeen.urls[u] = 'done';
+    var tk = ffiNormImportTitleKey(am.title, am.year, am);
+    if (tk) window._ffiImportSeen.titles[tk] = 'done';
+  }
+  window._ffiDbUrlSet = window._ffiImportSeen.urls;
+  window._ffiDbUrlSetSize = list.length;
+}
+
 var _ffiImporting = false;
 var _ffiStopRequested = false;
 var _ffiReviewQueue = []; // { obj, link, size, checked } — Step 3 review ke liye, Firebase mein abhi save nahi hui
@@ -12094,6 +12262,7 @@ function hdautoFullCategoryImport() {
   // Skip ON → DB URLs known maano (sirf nayi). Skip OFF → known mat bharo, saari old posts bhi aayein.
   if (skipKnown) {
     try { hdautoSeedKnownFromDb(); } catch (e) {}
+    window._hdautoScanTitles = {};
   } else {
     try { _hdautoKnown = new Set(); } catch (e2) {}
     hdautoLog('📦 Mode: ALL posts (old + new) — skip known OFF', 'ok');
@@ -12188,9 +12357,16 @@ function hdautoFullCategoryImport() {
         if (skipKnown && hdautoIsKnown(u)) return;
         seen[k] = 1;
         addedThisPage++;
+        var _tFromU = (typeof ffiTitleFromUrl === 'function') ? ffiTitleFromUrl(u) : u;
+        var _tkScan = (typeof ffiNormImportTitleKey === 'function') ? ffiNormImportTitleKey(_tFromU, '', null) : '';
+        if (_tkScan) {
+          if (!window._hdautoScanTitles) window._hdautoScanTitles = {};
+          if (window._hdautoScanTitles[_tkScan]) return; // skip HDFun double on listing
+          window._hdautoScanTitles[_tkScan] = 1;
+        }
         allNew.push({
           url: u,
-          title: (typeof ffiTitleFromUrl === 'function') ? ffiTitleFromUrl(u) : u,
+          title: _tFromU,
           listCat: c.cat,
           checked: true
         });
@@ -12345,6 +12521,7 @@ function hdautoCheckNow() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Scanning...'; }
   hdautoSetStatus('🔄 HDFun categories scan (full pipeline)...');
   try { hdautoSeedKnownFromDb(); } catch (e) {}
+    window._hdautoScanTitles = {};
 
   var allNew = [];
   var seen = {};
@@ -13078,6 +13255,7 @@ function ffiStartImport() {
   window._ffiImportSeen = { urls: {}, titles: {} };
   window._ffiDbUrlSet = null;
   window._ffiDbUrlSetSize = -1;
+  try { ffiSeedImportSeenFromDb(); } catch (eSeed) {}
   window._ffiBatchKeys = [];
   window._ffiBatchCats = {};
   _ffiReviewQueue = [];
@@ -13235,38 +13413,37 @@ function ffiStartImport() {
     var p = selected[n];
     // Race-safe claim: same URL/title only one parallel worker processes
     (function claimLock() {
-      function _nu(u) {
-        var s = String(u || '').replace(/&amp;/g,'&').trim().toLowerCase();
-        s = s.split('#')[0].split('?')[0].replace(/\/$/,'');
-        s = s.replace(/^https?:\/\/(www\.)?/, '');
-        return s;
-      }
       if (!window._ffiImportSeen) window._ffiImportSeen = { urls: {}, titles: {} };
-      var u = _nu(p.url);
+      var u = ffiNormImportUrl(p.url);
+      var tKey = ffiNormImportTitleKey(p.title || '', '', null);
+      // Already claimed/done in this batch (parallel race + HDFun double ID)
       if (u && (window._ffiImportSeen.urls[u] === 'claimed' || window._ffiImportSeen.urls[u] === 'done')) {
         p._claimSkip = true;
-        p._claimReason = 'batch URL lock';
+        p._claimReason = 'batch URL';
         return;
       }
-      // DB source URL index (fast) — duplicate post upload block
-      if (u && typeof allMovies !== 'undefined' && allMovies && allMovies.length) {
-        if (!window._ffiDbUrlSet || window._ffiDbUrlSetSize !== allMovies.length) {
-          window._ffiDbUrlSet = {};
-          for (var di0 = 0; di0 < allMovies.length; di0++) {
-            var am0 = allMovies[di0];
-            if (!am0) continue;
-            var au0 = _nu(am0.sourcePageUrl || am0.dlSourceUrl || am0.pageUrl || am0.videoSourceUrl || '');
-            if (au0) window._ffiDbUrlSet[au0] = 1;
-          }
-          window._ffiDbUrlSetSize = allMovies.length;
-        }
-        if (window._ffiDbUrlSet[u]) {
-          p._claimSkip = true;
-          p._claimReason = 'already in DB';
-          return;
-        }
+      if (tKey && (window._ffiImportSeen.titles[tKey] === 'claimed' || window._ffiImportSeen.titles[tKey] === 'done')) {
+        p._claimSkip = true;
+        p._claimReason = 'batch title (HDFun double)';
+        return;
       }
+      // Already in library
+      if (u && window._ffiImportSeen.urls[u] === 'done') {
+        p._claimSkip = true;
+        p._claimReason = 'already in DB';
+        return;
+      }
+      if (tKey && window._ffiImportSeen.titles[tKey] === 'done') {
+        p._claimSkip = true;
+        p._claimReason = 'already in DB (title)';
+        return;
+      }
+      // Claim both locks so parallel workers cannot import the same movie twice
       if (u) window._ffiImportSeen.urls[u] = 'claimed';
+      if (tKey) {
+        window._ffiImportSeen.titles[tKey] = 'claimed';
+        p._claimTitleKey = tKey;
+      }
     })();
     if (p._claimSkip) {
       var item0 = document.getElementById('ffi-item-' + n);
@@ -13347,56 +13524,46 @@ function ffiStartImport() {
         } catch(e){}
       }
 
-      // ── Duplicate / already-exists check (source URL + title+season+year) ──
+      // ── Duplicate / already-exists check (URL + title+year+season — blocks HDFun doubles) ──
       (function() {
-        function normUrl(u) {
-          var s = String(u || '').replace(/&amp;/g,'&').trim().toLowerCase();
-          s = s.split('#')[0].split('?')[0].replace(/\/$/,'');
-          s = s.replace(/^https?:\/\/(www\.)?/, ''); // strip protocol + www
-          s = s.replace(/\/+/g, '/');
-          return s;
-        }
-        function normTitleKey(t, y) {
-          var s = String(t || '').toLowerCase();
-          var sea = '', ep = '';
-          // Capture season + episode BEFORE stripping
-          var sm = s.match(/\bseason\s*0*(\d{1,2})\b/) || s.match(/\bs\s*0*(\d{1,2})\b(?!\s*e\d)/);
-          if (sm) sea = '|s' + parseInt(sm[1], 10);
-          var em = s.match(/\bepisode\s*0*(\d{1,3})\b/) || s.match(/\bep\s*0*(\d{1,3})\b/) || s.match(/\be\s*0*(\d{1,3})\b(?!\d)/);
-          if (em) ep = '|e' + parseInt(em[1], 10);
-          // Complete pack flag so complete series != episode 1
-          var complete = /\bcomplete\b/i.test(s) ? '|complete' : '';
-          s = s
-            .replace(/\(.*?\)/g, ' ').replace(/\[.*?\]/g, ' ')
-            .replace(/\b(19|20)\d{2}\b/g, ' ')
-            .replace(/\b(1080p|720p|480p|2160p|4k|web-?dl|webrip|bluray|hdrip|hevc|dual\s*audio|hindi\s*dubbed|hindi|english|series)\b/gi, ' ')
-            .replace(/\bseason\s*\d+\b/gi, ' ').replace(/\bs\s*\d{1,2}\b/gi, ' ')
-            .replace(/\bepisode\s*\d+\b/gi, ' ').replace(/\bep\s*\d+\b/gi, ' ').replace(/\be\s*\d{1,3}\b/gi, ' ')
-            .replace(/\bcomplete\b/gi, ' ')
-            .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-          return s + sea + ep + complete + '|' + String(y || '').replace(/\D/g,'').substring(0,4);
-        }
-        var srcU = normUrl(p.url);
-        var titleKey = normTitleKey(data.title || p.title, data.year);
+        var srcU = ffiNormImportUrl(p.url);
+        var titleKey = ffiNormImportTitleKey(data.title || p.title, data.year, data);
         var exists = false;
         var reason = '';
         if (!window._ffiImportSeen) window._ffiImportSeen = { urls: {}, titles: {} };
-        // NOTE: urls[srcU] may already be set by processOne claim-lock ('claimed').
-        // Only skip if marked 'done' (another item fully finished this URL) — not mere claim.
-        if (srcU && window._ffiImportSeen.urls[srcU] === 'done') { exists = true; reason = 'batch URL'; }
-        if (!exists && titleKey && titleKey.length > 4 && window._ffiImportSeen.titles[titleKey] === 'done') { exists = true; reason = 'batch title'; }
+        function titleKeysMatch(a, b) {
+          if (!a || !b) return false;
+          if (a === b) return true;
+          // foo|2016 matches foo| or foo|2016
+          var pa = String(a).split('|'), pb = String(b).split('|');
+          if (pa[0] && pa[0] === pb[0]) {
+            var ya = pa[pa.length - 1] || '', yb = pb[pb.length - 1] || '';
+            if (!ya || !yb || ya === yb) return true;
+          }
+          return false;
+        }
+        function seenTitleHit(key, want) {
+          if (!key) return false;
+          var map = window._ffiImportSeen.titles || {};
+          if (map[key] === want) return true;
+          for (var sk in map) {
+            if (map[sk] === want && titleKeysMatch(key, sk)) return true;
+          }
+          return false;
+        }
+        if (srcU && window._ffiImportSeen.urls[srcU] === 'done') { exists = true; reason = 'batch/DB URL'; }
+        if (!exists && seenTitleHit(titleKey, 'done')) { exists = true; reason = 'batch/DB title'; }
+        if (!exists && seenTitleHit(titleKey, 'claimed') && !(p._claimTitleKey && titleKeysMatch(p._claimTitleKey, titleKey))) {
+          exists = true; reason = 'parallel title lock (HDFun double)';
+        }
         if (!exists && (allMovies || []).length) {
           for (var di = 0; di < allMovies.length; di++) {
             var am = allMovies[di];
             if (!am) continue;
-            var amSrc = normUrl(am.sourcePageUrl || am.dlSourceUrl || am.pageUrl || '');
+            var amSrc = ffiNormImportUrl(am.sourcePageUrl || am.dlSourceUrl || am.pageUrl || '');
             if (srcU && amSrc && srcU === amSrc) { exists = true; reason = 'DB source URL'; break; }
-            var amKey = normTitleKey(am.title, am.year);
-            if (titleKey && amKey && titleKey === amKey && String(am.category||'') === String((p.listCat || data.category || '') || am.category || '')) {
-              exists = true; reason = 'DB title+season'; break;
-            }
-            // same title+season even across category if very close
-            if (!exists && titleKey && amKey && titleKey === amKey) { exists = true; reason = 'DB same title/season'; break; }
+            var amKey = ffiNormImportTitleKey(am.title, am.year, am);
+            if (titleKey && amKey && titleKeysMatch(titleKey, amKey)) { exists = true; reason = 'DB same title+year'; break; }
           }
         }
         if (exists) {
@@ -14052,6 +14219,16 @@ function ffiStartImport() {
         // webseries_hindi listCat stays locked — do not reclassify single movies
         if (listCat === 'webseries' || listCat === 'webseries_hindi') {
           data.category = 'webseries_hindi';
+        }
+        // Category lock: HDFun auto-import list category wins (mapped panel key)
+        if (listCat) {
+          var locked = (typeof ffiNormalizePanelCategory === 'function')
+            ? (ffiNormalizePanelCategory(listCat) || listCat)
+            : listCat;
+          if (typeof refineImportCategory === 'function') {
+            locked = refineImportCategory(locked, data.title || p.title || '', data.language || '') || locked;
+          }
+          data.category = locked;
         }
         // Re-assert kdrama ONLY when no listCat (free import).
         // listCat pe refine rakho — blind listCat overwrite South fix ko uda deta tha
