@@ -1092,7 +1092,7 @@ td, th, .card, #content {
     <div class="nav-item" id="nav-adtimer" onclick="show('adtimer')">⏱️ Ad Timer Page</div>
     <div class="nav-item" id="nav-adwatch" onclick="show('adwatch')">🎬 Watch Now Ads</div>
     <div class="nav-item" id="nav-push" onclick="show('push')" style="color:#f59e0b;">📢 Push Updates</div>
-    <div class="nav-item" id="nav-subs" onclick="show('subs')" style="color:#a78bfa;">💎 Subscription</div>
+    <div class="nav-item" id="nav-subs" onclick="show('subs');setTimeout(function(){try{subLoadSettings();subLoadActiveUsers();subLoadRequests();}catch(e){}},300);" style="color:#a78bfa;">💎 Subscription</div>
     <div class="nav-item" id="nav-settings" onclick="show('settings')">⚙️ Settings</div>
   </div>
 
@@ -2235,12 +2235,27 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       </label>
     </div>
     <div class="fg" style="margin-bottom:10px;">
-      <div class="fgg full"><label>Payment instructions (JazzCash / EasyPaisa / Bank — site pe dikhega)</label>
-        <textarea class="fi" id="sub-pay-note" rows="3" placeholder="JazzCash: 03XX-XXXXXXX (Name)&#10;EasyPaisa: 03XX-XXXXXXX&#10;Payment ke baad screenshot bhejein / request submit karein"></textarea>
+      <div class="fgg"><label>EasyPaisa — Account Name</label>
+        <input class="fi" id="sub-ep-name" value="MUJAHID"/>
       </div>
-      <div class="fgg"><label>Support WhatsApp / Telegram link (optional)</label>
-        <input class="fi" id="sub-support" placeholder="https://wa.me/92xxxxxxxxxx"/>
+      <div class="fgg"><label>EasyPaisa — Number</label>
+        <input class="fi" id="sub-ep-num" value="03353613905"/>
       </div>
+      <div class="fgg"><label>JazzCash — Account Name</label>
+        <input class="fi" id="sub-jc-name" value="MUJAHID"/>
+      </div>
+      <div class="fgg"><label>JazzCash — Number</label>
+        <input class="fi" id="sub-jc-num" value="03353613905"/>
+      </div>
+      <div class="fgg full"><label>Extra note (optional)</label>
+        <textarea class="fi" id="sub-pay-note" rows="2" placeholder="Payment ke baad Transaction ID enter karein"></textarea>
+      </div>
+      <div class="fgg"><label>Support WhatsApp (optional)</label>
+        <input class="fi" id="sub-support" placeholder="https://wa.me/923353613905"/>
+      </div>
+    </div>
+    <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:0.78rem;color:#86efac;">
+      💳 EasyPaisa &amp; JazzCash: <b>MUJAHID · 03353613905</b> — Save Settings dabao taake site pe cards dikhein.
     </div>
     <h3 style="margin-top:8px;">📦 Plans (PKR)</h3>
     <div class="fg">
@@ -2301,6 +2316,15 @@ Batman Begins | | https://dl3.example.com/480p | | https://dl3.example.com/1080p
       <button class="btn" style="background:#7f1d1d;color:#fca5a5;" onclick="subRevokeManual()">🚫 Revoke</button>
     </div>
     <div id="sub-user-info" style="margin-top:12px;font-size:0.82rem;color:#a3a3a3;"></div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <h3>✅ Active Subscribers</h3>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;">Activate ke baad list. Remove = revoke.</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-p" type="button" onclick="subLoadActiveUsers()">🔄 Refresh List</button>
+      <span id="sub-active-summary" style="font-size:0.8rem;color:#4ade80;"></span>
+    </div>
+    <div id="sub-active-list" style="max-height:400px;overflow-y:auto;"></div>
   </div>
 </div>
 
@@ -20445,6 +20469,10 @@ function subLoadSettings() {
     if (rd) rd.checked = s.requireForDownload !== false;
     if (rw) rw.checked = s.requireForWatch !== false;
     var pn = document.getElementById('sub-pay-note'); if (pn) pn.value = s.paymentNote || '';
+    var epn = document.getElementById('sub-ep-name'); if (epn) epn.value = s.easypaisaName || 'MUJAHID';
+    var epu = document.getElementById('sub-ep-num'); if (epu) epu.value = s.easypaisaNumber || '03353613905';
+    var jcn = document.getElementById('sub-jc-name'); if (jcn) jcn.value = s.jazzcashName || 'MUJAHID';
+    var jcu = document.getElementById('sub-jc-num'); if (jcu) jcu.value = s.jazzcashNumber || '03353613905';
     var su = document.getElementById('sub-support'); if (su) su.value = s.supportLink || '';
     var p = s.plans || {};
     var set = function(id, v) { var e = document.getElementById(id); if (e) e.value = v; };
@@ -20468,6 +20496,10 @@ function subSaveSettings() {
     requireForDownload: !!(document.getElementById('sub-req-dl') || {}).checked,
     requireForWatch: !!(document.getElementById('sub-req-watch') || {}).checked,
     paymentNote: ((document.getElementById('sub-pay-note') || {}).value || '').trim(),
+    easypaisaName: ((document.getElementById('sub-ep-name') || {}).value || 'MUJAHID').trim() || 'MUJAHID',
+    easypaisaNumber: ((document.getElementById('sub-ep-num') || {}).value || '03353613905').trim() || '03353613905',
+    jazzcashName: ((document.getElementById('sub-jc-name') || {}).value || 'MUJAHID').trim() || 'MUJAHID',
+    jazzcashNumber: ((document.getElementById('sub-jc-num') || {}).value || '03353613905').trim() || '03353613905',
     supportLink: ((document.getElementById('sub-support') || {}).value || '').trim(),
     plans: {
       weekly: {
@@ -20510,6 +20542,8 @@ function subActivateUid(uid, planKey, email, requestId) {
       plan: planKey,
       planLabel: plan.label || planKey,
       price: plan.price || 0,
+      days: days,
+      durationDays: days,
       startedAt: now,
       expiresAt: now + days * 86400000,
       email: email || '',
@@ -20518,6 +20552,16 @@ function subActivateUid(uid, planKey, email, requestId) {
     };
     var updates = {};
     updates['users/' + uid + '/subscription'] = sub;
+    updates['subscribers/' + uid] = {
+      uid: uid,
+      email: email || sub.email || '',
+      plan: sub.plan,
+      planLabel: sub.planLabel,
+      days: sub.durationDays || sub.days || 0,
+      activatedAt: sub.activatedAt,
+      expiresAt: sub.expiresAt,
+      status: 'active'
+    };
     if (requestId) {
       updates['subRequests/' + requestId + '/status'] = 'approved';
       updates['subRequests/' + requestId + '/approvedAt'] = now;
@@ -20534,17 +20578,23 @@ function subActivateManual() {
   subActivateUid(uid, plan, email, null).then(function(sub) {
     toast('✅ Active till ' + new Date(sub.expiresAt).toLocaleDateString());
     subLookupUser();
+    if (typeof subLoadActiveUsers === 'function') subLoadActiveUsers();
   }).catch(function(e){ toast('Fail: ' + e.message, 1); });
 }
 function subRevokeManual() {
   var uid = ((document.getElementById('sub-uid')||{}).value||'').trim();
   if (!uid) { toast('UID likho', 1); return; }
   if (!confirm('Revoke subscription for ' + uid + '?')) return;
-  db.ref('users/' + uid + '/subscription').update({
-    status: 'revoked',
-    revokedAt: Date.now()
-  }).then(function(){ toast('🚫 Revoked'); subLookupUser(); })
-    .catch(function(e){ toast(e.message, 1); });
+  var updates = {};
+  updates['users/' + uid + '/subscription/status'] = 'revoked';
+  updates['users/' + uid + '/subscription/revokedAt'] = Date.now();
+  updates['users/' + uid + '/subscription/expiresAt'] = Date.now();
+  updates['subscribers/' + uid] = null;
+  db.ref().update(updates).then(function(){
+    toast('🚫 Revoked');
+    subLookupUser();
+    if (typeof subLoadActiveUsers === 'function') subLoadActiveUsers();
+  }).catch(function(e){ toast(e.message, 1); });
 }
 function subLookupUser() {
   var uid = ((document.getElementById('sub-uid')||{}).value||'').trim();
@@ -20563,6 +20613,66 @@ function subLookupUser() {
       + '<div>Expires: ' + exp + '</div></div>';
   });
 }
+
+function subLoadActiveUsers() {
+  if (!db) return;
+  var el = document.getElementById('sub-active-list');
+  var sum = document.getElementById('sub-active-summary');
+  if (el) el.innerHTML = '<div style="padding:12px;color:#666;">Loading…</div>';
+  function renderRows(rows) {
+    rows = (rows || []).filter(function(r) {
+      return r && r.status !== 'revoked' && Number(r.expiresAt || 0) > Date.now();
+    });
+    rows.sort(function(a, b) { return (Number(b.activatedAt)||0) - (Number(a.activatedAt)||0); });
+    if (sum) sum.textContent = rows.length + ' active';
+    if (!el) return;
+    if (!rows.length) {
+      el.innerHTML = '<div style="padding:16px;text-align:center;color:#555;">Koi active subscriber nahi</div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(r) {
+      var uid = String(r.uid || '').replace(/'/g, '');
+      return '<div style="padding:12px;border-bottom:1px solid #1a1a1a;font-size:0.8rem;display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;">'
+        + '<div style="min-width:0;flex:1;">'
+        + '<div><b>' + escHtml(r.email || uid) + '</b></div>'
+        + '<div style="color:#666;font-size:0.7rem;word-break:break-all;">' + escHtml(uid) + '</div>'
+        + '<div style="margin-top:4px;color:#a3a3a3;">Plan: <b style="color:#c4b5fd;">' + escHtml(r.planLabel || r.plan || '') + '</b>'
+        + (r.days ? ' · ' + r.days + ' days' : '') + '</div>'
+        + '<div style="color:#888;font-size:0.72rem;">Active: ' + (r.activatedAt ? new Date(r.activatedAt).toLocaleString() : '—') + '</div>'
+        + '<div style="color:#fbbf24;font-size:0.72rem;">Expires: ' + (r.expiresAt ? new Date(r.expiresAt).toLocaleString() : '—') + '</div>'
+        + '</div>'
+        + '<button type="button" class="btn" style="background:#7f1d1d;color:#fca5a5;padding:6px 10px;font-size:0.75rem;" data-uid="' + uid.replace(/"/g,'') + '" onclick="subRemoveActive(this.getAttribute(\'data-uid\'))">🗑 Remove</button>'
+        + '</div>';
+    }).join('');
+  }
+  db.ref('subscribers').once('value').then(function(snap) {
+    var rows = [];
+    if (snap && snap.exists()) {
+      snap.forEach(function(ch) {
+        var v = ch.val() || {};
+        v.uid = v.uid || ch.key;
+        rows.push(v);
+      });
+    }
+    renderRows(rows);
+  }).catch(function(e) {
+    if (el) el.innerHTML = '<div style="color:#f87171;padding:12px;">Error: ' + e.message + '<br><span style="font-size:0.75rem;color:#888;">Firebase Rules publish karo (subscribers node).</span></div>';
+  });
+}
+function subRemoveActive(uid) {
+  if (!uid || !db) return;
+  if (!confirm('Remove subscription for this user?')) return;
+  var updates = {};
+  updates['users/' + uid + '/subscription/status'] = 'revoked';
+  updates['users/' + uid + '/subscription/revokedAt'] = Date.now();
+  updates['users/' + uid + '/subscription/expiresAt'] = Date.now();
+  updates['subscribers/' + uid] = null;
+  db.ref().update(updates).then(function() {
+    toast('Removed');
+    subLoadActiveUsers();
+  }).catch(function(e) { toast('Fail: ' + e.message, 1); });
+}
+
 function subLoadRequests() {
   if (!db) return;
   var filter = ((document.getElementById('sub-req-filter')||{}).value)||'pending';
@@ -20587,7 +20697,11 @@ function subLoadRequests() {
         + '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
         + '<div><b>' + escHtml(r.email || r.uid || '') + '</b><br><span style="color:#888;font-size:0.72rem;">' + escHtml(r.uid||'') + '</span></div>'
         + '<span style="color:' + col + ';font-weight:700;">' + st.toUpperCase() + '</span></div>'
-        + '<div style="margin-top:4px;color:#a3a3a3;">Plan: <b>' + escHtml(r.plan||'') + '</b> · ' + escHtml(r.note||'') + '</div>'
+        + '<div style="margin-top:4px;color:#a3a3a3;">Plan: <b>' + escHtml(r.plan||'') + '</b></div>'
+        + (r.payMethod ? '<div style="margin-top:2px;">Method: <b>' + escHtml(r.payMethod) + '</b></div>' : '')
+        + (r.txnId ? '<div style="margin-top:2px;">TID: <code style="background:#222;padding:2px 6px;border-radius:4px;">' + escHtml(r.txnId) + '</code> '
+          + (r.txnValid === false ? '<span style="color:#f87171;font-weight:800;">❌ Invalid</span>' : (r.txnValid ? '<span style="color:#4ade80;">✓ Format OK</span>' : '')) + '</div>' : '')
+        + (r.note ? '<div style="margin-top:2px;color:#888;">Note: ' + escHtml(r.note) + '</div>' : '')
         + (r.createdAt ? '<div style="font-size:0.7rem;color:#555;">' + new Date(r.createdAt).toLocaleString() + '</div>' : '')
         + (st === 'pending' ? '<div style="margin-top:8px;display:flex;gap:6px;">'
           + '<button class="btn" style="background:#16a34a;color:#fff;padding:4px 10px;font-size:0.75rem;" onclick="subApproveReq(\'' + r._key + '\',\'' + escJs(r.uid||'') + '\',\'' + escJs(r.plan||'monthly') + '\',\'' + escJs(r.email||'') + '\')">✅ Approve</button>'
